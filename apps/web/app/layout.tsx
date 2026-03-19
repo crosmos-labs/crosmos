@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import { ThemeProvider } from "@/components/theme-provider";
+
 import "@crosmos/ui/globals.css";
 
 const satoshi = localFont({
@@ -24,8 +26,21 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={`${satoshi.variable} ${jetbrainsMono.variable}`}>
-			<body>{children}</body>
+		<html
+			lang="en"
+			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
+			suppressHydrationWarning
+		>
+			<body>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
+					{children}
+				</ThemeProvider>
+			</body>
 		</html>
 	);
 }

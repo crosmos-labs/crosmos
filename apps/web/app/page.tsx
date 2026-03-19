@@ -1,11 +1,11 @@
-import { Button } from "@crosmos/ui/components/button";
+import { Hero } from "@/components/hero";
+import { Navbar } from "@/components/navbar";
 
 export default function Home() {
 	return (
-		<main>
-			<h1>Welcome to Crosmos</h1>
-			<p>Get started by editing this page.</p>
-			<Button>Get Started</Button>
+		<main className="bg-background text-foreground">
+			<Navbar />
+			<Hero />
 		</main>
 	);
 }

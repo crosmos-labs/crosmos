@@ -191,3 +191,16 @@
 		letter-spacing: var(--tracking-normal);
 	}
 }
+
+.link-underline {
+	@apply relative;
+}
+
+.link-underline::after {
+	content: "";
+	@apply absolute bottom-0 left-0 w-full h-px bg-foreground origin-bottom-right scale-x-0 transition-transform duration-300;
+}
+
+.link-underline:hover::after {
+	@apply origin-bottom-left scale-x-100;
+}
