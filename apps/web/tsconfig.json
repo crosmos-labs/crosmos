@@ -1,18 +1,22 @@
 {
 	"extends": "@crosmos/typescript-config/nextjs.json",
 	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./*"],
+			"@crosmos/ui/*": ["../../packages/ui/src/*"]
+		},
 		"plugins": [
 			{
 				"name": "next"
 			}
-		],
-		"strictNullChecks": true
+		]
 	},
 	"include": [
+		"next-env.d.ts",
+		"next.config.ts",
 		"**/*.ts",
 		"**/*.tsx",
-		"next-env.d.ts",
-		"next.config.js",
 		".next/types/**/*.ts"
 	],
 	"exclude": ["node_modules"]

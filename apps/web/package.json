@@ -11,6 +11,8 @@
 		"clean": "rm -rf .next"
 	},
 	"dependencies": {
+		"@tabler/icons-react": "^3.40.0",
+		"@crosmos/ui": "workspace:*",
 		"next": "16.1.5",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0"
