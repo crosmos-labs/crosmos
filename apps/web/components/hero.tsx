@@ -29,8 +29,15 @@ export function Hero() {
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 					{/* Left column - Headline */}
 					<div>
-						<h1 className="text-6xl lg:text-7xl font-bold leading-tight text-foreground text-balance">
-							Search your memory, not your files
+						<h1 className="text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance">
+							Agents {" "}
+							<span className="italic font-serif font-light underline decoration-2">
+								Forget
+							</span>
+							, Crosmos {" "}
+							<span className="italic font-serif font-light underline decoration-2">
+								Doesn&apos;t
+							</span>
 						</h1>
 					</div>
 

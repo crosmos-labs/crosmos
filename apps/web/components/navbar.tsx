@@ -3,12 +3,15 @@
 import { Button } from "@crosmos/ui/components/button";
 import {
 	IconBrandGithubFilled,
+	IconBrightness,
 	IconMoonFilled,
 	IconSunFilled,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { LINKS } from "@/config/links";
+import Link from "next/link";
 
 export function Navbar() {
 	const { theme, setTheme } = useTheme();
@@ -19,7 +22,7 @@ export function Navbar() {
 	}, []);
 
 	return (
-		<header className="sticky top-0 z-50 bg-background border-b border-border">
+		<header className="sticky top-0 z-50 bg-background/90 border-b border-border backdrop-blur-2xl">
 			<nav className="max-w-7xl mx-auto py-4 flex items-center justify-between">
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
@@ -67,25 +70,26 @@ export function Navbar() {
 						</a>
 					</div>
 				</div>
-				<div className="flex items-center gap-4">
+				<div className="flex items-center gap-2">
 					<button
-						onClick={() => window.open("https://github.com", "_blank")}
 						className="p-2 text-foreground/70 hover:text-accent transition-colors rounded hover:bg-secondary/20"
-						aria-label="GitHub"
 					>
+                        <Link href={LINKS.social.github} target="_blank">
+
 						<IconBrandGithubFilled size={16} strokeWidth={1.5} />
+					</Link>
 					</button>
 					<button
 						onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
 						className="p-2 text-foreground/70 hover:text-accent transition-colors rounded hover:bg-secondary/20"
 						aria-label="Toggle dark mode"
 					>
-						{mounted &&
-							(theme === "dark" ? (
-								<IconSunFilled size={16} strokeWidth={1} />
-							) : (
-								<IconMoonFilled size={16} strokeWidth={1} />
-							))}
+                        {mounted &&
+                            (theme === "dark" ? (
+                            	<IconSunFilled size={16} />
+                            ) : (
+                            	<IconMoonFilled size={16} />
+                            ))}
 					</button>
 					<Button
 						size="lg"
