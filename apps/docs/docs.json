@@ -151,7 +151,6 @@
     "color": {
       "light": "#ffffff",
       "dark": "#000000"
-    },
-    "decoration": "windows"
+    }
   }
 }
