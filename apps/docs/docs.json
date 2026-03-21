@@ -3,10 +3,10 @@
 	"theme": "almond",
 	"name": "Crosmos - Documentation",
 	"colors": {
-    "primary": "#7f82e8",
-    "light": "#8a8deb",
-    "dark": "#7f82e8"
-  },
+		"primary": "#7f82e8",
+		"light": "#8a8deb",
+		"dark": "#7f82e8"
+	},
 	"favicon": "/favicon.svg",
 	"navigation": {
 		"tabs": [
@@ -63,22 +63,22 @@
 			"anchors": [
 				{
 					"anchor": "Documentation",
-					"href": "https://mintlify.com/docs",
+					"href": "https://docs.crosmos.app",
 					"icon": "book-open-cover"
 				},
 				{
 					"anchor": "Blog",
-					"href": "https://mintlify.com/blog",
+					"href": "https://crosmos.app/blogs",
 					"icon": "newspaper"
 				}
 			]
 		}
 	},
 	"logo": {
-    "light": "/logo/banner_light.svg",
-    "dark": "/logo/banner_dark.svg",
-    "href": "https://crosmos.app"
-  },
+		"light": "/logo/banner_light.svg",
+		"dark": "/logo/banner_dark.svg",
+		"href": "https://crosmos.app"
+	},
 	"navbar": {
 		"links": [
 			{
@@ -89,7 +89,7 @@
 		"primary": {
 			"type": "button",
 			"label": "Dashboard",
-			"href": "https://dashboard.mintlify.com"
+			"href": "https://crosmos.app"
 		}
 	},
 	"contextual": {
@@ -112,19 +112,14 @@
 		}
 	},
 	"fonts": {
-    "family": "Satoshi",
-    "weight": 400,
-    "source": "/fonts/Satoshi.woff2",
-    "format": "woff2",
-    "heading": {
-      "source": "/fonts/Satoshi-Variable.woff2",
-      "format": "woff2"
-    }
-  },
+		"family": "Satoshi",
+		"source": "/fonts/Satoshi.woff2",
+		"format": "woff2"
+	},
 	"appearance": {
-    "strict": false,
-    "default": "system"
-  },
+		"strict": false,
+		"default": "system"
+	},
 	"seo": {
 		"metatags": {
 			"charset": "UTF-8",
@@ -145,11 +140,18 @@
 			"og:locale": "en_US"
 		},
 		"indexing": "all"
-  },
-  "background": {
-    "color": {
-      "light": "#ffffff",
-      "dark": "#000000"
-    }
-  }
+	},
+	"background": {
+		"color": {
+			"light": "#ffffff",
+			"dark": "#000000"
+		}
+	},
+	"errors": {
+        "404": {
+            "redirect": false,
+            "title": "Page Not Found, Coffee Not Included",
+            "description": "This isn’t where you meant to go. Or maybe it is—either way, nothing’s here."
+        }
+	}
 }
