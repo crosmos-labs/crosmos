@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@crosmos/ui/components/button";
-import Image from "next/image";
 
 function LinkArrow() {
 	return (

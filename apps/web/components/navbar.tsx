@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@crosmos/ui/components/button";
+import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconBrandGithubFilled,
 	IconMoonFilled,
@@ -11,25 +12,31 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { LINKS } from "@/config/links";
-import { cn } from "@crosmos/ui/lib/utils";
 
 export function Navbar() {
 	const { theme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 	const [isScrolled, setIsScrolled] = useState(false);
 
-    useEffect(() => {
+	useEffect(() => {
 		setMounted(true);
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
-        };
+		const handleScroll = () => {
+			setIsScrolled(window.scrollY > 20);
+		};
 
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+		window.addEventListener("scroll", handleScroll, { passive: true });
+		return () => window.removeEventListener("scroll", handleScroll);
+	}, []);
 
 	return (
-        <header className={cn								("sticky top-0 z-50 bg-background border-border", isScrolled ? "bg-background/90 backdrop-blur-xl border-b" : "bg-transparent")}>
+		<header
+			className={cn(
+				"sticky top-0 z-50 bg-background border-border",
+				isScrolled
+					? "bg-background/90 backdrop-blur-xl border-b"
+					: "bg-transparent",
+			)}
+		>
 			<nav className="max-w-7xl mx-auto py-4 flex items-center justify-between">
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
