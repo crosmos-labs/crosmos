@@ -24,17 +24,17 @@ function LinkArrow() {
 
 export function Hero() {
 	return (
-		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 py-20">
+		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 py-28">
 			<div className="max-w-7xl mx-auto w-full">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 					{/* Left column - Headline */}
 					<div>
 						<h1 className="text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance">
-							Agents {" "}
+							Agents{" "}
 							<span className="italic font-serif font-light underline decoration-2">
 								Forget
 							</span>
-							, Crosmos {" "}
+							, Crosmos{" "}
 							<span className="italic font-serif font-light underline decoration-2">
 								Doesn&apos;t
 							</span>
@@ -64,26 +64,20 @@ export function Hero() {
 					</div>
 				</div>
 
-				{/* Trusted by section */}
-				{/* <div className="mt-20 border-t border-border pt-12">
-          <p className="text-foreground/60 text-sm mb-8">Trusted by the best leading brands:</p>
-          <div className="flex flex-wrap items-center gap-12 opacity-50">
-            <div className="text-lg font-semibold text-foreground">Magic Patterns</div>
-            <div className="text-lg font-semibold text-foreground">a0.dev</div>
-            <div className="text-lg font-semibold text-foreground">Lovable</div>
-            <div className="text-lg font-semibold text-foreground">orchids</div>
-          </div>
-        </div> */}
-
 				{/* Showcase image section */}
-				<div className="mt-20 relative">
-					<Image
-						src="/hero-image.png"
+				<div className="mt-28 relative">
+					{/*<Image
+						// src="/hero-image.png"
+						src="/dither.png"
 						alt="Crosmos IDE showcase"
-						className="w-full rounded-lg shadow-2xl"
+						className="w-full rounded shadow-2xl"
 						width={500}
 						height={500}
-					/>
+					/>*/}
+					<video autoPlay muted loop className="w-full rounded shadow-2xl">
+						<source src="/dither.mp4" type="video/mp4" />
+						Your browser does not support the video tag.
+					</video>
 				</div>
 			</div>
 		</section>
