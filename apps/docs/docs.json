@@ -127,7 +127,6 @@
 			"robots": "index, follow",
 
 			"application-name": "Crosmos Docs",
-			"theme-color": "#16A34A",
 			"color-scheme": "light dark",
 
 			"description": "Crosmos documentation for memory engine, API, SDKs, MCPs and other tools.",
