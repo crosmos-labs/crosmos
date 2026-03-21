@@ -1,12 +1,12 @@
 {
 	"$schema": "https://mintlify.com/docs.json",
-	"theme": "maple",
-	"name": "Crosmos",
+	"theme": "almond",
+	"name": "Crosmos - Documentation",
 	"colors": {
-		"primary": "#16A34A",
-		"light": "#e9f7ed",
-		"dark": "#178235"
-	},
+    "primary": "#7f82e8",
+    "light": "#8a8deb",
+    "dark": "#7f82e8"
+  },
 	"favicon": "/favicon.svg",
 	"navigation": {
 		"tabs": [
@@ -75,9 +75,10 @@
 		}
 	},
 	"logo": {
-		"light": "/logo/banner_light.svg",
-		"dark": "/logo/banner_dark.svg"
-	},
+    "light": "/logo/banner_light.svg",
+    "dark": "/logo/banner_dark.svg",
+    "href": "https://crosmos.app"
+  },
 	"navbar": {
 		"links": [
 			{
@@ -111,16 +112,20 @@
 		}
 	},
 	"fonts": {
-		"heading": {
-			"family": "Satoshi",
-			"source": "/fonts/Satoshi-Variable.woff2",
-			"format": "woff2",
-			"weight": 700
-		}
-	},
+    "family": "Satoshi",
+    "weight": 400,
+    "source": "/fonts/Satoshi.woff2",
+    "format": "woff2",
+    "heading": {
+      "weight": 700,
+      "source": "/fonts/Satoshi-Variable.woff2",
+      "format": "woff2"
+    }
+  },
 	"appearance": {
-		"strict": false
-	},
+    "strict": false,
+    "default": "system"
+  },
 	"seo": {
 		"metatags": {
 			"charset": "UTF-8",
@@ -141,5 +146,12 @@
 			"og:locale": "en_US"
 		},
 		"indexing": "all"
-	}
+  },
+  "background": {
+    "color": {
+      "light": "#ffffff",
+      "dark": "#000000"
+    },
+    "decoration": "windows"
+  }
 }
