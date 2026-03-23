@@ -112,9 +112,17 @@
 		}
 	},
 	"fonts": {
-		"family": "Satoshi",
-		"source": "/fonts/Satoshi.woff2",
-		"format": "woff2"
+		"heading": {
+		    "family": "Satoshi",
+						"source": "/fonts/Satoshi.woff2",
+						"format": "woff2",
+						"weight": 700
+
+		},
+		"body": {
+		    "family": "Rubik",
+			"weight": 400
+		}
 	},
 	"appearance": {
 		"strict": false,
@@ -126,7 +134,7 @@
 			"viewport": "width=device-width, initial-scale=1",
 			"robots": "index, follow",
 
-			"application-name": "Crosmos Docs",
+			"application-name": "Crosmos Documentation",
 			"color-scheme": "light dark",
 
 			"description": "Crosmos documentation for memory engine, API, SDKs, MCPs and other tools.",
