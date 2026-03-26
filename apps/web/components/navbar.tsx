@@ -2,11 +2,7 @@
 
 import { Button } from "@crosmos/ui/components/button";
 import { cn } from "@crosmos/ui/lib/utils";
-import {
-	IconBrandGithubFilled,
-	IconMoonFilled,
-	IconSunFilled,
-} from "@tabler/icons-react";
+import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -90,7 +86,7 @@ export function Navbar() {
 							<IconBrandGithubFilled size={16} />
 						</Link>
 					</button>
-					<button
+					{/*<button
 						onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
 						className="p-2 text-foreground/70 hover:text-accent transition-colors rounded hover:bg-secondary/20"
 						aria-label="Toggle dark mode"
@@ -101,7 +97,7 @@ export function Navbar() {
 							) : (
 								<IconMoonFilled size={16} />
 							))}
-					</button>
+					</button>*/}
 					<Button
 						size="lg"
 						variant="default"

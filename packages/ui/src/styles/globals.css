@@ -190,6 +190,9 @@
 		@apply bg-background text-foreground;
 		letter-spacing: var(--tracking-normal);
 	}
+	button {
+		cursor: pointer;
+	}
 }
 
 .link-underline {
