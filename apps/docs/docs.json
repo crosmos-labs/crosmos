@@ -113,14 +113,13 @@
 	},
 	"fonts": {
 		"heading": {
-		    "family": "Satoshi",
-						"source": "/fonts/Satoshi.woff2",
-						"format": "woff2",
-						"weight": 700
-
+			"family": "Satoshi",
+			"source": "/fonts/Satoshi.woff2",
+			"format": "woff2",
+			"weight": 700
 		},
 		"body": {
-		    "family": "Rubik",
+			"family": "Rubik",
 			"weight": 400
 		}
 	},
@@ -155,10 +154,10 @@
 		}
 	},
 	"errors": {
-        "404": {
-            "redirect": false,
-            "title": "Page Not Found, Coffee Not Included",
-            "description": "This isn’t where you meant to go. Or maybe it is—either way, nothing’s here."
-        }
+		"404": {
+			"redirect": false,
+			"title": "Page Not Found, Coffee Not Included",
+			"description": "This isn’t where you meant to go. Or maybe it is—either way, nothing’s here."
+		}
 	}
 }

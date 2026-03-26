@@ -1,4 +1,4 @@
-import { Benchmarks } from "@/components/benchmarks";
+import Image from "next/image";
 import { Example } from "@/components/example";
 import { Features } from "@/components/features";
 import { Footer } from "@/components/footer";
@@ -10,7 +10,14 @@ export default function Home() {
 		<main className="bg-background text-foreground">
 			<Navbar />
 			<Hero />
-			<Benchmarks />
+			{/*<Benchmarks />*/}
+			<Image
+				src="/ocean.png"
+				alt="ocean dither"
+				width={1350}
+				height={450}
+				className="size-full"
+			/>
 			<Features />
 			<Example />
 			<Footer />
