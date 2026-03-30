@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { LINKS } from "@/config/links";
 
 export function Navbar() {
-	const { theme, setTheme } = useTheme();
+	const { theme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 	const [isScrolled, setIsScrolled] = useState(false);
 
@@ -28,9 +28,10 @@ export function Navbar() {
 		<header
 			className={cn(
 				"sticky top-0 z-50 bg-background border-border",
-				isScrolled
-					? "bg-background/90 backdrop-blur-xl border-b"
-					: "bg-transparent",
+				isScrolled && "border-b",
+				// isScrolled
+				// 	? "bg-background/90 backdrop-blur-xl border-b"
+				// 	: "bg-transparent",
 			)}
 		>
 			<nav className="max-w-7xl mx-auto py-4 flex items-center justify-between">
@@ -103,7 +104,7 @@ export function Navbar() {
 						variant="default"
 						className="hover:bg-accent/90 px-6 py-2 rounded font-semibold text-sm transition-colors"
 					>
-						Get Started
+						Book a Demo
 					</Button>
 				</div>
 			</nav>
