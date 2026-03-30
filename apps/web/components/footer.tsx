@@ -25,14 +25,20 @@ export function Footer() {
 	];
 
 	return (
-		<footer className="border-t border-border py-16 px-6 bg-secondary/10">
-			<div className="max-w-7xl mx-auto">
-				<div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
-					<div className="flex flex-col">
+		<footer className="py-16">
+            <div className="relative flex justify-center items-center h-50 mb-16">
+                <div className="absolute inset-0 bg-[url('/bg-dither.svg')] size-full bg-cover bg-no-repeat bg-center"/>
+				{/*<h2 className="relative text-center font-bold text-shadow-accent text-[10vw] align-middle">
+					crosmos
+				</h2>*/}
+			</div>
+			<div className="max-w-7xl mx-auto px-6">
+				<div className="pt-8 flex justify-between items-center mb-12">
+					<div className="flex flex-col items-center">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							Product
 						</h3>
-						<ul className="space-y-2 w-full">
+						<ul className="space-y-2 text-start">
 							<li>
 								<a
 									href={LINKS.product.playground}
@@ -67,11 +73,11 @@ export function Footer() {
 							</li>
 						</ul>
 					</div>
-					<div className="flex flex-col">
+					<div className="flex flex-col items-center">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							Documentation
 						</h3>
-						<ul className="space-y-2 w-full">
+						<ul className="space-y-2 text-center">
 							<li>
 								<a
 									href={LINKS.documentation.getStarted}
@@ -106,11 +112,11 @@ export function Footer() {
 							</li>
 						</ul>
 					</div>
-					<div className="flex flex-col">
+					<div className="flex flex-col items-center">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							Company
 						</h3>
-						<ul className="space-y-2 w-full">
+						<ul className="space-y-2 text-center">
 							<li>
 								<a
 									href={LINKS.company.about}
@@ -145,17 +151,21 @@ export function Footer() {
 							</li>
 						</ul>
 					</div>
-					<div className="flex flex-col">
+					<div className="flex flex-col items-end">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							Social
 						</h3>
-						<ul className="space-y-3 w-full">
+						<ul className="space-y-3">
 							{socialIcons.map((social) => {
 								const Icon = social.icon;
 								return (
-									<li key={social.name} className="flex items-center gap-2">
+									<li
+										key={social.name}
+										className="flex items-center justify-end gap-2"
+									>
 										<a
 											href={social.href}
+											target="_blank"
 											className="text-foreground/70 text-sm link-underline flex gap-1"
 										>
 											<Icon size={16} strokeWidth={1} />
