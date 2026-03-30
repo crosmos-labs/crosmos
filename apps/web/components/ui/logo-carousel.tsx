@@ -238,14 +238,15 @@ function LogoSlot({
 	);
 
 	const styles = variantStyles[variant];
-	const isColored = logo.colored;
+	const isColored = logo?.colored;
 	const imgEl = (
-		// eslint-disable-next-line @next/next/no-img-element
+	    // TODO: change to next Image tag
+		// biome-ignore lint/performance/noImgElement: Do not require optimisation
 		<img
-			src={logo.src}
-			alt={disableLinks ? logo.name : ""}
-			width={logo.width}
-			height={logo.height}
+			src={logo?.src}
+			alt={disableLinks ? logo?.name : ""}
+			width={logo?.width}
+			height={logo?.height}
 			className={cn(
 				!isColored && styles.base,
 				!disableLinks && styles.interactive,
@@ -258,7 +259,7 @@ function LogoSlot({
 		<div
 			role="group"
 			aria-roledescription="slide"
-			aria-label={logo.name}
+			aria-label={logo?.name}
 			className="overflow-hidden flex items-center justify-center"
 			style={{
 				width: SLOT_WIDTH,
@@ -268,7 +269,7 @@ function LogoSlot({
 		>
 			<AnimatePresence mode="popLayout" initial={false}>
 				<motion.div
-					key={logo.name}
+					key={logo?.name}
 					initial={
 						!hasCycled
 							? false
@@ -293,10 +294,10 @@ function LogoSlot({
 						imgEl
 					) : (
 						<Link
-							href={`${logo.url}?ref=arc`}
+							href={`${logo?.url}?ref=arc`}
 							target="_blank"
 							rel="noopener noreferrer"
-							aria-label={`${logo.name} (opens in new tab)`}
+							aria-label={`${logo?.name} (opens in new tab)`}
 						>
 							{imgEl}
 						</Link>
