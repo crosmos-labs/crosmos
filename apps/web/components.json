@@ -10,14 +10,18 @@
 		"cssVariables": true
 	},
 	"iconLibrary": "tabler",
-	"aliases": {
-		"components": "@/components",
-		"hooks": "@/hooks",
-		"lib": "@/lib",
-		"utils": "@crosmos/ui/lib/utils",
-		"ui": "@crosmos/ui/components"
-	},
 	"rtl": false,
 	"menuColor": "default-translucent",
-	"menuAccent": "subtle"
+	"menuAccent": "subtle",
+	"aliases": {
+		"components": "@/components",
+		"utils": "@crosmos/ui/lib/utils",
+		"ui": "@crosmos/ui/components",
+		"lib": "@/lib",
+		"hooks": "@/hooks"
+	},
+	"registries": {
+		"@kibo-ui": "https://www.kibo-ui.com/r/{name}.json",
+		"@arc": "https://witharc.co/r/{name}.json"
+	}
 }
