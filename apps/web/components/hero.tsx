@@ -18,6 +18,7 @@ import {
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { useState } from "react";
+import { LogoCarousel } from "./ui/logo-carousel";
 
 export interface TerminalAnimationDemoProps {
 	/** Tab content for each command; defaults to defaultTerminalTabs */
@@ -33,22 +34,22 @@ const backgroundImage = "/dither.png";
 const tabs: TabContent[] = [
 	{
 		label: "install",
-		command: "npm install",
+		command: "npm install @crosmos/sdk",
 		lines: [
 			{ text: "", delay: 80 },
 			{
-				text: "added 1,247 packages in 12s",
+				text: "added 124 packages in 6s",
 				color: "text-[#6FF7CC]",
 				delay: 400,
 			},
 			{ text: "", delay: 80 },
 			{
-				text: "  Cult UI is looking for funding",
+				text: "  crosmos is looking for funding",
 				color: "text-slate-400",
 				delay: 150,
 			},
 			{
-				text: "    run `npm fund cult-ui` for details",
+				text: "    run `npm fund crosmos-ai` for details",
 				color: "text-slate-500",
 				delay: 100,
 			},
@@ -58,12 +59,12 @@ const tabs: TabContent[] = [
 				delay: 120,
 			},
 			{
-				text: "  |       CULT UI         |",
+				text: "  |       crosmos         |",
 				color: "text-[#ED42B5]",
 				delay: 120,
 			},
 			{
-				text: "  |   Shadcn expanded    |",
+				text: "  |   coming soon    |",
 				color: "text-[#ED42B5]",
 				delay: 120,
 			},
@@ -215,7 +216,7 @@ export function Hero() {
 
 						<div className="flex flex-col sm:flex-row items-start gap-4">
 							<Button className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2">
-								Get Started
+								Book a Demo
 								<LinkArrow />
 							</Button>
 							<Button
@@ -229,8 +230,15 @@ export function Hero() {
 					</div>
 				</div>
 
+				<div className="mt-14 pt-14 border-t border-border flex justify-start items-center gap-20">
+					<p className="text-foreground/60 text-lg flex-wrap max-w-64 pr-8">
+						Support for most stuff you use daily without any other quirks
+					</p>
+					<LogoCarousel />
+				</div>
+
 				{/* Showcase image section */}
-				<div className="mt-28 relative">
+				<div className="mt-14 relative">
 					{/*<Image
 						// src="/hero-image.png"
 						src="/dither.png"
