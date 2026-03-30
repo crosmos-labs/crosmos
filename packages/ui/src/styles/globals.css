@@ -6,6 +6,7 @@
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
+@source "../../../packages/graph/**/*.{ts,tsx}";
 
 :root {
 	--background: oklch(0.986 0.0106 99.4974);
@@ -196,14 +197,14 @@
 }
 
 .link-underline {
-	@apply relative;
+	@apply relative hover:before:origin-left hover:before:scale-x-100;
 }
 
-.link-underline::after {
+/*.link-underline::after {
 	content: "";
 	@apply absolute bottom-0 left-0 w-full h-px bg-foreground origin-bottom-right scale-x-0 transition-transform duration-300;
 }
 
 .link-underline:hover::after {
 	@apply origin-bottom-left scale-x-100;
-}
+}*/
