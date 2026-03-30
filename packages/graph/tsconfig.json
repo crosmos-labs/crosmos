@@ -1,0 +1,11 @@
+{
+	"extends": "@crosmos/typescript-config/react-library.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@crosmos/graph/*": ["./src/*"]
+		}
+	},
+	"include": ["."],
+	"exclude": ["node_modules", "dist"]
+}

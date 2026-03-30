@@ -1,0 +1,22 @@
+{
+	"name": "@crosmos/graph",
+	"version": "0.0.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@crosmos/typescript-config": "*",
+		"@types/d3-force": "^3.0.10"
+	},
+	"dependencies": {
+		"@crosmos/ui": "workspace:*",
+		"@tabler/icons-react": "^3.41.1",
+		"d3-force": "^3.0.0",
+		"react-force-graph-2d": "1.29.1"
+	},
+	"exports": {
+		".": "./src/index.tsx"
+	}
+}
