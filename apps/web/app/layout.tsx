@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
-import { ThemeProvider } from "@/components/theme-provider";
 
 import "@crosmos/ui/globals.css";
 
@@ -32,14 +31,7 @@ export default function RootLayout({
 			suppressHydrationWarning
 		>
 			<body>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="light"
-					enableSystem={false}
-					disableTransitionOnChange
-				>
 					{children}
-				</ThemeProvider>
 			</body>
 		</html>
 	);
