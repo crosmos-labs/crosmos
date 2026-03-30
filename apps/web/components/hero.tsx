@@ -44,7 +44,7 @@ const tabs: TabContent[] = [
 			},
 			{ text: "", delay: 80 },
 			{
-				text: "  crosmos is looking for funding",
+				text: "  adding memory to your agent",
 				color: "text-slate-400",
 				delay: 150,
 			},

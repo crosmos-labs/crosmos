@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Crosmos - Stateless is outdated, Memory isn’t",
+	title: "Crosmos - Stateless is outdated, Memory compounds",
 	description: "Search your memory, not your files",
 };
 
@@ -35,7 +35,7 @@ export default function RootLayout({
 				<ThemeProvider
 					attribute="class"
 					defaultTheme="light"
-					enableSystem
+					enableSystem={false}
 					disableTransitionOnChange
 				>
 					{children}
