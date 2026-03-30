@@ -197,14 +197,14 @@
 }
 
 .link-underline {
-	@apply relative hover:before:origin-left hover:before:scale-x-100;
+	@apply relative;
 }
 
-/*.link-underline::after {
+.link-underline::after {
 	content: "";
 	@apply absolute bottom-0 left-0 w-full h-px bg-foreground origin-bottom-right scale-x-0 transition-transform duration-300;
 }
 
 .link-underline:hover::after {
 	@apply origin-bottom-left scale-x-100;
-}*/
+}
