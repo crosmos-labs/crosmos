@@ -5,12 +5,10 @@ import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { LINKS } from "@/config/links";
 
 export function Navbar() {
-	const { theme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 	const [isScrolled, setIsScrolled] = useState(false);
 
@@ -37,8 +35,8 @@ export function Navbar() {
 			<nav className="max-w-7xl mx-auto py-4 flex items-center justify-between">
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
-						{mounted &&
-							(theme === "light" ? (
+						{mounted && (
+							<Link href="/">
 								<Image
 									src="/banner_light.svg"
 									alt="Crosmos"
@@ -48,37 +46,28 @@ export function Navbar() {
 									priority
 									unoptimized
 								/>
-							) : (
-								<Image
-									src="/banner_dark.svg"
-									alt="Crosmos"
-									width={120}
-									height={32}
-									className="h-8 w-auto"
-									priority
-									unoptimized
-								/>
-							))}
+							</Link>
+						)}
 					</div>
 					<div className="hidden lg:flex items-center gap-8">
-						<a
+						<Link
 							href="#products"
 							className="text-foreground/70 text-sm font-medium link-underline"
 						>
 							PRODUCTS
-						</a>
-						<a
+						</Link>
+						<Link
 							href="#pricing"
 							className="text-foreground/70 text-sm font-medium link-underline"
 						>
 							PRICING
-						</a>
-						<a
+						</Link>
+						<Link
 							href="#developers"
 							className="text-foreground/70 text-sm font-medium link-underline"
 						>
 							DEVELOPERS
-						</a>
+						</Link>
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
@@ -101,10 +90,11 @@ export function Navbar() {
 					</button>*/}
 					<Button
 						size="lg"
-						variant="default"
 						className="hover:bg-accent/90 px-6 py-2 rounded font-semibold text-sm transition-colors"
 					>
-						Book a Demo
+                        <Link href="/demo">
+                            Book a Demo
+                        </Link>
 					</Button>
 				</div>
 			</nav>
