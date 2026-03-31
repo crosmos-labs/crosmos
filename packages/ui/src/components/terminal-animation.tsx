@@ -392,7 +392,7 @@ export function TerminalAnimationRoot({
 		return clearTimeouts;
 	}, [activeTab, animateTab, clearTimeouts]);
 
-	const currentTab = tabs[activeTab] ?? tabs[0] as TabContent;
+	const currentTab = tabs[activeTab] ?? (tabs[0] as TabContent);
 	const safeActiveTab = Math.min(activeTab, tabs.length - 1);
 
 	const value: TerminalAnimationContextValue = {
