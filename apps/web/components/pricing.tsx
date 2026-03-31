@@ -80,7 +80,7 @@ export const PLANS: PLAN[] = [
 		],
 		link: "#",
 	},
-	].filter(p => p.id === "enterprise");
+].filter((p) => p.id === "enterprise");
 
 function CornerPlus({ className }: { className?: string }) {
 	return (
@@ -108,7 +108,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 		<div
 			className={cn(
 				"flex flex-col relative transition-all bg-background items-start w-full border-foreground/10 border-2",
-				plan.id === "pro" && "bg-card border-2"
+				plan.id === "pro" && "bg-card border-2",
 			)}
 		>
 			{plan.id === "pro" && (

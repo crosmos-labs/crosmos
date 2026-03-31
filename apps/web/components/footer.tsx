@@ -26,8 +26,8 @@ export function Footer() {
 
 	return (
 		<footer className="py-16">
-            <div className="relative flex justify-center items-center h-50 mb-16">
-                <div className="absolute inset-0 bg-[url('/bg-dither.svg')] size-full bg-cover bg-no-repeat bg-center"/>
+			<div className="relative flex justify-center items-center h-50 mb-16">
+				<div className="absolute inset-0 bg-[url('/bg-dither.svg')] size-full bg-cover bg-no-repeat bg-center" />
 				{/*<h2 className="relative text-center font-bold text-shadow-accent text-[10vw] align-middle">
 					crosmos
 				</h2>*/}
