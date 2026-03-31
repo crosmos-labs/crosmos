@@ -1,6 +1,6 @@
 export const FORCE_CONFIG = {
+    linkDistance: 100,
 	chargeStrength: -2000,
-	linkDistance: 100,
 	centeringStrength: 0.06,
 	cooldownTicks: 50, // how long simulation runs to settle layout
 	alphaDecay: 0.025, // friction
@@ -10,7 +10,7 @@ export const FORCE_CONFIG = {
 };
 
 export const GRAPH_CONFIG = {
-	radius: 6,
+	radius: 12,
 	zoom_threshold: 1.5,
 	dim_opacity: 0.15,
 };
