@@ -30,9 +30,7 @@ export default function RootLayout({
 			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
 			suppressHydrationWarning
 		>
-			<body>
-					{children}
-			</body>
+			<body>{children}</body>
 		</html>
 	);
 }
