@@ -2,7 +2,7 @@ import { Button } from "@crosmos/ui/components/button";
 import { ButtonGroup } from "@crosmos/ui/components/button-group";
 import { Card, CardTitle } from "@crosmos/ui/components/card";
 import { IconMaximize, IconMinus, IconPlus } from "@tabler/icons-react";
-import { forceCollide } from "d3-force";
+import { forceCollide, forceLink, forceManyBody, forceX, forceY } from "d3-force";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ForceGraph2D, {
 	type ForceGraphMethods,
@@ -17,6 +17,7 @@ export function MemoryGraph() {
 	const graphRef = useRef<ForceGraphMethods>(undefined);
 	const [highlightNodes, setHighlightNodes] = useState<Set<number>>(new Set());
 	const [highlightLinks, setHighlightLinks] = useState<Set<number>>(new Set());
+	const initialZoomRef = useRef(false);
 
 	// Build neighbor + link lookup maps once
 	const data: GraphData = useMemo(() => {
@@ -49,7 +50,15 @@ export function MemoryGraph() {
 
 	useEffect(() => {
 		if (!graphRef.current) return;
+
 		graphRef.current.d3Force("collide", forceCollide(40).strength(0.5));
+		graphRef.current.d3Force("link", forceLink().distance(FORCE_CONFIG.linkDistance));
+		graphRef.current.d3Force("charge", forceManyBody().strength(FORCE_CONFIG.chargeStrength));
+		graphRef.current.d3Force("x", forceX(0).strength(FORCE_CONFIG.centeringStrength));
+		graphRef.current.d3Force("y", forceY(0).strength(FORCE_CONFIG.centeringStrength));
+		graphRef.current.d3Force("center", null);
+
+		graphRef.current.d3ReheatSimulation()
 	}, []);
 
 	const handleNodeHover = useCallback((node: NodeObject | null) => {
@@ -141,7 +150,7 @@ export function MemoryGraph() {
 				(!dimmed && highlightLinks.size > 0)
 			) {
 				const label = gLink.relation_type.toLowerCase();
-				const fontSize = 15 / globalScale;
+				const fontSize = Math.min(24, 14 / globalScale);
 				const midX = (start.x + end.x) / 2;
 				const midY = (start.y + end.y) / 2;
 				const angle = Math.atan2(end.y - start.y, end.x - start.x);
@@ -151,7 +160,7 @@ export function MemoryGraph() {
 				ctx.rotate(
 					angle > Math.PI / 2 || angle < -Math.PI / 2 ? angle + Math.PI : angle,
 				);
-				ctx.font = `${fontSize}px Satoshi`;
+				ctx.font = `${fontSize}px sans-serif`;
 				ctx.textAlign = "center";
 				ctx.textBaseline = "middle";
 
@@ -180,9 +189,9 @@ export function MemoryGraph() {
 	const handleCenter = () => graphRef.current?.zoomToFit(400);
 
 	return (
-		<div className="w-full h-screen">
+		<div className="w-full h-screen relative overflow-hidden bg-[#fcfbf3]">
 			<Card
-				className="px-6"
+				className="px-6 py-4"
 				style={{
 					position: "absolute",
 					left: "12px",
@@ -226,7 +235,7 @@ export function MemoryGraph() {
 						onClick={handleCenter}
 						className="rounded"
 					>
-						<IconMaximize />
+						<IconMaximize size={20} />
 					</Button>
 				</ButtonGroup>
 			</div>
@@ -247,6 +256,12 @@ export function MemoryGraph() {
 				linkCanvasObjectMode={() => "replace"}
 				onNodeHover={handleNodeHover}
 				onLinkHover={handleLinkHover}
+				onEngineStop={() => {
+					if (!initialZoomRef.current) {
+						graphRef.current?.zoomToFit(600, 100);
+						initialZoomRef.current = true;
+					}
+				}}
 			/>
 		</div>
 	);
