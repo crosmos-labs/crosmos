@@ -22,7 +22,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Claude Code",
 		src: "/brands/claude.svg",
-		url: "https://withlantern.com",
+		url: "/",
 		width: 121,
 		height: 26,
 		colored: true,
@@ -30,7 +30,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Opencode",
 		src: "/brands/opencode.svg",
-		url: "https://sim.ai",
+		url: "/",
 		width: 40,
 		height: 40,
 		colored: true,
@@ -38,7 +38,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Notion",
 		src: "/brands/notion.svg",
-		url: "https://langbase.com",
+		url: "/",
 		width: 38,
 		height: 40,
 		colored: true,
@@ -46,7 +46,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Obsidian",
 		src: "/brands/obsidian.svg",
-		url: "https://agentmail.to",
+		url: "/",
 		width: 31,
 		height: 40,
 		colored: true,
@@ -54,7 +54,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Openclaw",
 		src: "/brands/openclaw.svg",
-		url: "https://bydot.studio",
+		url: "/",
 		width: 40,
 		height: 40,
 		colored: true,
@@ -62,7 +62,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Openai",
 		src: "/brands/openai.svg",
-		url: "https://fontface.ai",
+		url: "/",
 		width: 151,
 		height: 41,
 		colored: true,
@@ -70,7 +70,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Drive",
 		src: "/brands/drive.svg",
-		url: "https://x.com/usetesseract",
+		url: "/",
 		width: 45,
 		height: 40,
 		colored: true,
@@ -78,7 +78,7 @@ const LOGOS: LogoDef[] = [
 	{
 		name: "Cursor",
 		src: "/brands/cursor.svg",
-		url: "https://someo.ne",
+		url: "/",
 		width: 40,
 		height: 40,
 		colored: true,
@@ -240,7 +240,7 @@ function LogoSlot({
 	const styles = variantStyles[variant];
 	const isColored = logo?.colored;
 	const imgEl = (
-	    // TODO: change to next Image tag
+		// TODO: change to next Image tag
 		// biome-ignore lint/performance/noImgElement: Do not require optimisation
 		<img
 			src={logo?.src}
@@ -257,9 +257,6 @@ function LogoSlot({
 
 	return (
 		<div
-			role="group"
-			aria-roledescription="slide"
-			aria-label={logo?.name}
 			className="overflow-hidden flex items-center justify-center"
 			style={{
 				width: SLOT_WIDTH,
