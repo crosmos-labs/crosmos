@@ -1,5 +1,5 @@
 export const FORCE_CONFIG = {
-    linkDistance: 100,
+	linkDistance: 100,
 	chargeStrength: -2000,
 	centeringStrength: 0.06,
 	cooldownTicks: 50, // how long simulation runs to settle layout
