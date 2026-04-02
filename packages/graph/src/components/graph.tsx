@@ -2,7 +2,13 @@ import { Button } from "@crosmos/ui/components/button";
 import { ButtonGroup } from "@crosmos/ui/components/button-group";
 import { Card, CardTitle } from "@crosmos/ui/components/card";
 import { IconMaximize, IconMinus, IconPlus } from "@tabler/icons-react";
-import { forceCollide, forceLink, forceManyBody, forceX, forceY } from "d3-force";
+import {
+	forceCollide,
+	forceLink,
+	forceManyBody,
+	forceX,
+	forceY,
+} from "d3-force";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ForceGraph2D, {
 	type ForceGraphMethods,
@@ -52,13 +58,25 @@ export function MemoryGraph() {
 		if (!graphRef.current) return;
 
 		graphRef.current.d3Force("collide", forceCollide(40).strength(0.5));
-		graphRef.current.d3Force("link", forceLink().distance(FORCE_CONFIG.linkDistance));
-		graphRef.current.d3Force("charge", forceManyBody().strength(FORCE_CONFIG.chargeStrength));
-		graphRef.current.d3Force("x", forceX(0).strength(FORCE_CONFIG.centeringStrength));
-		graphRef.current.d3Force("y", forceY(0).strength(FORCE_CONFIG.centeringStrength));
+		graphRef.current.d3Force(
+			"link",
+			forceLink().distance(FORCE_CONFIG.linkDistance),
+		);
+		graphRef.current.d3Force(
+			"charge",
+			forceManyBody().strength(FORCE_CONFIG.chargeStrength),
+		);
+		graphRef.current.d3Force(
+			"x",
+			forceX(0).strength(FORCE_CONFIG.centeringStrength),
+		);
+		graphRef.current.d3Force(
+			"y",
+			forceY(0).strength(FORCE_CONFIG.centeringStrength),
+		);
 		graphRef.current.d3Force("center", null);
 
-		graphRef.current.d3ReheatSimulation()
+		graphRef.current.d3ReheatSimulation();
 	}, []);
 
 	const handleNodeHover = useCallback((node: NodeObject | null) => {
