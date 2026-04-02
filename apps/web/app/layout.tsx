@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import Script from "next/script";
 
 import "@crosmos/ui/globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -30,7 +32,18 @@ export default function RootLayout({
 			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
 			suppressHydrationWarning
 		>
-			<body>{children}</body>
+			<head>
+				<Script
+					src="//unpkg.com/react-scan/dist/auto.global.js"
+					crossOrigin="anonymous"
+					strategy="afterInteractive"
+				/>
+			</head>
+			<body>
+				<ThemeProvider enableSystem defaultTheme="light">
+					{children}
+				</ThemeProvider>
+			</body>
 		</html>
 	);
 }

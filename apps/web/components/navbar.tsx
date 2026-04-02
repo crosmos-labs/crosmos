@@ -5,12 +5,14 @@ import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { LINKS } from "@/config/links";
 
 export function Navbar() {
 	const [mounted, setMounted] = useState(false);
 	const [isScrolled, setIsScrolled] = useState(false);
+	const { theme } = useTheme();
 
 	useEffect(() => {
 		setMounted(true);
@@ -37,15 +39,27 @@ export function Navbar() {
 					<div className="flex items-center gap-2">
 						{mounted && (
 							<Link href="/">
-								<Image
-									src="/banner_light.svg"
-									alt="Crosmos"
-									width={120}
-									height={32}
-									className="h-8 w-auto"
-									priority
-									unoptimized
-								/>
+								{theme === "light" ? (
+									<Image
+										src="/banner_light.svg"
+										alt="Crosmos"
+										width={120}
+										height={32}
+										className="h-8 w-auto"
+										priority
+										unoptimized
+									/>
+								) : (
+									<Image
+										src="/banner_dark.svg"
+										alt="Crosmos"
+										width={120}
+										height={32}
+										className="h-8 w-auto"
+										priority
+										unoptimized
+									/>
+								)}
 							</Link>
 						)}
 					</div>
@@ -71,30 +85,16 @@ export function Navbar() {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
-					<button className="p-2 text-foreground/70 hover:text-accent transition-colors rounded hover:bg-secondary/20">
+					<button className="p-2 text-foreground/70 hover:text-accent transition-colors rounded hover:bg-secondary/20 select-none">
 						<Link href={LINKS.social.github} target="_blank">
 							<IconBrandGithubFilled size={16} />
 						</Link>
 					</button>
-					{/*<button
-						onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-						className="p-2 text-foreground/70 hover:text-accent transition-colors rounded hover:bg-secondary/20"
-						aria-label="Toggle dark mode"
-					>
-						{mounted &&
-							(theme === "dark" ? (
-								<IconSunFilled size={16} />
-							) : (
-								<IconMoonFilled size={16} />
-							))}
-					</button>*/}
 					<Button
 						size="lg"
-						className="hover:bg-accent/90 px-6 py-2 rounded font-semibold text-sm transition-colors"
+						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors"
 					>
-                        <Link href="/demo">
-                            Book a Demo
-                        </Link>
+						<Link href="/demo">Book a Demo</Link>
 					</Button>
 				</div>
 			</nav>
