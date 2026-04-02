@@ -80,7 +80,8 @@ export const PLANS: PLAN[] = [
 		],
 		link: "#",
 	},
-].filter((p) => p.id === "enterprise");
+	// ].filter((p) => p.id === "enterprise");
+];
 
 function CornerPlus({ className }: { className?: string }) {
 	return (
@@ -107,14 +108,10 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 	return (
 		<div
 			className={cn(
-				"flex flex-col relative transition-all bg-background items-start w-full border-foreground/10 border-2",
-				plan.id === "pro" && "bg-card border-2",
+				"flex flex-col relative bg-background items-start w-full border-foreground/10 border-2 hover:bg-card/60 transition-colors hover:transition-none duration-300",
+				plan.id === "pro" && "border-x-0",
 			)}
 		>
-			{plan.id === "pro" && (
-				<div className="absolute top-1/2 inset-x-0 mx-auto h-12 -rotate-45 w-full bg-accent rounded-2xl lg:rounded-3xl blur-[8rem] -z-10"></div>
-			)}
-
 			{plan.title === "Pro" && (
 				<>
 					<CornerPlus className="top-0 left-0 hidden -translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block" />
@@ -153,7 +150,10 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				</p>
 			</div>
 			<div className="flex flex-col items-start w-full px-4 py-2 md:px-8">
-				<Button size="lg" className="w-full rounded hover:bg-accent/90">
+				<Button
+					size="lg"
+					className="w-full bg-accent rounded hover:bg-accent/90"
+				>
 					{plan.buttonText}
 				</Button>
 				{plan.monthlyPrice !== -1 && (

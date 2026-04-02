@@ -31,8 +31,8 @@ const LOGOS: LogoDef[] = [
 		name: "Opencode",
 		src: "/brands/opencode.svg",
 		url: "/",
-		width: 40,
-		height: 40,
+		width: 30,
+		height: 50,
 		colored: true,
 	},
 	{
