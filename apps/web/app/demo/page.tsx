@@ -1,10 +1,12 @@
-"use client";
-
 import { Button } from "@crosmos/ui/components/button";
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from "@crosmos/ui/components/input-group";
 import { IconArrowForward, IconMailFilled } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@crosmos/ui/components/input-group";
 
 export default function DemoPage() {
 	return (
@@ -32,13 +34,22 @@ export default function DemoPage() {
 					</div>
 					<div className="flex justify-between items-center gap-4">
 						<InputGroup className="py-6 px-1">
-							<InputGroupInput type="email" placeholder="something@cool.com" autoFocus className="text-lg!"/>
+							<InputGroupInput
+								type="email"
+								placeholder="something@cool.com"
+								autoFocus
+								className="text-lg!"
+							/>
 							<InputGroupAddon>
-								<IconMailFilled className="mt-1 mr-1 size-5"/>
+								<IconMailFilled className="mt-1 mr-1 size-5" />
 							</InputGroupAddon>
 						</InputGroup>
-						<Button size="lg" className="p-6 text-lg" type="submit">
-							<IconArrowForward className="size-6"/>
+						<Button
+							size="lg"
+							className="p-6 text-lg hover:bg-accent/90"
+							type="submit"
+						>
+							<IconArrowForward className="size-6" />
 							Submit
 						</Button>
 					</div>
