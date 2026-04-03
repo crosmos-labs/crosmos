@@ -171,7 +171,7 @@ export function TerminalAnimationDemo() {
 function LinkArrow() {
 	return (
 		<svg
-			className="w-4 h-4 -rotate-45"
+			className="w-4 h-4 group-hover:-rotate-45 transition-transform duration-250 ease-in-out"
 			fill="none"
 			stroke="currentColor"
 			viewBox="0 0 24 24"
@@ -215,13 +215,13 @@ export function Hero() {
 						</p>
 
 						<div className="flex flex-col sm:flex-row items-start gap-4">
-							<Button className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2">
+							<Button className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 group">
 								Book a Demo
 								<LinkArrow />
 							</Button>
 							<Button
 								variant="outline"
-								className="border border-foreground/20 h-full text-foreground hover:border-foreground/40 hover:bg-secondary/10 px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2"
+								className="border border-foreground/20 h-full text-foreground hover:border-foreground/40 hover:bg-secondary/10 px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 group"
 							>
 								Docs
 								<LinkArrow />
