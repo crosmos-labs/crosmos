@@ -25,7 +25,7 @@ export const PLANS: PLAN[] = [
 	{
 		id: "basic",
 		title: "Basic",
-		desc: "Perfect for individuals getting started with Crosmos.",
+		desc: "Perfect for people to get started with having a mini memeory in your apps",
 		monthlyPrice: 0,
 		annuallyPrice: 0,
 		buttonText: "Get Started",
@@ -125,7 +125,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				<h2 className="font-medium text-xl text-foreground pt-5">
 					{plan.title}
 				</h2>
-				<h3 className="mt-3 text-2xl font-bold md:text-5xl">
+				<h3 className="mt-3 text-2xl font-bold md:text-5xl select-none h-18">
 					{plan.monthlyPrice === -1 ? (
 						"Custom"
 					) : (
