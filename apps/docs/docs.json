@@ -1,6 +1,6 @@
 {
 	"$schema": "https://mintlify.com/docs.json",
-	"theme": "almond",
+	"theme": "maple",
 	"name": "Crosmos - Documentation",
 	"colors": {
     "primary": "#298559",
@@ -150,7 +150,7 @@
 	"background": {
     "color": {
       "light": "#ffffff",
-      "dark": "#000000"
+      "dark": "#1a1a1a"
     }
   },
 	"errors": {
