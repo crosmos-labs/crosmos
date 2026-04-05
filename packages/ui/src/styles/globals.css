@@ -182,15 +182,16 @@
 
 @layer base {
 	* {
-		@apply border-border outline-ring/50;
+		@apply border-border outline-ring/50 scroll-smooth;
 	}
 	body {
 		@apply bg-background text-foreground tracking-normal selection:bg-accent selection:text-background;
 	}
 	button {
-		cursor: pointer;
+		@apply cursor-pointer focus:outline-none focus:ring-0;
 	}
 	::-webkit-scrollbar {
+		display: none;
 		width: 8px;
 		background-color: transparent;
 	}
