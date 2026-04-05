@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@crosmos/ui/components/button";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
@@ -90,12 +89,12 @@ export function Navbar() {
 							<IconBrandGithubFilled size={16} />
 						</Link>
 					</button>
-					<Button
-						size="lg"
-						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors"
+					<Link
+						href="/demo"
+						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground"
 					>
-						<Link href="/demo">Book a Demo</Link>
-					</Button>
+						Book a Demo
+					</Link>
 				</div>
 			</nav>
 		</header>

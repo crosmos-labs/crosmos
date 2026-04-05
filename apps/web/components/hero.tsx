@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@crosmos/ui/components/button";
 import {
 	type TabContent,
 	TerminalAnimationBlinkingCursor,
@@ -17,6 +16,7 @@ import {
 } from "@crosmos/ui/components/terminal-animation";
 
 import { cn } from "@crosmos/ui/lib/utils";
+import Link from "next/link";
 import { useState } from "react";
 import { LogoCarousel } from "./ui/logo-carousel";
 
@@ -171,7 +171,7 @@ export function TerminalAnimationDemo() {
 function LinkArrow() {
 	return (
 		<svg
-			className="w-4 h-4 group-hover:-rotate-45 transition-transform duration-250 ease-in-out"
+			className="size-4 -rotate-45 "
 			fill="none"
 			stroke="currentColor"
 			viewBox="0 0 24 24"
@@ -215,23 +215,26 @@ export function Hero() {
 						</p>
 
 						<div className="flex flex-col sm:flex-row items-start gap-4">
-							<Button className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 group">
+							<Link
+								href="/demo"
+								className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
+							>
 								Book a Demo
 								<LinkArrow />
-							</Button>
-							<Button
-								variant="outline"
-								className="border border-foreground/20 h-full text-foreground hover:border-foreground/40 hover:bg-secondary/10 px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 group"
+							</Link>
+							<Link
+								href="/docs"
+								className="border border-foreground/20 h-full text-foreground hover:border-foreground/40 px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
 							>
 								Docs
 								<LinkArrow />
-							</Button>
+							</Link>
 						</div>
 					</div>
 				</div>
 
-				<div className="mt-14 pt-14 border-t border-border flex justify-start items-center gap-20">
-					<p className="text-foreground/60 text-lg flex-wrap max-w-64 pr-8">
+				<div className="mt-14 pt-14 border-t border-border flex justify-between items-center gap-20">
+					<p className="text-foreground/60 text-lg flex-wrap pr-8">
 						Support for most stuff you use daily without any other quirks
 					</p>
 					<LogoCarousel />
