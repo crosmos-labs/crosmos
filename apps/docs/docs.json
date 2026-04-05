@@ -3,10 +3,10 @@
 	"theme": "almond",
 	"name": "Crosmos - Documentation",
 	"colors": {
-    "primary": "#298559",
-    "light": "#298559",
-    "dark": "#298559"
-  },
+		"primary": "#298559",
+		"light": "#298559",
+		"dark": "#298559"
+	},
 	"favicon": "/favicon.svg",
 	"navigation": {
 		"tabs": [
@@ -75,10 +75,10 @@
 		}
 	},
 	"logo": {
-    "light": "/logo/banner_light.svg",
-    "dark": "/logo/banner_dark.svg",
-    "href": "https://crosmos.dev"
-  },
+		"light": "/logo/banner_light.svg",
+		"dark": "/logo/banner_dark.svg",
+		"href": "https://crosmos.dev"
+	},
 	"navbar": {
 		"links": [
 			{
@@ -148,11 +148,11 @@
 		"indexing": "all"
 	},
 	"background": {
-    "color": {
-      "light": "#ffffff",
-      "dark": "#000000"
-    }
-  },
+		"color": {
+			"light": "#ffffff",
+			"dark": "#000000"
+		}
+	},
 	"errors": {
 		"404": {
 			"redirect": false,
