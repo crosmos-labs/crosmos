@@ -108,20 +108,6 @@ export function Example() {
 									{tab.label}
 								</button>
 							))}
-
-							{/*{tabs.map((tab, i) => (
-							<button
-								data-slot="terminal-animation-tab-trigger"
-									className={cn(
-										"flex-1 cursor-pointer rounded px-3.5 py-1 font-mono text-sm transition-all duration-150",
-										"data-[state=active]:bg-primary data-[state=active]:font-medium data-[state=active]:text-primary-foreground",
-										"data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground",
-									)}
-									key={tab.label}
-								>
-								{tab.label}
-								</button>
-							))}*/}
 						</div>
 					</div>
 					<div className="relative size-full col-span-3 flex items-end justify-end overflow-hidden">
