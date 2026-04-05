@@ -7,156 +7,143 @@ import {
 	IconBrandX,
 } from "@tabler/icons-react";
 import { LINKS } from "../config/links";
+import PixelBlast from "./ui/pixel-blast";
+
+const FOOTER_DATA = {
+	product: {
+		title: "Product",
+		links: [
+			{ label: "Playground", href: LINKS.product.playground },
+			{ label: "Download", href: LINKS.product.download },
+			{ label: "Changelog", href: LINKS.product.changelog },
+			{ label: "Pricing", href: LINKS.product.pricing },
+		],
+	},
+	documentation: {
+		title: "Documentation",
+		links: [
+			{ label: "Get Started", href: LINKS.documentation.getStarted },
+			{ label: "API Reference", href: LINKS.documentation.apiReference },
+			{ label: "Examples", href: LINKS.documentation.examples },
+			{ label: "SDKs", href: LINKS.documentation.sdks },
+		],
+	},
+	company: {
+		title: "Company",
+		links: [
+			{ label: "About us", href: LINKS.company.about },
+			{ label: "Developers", href: LINKS.company.developers },
+			{ label: "Terms of Service", href: LINKS.company.terms },
+			{ label: "Privacy Policy", href: LINKS.company.privacy },
+		],
+	},
+	social: {
+		title: "Social",
+		links: [
+			{
+				name: "Github",
+				icon: IconBrandGithubFilled,
+				href: LINKS.social.github,
+			},
+			{
+				name: "Discord",
+				icon: IconBrandDiscordFilled,
+				href: LINKS.social.discord,
+			},
+			{
+				name: "LinkedIn",
+				icon: IconBrandLinkedinFilled,
+				href: LINKS.social.linkedin,
+			},
+			{ name: "X", icon: IconBrandX, href: LINKS.social.x },
+		],
+	},
+	brand: {
+		name: "crosmos",
+		copyright: "© 2026 Crosmos. All rights reserved.",
+	},
+} as const;
 
 export function Footer() {
-	const socialIcons = [
-		{ name: "Github", icon: IconBrandGithubFilled, href: LINKS.social.github },
-		{
-			name: "Discord",
-			icon: IconBrandDiscordFilled,
-			href: LINKS.social.discord,
-		},
-		{
-			name: "LinkedIn",
-			icon: IconBrandLinkedinFilled,
-			href: LINKS.social.linkedin,
-		},
-		{ name: "X", icon: IconBrandX, href: LINKS.social.x },
-	];
-
 	return (
-		<footer className="py-16">
-			<div className="relative flex justify-center items-center h-50 mb-16">
-				<div className="absolute inset-0 bg-[url('/bg-dither.svg')] size-full bg-cover bg-no-repeat bg-center" />
-				{/*<h2 className="relative text-center font-bold text-shadow-accent text-[10vw] align-middle">
-					crosmos
-				</h2>*/}
-			</div>
-			<div className="max-w-7xl mx-auto px-6">
+		<footer className="relative py-16 space-y-16">
+			<PixelBlast
+				variant="square"
+				pixelSize={4}
+				// color="#298559"
+				color="#1a1a1a"
+				patternScale={2}
+				patternDensity={1}
+				pixelSizeJitter={0}
+				enableRipples
+				rippleSpeed={0.4}
+				rippleThickness={0.12}
+				rippleIntensityScale={1}
+				speed={0.5}
+				edgeFade={0.2}
+				transparent
+				className="absolute inset-x-0 top-0"
+				style={{ height: "360px" }}
+			/>
+			<div className="relative z-10 max-w-7xl mx-auto px-6">
 				<div className="pt-8 flex justify-between items-center mb-12">
-					<div className="flex flex-col items-center">
+					<div className="relative flex flex-col items-center">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							Product
+							{FOOTER_DATA.product.title}
 						</h3>
 						<ul className="space-y-2 text-start">
-							<li>
-								<a
-									href={LINKS.product.playground}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Playground
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.product.download}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Download
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.product.changelog}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Changelog
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.product.pricing}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Pricing
-								</a>
-							</li>
+							{FOOTER_DATA.product.links.map((link) => (
+								<li key={link.label}>
+									<a
+										href={link.href}
+										className="text-foreground/70 text-sm link-underline"
+									>
+										{link.label}
+									</a>
+								</li>
+							))}
 						</ul>
 					</div>
 					<div className="flex flex-col items-center">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							Documentation
+							{FOOTER_DATA.documentation.title}
 						</h3>
 						<ul className="space-y-2 text-center">
-							<li>
-								<a
-									href={LINKS.documentation.getStarted}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Get Started
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.documentation.apiReference}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									API Reference
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.documentation.examples}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Examples
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.documentation.sdks}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									SDKs
-								</a>
-							</li>
+							{FOOTER_DATA.documentation.links.map((link) => (
+								<li key={link.label}>
+									<a
+										href={link.href}
+										className="text-foreground/70 text-sm link-underline"
+									>
+										{link.label}
+									</a>
+								</li>
+							))}
 						</ul>
 					</div>
 					<div className="flex flex-col items-center">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							Company
+							{FOOTER_DATA.company.title}
 						</h3>
 						<ul className="space-y-2 text-center">
-							<li>
-								<a
-									href={LINKS.company.about}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									About us
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.company.developers}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Developers
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.company.terms}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Terms of Service
-								</a>
-							</li>
-							<li>
-								<a
-									href={LINKS.company.privacy}
-									className="text-foreground/70 text-sm link-underline"
-								>
-									Privacy Policy
-								</a>
-							</li>
+							{FOOTER_DATA.company.links.map((link) => (
+								<li key={link.label}>
+									<a
+										href={link.href}
+										className="text-foreground/70 text-sm link-underline"
+									>
+										{link.label}
+									</a>
+								</li>
+							))}
 						</ul>
 					</div>
 					<div className="flex flex-col items-end">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							Social
+							{FOOTER_DATA.social.title}
 						</h3>
 						<ul className="space-y-3">
-							{socialIcons.map((social) => {
+							{FOOTER_DATA.social.links.map((social) => {
 								const Icon = social.icon;
 								return (
 									<li
@@ -179,9 +166,9 @@ export function Footer() {
 				</div>
 
 				<div className="border-t border-border pt-8 flex justify-between">
-					<p className="font-bold text-lg">crosmos</p>
+					<p className="font-bold text-lg">{FOOTER_DATA.brand.name}</p>
 					<p className="text-foreground/60 text-sm">
-						© 2026 Crosmos. All rights reserved.
+						{FOOTER_DATA.brand.copyright}
 					</p>
 				</div>
 			</div>

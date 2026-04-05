@@ -6,6 +6,7 @@ import NumberFlow from "@number-flow/react";
 import { IconCheck } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { CornerPlus } from "./ui/corner-plus";
 
 type Plan = "monthly" | "annually";
 
@@ -42,8 +43,8 @@ export const PLANS: PLAN[] = [
 		id: "pro",
 		title: "Pro",
 		desc: "For growing teams that need more power and flexibility.",
-		monthlyPrice: 49,
-		annuallyPrice: 490,
+		monthlyPrice: 30,
+		annuallyPrice: 330,
 		badge: "Most Popular",
 		buttonText: "Upgrade to Pro",
 		features: [
@@ -82,27 +83,6 @@ export const PLANS: PLAN[] = [
 	},
 	// ].filter((p) => p.id === "enterprise");
 ];
-
-function CornerPlus({ className }: { className?: string }) {
-	return (
-		<svg
-			aria-hidden="true"
-			className={cn(
-				"pointer-events-none absolute z-10 size-5 shrink-0 stroke-muted-foreground stroke-1",
-				className,
-			)}
-			fill="none"
-			stroke="currentColor"
-			strokeLinecap="round"
-			strokeLinejoin="round"
-			viewBox="0 0 24 24"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<path d="M5 12h14" />
-			<path d="M12 5v14" />
-		</svg>
-	);
-}
 
 const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 	return (

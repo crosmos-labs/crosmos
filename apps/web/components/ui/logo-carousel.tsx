@@ -88,7 +88,7 @@ const LOGOS: LogoDef[] = [
 
 // ── Constants ───────────────────────────────────────────────────────
 
-const SLOT_WIDTH = 240;
+const SLOT_WIDTH = 300;
 const SLOT_HEIGHT = Math.max(...LOGOS.map((l) => l.height));
 const INITIAL_DELAY = 2500;
 const SLOT_STAGGER = 150;
