@@ -1,80 +1,82 @@
 "use client";
 
-import { cn } from "@crosmos/ui/lib/utils";
 import Image from "next/image";
 import { useState } from "react";
+import { DecryptCodeSnippet } from "./ui/syntax-highlighter";
 
-function CodeEditor() {
-	return (
-		<div className="relative w-full bg-black/65 backdrop-blur-lg border-l border-t border-white/10 shadow-2xl font-mono text-[13px] leading-relaxed group rounded-t rounded-r-0 text-white">
-			<div className="flex items-center gap-1.5 px-5 py-4 border-b border-white/10">
-				<div className="w-2 h-2 rounded-full bg-white/20 group-hover:bg-red-400 transition-colors" />
-				<div className="w-2 h-2 rounded-full bg-white/20 group-hover:bg-yellow-400 transition-colors" />
-				<div className="w-2 h-2 rounded-full bg-white/20 group-hover:bg-green-400 transition-colors" />
-			</div>
-			<div className="px-8 pb-10 pt-6 space-y-8">
-				<div>
-					<div className="text-[#888] font-medium">
-						{"//"} 1. attach() - Handle purchases,
-					</div>
-					<div className="text-[#888] font-medium">upgrades, downgrades</div>
-					<div className="mt-2">
-						<span className="text-[#c678dd]">const</span> {"{ checkout }"} ={" "}
-						<span className="text-[#61afef]">useAutumn</span>();
-					</div>
-					<div className="mt-1">
-						<span className="text-[#c678dd]">await</span>{" "}
-						<span className="text-[#61afef]">checkout</span>({"{"}{" "}
-						<span className="text-[#d19a66]">productId</span>:{" "}
-						<span className="text-[#98c379]">"pro"</span> {"});"}
-					</div>
-				</div>
-
-				<div>
-					<div className="text-[#888] font-medium">
-						{"//"} 2. check() - Verify access and
-					</div>
-					<div className="text-[#888] font-medium">remaining usage</div>
-					<div className="mt-2">
-						<span className="text-[#c678dd]">const</span> {"{ data }"} ={" "}
-						<span className="text-[#c678dd]">await</span>{" "}
-						<span className="text-[#61afef]">check</span>({"{"}
-					</div>
-					<div className="ml-4 mt-1">
-						<span className="text-[#d19a66]">featureId</span>:{" "}
-						<span className="text-[#98c379]">"ai_tokens"</span> {"});"}
-					</div>
-					<div className="mt-1">
-						<span className="text-[#c678dd]">if</span> (!data.allowed){" "}
-						<span className="text-[#c678dd]">return</span>{" "}
-						<span className="text-[#98c379]">"Limit reached"</span>{";"}
-					</div>
-				</div>
-
-				<div>
-					<div className="text-[#888] font-medium">
-						{"//"} 3. track() - Record usage events
-					</div>
-					<div className="mt-2">
-						<span className="text-[#c678dd]">await</span>{" "}
-						<span className="text-[#61afef]">track</span>({"{"}{" "}
-						<span className="text-[#d19a66]">featureId</span>:
-					</div>
-					<div className="mt-1">
-						<span className="text-[#98c379]">"ai_tokens"</span>,{" "}
-						<span className="text-[#d19a66]">value</span>:{" "}
-						<span className="text-[#d19a66]">1312</span> {"});"}
-					</div>
-				</div>
-			</div>
-		</div>
-	);
-}
+const CODE_SNIPPETS: Record<string, { language: string; lines: string[] }> = {
+	nodejs: {
+		language: "javascript",
+		lines: [
+			'import { Crosmos } from "@crosmos/sdk";',
+			"",
+			"const crosmos = new Crosmos({",
+			"  apiKey: process.env.CROSMOS_API_KEY",
+			"});",
+			"",
+			"// 1. Store a memory",
+			"const memory = await crosmos.memories.create({",
+			'  content: "User prefers dark mode",',
+			'  agentId: "my-agent"',
+			"});",
+			"",
+			"// 2. Search memories",
+			"const results = await crosmos.memories.search({",
+			'  query: "user preferences",',
+			'  agentId: "my-agent"',
+			"});",
+		],
+	},
+	python: {
+		language: "python",
+		lines: [
+			"from crosmos import Crosmos",
+			"",
+			"crosmos = Crosmos(",
+			'  api_key=os.environ["CROSMOS_API_KEY"]',
+			")",
+			"",
+			"# 1. Store a memory",
+			"memory = crosmos.memories.create(",
+			'  content="User prefers dark mode",',
+			'  agent_id="my-agent"',
+			")",
+			"",
+			"# 2. Search memories",
+			"results = crosmos.memories.search(",
+			'  query="user preferences",',
+			'  agent_id="my-agent"',
+			")",
+		],
+	},
+	curl: {
+		language: "bash",
+		lines: [
+			"# 1. Store a memory",
+			"curl -X POST https://api.crosmos.dev/v1/memories \\",
+			'  -H "Authorization: Bearer $CROSMOS_API_KEY" \\',
+			'  -H "Content-Type: application/json" \\',
+			'  -d \'{"content": "User prefers dark mode",',
+			'       "agentId": "my-agent"}\'',
+			"",
+			"# 2. Search memories",
+			"curl -X POST https://api.crosmos.dev/v1/memories/search \\",
+			'  -H "Authorization: Bearer $CROSMOS_API_KEY" \\',
+			'  -H "Content-Type: application/json" \\',
+			'  -d \'{"query": "user preferences",',
+			'       "agentId": "my-agent"}\'',
+		],
+	},
+};
 
 export function Example() {
-	const [selected, setSelected] = useState("typescript");
+	const [selected, setSelected] = useState("nodejs");
 
-	const tabs = [{ label: "typescript" }, { label: "python" }, { label: "api" }];
+	const tabs = [
+		{ label: "NodeJS", value: "nodejs" },
+		{ label: "Python", value: "python" },
+		{ label: "cURL", value: "curl" },
+	];
 
 	return (
 		<section className="py-24 px-6">
@@ -84,8 +86,8 @@ export function Example() {
 				</h2>
 
 				<div className="grid grid-rows-1 min-h-125 grid-cols-5 gap-8">
-					<div className="col-span-2 flex flex-col">
-						<div className="flex-1 px-12 space-y-4">
+					<div className="col-span-2 flex flex-col gap-10">
+						<div className="px-12 space-y-4">
 							<h1 className="font-bold text-4xl">
 								Purchase, upgrade, downgrade
 							</h1>
@@ -94,16 +96,13 @@ export function Example() {
 								entitlement activation all handled.
 							</p>
 						</div>
-						<div className="w-full flex px-3">
+						<div className="w-full flex px-12">
 							{tabs.map((tab) => (
 								<button
-									key={tab.label}
-									className={cn(
-										"flex-1 py-2 transition-colors duration-100 font-mono text-xs",
-										selected === tab.label &&
-											"bg-accent text-primary-foreground",
-									)}
-									onClick={() => setSelected(tab.label)}
+									key={tab.value}
+									className="flex-1 py-2 transition-colors duration-100 font-mono text-xs data-[state=active]:bg-accent data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
+									data-state={selected === tab.value ? "active" : "inactive"}
+									onClick={() => setSelected(tab.value)}
 								>
 									{tab.label}
 								</button>
@@ -119,8 +118,18 @@ export function Example() {
 							className="size-full object-cover select-none"
 							draggable={false}
 						/>
-						<div className="absolute -bottom-1 -right-1 max-w-[80%] w-full">
-							<CodeEditor />
+						<div className="absolute bottom-0 right-0 top-12 left-12">
+							<div className="relative w-full h-full bg-black/65 backdrop-blur-lg border-l border-t border-white/10 shadow-2xl font-mono leading-relaxed group rounded-t rounded-r-0">
+								<div className="flex items-center gap-1.5 px-5 py-4 border-b border-white/10">
+									<div className="w-2 h-2 rounded-full bg-white/20 group-hover:bg-red-400 transition-colors" />
+									<div className="w-2 h-2 rounded-full bg-white/20 group-hover:bg-yellow-400 transition-colors" />
+									<div className="w-2 h-2 rounded-full bg-white/20 group-hover:bg-green-400 transition-colors" />
+								</div>
+								<DecryptCodeSnippet
+									codeLines={CODE_SNIPPETS[selected]?.lines ?? []}
+									language={CODE_SNIPPETS[selected]?.language ?? "javascript"}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
