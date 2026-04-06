@@ -430,6 +430,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 			"noiseAmount",
 		];
 		const cfg: ReinitConfig = { antialias, liquid, noiseAmount };
+		let disposed = false;
 		let mustReinit = false;
 		if (!threeRef.current) mustReinit = true;
 		else if (prevConfigRef.current) {
@@ -442,6 +443,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 		if (mustReinit) {
 			if (threeRef.current) {
 				const t = threeRef.current;
+				disposed = true;
 				t.resizeObserver?.disconnect();
 				cancelAnimationFrame(t.raf!);
 				t.quad?.geometry.dispose();
@@ -608,8 +610,10 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 			});
 			let raf = 0;
 			const animate = () => {
+				if (disposed || !threeRef.current) return;
 				if (autoPauseOffscreen && !visibilityRef.current.visible) {
 					raf = requestAnimationFrame(animate);
+					threeRef.current.raf = raf;
 					return;
 				}
 				uniforms.uTime.value =
@@ -639,6 +643,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 					composer.render();
 				} else renderer.render(scene, camera);
 				raf = requestAnimationFrame(animate);
+				threeRef.current.raf = raf;
 			};
 			raf = requestAnimationFrame(animate);
 			threeRef.current = {
@@ -685,6 +690,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 		}
 		prevConfigRef.current = cfg;
 		return () => {
+			disposed = true;
 			if (threeRef.current && mustReinit) return;
 			if (!threeRef.current) return;
 			const t = threeRef.current;
