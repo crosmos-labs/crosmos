@@ -26,7 +26,7 @@ export function Navbar() {
 	return (
 		<header
 			className={cn(
-				"sticky top-0 z-50 bg-background border-border",
+				"fixed top-0 left-0 right-0 z-50 bg-background border-border",
 				isScrolled && "border-b",
 				// isScrolled
 				// 	? "bg-background/90 backdrop-blur-xl border-b"
