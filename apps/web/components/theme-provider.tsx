@@ -15,7 +15,8 @@ function ThemeProvider({
 			disableTransitionOnChange
 			{...props}
 		>
-			<ThemeHotkey />
+		    {/* TODO: Disable until dark mode is implemented */}
+			{/*<ThemeHotkey />*/}
 			{children}
 		</NextThemesProvider>
 	);
