@@ -15,7 +15,7 @@ function ThemeProvider({
 			disableTransitionOnChange
 			{...props}
 		>
-		    {/* TODO: Disable until dark mode is implemented */}
+			{/* TODO: Disable until dark mode is implemented */}
 			{/*<ThemeHotkey />*/}
 			{children}
 		</NextThemesProvider>
@@ -35,7 +35,7 @@ function isTypingTarget(target: EventTarget | null) {
 	);
 }
 
-function ThemeHotkey() {
+function _ThemeHotkey() {
 	const { resolvedTheme, setTheme } = useTheme();
 
 	React.useEffect(() => {

@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 
 import "@crosmos/ui/globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const satoshi = localFont({
@@ -41,6 +42,7 @@ export default function RootLayout({
 				/>
 			</head>
 			<body>
+				<Analytics />
 				<ThemeProvider enableSystem defaultTheme="light">
 					{children}
 				</ThemeProvider>
