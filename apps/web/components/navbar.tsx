@@ -28,9 +28,6 @@ export function Navbar() {
 			className={cn(
 				"fixed top-0 left-0 right-0 z-50 bg-background border-border",
 				isScrolled && "border-b",
-				// isScrolled
-				// 	? "bg-background/90 backdrop-blur-xl border-b"
-				// 	: "bg-transparent",
 			)}
 		>
 			<nav className="max-w-7xl mx-auto py-4 flex items-center justify-between">
