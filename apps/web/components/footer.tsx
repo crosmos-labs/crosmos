@@ -1,5 +1,3 @@
-"use client";
-
 import {
 	IconBrandDiscordFilled,
 	IconBrandGithubFilled,
@@ -70,7 +68,6 @@ export function Footer() {
 			<PixelBlast
 				variant="square"
 				pixelSize={4}
-				// color="#298559"
 				color="#1a1a1a"
 				patternScale={2}
 				patternDensity={1}
