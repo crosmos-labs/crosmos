@@ -26,7 +26,7 @@ export const PLANS: PLAN[] = [
 	{
 		id: "basic",
 		title: "Basic",
-		desc: "Perfect for people to get started with having a mini memeory in your apps",
+		desc: "Perfect for people to get started with having a mini memory in your apps",
 		monthlyPrice: 0,
 		annuallyPrice: 0,
 		buttonText: "Get Started",
@@ -196,6 +196,9 @@ export function Pricing() {
 					<span className="text-base font-medium">Monthly</span>
 					<button
 						onClick={handleSwitch}
+						role="switch"
+						aria-checked={billPlan === "annually"}
+						aria-label="Toggle between monthly and annual billing"
 						className="relative rounded-full focus:outline-none"
 					>
 						<div className="w-12 h-6 transition rounded-full shadow-md outline-none bg-accent/90"></div>
