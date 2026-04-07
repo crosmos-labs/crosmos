@@ -53,6 +53,13 @@ export function useDecryptAnimation(targetLines: string[]) {
 		const startTime = performance.now();
 		const animData = new Map();
 
+		const lineLengths = new Map<number, number>();
+		for (const span of spans) {
+			const l = Number.parseInt(span.getAttribute("data-l") ?? "", 10);
+			const c = Number.parseInt(span.getAttribute("data-c") ?? "", 10);
+			lineLengths.set(l, Math.max(lineLengths.get(l) ?? 0, c + 1));
+		}
+
 		let hasChanges = false;
 
 		for (const span of spans) {
@@ -65,7 +72,9 @@ export function useDecryptAnimation(targetLines: string[]) {
 
 			if (oldChar !== targetChar) {
 				hasChanges = true;
-				const delay = c * 15;
+				const isRemoving = targetChar === " ";
+				const lineLen = lineLengths.get(l) ?? 1;
+				const delay = isRemoving ? (lineLen - 1 - c) * 15 : c * 15;
 				const scrambleDuration = 300 + Math.random() * 200;
 				const resolveDuration = 200 + Math.random() * 200;
 
@@ -103,9 +112,7 @@ export function useDecryptAnimation(targetLines: string[]) {
 					allDone = false;
 					if (now - data.lastUpdate > 40) {
 						data.span.textContent =
-							data.targetChar === " "
-								? " "
-								: GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+							GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
 						data.lastUpdate = now;
 					}
 				} else if (elapsed < data.resolveEnd) {
