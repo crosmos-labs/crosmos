@@ -35,11 +35,13 @@ export default function RootLayout({
 			suppressHydrationWarning
 		>
 			<head>
-				<Script
-					src="//unpkg.com/react-scan/dist/auto.global.js"
-					crossOrigin="anonymous"
-					strategy="afterInteractive"
-				/>
+				{process.env.NODE_ENV === "development" && (
+					<Script
+						src="//unpkg.com/react-scan/dist/auto.global.js"
+						crossOrigin="anonymous"
+						strategy="afterInteractive"
+					/>
+				)}
 			</head>
 			<body>
 				<Analytics />
