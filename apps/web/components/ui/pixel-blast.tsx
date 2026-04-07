@@ -1,3 +1,5 @@
+"use client";
+
 import { Effect, EffectComposer, EffectPass, RenderPass } from "postprocessing";
 import type React from "react";
 import { useEffect, useRef } from "react";
