@@ -18,6 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+	metadataBase: new URL("https://crosmos.dev"),
 	title: "Crosmos - The Memory and Context Layer for Agents",
 	description:
 		"Give your agents reliable memory and the right context, with enterprise APIs, MCP integration, and flexible plugins and connectors.",
