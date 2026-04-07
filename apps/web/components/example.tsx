@@ -85,9 +85,9 @@ export function Example() {
 					Example
 				</h2>
 
-				<div className="grid grid-rows-1 min-h-125 grid-cols-5 gap-8">
-					<div className="col-span-2 flex flex-col gap-10">
-						<div className="px-12 space-y-4">
+				<div className="grid grid-rows-1 min-h-125 grid-cols-5 gap-0">
+					<div className="col-span-2 flex flex-col justify-between border-foreground/10 border-2 rounded">
+						<div className="px-12 pt-6 space-y-4">
 							<h1 className="font-bold text-4xl">
 								Purchase, upgrade, downgrade
 							</h1>
@@ -96,7 +96,7 @@ export function Example() {
 								entitlement activation all handled.
 							</p>
 						</div>
-						<div className="w-full flex px-12">
+						<div className="w-full flex border-t-2 border-foreground/10 divide-x-2 divide-foreground/10">
 							{tabs.map((tab) => (
 								<button
 									key={tab.value}
