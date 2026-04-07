@@ -87,7 +87,7 @@ export function Example() {
 
 				<div className="grid grid-rows-1 min-h-125 grid-cols-5 gap-0">
 					<div className="col-span-2 flex flex-col justify-between border-foreground/10 border-2 rounded">
-						<div className="px-12 pt-6 space-y-4">
+						<div className="px-12 pt-12 space-y-4">
 							<h1 className="font-bold text-4xl">
 								Purchase, upgrade, downgrade
 							</h1>
