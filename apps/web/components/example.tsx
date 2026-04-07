@@ -5,8 +5,8 @@ import { useState } from "react";
 import { DecryptCodeSnippet } from "./ui/syntax-highlighter";
 
 const CODE_SNIPPETS: Record<string, { language: string; lines: string[] }> = {
-	nodejs: {
-		language: "javascript",
+	typescript: {
+		language: "typescript",
 		lines: [
 			'import { Crosmos } from "@crosmos/sdk";',
 			"",
@@ -70,10 +70,10 @@ const CODE_SNIPPETS: Record<string, { language: string; lines: string[] }> = {
 };
 
 export function Example() {
-	const [selected, setSelected] = useState("nodejs");
+	const [selected, setSelected] = useState("typescript");
 
 	const tabs = [
-		{ label: "NodeJS", value: "nodejs" },
+		{ label: "Typescript", value: "typescript" },
 		{ label: "Python", value: "python" },
 		{ label: "cURL", value: "curl" },
 	];
