@@ -1,5 +1,3 @@
-"use client";
-
 export function Features() {
 	return (
 		<section id="features" className="relative py-16 px-6">
