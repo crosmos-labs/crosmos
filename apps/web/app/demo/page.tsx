@@ -1,12 +1,6 @@
-import { Button } from "@crosmos/ui/components/button";
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-} from "@crosmos/ui/components/input-group";
-import { IconArrowForward, IconMailFilled } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
+import { StepperForm } from "@/components/stepper-form";
 
 export default function DemoPage() {
 	return (
@@ -25,33 +19,9 @@ export default function DemoPage() {
 						/>
 					</Link>
 				</div>
-				<div className="size-full flex flex-col justify-center items-center px-8 md:px-12 space-y-12">
-					<div>
-						<h1 className="text-6xl font-semibold text-wrap text-center">
-							What <span className="text-accent">begins</span> as structure
-							becomes expression
-						</h1>
-					</div>
-					<div className="flex justify-between items-center gap-4">
-						<InputGroup className="py-6 px-1">
-							<InputGroupInput
-								type="email"
-								placeholder="something@cool.com"
-								autoFocus
-								className="text-lg!"
-							/>
-							<InputGroupAddon>
-								<IconMailFilled className="mt-1 mr-1 size-5" />
-							</InputGroupAddon>
-						</InputGroup>
-						<Button
-							size="lg"
-							className="p-6 text-lg hover:bg-accent/90"
-							type="submit"
-						>
-							<IconArrowForward className="size-6" />
-							Submit
-						</Button>
+				<div className="size-full flex flex-col justify-center items-center px-4 md:px-8 -mt-20">
+					<div className="w-full max-w-md">
+						<StepperForm />
 					</div>
 				</div>
 			</div>
