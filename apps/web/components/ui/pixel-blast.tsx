@@ -457,6 +457,7 @@ const PixelBlast: React.FC<PixelBlastProps> = ({
 					container.removeChild(t.renderer.domElement);
 				threeRef.current = null;
 			}
+			disposed = false;
 			const canvas = document.createElement("canvas");
 			const renderer = new THREE.WebGLRenderer({
 				canvas,
