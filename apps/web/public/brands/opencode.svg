@@ -1,1 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512"><svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="512" height="512" fill="#131010"/><path d="M320 224V352H192V224H320Z" fill="#5A5858"/><path fill-rule="evenodd" clip-rule="evenodd" d="M384 416H128V96H384V416ZM320 160H192V352H320V160Z" fill="white"/></svg><style>@media (prefers-color-scheme:light){:root{filter:none}}@media (prefers-color-scheme:dark){:root{filter:none}}</style></svg>
+<svg width="248" height="35" viewBox="0 0 248 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_0_1)">
+<g clip-path="url(#clip1_0_1)">
+<path d="M35 0H0V35H35V0Z" fill="#131010"/>
+<path d="M21.875 15.3125V24.0625H13.125V15.3125H21.875Z" fill="#5A5858"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M26.25 28.4375H8.75V6.5625H26.25V28.4375ZM21.875 10.9375H13.125V24.0625H21.875V10.9375Z" fill="white"/>
+</g>
+</g>
+<g clip-path="url(#clip2_0_1)">
+<path d="M68 25H58V15H68V25Z" fill="#CFCECD"/>
+<path d="M68 10H58V25H68V10ZM73 30H53V5H73V30Z" fill="#656363"/>
+<path d="M93 25H83V15H93V25Z" fill="#CFCECD"/>
+<path d="M83 25H93V10H83V25ZM98 30H83V35H78V5H98V30Z" fill="#656363"/>
+<path d="M123 20V25H108V20H123Z" fill="#CFCECD"/>
+<path d="M123 20H108V25H123V30H103V5H123V20ZM108 15H118V10H108V15Z" fill="#656363"/>
+<path d="M143 30H133V15H143V30Z" fill="#CFCECD"/>
+<path d="M143 10H133V30H128V5H143V10ZM148 30H143V10H148V30Z" fill="#656363"/>
+<path d="M173 25H158V15H173V25Z" fill="#CFCECD"/>
+<path d="M173 10H158V25H173V30H153V5H173V10Z" fill="#211E1E"/>
+<path d="M193 25H183V15H193V25Z" fill="#CFCECD"/>
+<path d="M193 10H183V25H193V10ZM198 30H178V5H198V30Z" fill="#211E1E"/>
+<path d="M218 25H208V15H218V25Z" fill="#CFCECD"/>
+<path d="M218 10H208V25H218V10ZM223 30H203V5H218V0H223V30Z" fill="#211E1E"/>
+<path d="M248 20V25H233V20H248Z" fill="#CFCECD"/>
+<path d="M233 10V15H243V10H233ZM248 20H233V25H248V30H228V5H248V20Z" fill="#211E1E"/>
+</g>
+<defs>
+<clipPath id="clip0_0_1">
+<rect width="35" height="35" fill="white"/>
+</clipPath>
+<clipPath id="clip1_0_1">
+<rect width="35" height="35" fill="white"/>
+</clipPath>
+<clipPath id="clip2_0_1">
+<rect width="195" height="35" fill="white" transform="translate(53)"/>
+</clipPath>
+</defs>
+</svg>
