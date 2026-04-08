@@ -23,11 +23,11 @@ function LinkArrow() {
 
 export function Hero() {
 	return (
-		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 py-30">
-			<div className="max-w-7xl mx-auto w-full">
+		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 lg:px-8 xl:px-0 py-24 sm:py-28 md:py-30 lg:py-30">
+			<div className="max-w-7xl mx-auto w-full text-center md:text-left">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 					<div>
-						<h1 className="text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance">
+						<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance">
 							Agents{" "}
 							<span className="italic font-serif font-light underline decoration-2">
 								Forget
@@ -46,7 +46,7 @@ export function Hero() {
 							not just bigger
 						</p>
 
-						<div className="flex flex-col sm:flex-row items-start gap-4">
+						<div className="flex flex-col sm:flex-row items-center md:items-start gap-4">
 							<Link
 								href="/demo"
 								className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
@@ -65,14 +65,14 @@ export function Hero() {
 					</div>
 				</div>
 
-				<div className="mt-10 pt-10 border-t border-border flex justify-between items-center gap-20">
-					<p className="text-muted-foreground text-lg flex-wrap pr-8">
+				<div className="mt-10 pt-10 border-t border-border flex flex-col lg:flex-row justify-between items-center lg:items-center gap-6 lg:gap-20">
+					<p className="text-muted-foreground text-base sm:text-lg flex-wrap md:pr-8">
 						Support for most stuff you use daily without any other quirks
 					</p>
 					<LogoCarousel />
 				</div>
 
-				<div className="mt-14 relative">
+				<div className="mt-14 relative text-left -mx-6 lg:mx-0">
 					<TerminalAnimationDemo />
 				</div>
 			</div>

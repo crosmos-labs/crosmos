@@ -98,14 +98,14 @@ export function TerminalAnimationDemo() {
 			>
 				Refresh
 			</button>
-			<TerminalAnimationContainer>
+			<TerminalAnimationContainer className="max-sm:px-0">
 				<TerminalAnimationWindow className="outline-1 outline-white/30 outline-offset-2">
-					<TerminalAnimationContent className="min-h-142">
+					<TerminalAnimationContent className="min-h-64 sm:min-h-80 md:min-h-100 lg:min-h-142">
 						<div className="flex items-center gap-2 leading-relaxed">
 							<span className="select-none font-mono text-muted-foreground text-xs md:text-sm">
 								$
 							</span>
-							<TerminalAnimationCommandBar className="font-mono text-foreground text-[10px] md:text-sm min-h-[1.5em]" />
+							<TerminalAnimationCommandBar className="font-mono text-foreground text-xs md:text-sm min-h-[1.5em]" />
 						</div>
 
 						<TerminalAnimationOutput
@@ -122,7 +122,7 @@ export function TerminalAnimationDemo() {
 									<div className="leading-relaxed">
 										<span
 											className={cn(
-												"font-mono text-[10px] md:text-sm",
+												"font-mono text-xs md:text-sm",
 												line.color ?? "text-muted-foreground",
 											)}
 										>
@@ -133,7 +133,7 @@ export function TerminalAnimationDemo() {
 							}}
 						/>
 						<TerminalAnimationTrailingPrompt className="mt-1 flex items-center gap-2 leading-relaxed">
-							<span className="select-none font-mono text-muted-foreground text-sm">
+							<span className="select-none font-mono text-muted-foreground text-xs md:text-sm">
 								$
 							</span>
 							<TerminalAnimationBlinkingCursor />
@@ -145,7 +145,7 @@ export function TerminalAnimationDemo() {
 							{tabs.map((tab, i) => (
 								<TerminalAnimationTabTrigger
 									className={cn(
-										"cursor-pointer rounded px-3.5 py-1 font-mono text-sm transition-all duration-150",
+										"cursor-pointer rounded px-3.5 py-1 font-mono text-xs sm:text-sm transition-all duration-150",
 										"data-[state=active]:bg-primary data-[state=active]:font-medium data-[state=active]:text-primary-foreground",
 										"data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground",
 									)}

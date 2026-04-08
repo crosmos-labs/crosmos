@@ -83,7 +83,6 @@ const LOGOS: LogoDef[] = [
 
 // ── Constants ───────────────────────────────────────────────────────
 
-const SLOT_WIDTH = 300;
 const SLOT_HEIGHT = Math.max(...LOGOS.map((l) => l.height));
 const INITIAL_DELAY = 2500;
 const SLOT_STAGGER = 150;
@@ -112,6 +111,27 @@ function useSlotCount(): number {
 		};
 	}, []);
 	return count;
+}
+
+function useSlotWidth(): number {
+	const [width, setWidth] = useState(150);
+	useEffect(() => {
+		const mqMd = window.matchMedia("(min-width: 768px)");
+		const mqLg = window.matchMedia("(min-width: 1024px)");
+		const update = () => {
+			if (mqLg.matches) setWidth(300);
+			else if (mqMd.matches) setWidth(200);
+			else setWidth(150);
+		};
+		update();
+		mqMd.addEventListener("change", update);
+		mqLg.addEventListener("change", update);
+		return () => {
+			mqMd.removeEventListener("change", update);
+			mqLg.removeEventListener("change", update);
+		};
+	}, []);
+	return width;
 }
 
 /** Resolves `true` once every image in `srcs` has loaded (or errored). */
@@ -217,12 +237,14 @@ function LogoSlot({
 	enabled,
 	disableLinks,
 	variant = "muted",
+	slotWidth,
 }: {
 	logos: LogoDef[];
 	slotIndex: number;
 	enabled: boolean;
 	disableLinks?: boolean;
 	variant?: CarouselVariant;
+	slotWidth: number;
 }) {
 	const reducedMotion = useReducedMotion();
 	const { current: logo, hasCycled } = useLogoCycle(
@@ -253,7 +275,7 @@ function LogoSlot({
 		<div
 			className="overflow-hidden flex items-center justify-center"
 			style={{
-				width: SLOT_WIDTH,
+				width: slotWidth,
 				height: SLOT_HEIGHT + 40,
 				marginBlock: -20,
 			}}
@@ -312,6 +334,7 @@ export function LogoCarousel({
 }) {
 	const allLoaded = useImagesPreloaded(LOGO_SRCS);
 	const slotCount = useSlotCount();
+	const slotWidth = useSlotWidth();
 
 	const slotLogos = useMemo(
 		() =>
@@ -339,6 +362,7 @@ export function LogoCarousel({
 					enabled={allLoaded}
 					disableLinks={disableLinks}
 					variant={variant}
+					slotWidth={slotWidth}
 				/>
 			))}
 		</motion.div>
