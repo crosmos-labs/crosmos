@@ -45,7 +45,7 @@ const tabs: TabContent[] = [
 			},
 			{
 				text: "    run `npm fund crosmos-ai` for details",
-				color: "text-slate-500",
+				color: "text-slate-400",
 				delay: 100,
 			},
 			{

@@ -4,7 +4,7 @@ import { Button } from "@crosmos/ui/components/button";
 import { cn } from "@crosmos/ui/lib/utils";
 import NumberFlow from "@number-flow/react";
 import { IconCheck } from "@tabler/icons-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { CornerPlus } from "./ui/corner-plus";
 
@@ -102,10 +102,10 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 			)}
 
 			<div className="p-4 md:p-8 flex rounded-t-2xl lg:rounded-t-3xl flex-col items-start w-full relative">
-				<h2 className="font-medium text-xl text-foreground pt-5">
+				<h3 className="font-medium text-xl text-foreground pt-5">
 					{plan.title}
-				</h2>
-				<h3 className="mt-3 text-2xl font-bold md:text-5xl select-none h-18">
+				</h3>
+				<p className="mt-3 text-2xl font-bold md:text-5xl select-none h-18">
 					{plan.monthlyPrice === -1 ? (
 						"Custom"
 					) : (
@@ -124,7 +124,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 							}}
 						/>
 					)}
-				</h3>
+				</p>
 				<p className="text-sm md:text-base text-muted-foreground mt-2">
 					{plan.desc}
 				</p>
