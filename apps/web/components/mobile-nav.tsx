@@ -104,7 +104,7 @@ function MobileNavSheet({
 					<div className="border-b border-border bg-background">
 						<div
 							ref={sheetRef}
-							className="max-w-7xl mx-auto px-4 pt-3 pb-4 sm:px-6 lg:px-8 xl:px-0"
+							className="max-w-7xl mx-auto px-6 pt-3 pb-4 sm:px-6 lg:px-8 xl:px-0"
 						>
 							<div className="flex flex-col gap-3">
 								{NAV_LINKS.map((link) => (
