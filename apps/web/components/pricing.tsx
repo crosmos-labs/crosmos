@@ -89,7 +89,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 		<div
 			className={cn(
 				"flex flex-col relative bg-background items-start w-full border-foreground/10 border-2 hover:bg-card/60 transition-colors hover:transition-none duration-300",
-				plan.id === "pro" && "border-x-0",
+				plan.id === "pro" && "lg:border-x-0",
 			)}
 		>
 			{plan.title === "Pro" && (
@@ -105,7 +105,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				<h3 className="font-medium text-xl text-foreground pt-5">
 					{plan.title}
 				</h3>
-				<p className="mt-3 text-2xl font-bold md:text-5xl select-none h-18">
+				<p className="mt-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold select-none h-18">
 					{plan.monthlyPrice === -1 ? (
 						"Custom"
 					) : (
@@ -156,9 +156,12 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				)}
 			</div>
 			<div className="flex flex-col items-start w-full p-5 mb-4 ml-1 gap-y-2">
-				<span className="text-base text-left mb-2">Includes:</span>
+				<span className="text-sm sm:text-base text-left mb-2">Includes:</span>
 				{plan.features.map((feature) => (
-					<div key={feature} className="flex items-center justify-start gap-2">
+					<div
+						key={feature}
+						className="flex items-center justify-start gap-2 text-sm sm:text-base"
+					>
 						<div className="flex items-center justify-center">
 							<IconCheck className="size-5" />
 						</div>
@@ -178,13 +181,13 @@ export function Pricing() {
 	};
 
 	return (
-		<div
+		<section
 			id="pricing"
-			className="relative flex flex-col items-center justify-center py-16 mx-auto"
+			className="relative flex flex-col items-center justify-center px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24 mx-auto"
 		>
-			<div className="flex flex-col items-center justify-center max-w-7xl mx-auto">
+			<div className="flex flex-col items-center justify-center max-w-7xl mx-auto w-full">
 				<div className="flex flex-col items-center text-center max-w-2xl mx-auto">
-					<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-6">
+					<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-6">
 						Pricing
 					</h2>
 					<p className="text-base md:text-lg text-center text-foreground/80 mt-6">
@@ -192,8 +195,8 @@ export function Pricing() {
 						growing heavier.
 					</p>
 				</div>
-				<div className="flex items-center justify-center space-x-4 mt-6">
-					<span className="text-base font-medium">Monthly</span>
+				<div className="sticky top-[80px] sm:top-[65px] lg:static lg:top-auto z-10 bg-background py-3 -mx-6 px-6 lg:mx-0 lg:px-0 lg:py-0 flex items-center justify-center space-x-4 mt-6 w-full">
+					<span className="text-sm sm:text-base font-medium">Monthly</span>
 					<button
 						onClick={handleSwitch}
 						role="switch"
@@ -204,20 +207,19 @@ export function Pricing() {
 						<div className="w-12 h-6 transition rounded-full shadow-md outline-none bg-accent/90"></div>
 						<div
 							className={cn(
-								"absolute inline-flex items-center justify-center w-4 h-4 transition-all duration-500 ease-in-out top-1 left-1 rounded-full bg-white",
+								"absolute inline-flex items-center justify-center size-4 transition-all duration-500 ease-in-out top-1 left-1 rounded-full bg-white",
 								billPlan === "annually" ? "translate-x-6" : "translate-x-0",
 							)}
 						/>
 					</button>
-					<span className="text-base font-medium">Annually</span>
+					<span className="text-sm sm:text-base font-medium">Annually</span>
+				</div>
+				<div className="grid w-full grid-cols-1 lg:grid-cols-3 pt-8 lg:pt-12">
+					{PLANS.map((plan) => (
+						<Plan key={plan.id} plan={plan} billPlan={billPlan} />
+					))}
 				</div>
 			</div>
-
-			<div className="grid w-full grid-cols-1 lg:grid-cols-3 pt-8 lg:pt-12 max-w-7xl mx-auto">
-				{PLANS.map((plan) => (
-					<Plan key={plan.id} plan={plan} billPlan={billPlan} />
-				))}
-			</div>
-		</div>
+		</section>
 	);
 }
