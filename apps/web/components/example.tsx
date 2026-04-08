@@ -1,8 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
-import { DecryptCodeSnippet } from "./ui/syntax-highlighter";
+
+const DecryptCodeSnippet = dynamic(
+	() => import("./ui/syntax-highlighter").then((m) => m.DecryptCodeSnippet),
+	{ ssr: false },
+);
 
 const CODE_SNIPPETS: Record<string, { language: string; lines: string[] }> = {
 	typescript: {
@@ -88,18 +93,25 @@ export function Example() {
 				<div className="grid grid-rows-1 min-h-125 grid-cols-5 gap-0">
 					<div className="col-span-2 flex flex-col justify-between border-foreground/10 border-2 rounded">
 						<div className="px-12 pt-12 space-y-4">
-							<h1 className="font-bold text-4xl">
+							<h3 className="font-bold text-4xl">
 								Purchase, upgrade, downgrade
-							</h1>
+							</h3>
 							<p className="text-wrap">
 								One call connects users to plans. Stripe checkout, webhooks, and
 								entitlement activation all handled.
 							</p>
 						</div>
-						<div className="w-full flex border-t-2 border-foreground/10 divide-x-2 divide-foreground/10">
+						<div
+							className="w-full flex border-t-2 border-foreground/10 divide-x-2 divide-foreground/10"
+							role="tablist"
+							aria-label="Code language"
+						>
 							{tabs.map((tab) => (
 								<button
 									key={tab.value}
+									role="tab"
+									id={`tab-${tab.value}`}
+									aria-selected={selected === tab.value}
 									className="flex-1 py-2 transition-colors duration-100 font-mono text-xs data-[state=active]:bg-accent data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground"
 									data-state={selected === tab.value ? "active" : "inactive"}
 									onClick={() => setSelected(tab.value)}
@@ -109,14 +121,20 @@ export function Example() {
 							))}
 						</div>
 					</div>
-					<div className="relative size-full col-span-3 flex items-end justify-end overflow-hidden">
+					<div
+						className="relative size-full col-span-3 flex items-end justify-end overflow-hidden"
+						role="tabpanel"
+						aria-labelledby={`tab-${selected}`}
+					>
 						<Image
-							src="/hero-image.png"
+							src="/hero-image.webp"
 							alt="code bg"
-							width={500}
-							height={500}
-							className="size-full object-cover select-none"
+							fill
+							sizes="(max-width: 768px) 100vw, 60vw"
+							className="object-cover select-none"
+							style={{ width: "100%", height: "100%" }}
 							draggable={false}
+							loading="lazy"
 						/>
 						<div className="absolute bottom-0 right-0 top-12 left-12">
 							<div className="relative w-full h-full bg-black/65 backdrop-blur-lg border-l border-t border-white/10 shadow-2xl font-mono leading-relaxed group rounded-t rounded-r-0">
