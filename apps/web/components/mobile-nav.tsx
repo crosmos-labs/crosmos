@@ -101,40 +101,42 @@ function MobileNavSheet({
 				)}
 			>
 				<div className="overflow-hidden">
-					<div
-						ref={sheetRef}
-						className="border-b border-border bg-background px-4 pt-3 pb-4 sm:px-6"
-					>
-						<div className="flex flex-col gap-3">
-							{NAV_LINKS.map((link) => (
+					<div className="border-b border-border bg-background">
+						<div
+							ref={sheetRef}
+							className="max-w-7xl mx-auto px-4 pt-3 pb-4 sm:px-6 lg:px-8 xl:px-0"
+						>
+							<div className="flex flex-col gap-3">
+								{NAV_LINKS.map((link) => (
+									<Link
+										key={link.href}
+										href={link.href}
+										onClick={handleClose}
+										className="text-foreground/90 text-sm font-medium py-1"
+									>
+										{link.label}
+									</Link>
+								))}
+							</div>
+							<div className="mt-3 flex flex-col gap-3 border-t border-border pt-3">
 								<Link
-									key={link.href}
-									href={link.href}
+									href={LINKS.social.github}
+									target="_blank"
+									rel="noopener noreferrer"
 									onClick={handleClose}
-									className="text-foreground/90 text-sm font-medium py-1"
+									className="flex items-center gap-2 text-foreground/90 text-sm font-medium py-1"
 								>
-									{link.label}
+									<IconBrandGithubFilled size={16} />
+									GitHub
 								</Link>
-							))}
-						</div>
-						<div className="mt-3 flex flex-col gap-3 border-t border-border pt-3">
-							<Link
-								href={LINKS.social.github}
-								target="_blank"
-								rel="noopener noreferrer"
-								onClick={handleClose}
-								className="flex items-center gap-2 text-foreground/90 text-sm font-medium py-1"
-							>
-								<IconBrandGithubFilled size={16} />
-								GitHub
-							</Link>
-							<Link
-								href="/demo"
-								onClick={handleClose}
-								className="hover:bg-accent/90 bg-accent px-6 py-2.5 rounded font-semibold text-sm transition-colors text-primary-foreground text-center"
-							>
-								Book a Demo
-							</Link>
+								<Link
+									href="/demo"
+									onClick={handleClose}
+									className="hover:bg-accent/90 bg-accent px-6 py-2.5 rounded font-semibold text-sm transition-colors text-primary-foreground text-center"
+								>
+									Book a Demo
+								</Link>
+							</div>
 						</div>
 					</div>
 				</div>
