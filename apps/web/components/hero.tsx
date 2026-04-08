@@ -23,7 +23,7 @@ function LinkArrow() {
 
 export function Hero() {
 	return (
-		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 py-28">
+		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 py-30">
 			<div className="max-w-7xl mx-auto w-full">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 					<div>
@@ -40,7 +40,7 @@ export function Hero() {
 					</div>
 
 					<div className="space-y-8">
-						<p className="text-lg text-foreground/70 leading-relaxed">
+						<p className="text-lg text-foreground/80 leading-relaxed">
 							Stateful, self-improving memory infrastructure for AI agents.
 							Memory layer that compounds intelligence — so agents get better,
 							not just bigger
@@ -65,8 +65,8 @@ export function Hero() {
 					</div>
 				</div>
 
-				<div className="mt-14 pt-14 border-t border-border flex justify-between items-center gap-20">
-					<p className="text-foreground/60 text-lg flex-wrap pr-8">
+				<div className="mt-10 pt-10 border-t border-border flex justify-between items-center gap-20">
+					<p className="text-muted-foreground text-lg flex-wrap pr-8">
 						Support for most stuff you use daily without any other quirks
 					</p>
 					<LogoCarousel />

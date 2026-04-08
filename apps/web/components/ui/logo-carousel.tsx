@@ -5,8 +5,6 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-// ── Types ───────────────────────────────────────────────────────────
-
 interface LogoDef {
 	name: string;
 	src: string;
@@ -15,8 +13,6 @@ interface LogoDef {
 	height: number;
 	colored?: boolean;
 }
-
-// ── Logo data ───────────────────────────────────────────────────────
 
 const LOGOS: LogoDef[] = [
 	{
@@ -97,7 +93,6 @@ const LOGO_SRCS = LOGOS.map((l) => l.src);
 
 // ── Hooks ───────────────────────────────────────────────────────────
 
-/** Returns fixed slot count of 4 logos per row. */
 function useSlotCount(): number {
 	const [count, setCount] = useState(3);
 	useEffect(() => {

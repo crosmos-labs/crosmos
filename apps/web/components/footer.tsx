@@ -93,7 +93,7 @@ export function Footer() {
 								<li key={link.label}>
 									<a
 										href={link.href}
-										className="text-foreground/70 text-sm link-underline"
+										className="text-foreground/90 text-sm link-underline"
 									>
 										{link.label}
 									</a>
@@ -110,7 +110,7 @@ export function Footer() {
 								<li key={link.label}>
 									<a
 										href={link.href}
-										className="text-foreground/70 text-sm link-underline"
+										className="text-foreground/90 text-sm link-underline"
 									>
 										{link.label}
 									</a>
@@ -127,7 +127,7 @@ export function Footer() {
 								<li key={link.label}>
 									<a
 										href={link.href}
-										className="text-foreground/70 text-sm link-underline"
+										className="text-foreground/90 text-sm link-underline"
 									>
 										{link.label}
 									</a>
@@ -150,7 +150,7 @@ export function Footer() {
 										<a
 											href={social.href}
 											target="_blank"
-											className="text-foreground/70 text-sm link-underline flex gap-1"
+											className="text-foreground/90 text-sm link-underline flex gap-1"
 										>
 											<Icon size={16} strokeWidth={1} />
 											{social.name}
@@ -164,7 +164,7 @@ export function Footer() {
 
 				<div className="border-t border-border pt-8 flex justify-between">
 					<p className="font-bold text-lg">{FOOTER_DATA.brand.name}</p>
-					<p className="text-foreground/60 text-sm">
+					<p className="text-muted-foreground text-sm">
 						{FOOTER_DATA.brand.copyright}
 					</p>
 				</div>
