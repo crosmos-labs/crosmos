@@ -16,7 +16,7 @@ function ThemeProvider({
 			{...props}
 		>
 			{/* TODO: Disable until dark mode is implemented */}
-			{/*<ThemeHotkey />*/}
+			{/*<_ThemeHotkey />*/}
 			{children}
 		</NextThemesProvider>
 	);
