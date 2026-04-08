@@ -78,6 +78,7 @@ export function Navbar() {
 					<Link
 						href={LINKS.social.github}
 						target="_blank"
+						rel="noopener noreferrer"
 						aria-label="GitHub (opens in new tab)"
 						className="p-2 text-foreground/90 hover:text-accent transition-colors rounded hover:bg-secondary/20 select-none inline-flex items-center"
 					>
