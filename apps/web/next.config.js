@@ -5,17 +5,26 @@ const nextConfig = {
 	},
 	poweredByHeader: false,
 	async headers() {
-		return [
-			{
-				source: "/:path*.{png,jpg,jpeg,gif,svg,webp,avif,woff2,ico}",
-				headers: [
-					{
-						key: "Cache-Control",
-						value: "public, max-age=31536000, immutable",
-					},
-				],
-			},
+		const extensions = [
+			"png",
+			"jpg",
+			"jpeg",
+			"gif",
+			"svg",
+			"webp",
+			"avif",
+			"woff2",
+			"ico",
 		];
+		return extensions.map((ext) => ({
+			source: `/:path*.${ext}`,
+			headers: [
+				{
+					key: "Cache-Control",
+					value: "public, max-age=604800, stale-while-revalidate=31536000",
+				},
+			],
+		}));
 	},
 };
 
