@@ -35,7 +35,7 @@ export default function RootLayout({
 			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
 			suppressHydrationWarning
 		>
-			<head>
+			{/*<head>
 				{process.env.NODE_ENV === "development" && (
 					<Script
 						src="//unpkg.com/react-scan/dist/auto.global.js"
@@ -43,7 +43,7 @@ export default function RootLayout({
 						strategy="afterInteractive"
 					/>
 				)}
-			</head>
+			</head>*/}
 			<body>
 				<a
 					href="#main-content"
