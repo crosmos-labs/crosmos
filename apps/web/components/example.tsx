@@ -99,24 +99,24 @@ export function Example() {
 				case "ArrowDown":
 					e.preventDefault();
 					nextIndex = (currentIndex + 1) % TABS.length;
-					setSelected(TABS[nextIndex]!.value);
+					setSelected(TABS[nextIndex]?.value);
 					focusTab(nextIndex);
 					break;
 				case "ArrowLeft":
 				case "ArrowUp":
 					e.preventDefault();
 					nextIndex = (currentIndex - 1 + TABS.length) % TABS.length;
-					setSelected(TABS[nextIndex]!.value);
+					setSelected(TABS[nextIndex]?.value);
 					focusTab(nextIndex);
 					break;
 				case "Home":
 					e.preventDefault();
-					setSelected(TABS[0]!.value);
+					setSelected(TABS[0]?.value);
 					focusTab(0);
 					break;
 				case "End":
 					e.preventDefault();
-					setSelected(TABS[TABS.length - 1]!.value);
+					setSelected(TABS[TABS.length - 1]?.value);
 					focusTab(TABS.length - 1);
 					break;
 			}
