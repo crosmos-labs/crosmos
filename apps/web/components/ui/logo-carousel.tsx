@@ -92,15 +92,15 @@ const LOGO_SRCS = LOGOS.map((l) => l.src);
 
 // ── Hooks ───────────────────────────────────────────────────────────
 
-function useSlotCount(): number {
-	const [count, setCount] = useState(3);
+function useResponsiveSlots(): { count: number; width: number } {
+	const [slots, setSlots] = useState({ count: 3, width: 300 });
 	useEffect(() => {
 		const mqMd = window.matchMedia("(min-width: 768px)");
 		const mqLg = window.matchMedia("(min-width: 1024px)");
 		const update = () => {
-			if (mqLg.matches) setCount(3);
-			else if (mqMd.matches) setCount(2);
-			else setCount(1);
+			if (mqLg.matches) setSlots({ count: 3, width: 300 });
+			else if (mqMd.matches) setSlots({ count: 2, width: 200 });
+			else setSlots({ count: 1, width: 150 });
 		};
 		update();
 		mqMd.addEventListener("change", update);
@@ -110,28 +110,7 @@ function useSlotCount(): number {
 			mqLg.removeEventListener("change", update);
 		};
 	}, []);
-	return count;
-}
-
-function useSlotWidth(): number {
-	const [width, setWidth] = useState(150);
-	useEffect(() => {
-		const mqMd = window.matchMedia("(min-width: 768px)");
-		const mqLg = window.matchMedia("(min-width: 1024px)");
-		const update = () => {
-			if (mqLg.matches) setWidth(300);
-			else if (mqMd.matches) setWidth(200);
-			else setWidth(150);
-		};
-		update();
-		mqMd.addEventListener("change", update);
-		mqLg.addEventListener("change", update);
-		return () => {
-			mqMd.removeEventListener("change", update);
-			mqLg.removeEventListener("change", update);
-		};
-	}, []);
-	return width;
+	return slots;
 }
 
 /** Resolves `true` once every image in `srcs` has loaded (or errored). */
@@ -333,8 +312,7 @@ export function LogoCarousel({
 	variant?: CarouselVariant;
 }) {
 	const allLoaded = useImagesPreloaded(LOGO_SRCS);
-	const slotCount = useSlotCount();
-	const slotWidth = useSlotWidth();
+	const { count: slotCount, width: slotWidth } = useResponsiveSlots();
 
 	const slotLogos = useMemo(
 		() =>
