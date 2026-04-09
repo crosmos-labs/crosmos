@@ -23,7 +23,7 @@ function LinkArrow() {
 
 export function Hero() {
 	return (
-		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 lg:px-8 xl:px-0 py-24 sm:py-28 md:py-30 lg:py-30">
+		<section className="min-h-screen flex flex-col justify-center overflow-hidden px-6 lg:px-8 xl:px-0 py-24 sm:py-28 md:py-30">
 			<div className="max-w-7xl mx-auto w-full text-center md:text-left">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 					<div>
