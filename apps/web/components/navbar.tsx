@@ -30,7 +30,7 @@ export function Navbar() {
 		>
 			<nav
 				aria-label="Main navigation"
-				className="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8 xl:px-0 py-6 sm:py-4 flex items-center justify-between"
+				className="max-w-7xl mx-auto px-6 lg:px-8 xl:px-0 py-6 sm:py-4 flex items-center justify-between"
 			>
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
