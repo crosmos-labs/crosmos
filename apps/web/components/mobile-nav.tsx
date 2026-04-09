@@ -71,6 +71,8 @@ function MobileNavSheet({
 	useEffect(() => {
 		if (!isOpen) return;
 
+		const sheet = sheetRef.current;
+
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
 				onClose();
@@ -78,17 +80,17 @@ function MobileNavSheet({
 		};
 
 		const handleFocusOut = (e: FocusEvent) => {
-			if (!sheetRef.current?.contains(e.relatedTarget as Node)) {
+			if (!sheet?.contains(e.relatedTarget as Node)) {
 				onClose();
 			}
 		};
 
 		document.addEventListener("keydown", handleKeyDown);
-		sheetRef.current?.addEventListener("focusout", handleFocusOut);
+		sheet?.addEventListener("focusout", handleFocusOut);
 
 		return () => {
 			document.removeEventListener("keydown", handleKeyDown);
-			sheetRef.current?.removeEventListener("focusout", handleFocusOut);
+			sheet?.removeEventListener("focusout", handleFocusOut);
 		};
 	}, [isOpen, onClose]);
 
