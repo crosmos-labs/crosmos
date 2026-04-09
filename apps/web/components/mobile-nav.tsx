@@ -28,6 +28,7 @@ function MobileNavButton({
 				onClick={onToggle}
 				aria-label={isOpen ? "Close menu" : "Open menu"}
 				aria-expanded={isOpen}
+				data-mobile-nav-toggle
 				className="relative flex flex-col items-center justify-center gap-1.25 focus-visible:ring-0 focus-visible:border-transparent focus-visible:outline-none"
 			>
 				<span
@@ -80,7 +81,9 @@ function MobileNavSheet({
 		};
 
 		const handleFocusOut = (e: FocusEvent) => {
-			if (!sheet?.contains(e.relatedTarget as Node)) {
+			const related = e.relatedTarget as HTMLElement | null;
+			if (related?.closest?.("[data-mobile-nav-toggle]")) return;
+			if (!sheet?.contains(related)) {
 				onClose();
 			}
 		};
