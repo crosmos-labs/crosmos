@@ -195,7 +195,7 @@ export function Pricing() {
 						growing heavier.
 					</p>
 				</div>
-				<div className="sticky top-[80px] sm:top-[65px] lg:static lg:top-auto z-10 bg-background py-3 -mx-6 px-6 lg:mx-0 lg:px-0 lg:py-0 flex items-center justify-center space-x-4 mt-6 w-full">
+				<div className="sticky top-20 sm:top-16.25 lg:static lg:top-auto z-10 bg-background py-3 -mx-6 px-6 lg:mx-0 lg:px-0 lg:py-0 flex items-center justify-center space-x-4 mt-6 w-full">
 					<span className="text-sm sm:text-base font-medium">Monthly</span>
 					<button
 						onClick={handleSwitch}
