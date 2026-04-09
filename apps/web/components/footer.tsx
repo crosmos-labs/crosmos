@@ -64,31 +64,32 @@ const FOOTER_DATA = {
 
 export function Footer() {
 	return (
-		<footer className="relative py-16 space-y-16">
-			<PixelBlast
-				variant="square"
-				pixelSize={4}
-				color="#1a1a1a"
-				patternScale={2}
-				patternDensity={1}
-				pixelSizeJitter={0}
-				enableRipples
-				rippleSpeed={0.4}
-				rippleThickness={0.12}
-				rippleIntensityScale={1}
-				speed={0.5}
-				edgeFade={0.2}
-				transparent
-				className="absolute inset-x-0 top-0"
-				style={{ height: "360px" }}
-			/>
-			<div className="relative z-10 max-w-7xl mx-auto px-6">
-				<div className="pt-8 flex justify-between items-center mb-12">
-					<div className="relative flex flex-col items-center">
+		<footer className="relative">
+			<div className="h-48 sm:h-64 md:h-80 lg:h-[360px] absolute inset-x-0 top-0">
+				<PixelBlast
+					variant="square"
+					pixelSize={4}
+					color="#1a1a1a"
+					patternScale={2}
+					patternDensity={1}
+					pixelSizeJitter={0}
+					enableRipples
+					rippleSpeed={0.4}
+					rippleThickness={0.12}
+					rippleIntensityScale={1}
+					speed={0.5}
+					edgeFade={0.2}
+					transparent
+					className="size-full"
+				/>
+			</div>
+			<div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 xl:px-0 pt-56 sm:pt-80 md:pt-96 lg:pt-[400px] pb-12 sm:pb-16">
+				<div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+					<div>
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							{FOOTER_DATA.product.title}
 						</h3>
-						<ul className="space-y-2 text-start">
+						<ul className="space-y-2">
 							{FOOTER_DATA.product.links.map((link) => (
 								<li key={link.label}>
 									<a
@@ -101,11 +102,11 @@ export function Footer() {
 							))}
 						</ul>
 					</div>
-					<div className="flex flex-col items-center">
+					<div>
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							{FOOTER_DATA.documentation.title}
 						</h3>
-						<ul className="space-y-2 text-center">
+						<ul className="space-y-2">
 							{FOOTER_DATA.documentation.links.map((link) => (
 								<li key={link.label}>
 									<a
@@ -118,11 +119,11 @@ export function Footer() {
 							))}
 						</ul>
 					</div>
-					<div className="flex flex-col items-center">
+					<div>
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							{FOOTER_DATA.company.title}
 						</h3>
-						<ul className="space-y-2 text-center">
+						<ul className="space-y-2">
 							{FOOTER_DATA.company.links.map((link) => (
 								<li key={link.label}>
 									<a
@@ -135,7 +136,7 @@ export function Footer() {
 							))}
 						</ul>
 					</div>
-					<div className="flex flex-col items-end">
+					<div>
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							{FOOTER_DATA.social.title}
 						</h3>
@@ -143,10 +144,7 @@ export function Footer() {
 							{FOOTER_DATA.social.links.map((social) => {
 								const Icon = social.icon;
 								return (
-									<li
-										key={social.name}
-										className="flex items-center justify-end gap-2"
-									>
+									<li key={social.name} className="flex items-center gap-2">
 										<a
 											href={social.href}
 											target="_blank"
@@ -162,7 +160,7 @@ export function Footer() {
 					</div>
 				</div>
 
-				<div className="border-t border-border pt-8 flex justify-between">
+				<div className="border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
 					<p className="font-bold text-lg">{FOOTER_DATA.brand.name}</p>
 					<p className="text-muted-foreground text-sm">
 						{FOOTER_DATA.brand.copyright}
