@@ -37,7 +37,7 @@ export function DecryptCodeSnippet({
 				className,
 			)}
 		>
-			<div className="px-8 pb-10 pt-6 overflow-x-auto">
+			<div className="px-4 pb-4 pt-4 sm:px-8 sm:pb-10 sm:pt-6 overflow-x-auto">
 				<pre
 					ref={containerRef}
 					className="m-0 p-0 bg-transparent border-none text-[#abb2bf]"

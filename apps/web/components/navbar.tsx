@@ -5,10 +5,12 @@ import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { MobileNavButton, MobileNavSheet } from "@/components/mobile-nav";
 import { LINKS } from "@/config/links";
 
 export function Navbar() {
 	const [isScrolled, setIsScrolled] = useState(false);
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -23,12 +25,12 @@ export function Navbar() {
 		<header
 			className={cn(
 				"fixed top-0 left-0 right-0 z-50 bg-background border-border",
-				isScrolled && "border-b",
+				(isScrolled || isMobileMenuOpen) && "border-b",
 			)}
 		>
 			<nav
 				aria-label="Main navigation"
-				className="max-w-7xl mx-auto py-4 flex items-center justify-between"
+				className="max-w-7xl mx-auto px-6 lg:px-8 xl:px-0 py-6 sm:py-4 flex items-center justify-between"
 			>
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
@@ -74,7 +76,7 @@ export function Navbar() {
 						</Link>
 					</div>
 				</div>
-				<div className="flex items-center gap-2">
+				<div className="hidden lg:flex items-center gap-2">
 					<Link
 						href={LINKS.social.github}
 						target="_blank"
@@ -91,7 +93,15 @@ export function Navbar() {
 						Book a Demo
 					</Link>
 				</div>
+				<MobileNavButton
+					isOpen={isMobileMenuOpen}
+					onToggle={() => setIsMobileMenuOpen((prev) => !prev)}
+				/>
 			</nav>
+			<MobileNavSheet
+				isOpen={isMobileMenuOpen}
+				onClose={() => setIsMobileMenuOpen(false)}
+			/>
 		</header>
 	);
 }

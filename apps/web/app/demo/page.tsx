@@ -4,8 +4,8 @@ import { StepperForm } from "@/components/stepper-form";
 
 export default function DemoPage() {
 	return (
-		<div className="h-screen grid grid-cols-1 md:grid-cols-5 overflow-hidden">
-			<div className="col-span-3 p-6">
+		<div className="min-h-[100dvh] grid grid-cols-1 md:grid-cols-5 overflow-hidden">
+			<div className="col-span-3 p-4 sm:p-6 md:p-8">
 				<div>
 					<Link href="/">
 						<Image
@@ -13,14 +13,14 @@ export default function DemoPage() {
 							alt="Crosmos"
 							width={120}
 							height={32}
-							className="h-8 w-auto"
+							className="h-6 sm:h-8 w-auto"
 							priority
 							unoptimized
 						/>
 					</Link>
 				</div>
-				<div className="size-full flex flex-col justify-center items-center px-4 md:px-8 -mt-20">
-					<div className="w-full max-w-md">
+				<div className="size-full flex flex-col justify-center items-center px-2 sm:px-4 md:px-8 -mt-16 sm:-mt-20">
+					<div className="w-full max-w-sm sm:max-w-md">
 						<StepperForm />
 					</div>
 				</div>
