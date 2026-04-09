@@ -96,14 +96,12 @@ export function Example() {
 
 			switch (e.key) {
 				case "ArrowRight":
-				case "ArrowDown":
 					e.preventDefault();
 					nextIndex = (currentIndex + 1) % TABS.length;
 					setSelected(TABS[nextIndex]!.value);
 					focusTab(nextIndex);
 					break;
 				case "ArrowLeft":
-				case "ArrowUp":
 					e.preventDefault();
 					nextIndex = (currentIndex - 1 + TABS.length) % TABS.length;
 					setSelected(TABS[nextIndex]!.value);
@@ -173,7 +171,6 @@ export function Example() {
 						className="relative md:col-span-3 aspect-[4/5] sm:aspect-video md:aspect-auto md:size-full -mx-6 md:mx-0 flex items-end justify-end overflow-hidden"
 						role="tabpanel"
 						aria-labelledby={`tab-${selected}`}
-						aria-live="polite"
 					>
 						<Image
 							src="/hero-image.webp"
