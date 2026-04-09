@@ -189,7 +189,6 @@
 	}
 	body {
 		@apply bg-background text-foreground tracking-normal selection:bg-accent selection:text-background;
-		scrollbar-width: none;
 	}
 	button {
 		@apply cursor-pointer focus:outline-none focus:ring-0;
