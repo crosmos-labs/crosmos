@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
-import Script from "next/script";
 
 import "@crosmos/ui/globals.css";
 import { Analytics } from "@vercel/analytics/next";
@@ -35,15 +34,6 @@ export default function RootLayout({
 			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
 			suppressHydrationWarning
 		>
-			{/*<head>
-				{process.env.NODE_ENV === "development" && (
-					<Script
-						src="//unpkg.com/react-scan/dist/auto.global.js"
-						crossOrigin="anonymous"
-						strategy="afterInteractive"
-					/>
-				)}
-			</head>*/}
 			<body>
 				<a
 					href="#main-content"
