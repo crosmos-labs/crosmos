@@ -2,13 +2,7 @@ import { Button } from "@crosmos/ui/components/button";
 import { ButtonGroup } from "@crosmos/ui/components/button-group";
 import { Card, CardTitle } from "@crosmos/ui/components/card";
 import { IconMaximize, IconMinus, IconPlus } from "@tabler/icons-react";
-import {
-	forceCollide,
-	forceLink,
-	forceManyBody,
-	forceX,
-	forceY,
-} from "d3-force";
+import { forceLink, forceManyBody, forceX, forceY } from "d3-force";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ForceGraph2D, {
 	type ForceGraphMethods,
@@ -57,7 +51,7 @@ export function MemoryGraph() {
 	useEffect(() => {
 		if (!graphRef.current) return;
 
-		graphRef.current.d3Force("collide", forceCollide(40).strength(0.5));
+		// graphRef.current.d3Force("collide", forceCollide(40).strength(0.5));
 		graphRef.current.d3Force(
 			"link",
 			forceLink().distance(FORCE_CONFIG.linkDistance),
