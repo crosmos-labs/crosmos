@@ -95,28 +95,36 @@ export function Example() {
 			let nextIndex: number;
 
 			switch (e.key) {
-				case "ArrowRight":
+				case "ArrowRight": {
 					e.preventDefault();
 					nextIndex = (currentIndex + 1) % TABS.length;
-					setSelected(TABS[nextIndex]?.value);
+					// biome-ignore lint/style/noNonNullAssertion: index is guaranteed valid by modular arithmetic
+					setSelected(TABS[nextIndex]!.value);
 					focusTab(nextIndex);
 					break;
-				case "ArrowLeft":
+				}
+				case "ArrowLeft": {
 					e.preventDefault();
 					nextIndex = (currentIndex - 1 + TABS.length) % TABS.length;
-					setSelected(TABS[nextIndex]?.value);
+					// biome-ignore lint/style/noNonNullAssertion: index is guaranteed valid by modular arithmetic
+					setSelected(TABS[nextIndex]!.value);
 					focusTab(nextIndex);
 					break;
-				case "Home":
+				}
+				case "Home": {
 					e.preventDefault();
-					setSelected(TABS[0]?.value);
+					// biome-ignore lint/style/noNonNullAssertion: index is guaranteed valid
+					setSelected(TABS[0]!.value);
 					focusTab(0);
 					break;
-				case "End":
+				}
+				case "End": {
 					e.preventDefault();
-					setSelected(TABS[TABS.length - 1]?.value);
+					// biome-ignore lint/style/noNonNullAssertion: index is guaranteed valid
+					setSelected(TABS[TABS.length - 1]!.value);
 					focusTab(TABS.length - 1);
 					break;
+				}
 			}
 		},
 		[selected, focusTab],
