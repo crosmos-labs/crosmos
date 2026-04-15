@@ -141,11 +141,11 @@ export function Example() {
 					<div className="md:col-span-2 flex flex-col justify-between border-foreground/10 border-2 rounded">
 						<div className="px-6 py-6 md:px-12 md:pt-12 space-y-4">
 							<h3 className="font-bold text-2xl sm:text-3xl md:text-4xl">
-								Purchase, upgrade, downgrade
+								Store &amp; search memories
 							</h3>
 							<p className="text-wrap">
-								One call connects users to plans. Stripe checkout, webhooks, and
-								entitlement activation all handled.
+								Two calls to give your agent long-term memory. Store context,
+								search semantically, and let your AI remember everything.
 							</p>
 						</div>
 						<div
