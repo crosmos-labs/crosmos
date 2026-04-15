@@ -38,7 +38,12 @@ export default function RootLayout({
 				>
 					Skip to content
 				</a>
-				<ThemeProvider enableSystem defaultTheme="light">
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					disableTransitionOnChange
+				>
 					{children}
 				</ThemeProvider>
 			</body>
