@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { verifyAuth } from "@/lib/auth/session";
 import type { AuthUser } from "@/lib/auth/types";
+import { SidebarProvider } from "@crosmos/ui/components/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 export default async function DashboardLayout({
 	children,
@@ -13,5 +15,10 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
-	return <>{children}</>;
+	return (
+		<SidebarProvider>
+			<AppSidebar user={user} />
+			<main className="flex-1 overflow-auto">{children}</main>
+		</SidebarProvider>
+	);
 }

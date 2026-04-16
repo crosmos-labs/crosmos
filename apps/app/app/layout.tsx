@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 
 import "@crosmos/ui/globals.css";
 import { Toaster } from "@crosmos/ui/components/sonner";
-import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@crosmos/ui/components/tooltip";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -29,7 +29,7 @@ export default function RootLayout({
 	return (
 		<html
 			lang="en"
-			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
+			className={`${satoshi.variable} ${jetbrainsMono.variable} dark`}
 			suppressHydrationWarning
 		>
 			<body>
@@ -39,15 +39,8 @@ export default function RootLayout({
 				>
 					Skip to content
 				</a>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="system"
-					enableSystem
-					disableTransitionOnChange
-				>
-					{children}
-					<Toaster />
-				</ThemeProvider>
+				<TooltipProvider>{children}</TooltipProvider>
+				<Toaster />
 			</body>
 		</html>
 	);
