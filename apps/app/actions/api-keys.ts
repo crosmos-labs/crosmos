@@ -1,33 +1,47 @@
 "use server";
 
-import { apiFetch } from "@/lib/api";
 import { revalidatePath } from "next/cache";
+import { apiFetch } from "@/lib/api";
 
 export interface ApiKey {
-	id: string;
+	key_id: number;
 	name: string;
-	prefix: string;
-	created_at: string;
+	key_prefix: string;
+	is_active: boolean;
+	expires_at: string | null;
 	last_used_at: string | null;
+	created_at: string;
+}
+
+interface ListApiKeysResponse {
+	keys: ApiKey[];
 }
 
 export async function listApiKeys() {
-	return apiFetch<ApiKey[]>("/api/v1/api-keys");
+	const res = await apiFetch<ListApiKeysResponse>("/auth/keys");
+	return res.keys;
 }
 
-export async function createApiKey(formData: FormData) {
-	const name = formData.get("name") as string;
+export interface CreateApiKeyResponse {
+	key_id: number;
+	name: string;
+	key_prefix: string;
+	raw_key: string;
+	expires_at: string | null;
+}
 
-	await apiFetch("/api/v1/api-keys", {
+export async function createApiKey(name: string) {
+	const res = await apiFetch<CreateApiKeyResponse>("/auth/keys", {
 		method: "POST",
 		body: JSON.stringify({ name }),
 	});
 
 	revalidatePath("/api-key");
+	return res;
 }
 
-export async function revokeApiKey(keyId: string) {
-	await apiFetch(`/api/v1/api-keys/${keyId}`, {
+export async function revokeApiKey(keyId: number) {
+	await apiFetch(`/auth/keys/${keyId}`, {
 		method: "DELETE",
 	});
 
