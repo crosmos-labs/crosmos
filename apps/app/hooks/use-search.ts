@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import { searchMemories, type SearchResult } from "@/actions/search";
+import { type SearchResult, searchMemories } from "@/actions/search";
 
 export function useSearch(query: string, spaceId?: number) {
 	return useSWR<SearchResult[]>(

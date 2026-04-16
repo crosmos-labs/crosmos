@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner } from "@agilek/cli-loaders";
+import { PulseSpinner } from "@/components/pulse-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -61,7 +61,7 @@ function SignupForm() {
 					disabled={loading}
 				>
 					{loading ? (
-						<Spinner name="pulse" speed={1.5} size="1.1em" />
+						<PulseSpinner />
 					) : (
 						<>
 							<IconBrandGoogleFilled className="size-5" />

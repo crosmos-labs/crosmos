@@ -1,7 +1,7 @@
 "use server";
 
-import { apiFetch } from "@/lib/api";
 import { revalidatePath } from "next/cache";
+import { apiFetch } from "@/lib/api";
 
 export interface Space {
 	id: number;

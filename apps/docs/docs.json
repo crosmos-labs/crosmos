@@ -83,7 +83,7 @@
 		"links": [
 			{
 				"label": "Support",
-				"href": "mailto:crosmos.ai@gmail.com"
+				"href": "mailto:hello@crosmos.dev"
 			}
 		],
 		"primary": {
@@ -140,7 +140,7 @@
 
 			"og:title": "Crosmos Docs - Memory Engine",
 			"og:type": "website",
-			"og:url": "https://docs.crosmos.ai",
+			"og:url": "https://docs.crosmos.dev",
 			"og:description": "Build apps with our Memory API which supports most modern toolkits",
 			"og:site_name": "Crosmos Docs",
 			"og:locale": "en_US"

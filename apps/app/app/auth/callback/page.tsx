@@ -1,6 +1,6 @@
 "use client";
 
-import { Spinner } from "@agilek/cli-loaders";
+import { PulseSpinner } from "@/components/pulse-spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { handleOAuthCallback } from "./actions";
@@ -35,7 +35,7 @@ export default function AuthCallbackPage() {
 
 	return (
 		<div className="flex min-h-screen items-center justify-center">
-			<Spinner name="pulse" speed={1.5} size="1.5rem" />
+			<PulseSpinner size="1.5rem" />
 		</div>
 	);
 }
