@@ -1,8 +1,9 @@
+import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
 import { redirect } from "next/navigation";
+import { AppSidebar } from "@/components/app-sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
 import { verifyAuth } from "@/lib/auth/session";
 import type { AuthUser } from "@/lib/auth/types";
-import { SidebarProvider } from "@crosmos/ui/components/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 
 export default async function DashboardLayout({
 	children,
@@ -18,7 +19,12 @@ export default async function DashboardLayout({
 	return (
 		<SidebarProvider>
 			<AppSidebar user={user} />
-			<main className="flex-1 overflow-auto">{children}</main>
+			<SidebarInset>
+				<DashboardHeader />
+				<div className="flex-1 overflow-auto">
+					<div className="mx-auto max-w-5xl p-6">{children}</div>
+				</div>
+			</SidebarInset>
 		</SidebarProvider>
 	);
 }
