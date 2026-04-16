@@ -188,7 +188,7 @@
 		@apply border-border outline-ring/50 scroll-smooth;
 	}
 	body {
-		@apply bg-background text-foreground tracking-normal selection:bg-accent selection:text-background;
+		@apply bg-background text-foreground tracking-normal selection:bg-accent selection:text-accent-foreground;
 	}
 	button {
 		@apply cursor-pointer focus:outline-none focus:ring-0;
