@@ -1,7 +1,7 @@
 export default function Home() {
 	return (
-		<main id="main-content">
+		<div id="main-content" className="p-6">
 			<h1>Crosmos Dashboard</h1>
-		</main>
+		</div>
 	);
 }
