@@ -14,10 +14,12 @@
 		"@agilek/cli-loaders": "^1.1.0",
 		"@crosmos/graph": "workspace:*",
 		"@crosmos/ui": "workspace:*",
+		"@tabler/icons-react": "^3.41.1",
 		"next": "16.1.5",
 		"next-themes": "^0.4.6",
 		"react": "^19.2.0",
-		"react-dom": "^19.2.0"
+		"react-dom": "^19.2.0",
+		"swr": "^2.4.1"
 	},
 	"devDependencies": {
 		"@crosmos/typescript-config": "*",
