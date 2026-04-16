@@ -1,17 +1,17 @@
-import type { ComponentType } from "react";
 import {
-	IconHome,
-	IconDatabase,
-	IconTopologyStarRing3,
+	IconActivity,
+	IconBook,
 	IconBrain,
 	IconChartBar,
-	IconActivity,
+	IconCreditCard,
+	IconDatabase,
+	IconHome,
 	IconKey,
 	IconPlayerPlay,
-	IconCreditCard,
 	IconSettings,
-	IconBook,
+	IconTopologyStarRing3,
 } from "@tabler/icons-react";
+import type { ComponentType } from "react";
 
 export interface NavItem {
 	label: string;
@@ -51,7 +51,7 @@ export const navGroups: NavGroup[] = [
 	{
 		label: "DEVELOPER",
 		items: [
-			{ label: "API Key", href: "/api-key", icon: IconKey },
+			{ label: "API Keys", href: "/api-key", icon: IconKey },
 			{
 				label: "Playground",
 				href: "/playground",
@@ -79,10 +79,23 @@ export const navGroups: NavGroup[] = [
 	},
 ];
 
+export const breadcrumbLabelMap: Record<string, string> = {
+	"/": "Home",
+	"/spaces": "Spaces",
+	"/entities": "Entities",
+	"/memories": "Memories",
+	"/analytics": "Analytics",
+	"/activity": "Activity",
+	"/api-key": "API Keys",
+	"/playground": "Playground",
+	"/billing": "Billing",
+	"/settings": "Settings",
+};
+
 export const externalItems: NavItem[] = [
 	{
 		label: "Documentation",
-		href: "https://docs.crosmos.ai",
+		href: "https://docs.crosmos.dev",
 		icon: IconBook,
 		external: true,
 	},
