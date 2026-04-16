@@ -3,6 +3,7 @@ import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 
 import "@crosmos/ui/globals.css";
+import { Toaster } from "@crosmos/ui/components/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const satoshi = localFont({
@@ -45,6 +46,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					{children}
+					<Toaster />
 				</ThemeProvider>
 			</body>
 		</html>
