@@ -13,6 +13,7 @@
       "name": "app",
       "version": "0.1.0",
       "dependencies": {
+        "@agilek/cli-loaders": "^1.1.0",
         "@crosmos/graph": "workspace:*",
         "@crosmos/ui": "workspace:*",
         "next": "16.1.5",
@@ -114,6 +115,8 @@
     },
   },
   "packages": {
+    "@agilek/cli-loaders": ["@agilek/cli-loaders@1.1.0", "", { "peerDependencies": { "react": ">=18.0.0" } }, "sha512-aqTLMYO0VES9Fcmw15TdMt8/41P8auxdQuFOpJ5LGMX+QVSYcufIx20Ifs8hyuVLrSZbyI0jwMeuQNSC4vTjPg=="],
+
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
