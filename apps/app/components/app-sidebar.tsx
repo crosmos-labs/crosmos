@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { Avatar, AvatarFallback } from "@crosmos/ui/components/avatar";
 import {
 	Sidebar,
 	SidebarContent,
@@ -14,8 +14,8 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@crosmos/ui/components/sidebar";
-import { Avatar, AvatarFallback } from "@crosmos/ui/components/avatar";
 import { IconBuilding, IconChevronDown } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
 
 function LinkArrow({ className }: { className?: string }) {
 	return (
@@ -35,9 +35,10 @@ function LinkArrow({ className }: { className?: string }) {
 		</svg>
 	);
 }
+
 import { cn } from "@crosmos/ui/lib/utils";
+import { externalItems, homeItem, navGroups } from "@/config/nav";
 import type { AuthUser } from "@/lib/auth/types";
-import { homeItem, navGroups, externalItems } from "@/config/nav";
 
 function getInitials(name: string) {
 	return name
@@ -103,7 +104,7 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 								{group.items.map((item) => (
 									<SidebarMenuItem key={item.href}>
 										<SidebarMenuButton
-											asChild={item.disabled ? false : true}
+											asChild={!item.disabled}
 											isActive={pathname === item.href}
 											disabled={item.disabled}
 											tooltip={item.disabled ? "Coming soon" : item.label}
@@ -140,7 +141,7 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 							<SidebarMenuButton
 								asChild
 								tooltip={item.label}
-								className="pl-4 hover:bg-transparent active:bg-transparent"
+								className="pl-4 opacity-80 hover:opacity-100 hover:bg-transparent active:bg-transparent"
 							>
 								<a href={item.href} target="_blank" rel="noopener noreferrer">
 									<span className="inline-flex items-center gap-2">
