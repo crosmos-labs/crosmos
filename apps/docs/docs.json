@@ -159,5 +159,8 @@
 			"title": "Page Not Found, Coffee Not Included",
 			"description": "This isn’t where you meant to go. Or maybe it is—either way, nothing’s here."
 		}
-	}
+  },
+  "api": {
+    "openapi": "https://api.crosmos.dev/openapi.json"
+  }
 }
