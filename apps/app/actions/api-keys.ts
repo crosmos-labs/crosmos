@@ -30,10 +30,17 @@ export interface CreateApiKeyResponse {
 	expires_at: string | null;
 }
 
-export async function createApiKey(name: string) {
+export async function createApiKey(name: string, expiresInDays?: number) {
+	const body: Record<string, unknown> = { name };
+	if (expiresInDays) {
+		body.expires_at = new Date(
+			Date.now() + expiresInDays * 24 * 60 * 60 * 1000,
+		).toISOString();
+	}
+
 	const res = await apiFetch<CreateApiKeyResponse>("/auth/keys", {
 		method: "POST",
-		body: JSON.stringify({ name }),
+		body: JSON.stringify(body),
 	});
 
 	revalidatePath("/api-key");

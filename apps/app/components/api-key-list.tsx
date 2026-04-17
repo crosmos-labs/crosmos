@@ -10,6 +10,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
+import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
 	Dialog,
@@ -42,6 +43,13 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@crosmos/ui/components/select";
 import { IconDotsVertical, IconKey, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
@@ -52,11 +60,33 @@ import {
 	createApiKey,
 	revokeApiKey,
 } from "@/actions/api-keys";
-import { ApiKeyCreatedBanner } from "@/components/api-key-created-banner";
+import { NewKeyBanner } from "@/components/new-key-banner";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 
 function maskKey(prefix: string) {
 	return prefix + "*".repeat(Math.max(0, 36 - prefix.length));
+}
+
+function ExpiryBadge({ expiresAt }: { expiresAt: string | null }) {
+	if (!expiresAt) return null;
+
+	const expires = new Date(expiresAt);
+	const now = new Date();
+	const daysLeft = Math.ceil(
+		(expires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+	);
+
+	if (daysLeft <= 0) {
+		return <Badge variant="destructive">Expired</Badge>;
+	}
+
+	const label = `expires ${formatDistanceToNow(expires, { addSuffix: true })}`;
+
+	if (daysLeft <= 7) {
+		return <Badge variant="destructive">{label}</Badge>;
+	}
+
+	return <Badge variant="secondary">{label}</Badge>;
 }
 
 function CreateKeyDialog({
@@ -66,21 +96,25 @@ function CreateKeyDialog({
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onCreateKey: (name: string) => void;
+	onCreateKey: (name: string, expiresInDays?: number) => void;
 }) {
 	const [name, setName] = useState("");
+	const [expiry, setExpiry] = useState("0");
 
 	function handleClose() {
 		setName("");
+		setExpiry("0");
 		onOpenChange(false);
 	}
 
 	function handleCreate() {
 		if (!name.trim()) return;
 		const keyName = name.trim();
+		const days = Number(expiry) || 0;
 		setName("");
+		setExpiry("0");
 		onOpenChange(false);
-		onCreateKey(keyName);
+		onCreateKey(keyName, days > 0 ? days : undefined);
 	}
 
 	return (
@@ -89,7 +123,7 @@ function CreateKeyDialog({
 				<DialogHeader>
 					<DialogTitle>Create API Key</DialogTitle>
 					<DialogDescription>
-						Enter a name for your new API key.
+						Enter a name and expiry for your new API key.
 					</DialogDescription>
 				</DialogHeader>
 				<Input
@@ -101,6 +135,21 @@ function CreateKeyDialog({
 					}}
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
+				<div className="flex items-center justify-between">
+					<span className="text-sm text-muted-foreground">Expires in</span>
+					<Select value={expiry} onValueChange={setExpiry}>
+						<SelectTrigger className="focus-visible:ring-0 focus-visible:border-input">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="0">Never</SelectItem>
+							<SelectItem value="30">30 days</SelectItem>
+							<SelectItem value="60">60 days</SelectItem>
+							<SelectItem value="90">90 days</SelectItem>
+							<SelectItem value="365">1 year</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 				<DialogFooter>
 					<Button variant="outline" onClick={handleClose}>
 						Cancel
@@ -133,8 +182,8 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	);
 
 	const handleCreateKey = useCallback(
-		(name: string) => {
-			runAction(() => createApiKey(name), {
+		(name: string, expiresInDays?: number) => {
+			runAction(() => createApiKey(name, expiresInDays), {
 				toast: { success: "API key created", error: "Failed to create key" },
 			})
 				.then((res) => {
@@ -150,26 +199,44 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 		setCreatedKeys((prev) => prev.filter((k) => k.key_id !== keyId));
 	}, []);
 
-	const countRow = (
-		<div className="flex items-center justify-between">
-			<span className="text-sm text-muted-foreground">
-				{keys.length} key{keys.length !== 1 ? "s" : ""}
-			</span>
-			<Button onClick={() => setDialogOpen(true)}>
-				<IconPlus data-icon="inline-start" />
-				Create
-			</Button>
-		</div>
-	);
+	function KeyCountRow({
+		count,
+		onCreateClick,
+	}: {
+		count: number;
+		onCreateClick: () => void;
+	}) {
+		return (
+			<div className="flex items-center justify-between">
+				<span className="text-sm text-muted-foreground">
+					{count} key{count !== 1 ? "s" : ""}
+				</span>
+				<Button onClick={onCreateClick}>
+					<IconPlus data-icon="inline-start" />
+					Create
+				</Button>
+			</div>
+		);
+	}
 
 	if (keys.length === 0) {
 		return (
 			<>
-				{countRow}
-				<ApiKeyCreatedBanner
-					createdKeys={createdKeys}
-					onDismiss={handleDismissCreatedKey}
+				<KeyCountRow
+					count={keys.length}
+					onCreateClick={() => setDialogOpen(true)}
 				/>
+				{createdKeys.length > 0 && (
+					<div className="flex flex-col gap-2">
+						{createdKeys.map((key) => (
+							<NewKeyBanner
+								key={key.key_id}
+								createdKey={key}
+								onDismiss={handleDismissCreatedKey}
+							/>
+						))}
+					</div>
+				)}
 				<Empty>
 					<EmptyHeader>
 						<EmptyMedia variant="icon">
@@ -199,28 +266,41 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 
 	return (
 		<div className="flex flex-col gap-4">
-			{countRow}
-			<ApiKeyCreatedBanner
-				createdKeys={createdKeys}
-				onDismiss={handleDismissCreatedKey}
+			<KeyCountRow
+				count={keys.length}
+				onCreateClick={() => setDialogOpen(true)}
 			/>
+			{createdKeys.length > 0 && (
+				<div className="flex flex-col gap-2">
+					{createdKeys.map((key) => (
+						<NewKeyBanner
+							key={key.key_id}
+							createdKey={key}
+							onDismiss={handleDismissCreatedKey}
+						/>
+					))}
+				</div>
+			)}
 			<ItemGroup>
 				{keys.map((key) => (
 					<Item
 						key={key.key_id}
 						variant="outline"
-						className="hover:bg-muted/50 transition-colors hover:transition-none"
+						className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
 					>
 						<ItemContent>
-							<ItemTitle>{key.name}</ItemTitle>
+							<ItemTitle className="flex items-center gap-2 text-base">
+								{key.name}
+								<ExpiryBadge expiresAt={key.expires_at} />
+							</ItemTitle>
 							<ItemDescription>
-								<code className="font-mono text-xs">
+								<code className="font-mono text-sm">
 									{maskKey(key.key_prefix)}
 								</code>
 							</ItemDescription>
 						</ItemContent>
 						<ItemActions>
-							<span className="text-xs text-muted-foreground whitespace-nowrap">
+							<span className="text-sm text-muted-foreground whitespace-nowrap">
 								{formatDistanceToNow(new Date(key.created_at), {
 									addSuffix: true,
 								})}
