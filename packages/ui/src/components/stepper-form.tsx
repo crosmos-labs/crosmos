@@ -1,13 +1,8 @@
 "use client";
 
-import { Button } from "@crosmos/ui/components/button";
-import {
-	Field,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-} from "@crosmos/ui/components/field";
-import { Input } from "@crosmos/ui/components/input";
+import { Button } from "./button";
+import { Field, FieldError, FieldGroup, FieldLabel } from "./field";
+import { Input } from "./input";
 import {
 	IconArrowForward,
 	IconChevronLeft,
@@ -17,29 +12,14 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { z } from "zod";
 
-const stepConfig = [
-	{
-		key: "name",
-		label: "Name",
-		placeholder: "Enter your name",
-		schema: z
-			.string()
-			.min(2, "Name must be at least 2 characters.")
-			.max(50, "Name must be 50 characters or less."),
-	} as const,
-	{
-		key: "email",
-		label: "Email",
-		type: "email",
-		placeholder: "something@cool.com",
-		schema: z
-			.string()
-			.min(1, "Email is required.")
-			.email("Please enter a valid email address."),
-	} as const,
-];
+export interface StepperStep {
+	key: string;
+	label: string;
+	type?: string;
+	placeholder: string;
+	schema: z.ZodType;
+}
 
-const TOTAL_STEPS = stepConfig.length;
 const SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;
 const PROGRESS_SPRING = {
 	type: "spring",
@@ -47,10 +27,16 @@ const PROGRESS_SPRING = {
 	damping: 20,
 } as const;
 
-function StepProgressBar({ currentStep }: { currentStep: number }) {
+function StepProgressBar({
+	currentStep,
+	totalSteps,
+}: {
+	currentStep: number;
+	totalSteps: number;
+}) {
 	return (
 		<div className="mb-10 flex gap-2">
-			{Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((step) => (
+			{Array.from({ length: totalSteps }, (_, i) => i + 1).map((step) => (
 				<div
 					key={step}
 					className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-muted"
@@ -73,7 +59,7 @@ function StepField({
 	onChange,
 	onSubmit,
 }: {
-	config: (typeof stepConfig)[number];
+	config: StepperStep;
 	value: string;
 	error: string;
 	onChange: (value: string) => void;
@@ -110,15 +96,25 @@ function StepField({
 	);
 }
 
-export function StepperForm() {
+export function StepperForm({
+	steps,
+	onSubmit,
+	title = "Get Started",
+	description = "Enter your details to continue.",
+}: {
+	steps: StepperStep[];
+	onSubmit: (values: Record<string, string>) => void;
+	title?: string;
+	description?: string;
+}) {
+	const totalSteps = steps.length;
 	const [currentStep, setCurrentStep] = useState(1);
-	const [values, setValues] = useState<Record<string, string>>({
-		name: "",
-		email: "",
-	});
+	const [values, setValues] = useState<Record<string, string>>(
+		Object.fromEntries(steps.map((s) => [s.key, ""])),
+	);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
-	const cfg = stepConfig[currentStep - 1]!;
+	const cfg = steps[currentStep - 1]!;
 
 	const handleNext = () => {
 		const result = cfg.schema.safeParse(values[cfg.key]);
@@ -127,8 +123,8 @@ export function StepperForm() {
 			return;
 		}
 		setErrors({});
-		if (currentStep < TOTAL_STEPS) setCurrentStep((s) => s + 1);
-		else console.log("Submitted:", values);
+		if (currentStep < totalSteps) setCurrentStep((s) => s + 1);
+		else onSubmit(values);
 	};
 
 	const handleBack = () => {
@@ -139,13 +135,11 @@ export function StepperForm() {
 	return (
 		<>
 			<h1 className="mb-3 text-3xl font-semibold tracking-tight text-foreground">
-				Get Started
+				{title}
 			</h1>
-			<p className="mb-10 text-base text-muted-foreground">
-				Enter your details to continue.
-			</p>
+			<p className="mb-10 text-base text-muted-foreground">{description}</p>
 
-			<StepProgressBar currentStep={currentStep} />
+			<StepProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
 			<FieldGroup className="mb-10">
 				<StepField
@@ -175,7 +169,7 @@ export function StepperForm() {
 					size="lg"
 					className="flex-1 text-base! hover:bg-accent/90"
 				>
-					{currentStep === TOTAL_STEPS ? "Submit" : "Continue"}
+					{currentStep === totalSteps ? "Submit" : "Continue"}
 					<IconArrowForward data-icon="inline-end" />
 				</Button>
 			</div>

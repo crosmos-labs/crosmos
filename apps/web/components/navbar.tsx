@@ -87,10 +87,10 @@ export function Navbar() {
 						<IconBrandGithubFilled size={16} />
 					</Link>
 					<Link
-						href="/demo"
+						href={LINKS.product.console}
 						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground"
 					>
-						Book a Demo
+						Get Started
 					</Link>
 				</div>
 				<MobileNavButton

@@ -6,6 +6,7 @@ export const LINKS = {
 		x: "https://x.com/crosmoslabs",
 	},
 	product: {
+		console: "https://console.crosmos.dev",
 		playground: "/playground",
 		download: "/download",
 		changelog: "/changelog",
