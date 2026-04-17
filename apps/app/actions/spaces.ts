@@ -7,28 +7,32 @@ export interface Space {
 	id: number;
 	name: string;
 	description: string | null;
+	meta: Record<string, unknown> | null;
 	created_at: string;
 	updated_at: string;
 }
 
-export async function listSpaces() {
-	return apiFetch<Space[]>("/api/v1/spaces");
+interface SpaceListResponse {
+	spaces: Space[];
+	total: number;
 }
 
-export async function createSpace(formData: FormData) {
-	const name = formData.get("name") as string;
-	const description = formData.get("description") as string;
+export async function listSpaces(): Promise<Space[]> {
+	const data = await apiFetch<SpaceListResponse>("/spaces");
+	return data.spaces;
+}
 
-	await apiFetch("/api/v1/spaces", {
+export async function createSpace(name: string, description?: string) {
+	await apiFetch("/spaces", {
 		method: "POST",
-		body: JSON.stringify({ name, description }),
+		body: JSON.stringify({ name, description: description || null }),
 	});
 
 	revalidatePath("/spaces");
 }
 
 export async function deleteSpace(spaceId: number) {
-	await apiFetch(`/api/v1/spaces/${spaceId}`, {
+	await apiFetch(`/spaces/${spaceId}`, {
 		method: "DELETE",
 	});
 
