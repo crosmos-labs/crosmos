@@ -64,7 +64,7 @@ function SignupForm() {
 						<PulseSpinner />
 					) : (
 						<>
-							<IconBrandGoogleFilled className="size-5" />
+							<IconBrandGoogleFilled className="size-5 mr-1" />
 							Continue with Google
 						</>
 					)}
@@ -76,7 +76,7 @@ function SignupForm() {
 						className="w-full h-12 text-base"
 						disabled
 					>
-						<IconBrandGithubFilled className="size-5" />
+						<IconBrandGithubFilled className="size-5 mr-1" />
 						Continue with GitHub
 					</Button>
 					<Badge
