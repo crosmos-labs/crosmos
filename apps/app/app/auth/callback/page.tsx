@@ -1,8 +1,8 @@
 "use client";
 
-import { PulseSpinner } from "@/components/pulse-spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { PulseSpinner } from "@/components/pulse-spinner";
 import { handleOAuthCallback } from "./actions";
 
 export default function AuthCallbackPage() {

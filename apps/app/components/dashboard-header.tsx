@@ -9,9 +9,9 @@ import {
 import { SidebarTrigger } from "@crosmos/ui/components/sidebar";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
-import { breadcrumbLabelMap } from "@/config/nav";
-import { PulseSpinner } from "@/components/pulse-spinner";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
+import { PulseSpinner } from "@/components/pulse-spinner";
+import { breadcrumbLabelMap } from "@/config/nav";
 
 function ActionLoaderIndicator() {
 	const { activeCount, result, fading } = useActionLoaderState();
