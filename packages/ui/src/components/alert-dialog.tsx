@@ -157,7 +157,10 @@ function AlertDialogAction({
 		<Button variant={variant} size={size} asChild>
 			<AlertDialogPrimitive.Action
 				data-slot="alert-dialog-action"
-				className={cn(className)}
+				className={cn(
+					"focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none",
+					className,
+				)}
 				{...props}
 			/>
 		</Button>
@@ -175,7 +178,10 @@ function AlertDialogCancel({
 		<Button variant={variant} size={size} asChild>
 			<AlertDialogPrimitive.Cancel
 				data-slot="alert-dialog-cancel"
-				className={cn(className)}
+				className={cn(
+					"focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none",
+					className,
+				)}
 				{...props}
 			/>
 		</Button>
