@@ -416,7 +416,10 @@ function RevokeAlertDialog({
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
-							if (revokeKey) onRevoke(revokeKey.key_id);
+							if (revokeKey) {
+								onRevoke(revokeKey.key_id);
+								onOpenChange(false);
+							}
 						}}
 					>
 						Revoke

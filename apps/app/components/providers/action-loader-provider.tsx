@@ -93,17 +93,8 @@ export function ActionLoaderProvider({ children }: { children: ReactNode }) {
 			},
 		);
 
-		return () => {
-			if (resultTimerRef.current) {
-				clearTimeout(resultTimerRef.current);
-				resultTimerRef.current = null;
-			}
-			if (fadeTimerRef.current) {
-				clearTimeout(fadeTimerRef.current);
-				fadeTimerRef.current = null;
-			}
-		};
-	}, [activeCount, result]);
+		return clearTimers;
+	}, [activeCount, result, clearTimers]);
 
 	const runAction: ActionLoaderContextValue["runAction"] = useCallback(
 		(action, options) => {
