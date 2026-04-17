@@ -1,14 +1,43 @@
 "use client";
 
-import { SidebarTrigger } from "@crosmos/ui/components/sidebar";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
 	BreadcrumbList,
 	BreadcrumbPage,
 } from "@crosmos/ui/components/breadcrumb";
+import { SidebarTrigger } from "@crosmos/ui/components/sidebar";
+import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 import { breadcrumbLabelMap } from "@/config/nav";
+import { PulseSpinner } from "@/components/pulse-spinner";
+import { useActionLoaderState } from "@/components/providers/action-loader-provider";
+
+function ActionLoaderIndicator() {
+	const { activeCount, result, fading } = useActionLoaderState();
+
+	if (activeCount > 0) {
+		return <PulseSpinner size="1.1em" />;
+	}
+
+	if (result === "success") {
+		return (
+			<IconCircleCheck
+				className={`size-[1.1em] text-green-500 transition-opacity duration-200 ${fading ? "opacity-0" : "opacity-100"}`}
+			/>
+		);
+	}
+
+	if (result === "error") {
+		return (
+			<IconCircleX
+				className={`size-[1.1em] text-red-500 transition-opacity duration-200 ${fading ? "opacity-0" : "opacity-100"}`}
+			/>
+		);
+	}
+
+	return null;
+}
 
 export function DashboardHeader() {
 	const pathname = usePathname();
@@ -24,6 +53,9 @@ export function DashboardHeader() {
 					</BreadcrumbItem>
 				</BreadcrumbList>
 			</Breadcrumb>
+			<div className="ml-auto flex items-center">
+				<ActionLoaderIndicator />
+			</div>
 		</header>
 	);
 }
