@@ -15,6 +15,7 @@ import {
 	SidebarRail,
 } from "@crosmos/ui/components/sidebar";
 import { IconBuilding, IconChevronDown } from "@tabler/icons-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 function LinkArrow({ className }: { className?: string }) {
@@ -86,10 +87,10 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 									tooltip={homeItem.label}
 									className="pl-4"
 								>
-									<a href={homeItem.href}>
+									<Link href={homeItem.href}>
 										<homeItem.icon />
 										<span>{homeItem.label}</span>
-									</a>
+									</Link>
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 						</SidebarMenu>
@@ -120,10 +121,10 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 													<span>{item.label}</span>
 												</>
 											) : (
-												<a href={item.href}>
+												<Link href={item.href}>
 													<item.icon />
 													<span>{item.label}</span>
-												</a>
+												</Link>
 											)}
 										</SidebarMenuButton>
 									</SidebarMenuItem>
