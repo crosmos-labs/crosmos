@@ -1,6 +1,5 @@
 "use client";
 
-import { PulseSpinner } from "@/components/pulse-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -10,6 +9,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { PulseSpinner } from "@/components/pulse-spinner";
 import { loginWithGoogle } from "../actions";
 
 function SignupForm() {

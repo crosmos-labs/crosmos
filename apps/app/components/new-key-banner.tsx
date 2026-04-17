@@ -6,9 +6,9 @@ import {
 	AlertDescription,
 	AlertTitle,
 } from "@crosmos/ui/components/alert";
+import { Button } from "@crosmos/ui/components/button";
 import { CopyButton } from "@crosmos/ui/components/copy-button";
 import { IconCircleCheck, IconX } from "@tabler/icons-react";
-import { Button } from "@crosmos/ui/components/button";
 
 export function NewKeyBanner({
 	createdKey,
