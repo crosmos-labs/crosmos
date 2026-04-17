@@ -17,7 +17,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Crosmos",
+	metadataBase: new URL("https://console.crosmos.dev"),
+	title: "Crosmos - Console",
 	description: "Manage and monitor your Crosmos memory spaces and agents.",
 };
 
