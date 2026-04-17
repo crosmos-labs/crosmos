@@ -1,10 +1,13 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
 import { verifyAuth } from "@/lib/auth/session";
 import type { AuthUser } from "@/lib/auth/types";
+
+const SIDEBAR_COOKIE_NAME = "sidebar_state";
 
 export default async function DashboardLayout({
 	children,
@@ -17,9 +20,12 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
+	const cookieStore = await cookies();
+	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
+
 	return (
 		<ActionLoaderProvider>
-			<SidebarProvider>
+			<SidebarProvider defaultOpen={sidebarOpen}>
 				<AppSidebar user={user} />
 				<SidebarInset>
 					<DashboardHeader />
