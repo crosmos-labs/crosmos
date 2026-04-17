@@ -80,7 +80,7 @@
 	--muted-foreground: oklch(0.7 0 0);
 	--accent: oklch(0.5544 0.1146 158.24);
 	--accent-foreground: oklch(0.98 0.01 158.24);
-	--destructive: oklch(0.45 0.15 25);
+	--destructive: oklch(0.6 0.2 25);
 	--destructive-foreground: oklch(0.98 0.01 25);
 	--border: oklch(0.3 0 0);
 	--input: oklch(0.3 0 0);
@@ -181,9 +181,6 @@
 }
 
 @layer base {
-	html {
-		scrollbar-width: none;
-	}
 	* {
 		@apply border-border outline-ring/50 scroll-smooth;
 	}
@@ -192,9 +189,6 @@
 	}
 	button {
 		@apply cursor-pointer focus:outline-none focus:ring-0;
-	}
-	::-webkit-scrollbar {
-		display: none;
 	}
 }
 
