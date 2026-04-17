@@ -37,15 +37,35 @@ export const navGroups: NavGroup[] = [
 		label: "MEMORY",
 		items: [
 			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
-			{ label: "Entities", href: "/entities", icon: IconTopologyStarRing3 },
-			{ label: "Memories", href: "/memories", icon: IconBrain },
+			{
+				label: "Entities",
+				href: "/entities",
+				icon: IconTopologyStarRing3,
+				disabled: true,
+			},
+			{
+				label: "Memories",
+				href: "/memories",
+				icon: IconBrain,
+				disabled: true,
+			},
 		],
 	},
 	{
 		label: "INSIGHTS",
 		items: [
-			{ label: "Analytics", href: "/analytics", icon: IconChartBar },
-			{ label: "Activity", href: "/activity", icon: IconActivity },
+			{
+				label: "Analytics",
+				href: "/analytics",
+				icon: IconChartBar,
+				disabled: true,
+			},
+			{
+				label: "Activity",
+				href: "/activity",
+				icon: IconActivity,
+				disabled: true,
+			},
 		],
 	},
 	{
