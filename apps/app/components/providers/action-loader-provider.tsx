@@ -2,11 +2,13 @@
 
 import {
 	createContext,
+	type ReactNode,
 	useCallback,
 	useContext,
+	useEffect,
+	useMemo,
 	useRef,
 	useState,
-	type ReactNode,
 } from "react";
 import { toast } from "sonner";
 
@@ -44,12 +46,27 @@ export function useActionLoaderState() {
 	return state;
 }
 
+function scheduleResultTimers(
+	resultTimerRef: React.RefObject<ReturnType<typeof setTimeout> | null>,
+	fadeTimerRef: React.RefObject<ReturnType<typeof setTimeout> | null>,
+	onFadeStart: () => void,
+	onFadeEnd: () => void,
+) {
+	resultTimerRef.current = setTimeout(() => {
+		onFadeStart();
+		fadeTimerRef.current = setTimeout(() => {
+			onFadeEnd();
+		}, 200);
+	}, 5000);
+}
+
 export function ActionLoaderProvider({ children }: { children: ReactNode }) {
 	const [activeCount, setActiveCount] = useState(0);
 	const [result, setResult] = useState<ActionResult>("idle");
 	const [fading, setFading] = useState(false);
 	const resultTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const hasErrorRef = useRef(false);
 
 	const clearTimers = useCallback(() => {
 		if (resultTimerRef.current) {
@@ -62,6 +79,32 @@ export function ActionLoaderProvider({ children }: { children: ReactNode }) {
 		}
 	}, []);
 
+	useEffect(() => {
+		if (activeCount !== 0) return;
+		if (result === "idle") return;
+
+		scheduleResultTimers(
+			resultTimerRef,
+			fadeTimerRef,
+			() => setFading(true),
+			() => {
+				setResult("idle");
+				setFading(false);
+			},
+		);
+
+		return () => {
+			if (resultTimerRef.current) {
+				clearTimeout(resultTimerRef.current);
+				resultTimerRef.current = null;
+			}
+			if (fadeTimerRef.current) {
+				clearTimeout(fadeTimerRef.current);
+				fadeTimerRef.current = null;
+			}
+		};
+	}, [activeCount, result]);
+
 	const runAction: ActionLoaderContextValue["runAction"] = useCallback(
 		(action, options) => {
 			clearTimers();
@@ -70,53 +113,45 @@ export function ActionLoaderProvider({ children }: { children: ReactNode }) {
 
 			return action()
 				.then((value) => {
-					setActiveCount((c) => {
-						const next = c - 1;
-						if (next === 0) {
-							setResult("success");
-							resultTimerRef.current = setTimeout(() => {
-								setFading(true);
-								fadeTimerRef.current = setTimeout(() => {
-									setResult("idle");
-									setFading(false);
-								}, 200);
-							}, 5000);
-						}
-						return next;
-					});
 					if (options?.toast?.success) {
 						toast.success(options.toast.success);
 					}
+					setActiveCount((c) => {
+						const next = c - 1;
+						if (next === 0) {
+							setResult(hasErrorRef.current ? "error" : "success");
+							hasErrorRef.current = false;
+						}
+						return next;
+					});
 					return value;
 				})
 				.catch((err: unknown) => {
+					if (options?.toast?.error) {
+						toast.error(options.toast.error);
+					}
+					hasErrorRef.current = true;
 					setActiveCount((c) => {
 						const next = c - 1;
 						if (next === 0) {
 							setResult("error");
-							resultTimerRef.current = setTimeout(() => {
-								setFading(true);
-								fadeTimerRef.current = setTimeout(() => {
-									setResult("idle");
-									setFading(false);
-								}, 200);
-							}, 5000);
+							hasErrorRef.current = false;
 						}
 						return next;
 					});
-					if (options?.toast?.error) {
-						toast.error(options.toast.error);
-					}
 					throw err;
 				});
 		},
 		[clearTimers],
 	);
 
+	const contextValue = useMemo<ActionLoaderContextValue>(
+		() => ({ runAction, state: { activeCount, result, fading } }),
+		[runAction, activeCount, result, fading],
+	);
+
 	return (
-		<ActionLoaderContext.Provider
-			value={{ runAction, state: { activeCount, result, fading } }}
-		>
+		<ActionLoaderContext.Provider value={contextValue}>
 			{children}
 		</ActionLoaderContext.Provider>
 	);
