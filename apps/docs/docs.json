@@ -63,12 +63,12 @@
 			"anchors": [
 				{
 					"anchor": "Documentation",
-					"href": "https://docs.crosmos.app",
+					"href": "https://docs.crosmos.dev",
 					"icon": "book-open-cover"
 				},
 				{
 					"anchor": "Blog",
-					"href": "https://crosmos.app/blogs",
+					"href": "https://crosmos.dev/blogs",
 					"icon": "newspaper"
 				}
 			]
@@ -89,7 +89,7 @@
 		"primary": {
 			"type": "button",
 			"label": "Dashboard",
-			"href": "https://crosmos.app"
+			"href": "https://crosmos.dev"
 		}
 	},
 	"contextual": {

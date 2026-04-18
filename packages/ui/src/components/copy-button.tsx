@@ -2,7 +2,7 @@
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconCheck, IconCopy } from "@tabler/icons-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "./button";
 
 const COPY_RESET_MS = 2000;
@@ -17,12 +17,20 @@ export function CopyButton({
 	const [copied, setCopied] = useState(false);
 	const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-	const handleCopy = useCallback(() => {
+	const handleCopy = useCallback(async () => {
 		if (timerRef.current) clearTimeout(timerRef.current);
-		navigator.clipboard.writeText(value);
-		setCopied(true);
-		timerRef.current = setTimeout(() => setCopied(false), COPY_RESET_MS);
+		try {
+			await navigator.clipboard.writeText(value);
+			setCopied(true);
+			timerRef.current = setTimeout(() => setCopied(false), COPY_RESET_MS);
+		} catch {}
 	}, [value]);
+
+	useEffect(() => {
+		return () => {
+			if (timerRef.current) clearTimeout(timerRef.current);
+		};
+	}, []);
 
 	return (
 		<Button

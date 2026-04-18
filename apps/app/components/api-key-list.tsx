@@ -138,7 +138,10 @@ function CreateKeyDialog({
 				<div className="flex items-center justify-between">
 					<span className="text-sm text-muted-foreground">Expires in</span>
 					<Select value={expiry} onValueChange={setExpiry}>
-						<SelectTrigger className="focus-visible:ring-0 focus-visible:border-input">
+						<SelectTrigger
+							aria-label="Expires in"
+							className="focus-visible:ring-0 focus-visible:border-input"
+						>
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
