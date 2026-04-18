@@ -6,12 +6,9 @@ import { setOAuthState } from "@/lib/auth/cookies";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 function getRedirectUri() {
-	const envUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
-	if (envUri) return envUri;
-
-	const vercelUrl = process.env.VERCEL_URL;
+	const vercelUrl = process.env.NEXT_PUBLIC_BASE_URL;
 	console.log("[VERCEL_URL]: ", vercelUrl)
-	if (vercelUrl) return `https://${vercelUrl}/auth/callback`;
+	if (vercelUrl) return `${vercelUrl}/auth/callback`;
 
 	return "http://localhost:3000/auth/callback";
 }
