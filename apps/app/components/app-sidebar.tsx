@@ -2,6 +2,12 @@
 
 import { Avatar, AvatarFallback } from "@crosmos/ui/components/avatar";
 import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@crosmos/ui/components/dropdown-menu";
+import {
 	Sidebar,
 	SidebarContent,
 	SidebarFooter,
@@ -13,8 +19,9 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 	SidebarRail,
+	useSidebar,
 } from "@crosmos/ui/components/sidebar";
-import { IconBuilding, IconChevronDown } from "@tabler/icons-react";
+import { IconBuilding, IconChevronDown, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -38,6 +45,8 @@ function LinkArrow({ className }: { className?: string }) {
 }
 
 import { cn } from "@crosmos/ui/lib/utils";
+import { logout } from "@/actions/auth";
+import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
 import type { AuthUser } from "@/lib/auth/types";
 
@@ -52,9 +61,13 @@ function getInitials(name: string) {
 
 export function AppSidebar({ user }: { user: AuthUser }) {
 	const pathname = usePathname();
+	const { runAction } = useActionLoader();
+	const { isMobile, setOpenMobile, state } = useSidebar();
+
+	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "top";
 
 	return (
-		<Sidebar collapsible="icon">
+		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -66,7 +79,7 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 								<IconBuilding className="size-4" />
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium">
+								<span className="truncate font-medium select-none">
 									Default Organisation
 								</span>
 							</div>
@@ -157,17 +170,48 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 				</SidebarMenu>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton size="lg" tooltip={user.name}>
-							<Avatar className="size-8">
-								<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-							</Avatar>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate">{user.name}</span>
-								<span className="truncate text-xs text-muted-foreground">
-									{user.email}
-								</span>
-							</div>
-						</SidebarMenuButton>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<SidebarMenuButton
+									size="lg"
+									tooltip={
+										state === "collapsed" && !isMobile ? undefined : user.name
+									}
+									className="group data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+								>
+									<Avatar className="size-8">
+										<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+									</Avatar>
+									<div className="grid flex-1 text-left text-sm leading-tight">
+										<span className="truncate">{user.name}</span>
+										<span className="truncate text-xs text-muted-foreground">
+											{user.email}
+										</span>
+									</div>
+									<IconChevronDown className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
+								</SidebarMenuButton>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								side={dropdownSide}
+								align="end"
+								className="w-(--radix-dropdown-menu-trigger-width)"
+							>
+								<DropdownMenuItem
+									onClick={() => {
+										if (isMobile) setOpenMobile(false);
+										runAction(() => logout(), {
+											toast: {
+												error: "Failed to log out",
+												success: "Successfully logged out",
+											},
+										});
+									}}
+								>
+									<IconLogout />
+									<span>Log out</span>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarFooter>
