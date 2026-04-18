@@ -8,8 +8,16 @@ import {
 import type { OAuthCallbackResponse } from "@/lib/auth/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const REDIRECT_URI =
-	process.env.NEXT_PUBLIC_REDIRECT_URI ?? "http://localhost:3000/auth/callback";
+
+function getRedirectUri() {
+	const envUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
+	if (envUri) return envUri;
+
+	const vercelUrl = process.env.VERCEL_URL;
+	if (vercelUrl) return `https://${vercelUrl}/auth/callback`;
+
+	return "http://localhost:3000/auth/callback";
+}
 
 export async function handleOAuthCallback(code: string, state: string) {
 	if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
@@ -27,7 +35,7 @@ export async function handleOAuthCallback(code: string, state: string) {
 		body: JSON.stringify({
 			code,
 			state,
-			redirect_uri: REDIRECT_URI,
+			redirect_uri: getRedirectUri(),
 		}),
 		cache: "no-store",
 	});
