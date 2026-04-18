@@ -20,12 +20,12 @@ export async function setAuthCookies(
 
 	cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
 		...COOKIE_OPTIONS,
-		maxAge: 30 * 60,
+		maxAge: 7 * 24 * 60 * 60,
 	});
 
 	cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, {
 		...COOKIE_OPTIONS,
-		maxAge: 7 * 24 * 60 * 60,
+		maxAge: 30 * 24 * 60 * 60,
 	});
 }
 
