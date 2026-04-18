@@ -10,28 +10,47 @@ import type { AuthUser, TokenResponse } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+/**
+ * Holds the in-flight refresh promise so concurrent callers deduplicate
+ * into a single POST /auth/refresh request instead of racing.
+ */
+let inFlightRefresh: Promise<TokenResponse | null> | null = null;
+
 export async function refreshTokens(): Promise<TokenResponse | null> {
-	const refreshToken = await getRefreshToken();
-	if (!refreshToken || !API_URL) return null;
+	// If a refresh is already running, reuse its promise instead of starting another
+	if (inFlightRefresh) return inFlightRefresh;
 
-	try {
-		const res = await fetch(`${API_URL}/auth/refresh`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ refresh_token: refreshToken }),
-			cache: "no-store",
-		});
+	// Assign the dedup promise so late callers see it before any awaits
+	inFlightRefresh = (async () => {
+		const refreshToken = await getRefreshToken();
+		if (!refreshToken || !API_URL) return null;
 
-		if (!res.ok) {
-			await clearAuthCookies();
+		try {
+			const res = await fetch(`${API_URL}/auth/refresh`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ refresh_token: refreshToken }),
+				cache: "no-store",
+			});
+
+			if (!res.ok) {
+				await clearAuthCookies();
+				return null;
+			}
+
+			const data = (await res.json()) as TokenResponse;
+			await setAuthCookies(data.access_token, data.refresh_token);
+			return data;
+		} catch {
 			return null;
 		}
+	})();
 
-		const data = (await res.json()) as TokenResponse;
-		await setAuthCookies(data.access_token, data.refresh_token);
-		return data;
-	} catch {
-		return null;
+	try {
+		return await inFlightRefresh;
+	} finally {
+		// Clear only after all callers have settled so the next refresh starts fresh
+		inFlightRefresh = null;
 	}
 }
 
