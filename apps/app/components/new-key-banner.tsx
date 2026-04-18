@@ -31,9 +31,11 @@ export function NewKeyBanner({
 			</AlertDescription>
 			<AlertAction>
 				<Button
+					type="button"
 					variant="ghost"
 					size="icon-sm"
 					onClick={() => onDismiss(createdKey.key_id)}
+					aria-label="Dismiss new API key banner"
 					className="text-green-700/50 hover:!bg-transparent hover:text-green-700 dark:text-green-400/50 dark:hover:text-green-400"
 				>
 					<IconX className="size-4" />
