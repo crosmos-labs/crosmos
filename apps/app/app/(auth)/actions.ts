@@ -10,6 +10,7 @@ function getRedirectUri() {
 	if (envUri) return envUri;
 
 	const vercelUrl = process.env.VERCEL_URL;
+	console.log("[VERCEL_URL]: ", vercelUrl)
 	if (vercelUrl) return `https://${vercelUrl}/auth/callback`;
 
 	return "http://localhost:3000/auth/callback";
