@@ -1,8 +1,5 @@
 "use client";
 
-import { Button } from "./button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "./field";
-import { Input } from "./input";
 import {
 	IconArrowForward,
 	IconChevronLeft,
@@ -10,7 +7,10 @@ import {
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { z } from "zod";
+import type { z } from "zod";
+import { Button } from "./button";
+import { Field, FieldError, FieldGroup, FieldLabel } from "./field";
+import { Input } from "./input";
 
 export interface StepperStep {
 	key: string;

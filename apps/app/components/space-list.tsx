@@ -36,7 +36,7 @@ import { IconBox, IconDotsVertical, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-import { type Space, createSpace, deleteSpace } from "@/actions/spaces";
+import { createSpace, deleteSpace, type Space } from "@/actions/spaces";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 
 function CreateSpaceDialog({
