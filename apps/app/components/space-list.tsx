@@ -86,6 +86,7 @@ function CreateSpaceDialog({
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
 				<textarea
+					aria-label="Description"
 					placeholder="Description (optional)"
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
@@ -112,8 +113,8 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 	const { runAction } = useActionLoader();
 
 	const handleCreateSpace = useCallback(
-		(name: string) => {
-			runAction(() => createSpace(name), {
+		(name: string, description?: string) => {
+			runAction(() => createSpace(name, description), {
 				toast: {
 					success: "Space created",
 					error: "Failed to create space",
