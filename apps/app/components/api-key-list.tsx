@@ -306,14 +306,15 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 								})}
 							</span>
 							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon-sm"
-										className="focus:ring-0 focus-visible:ring-0"
-									>
-										<IconDotsVertical />
-									</Button>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="ghost"
+									size="icon-sm"
+									aria-label={`Open actions for ${key.name}`}
+									className="focus:ring-0 focus-visible:ring-0"
+								>
+									<IconDotsVertical />
+								</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="start">
 									<DropdownMenuGroup>
