@@ -4,14 +4,22 @@ import { redirect } from "next/navigation";
 import { setOAuthState } from "@/lib/auth/cookies";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const REDIRECT_URI =
-	process.env.NEXT_PUBLIC_REDIRECT_URI ?? "http://localhost:3000/auth/callback";
+
+function getRedirectUri() {
+	const envUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
+	if (envUri) return envUri;
+
+	const vercelUrl = process.env.VERCEL_URL;
+	if (vercelUrl) return `https://${vercelUrl}/auth/callback`;
+
+	return "http://localhost:3000/auth/callback";
+}
 
 export async function loginWithGoogle() {
 	if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
 
 	const res = await fetch(
-		`${API_URL}/auth/oauth/google/authorize?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`,
+		`${API_URL}/auth/oauth/google/authorize?redirect_uri=${encodeURIComponent(getRedirectUri())}`,
 		{ cache: "no-store" },
 	);
 
