@@ -6,18 +6,9 @@ import {
 	setAuthCookies,
 } from "@/lib/auth/cookies";
 import type { OAuthCallbackResponse } from "@/lib/auth/types";
+import { getRedirectUri } from "@/lib/auth/redirect";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getRedirectUri() {
-	const envUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
-	if (envUri) return envUri;
-
-	const vercelUrl = process.env.VERCEL_URL;
-	if (vercelUrl) return `https://${vercelUrl}/auth/callback`;
-
-	return "http://localhost:3000/auth/callback";
-}
 
 export async function handleOAuthCallback(code: string, state: string) {
 	if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");

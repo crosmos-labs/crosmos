@@ -2,16 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { setOAuthState } from "@/lib/auth/cookies";
+import { getRedirectUri } from "@/lib/auth/redirect";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-function getRedirectUri() {
-	const vercelUrl = process.env.NEXT_PUBLIC_BASE_URL;
-	console.log("[VERCEL_URL]: ", vercelUrl)
-	if (vercelUrl) return `${vercelUrl}/auth/callback`;
-
-	return "http://localhost:3000/auth/callback";
-}
 
 export async function loginWithGoogle() {
 	if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
