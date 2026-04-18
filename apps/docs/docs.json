@@ -63,12 +63,12 @@
 			"anchors": [
 				{
 					"anchor": "Documentation",
-					"href": "https://docs.crosmos.app",
+					"href": "https://docs.crosmos.dev",
 					"icon": "book-open-cover"
 				},
 				{
 					"anchor": "Blog",
-					"href": "https://crosmos.app/blogs",
+					"href": "https://crosmos.dev/blogs",
 					"icon": "newspaper"
 				}
 			]
@@ -83,13 +83,13 @@
 		"links": [
 			{
 				"label": "Support",
-				"href": "mailto:crosmos.ai@gmail.com"
+				"href": "mailto:hello@crosmos.dev"
 			}
 		],
 		"primary": {
 			"type": "button",
 			"label": "Dashboard",
-			"href": "https://crosmos.app"
+			"href": "https://crosmos.dev"
 		}
 	},
 	"contextual": {
@@ -140,7 +140,7 @@
 
 			"og:title": "Crosmos Docs - Memory Engine",
 			"og:type": "website",
-			"og:url": "https://docs.crosmos.ai",
+			"og:url": "https://docs.crosmos.dev",
 			"og:description": "Build apps with our Memory API which supports most modern toolkits",
 			"og:site_name": "Crosmos Docs",
 			"og:locale": "en_US"

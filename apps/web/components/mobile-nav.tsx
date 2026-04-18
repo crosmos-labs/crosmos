@@ -135,11 +135,11 @@ function MobileNavSheet({
 									GitHub
 								</Link>
 								<Link
-									href="/demo"
+									href={LINKS.product.console}
 									onClick={handleClose}
 									className="hover:bg-accent/90 bg-accent px-6 py-2.5 rounded font-semibold text-sm transition-colors text-primary-foreground text-center"
 								>
-									Book a Demo
+									Get Started
 								</Link>
 							</div>
 						</div>
