@@ -17,13 +17,26 @@ export async function listSources(spaceId: number) {
 }
 
 export async function createSource(formData: FormData) {
-	const spaceId = formData.get("space_id") as string;
-	const name = formData.get("name") as string;
-	const type = formData.get("type") as string;
+	const rawSpaceId = formData.get("space_id");
+	const rawName = formData.get("name");
+	const rawType = formData.get("type");
+
+	if (
+		typeof rawSpaceId !== "string" ||
+		typeof rawName !== "string" ||
+		typeof rawType !== "string"
+	) {
+		return { error: "Missing or invalid form fields" };
+	}
+
+	const spaceId = Number(rawSpaceId);
+	if (Number.isNaN(spaceId)) {
+		return { error: "space_id must be a valid number" };
+	}
 
 	await apiFetch(`/api/v1/spaces/${spaceId}/sources`, {
 		method: "POST",
-		body: JSON.stringify({ name, type }),
+		body: JSON.stringify({ name: rawName, type: rawType }),
 	});
 
 	revalidatePath("/spaces");

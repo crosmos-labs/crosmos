@@ -19,10 +19,24 @@ export async function loginWithGoogle() {
 		throw new Error("Failed to get authorization URL");
 	}
 
-	const { authorization_url, state } = (await res.json()) as {
+	const payload = (await res.json()) as Partial<{
 		authorization_url: string;
 		state: string;
-	};
+	}>;
+	if (
+		typeof payload.authorization_url !== "string" ||
+		typeof payload.state !== "string"
+	) {
+		throw new Error("Invalid OAuth authorize response payload");
+	}
+
+	const { authorization_url, state } = payload;
+
+	try {
+		new URL(authorization_url);
+	} catch {
+		throw new Error("Malformed authorization URL received");
+	}
 
 	await setOAuthState(state);
 
