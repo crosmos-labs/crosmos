@@ -223,6 +223,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 									<Button
 										variant="ghost"
 										size="icon-sm"
+										aria-label="Open space actions"
 										className="focus:ring-0 focus-visible:ring-0"
 									>
 										<IconDotsVertical />
