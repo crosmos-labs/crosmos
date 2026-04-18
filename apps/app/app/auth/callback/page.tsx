@@ -24,7 +24,7 @@ export default function AuthCallbackPage() {
 			return;
 		}
 
-		handleOAuthCallback(code, state)
+		void handleOAuthCallback(code, state)
 			.then(() => {
 				router.replace("/");
 			})

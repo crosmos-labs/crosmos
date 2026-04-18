@@ -10,15 +10,15 @@ export async function logout() {
 
 	if (refreshToken && API_URL) {
 		try {
-			const res = await fetch(`${API_URL}/auth/logout`, {
+			await fetch(`${API_URL}/auth/logout`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ refresh_token: refreshToken }),
 				cache: "no-store",
+				signal: AbortSignal.timeout(5000),
 			});
-			console.log(res)
-        } catch (err) {
-            console.log(err)
+		} catch (err) {
+			console.warn(err);
 		}
 	}
 
