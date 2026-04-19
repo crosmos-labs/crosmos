@@ -168,7 +168,7 @@ export function Example() {
 					</div>
 					<div
 						id="tabpanel-example"
-						className="relative md:col-span-3 aspect-[4/5] sm:aspect-video md:aspect-auto md:size-full -mx-6 md:mx-0 flex items-end justify-end overflow-hidden"
+						className="relative md:col-span-3 aspect-4/5 sm:aspect-video md:aspect-auto md:size-full -mx-6 md:mx-0 flex items-end justify-end overflow-hidden"
 						role="tabpanel"
 						aria-labelledby={`tab-${selected}`}
 					>
@@ -182,8 +182,8 @@ export function Example() {
 							draggable={false}
 							loading="lazy"
 						/>
-						<div className="absolute bottom-0 right-0 top-6 left-0 sm:top-4 md:top-12 md:left-12">
-							<div className="relative w-full h-full bg-black/65 backdrop-blur-lg border-l border-t border-white/10 shadow-2xl font-mono leading-relaxed group rounded-t rounded-r-0">
+						<div className="absolute bottom-0 -right-0.5 top-6 -left-0.5 sm:top-4 md:top-12 md:left-12">
+							<div className="relative w-full h-full bg-black/65 backdrop-blur-lg border-l border-t border-white/10 font-mono leading-relaxed group rounded-t rounded-r-0">
 								<div className="flex items-center gap-1.5 px-3 py-2 sm:px-5 sm:py-4 border-b border-white/10">
 									<div className="size-2 rounded-full bg-red-400 md:bg-white/20 md:group-hover:bg-red-400 transition-colors" />
 									<div className="size-2 rounded-full bg-yellow-400 md:bg-white/20 md:group-hover:bg-yellow-400 transition-colors" />
