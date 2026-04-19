@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
+
 import "@crosmos/ui/globals.css";
+import "./style.css";
 import { Analytics } from "@vercel/analytics/next";
-import { ThemeProvider } from "@/components/theme-provider";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -32,7 +35,6 @@ export default function RootLayout({
 		<html
 			lang="en"
 			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
-			suppressHydrationWarning
 		>
 			<body>
 				<a
@@ -42,9 +44,11 @@ export default function RootLayout({
 					Skip to content
 				</a>
 				<Analytics />
-				<ThemeProvider enableSystem defaultTheme="light">
+				<main id="main-content" className="flex flex-col">
+					<Navbar />
 					{children}
-				</ThemeProvider>
+				</main>
+				<Footer />
 			</body>
 		</html>
 	);

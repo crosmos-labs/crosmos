@@ -44,15 +44,6 @@ export function Navbar() {
 								style={{ width: "auto" }}
 								priority
 							/>
-							<Image
-								src="/banner_dark.svg"
-								alt="Crosmos"
-								width={120}
-								height={32}
-								className="h-8 hidden dark:block"
-								style={{ width: "auto" }}
-								priority
-							/>
 						</Link>
 					</div>
 					<div className="hidden lg:flex items-center gap-8">
