@@ -123,14 +123,14 @@ export function Example() {
 	);
 
 	return (
-		<section className="px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24">
+		<section className="dark bg-background text-foreground px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24">
 			<div className="max-w-7xl mx-auto">
 				<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-10 sm:mb-16 lg:mb-20 text-center">
 					Example
 				</h2>
 
 				<div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-0 md:min-h-125">
-					<div className="md:col-span-2 flex flex-col justify-between border-foreground/10 border-2 rounded">
+					<div className="md:col-span-2 flex flex-col justify-between bg-card border-border border-2 rounded">
 						<div className="px-6 py-6 md:px-12 md:pt-12 space-y-4">
 							<h3 className="font-bold text-2xl sm:text-3xl md:text-4xl">
 								Store &amp; search memories

@@ -64,16 +64,16 @@ const FOOTER_DATA = {
 
 export function Footer() {
 	return (
-		<footer className="relative">
-			<div className="h-48 sm:h-64 md:h-80 lg:h-[360px] absolute inset-x-0 top-0">
+		<footer className="dark bg-background text-foreground relative">
+			<div className="h-48 sm:h-64 md:h-80 lg:h-[360px] absolute inset-x-0 top-8 sm:top-16 md:top-16 lg:top-10">
 				<PixelBlast
 					variant="square"
 					pixelSize={4}
-					color="#1a1a1a"
+					color="#298559"
 					patternScale={2}
 					patternDensity={1}
 					pixelSizeJitter={0}
-					enableRipples
+					enableRipples={false}
 					rippleSpeed={0.4}
 					rippleThickness={0.12}
 					rippleIntensityScale={1}
@@ -83,7 +83,7 @@ export function Footer() {
 					className="size-full"
 				/>
 			</div>
-			<div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 xl:px-0 pt-56 sm:pt-80 md:pt-96 lg:pt-[400px] pb-12 sm:pb-16">
+			<div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-64 sm:pt-96 md:pt-112 lg:pt-[440px] pb-12 sm:pb-16">
 				<div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
 					<div>
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
@@ -119,7 +119,7 @@ export function Footer() {
 							))}
 						</ul>
 					</div>
-					<div>
+					<div className="lg:text-right">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							{FOOTER_DATA.company.title}
 						</h3>
@@ -136,7 +136,7 @@ export function Footer() {
 							))}
 						</ul>
 					</div>
-					<div>
+					<div className="lg:text-right">
 						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
 							{FOOTER_DATA.social.title}
 						</h3>
@@ -144,11 +144,11 @@ export function Footer() {
 							{FOOTER_DATA.social.links.map((social) => {
 								const Icon = social.icon;
 								return (
-									<li key={social.name} className="flex items-center gap-2">
+									<li key={social.name} className="flex items-center lg:justify-end gap-2">
 										<a
 											href={social.href}
 											target="_blank"
-											className="text-foreground/90 text-sm link-underline flex gap-1"
+											className="text-foreground/90 text-sm link-underline inline-flex items-center gap-1.5 whitespace-nowrap"
 										>
 											<Icon size={16} strokeWidth={1} />
 											{social.name}
