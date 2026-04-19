@@ -1,0 +1,14 @@
+export interface Space {
+	id: number;
+	org_id: number;
+	name: string;
+	description: string | null;
+	meta: Record<string, unknown> | null;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface SpaceListResponse {
+	spaces: Space[];
+	total: number;
+}
