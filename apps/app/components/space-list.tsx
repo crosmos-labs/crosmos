@@ -294,7 +294,7 @@ function DeleteSpaceDialog({
 						<div className="flex flex-col gap-3 text-left">
 							<span>
 								This will permanently delete this space and all its{" "}
-								<strong>memories</strong>,<strong>entities</strong>, and{" "}
+								<strong>memories</strong>, <strong>entities</strong>, and{" "}
 								<strong>sources</strong>. This action cannot be undone.
 							</span>
 							<div className="flex flex-col gap-1.5 rounded-lg border bg-muted/50 p-3 text-sm">
