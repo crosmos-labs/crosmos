@@ -7,20 +7,20 @@ import { getHighlightedChars } from "@/lib/syntax-highlighter";
 
 interface DecryptCodeSnippetProps {
 	codeLines: string[];
-	language: string;
+	snippetKey: string;
 	className?: string;
 }
 
 export function DecryptCodeSnippet({
 	codeLines,
-	language,
+	snippetKey,
 	className,
 }: DecryptCodeSnippetProps) {
 	const { containerRef, displayGrid } = useDecryptAnimation(codeLines);
 
 	const targetColors = useMemo(() => {
-		return getHighlightedChars(codeLines, language);
-	}, [codeLines, language]);
+		return getHighlightedChars(snippetKey);
+	}, [snippetKey]);
 
 	const [maxLines, setMaxLines] = useState(codeLines.length);
 
@@ -55,10 +55,8 @@ export function DecryptCodeSnippet({
 											key={`char-${lIdx}-${cIdx}`}
 											data-l={lIdx}
 											data-c={cIdx}
-											className={cn(
-												"whitespace-pre",
-												colors[cIdx] || "text-[#abb2bf]",
-											)}
+											className="whitespace-pre"
+											style={{ color: colors[cIdx] || "#abb2bf" }}
 										>
 											{char}
 										</span>

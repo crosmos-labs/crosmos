@@ -1,17 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
+import { DecryptCodeSnippet } from "./ui/syntax-highlighter";
 
-const DecryptCodeSnippet = dynamic(
-	() => import("./ui/syntax-highlighter").then((m) => m.DecryptCodeSnippet),
-	{ ssr: false },
-);
-
-const CODE_SNIPPETS: Record<string, { language: string; lines: string[] }> = {
+const CODE_SNIPPETS: Record<string, { lines: string[] }> = {
 	typescript: {
-		language: "typescript",
 		lines: [
 			'import { Crosmos } from "@crosmos/sdk";',
 			"",
@@ -33,7 +27,6 @@ const CODE_SNIPPETS: Record<string, { language: string; lines: string[] }> = {
 		],
 	},
 	python: {
-		language: "python",
 		lines: [
 			"from crosmos import Crosmos",
 			"",
@@ -55,7 +48,6 @@ const CODE_SNIPPETS: Record<string, { language: string; lines: string[] }> = {
 		],
 	},
 	curl: {
-		language: "bash",
 		lines: [
 			"# 1. Store a memory",
 			"curl -X POST https://api.crosmos.dev/v1/memories \\",
@@ -199,7 +191,7 @@ export function Example() {
 								</div>
 								<DecryptCodeSnippet
 									codeLines={CODE_SNIPPETS[selected]?.lines ?? []}
-									language={CODE_SNIPPETS[selected]?.language ?? "javascript"}
+									snippetKey={selected}
 								/>
 							</div>
 						</div>
