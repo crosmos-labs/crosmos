@@ -2,18 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { apiFetch } from "@/lib/api";
-
-export interface Source {
-	id: number;
-	space_id: number;
-	name: string;
-	type: string;
-	status: string;
-	created_at: string;
-}
+import type { Source } from "@/lib/types/source";
 
 export async function listSources(spaceId: number) {
-	return apiFetch<Source[]>(`/api/v1/spaces/${spaceId}/sources`);
+	return apiFetch<Source[]>(`/spaces/${spaceId}/sources`);
 }
 
 export async function createSource(formData: FormData) {
@@ -34,7 +26,7 @@ export async function createSource(formData: FormData) {
 		return { error: "space_id must be a valid number" };
 	}
 
-	await apiFetch(`/api/v1/spaces/${spaceId}/sources`, {
+	await apiFetch(`/spaces/${spaceId}/sources`, {
 		method: "POST",
 		body: JSON.stringify({ name: rawName, type: rawType }),
 	});
@@ -43,7 +35,7 @@ export async function createSource(formData: FormData) {
 }
 
 export async function deleteSource(spaceId: number, sourceId: number) {
-	await apiFetch(`/api/v1/spaces/${spaceId}/sources/${sourceId}`, {
+	await apiFetch(`/spaces/${spaceId}/sources/${sourceId}`, {
 		method: "DELETE",
 	});
 
