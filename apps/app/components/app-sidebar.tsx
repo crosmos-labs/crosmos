@@ -23,7 +23,7 @@ import {
 } from "@crosmos/ui/components/sidebar";
 import { IconBuilding, IconChevronDown, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 function LinkArrow({ className }: { className?: string }) {
 	return (
@@ -61,6 +61,7 @@ function getInitials(name: string) {
 
 export function AppSidebar({ user }: { user: AuthUser }) {
 	const pathname = usePathname();
+	const router = useRouter();
 	const { runAction } = useActionLoader();
 	const { isMobile, setOpenMobile, state } = useSidebar();
 
@@ -202,9 +203,10 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 										runAction(() => logout(), {
 											toast: {
 												error: "Failed to log out",
-												success: "Successfully logged out",
 											},
-										});
+										})
+											.then(() => router.push("/signup"))
+											.catch(() => {});
 									}}
 								>
 									<IconLogout />

@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { clearAuthCookies, getRefreshToken } from "@/lib/auth/cookies";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -23,5 +22,4 @@ export async function logout() {
 	}
 
 	await clearAuthCookies();
-	redirect("/signup");
 }
