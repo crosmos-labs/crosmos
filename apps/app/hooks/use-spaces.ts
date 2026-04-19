@@ -1,5 +1,6 @@
 import useSWR from "swr";
-import { listSpaces, type Space } from "@/actions/spaces";
+import { listSpaces } from "@/actions/spaces";
+import type { Space } from "@/lib/types/space";
 
 export function useSpaces() {
 	return useSWR<Space[]>("spaces", () => listSpaces());

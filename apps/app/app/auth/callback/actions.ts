@@ -5,8 +5,8 @@ import {
 	getOAuthState,
 	setAuthCookies,
 } from "@/lib/auth/cookies";
-import type { OAuthCallbackResponse } from "@/lib/auth/types";
 import { getRedirectUri } from "@/lib/auth/redirect";
+import type { OAuthCallbackResponse } from "@/lib/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

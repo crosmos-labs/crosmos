@@ -48,7 +48,7 @@ import { cn } from "@crosmos/ui/lib/utils";
 import { logout } from "@/actions/auth";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
-import type { AuthUser } from "@/lib/auth/types";
+import type { AuthUser } from "@/lib/types/auth";
 
 function getInitials(name: string) {
 	return name

@@ -2,20 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { apiFetch } from "@/lib/api";
-
-export interface Space {
-	id: number;
-	name: string;
-	description: string | null;
-	meta: Record<string, unknown> | null;
-	created_at: string;
-	updated_at: string;
-}
-
-interface SpaceListResponse {
-	spaces: Space[];
-	total: number;
-}
+import type { Space, SpaceListResponse } from "@/lib/types/space";
 
 export async function listSpaces(): Promise<Space[]> {
 	const data = await apiFetch<SpaceListResponse>("/spaces");

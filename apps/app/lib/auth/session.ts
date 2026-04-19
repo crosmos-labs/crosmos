@@ -1,12 +1,12 @@
 import "server-only";
 
+import type { AuthUser, TokenResponse } from "@/lib/types/auth";
 import {
 	clearAuthCookies,
 	getAccessToken,
 	getRefreshToken,
 	setAuthCookies,
 } from "./cookies";
-import type { AuthUser, TokenResponse } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

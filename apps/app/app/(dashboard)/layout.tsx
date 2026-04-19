@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
 import { verifyAuth } from "@/lib/auth/session";
-import type { AuthUser } from "@/lib/auth/types";
+import type { AuthUser } from "@/lib/types/auth";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 
