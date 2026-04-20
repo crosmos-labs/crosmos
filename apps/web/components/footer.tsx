@@ -144,7 +144,10 @@ export function Footer() {
 							{FOOTER_DATA.social.links.map((social) => {
 								const Icon = social.icon;
 								return (
-									<li key={social.name} className="flex items-center lg:justify-end gap-2">
+									<li
+										key={social.name}
+										className="flex items-center lg:justify-end gap-2"
+									>
 										<a
 											href={social.href}
 											target="_blank"
