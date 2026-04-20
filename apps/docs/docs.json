@@ -18,6 +18,10 @@
 						"pages": ["index", "quickstart", "development"]
 					}
 				]
+			},
+			{
+				"tab": "API Reference",
+				"openapi": "https://api.crosmos.dev/openapi.json"
 			}
 		],
 		"global": {
