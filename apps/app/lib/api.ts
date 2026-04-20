@@ -1,6 +1,5 @@
 import "server-only";
 import { getAccessToken, getActiveOrgId } from "./auth/cookies";
-import { refreshTokens } from "./auth/session";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
@@ -47,27 +46,11 @@ export async function apiFetch<T>(
 		headers.set("Content-Type", "application/json");
 	}
 
-	let res = await fetch(`${API_URL}${path}`, {
+	const res = await fetch(`${API_URL}${path}`, {
 		...fetchOptions,
 		headers,
 		cache: fetchOptions.cache ?? "no-store",
 	});
-
-	const method = (fetchOptions.method ?? "GET").toUpperCase();
-	const isSafeMethod = method === "GET" || method === "HEAD";
-	const hasIdempotencyKey = headers.has("Idempotency-Key");
-
-	if (res.status === 401 && accessToken && (isSafeMethod || hasIdempotencyKey)) {
-		const refreshed = await refreshTokens();
-		if (refreshed) {
-			headers.set("Authorization", `Bearer ${refreshed.access_token}`);
-			res = await fetch(`${API_URL}${path}`, {
-				...fetchOptions,
-				headers,
-				cache: fetchOptions.cache ?? "no-store",
-			});
-		}
-	}
 
 	if (!res.ok) {
 		const bodyText = await res.text();

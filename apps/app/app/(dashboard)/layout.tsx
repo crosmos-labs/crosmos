@@ -35,7 +35,9 @@ export default async function DashboardLayout({
 	if (!fallback) redirect("/signup");
 
 	const activeOrg = orgs.find((o) => o.id === activeOrgId) ?? fallback;
-	const needsSync = activeOrg.id !== activeOrgId;
+	if (activeOrg.id !== activeOrgId) {
+		redirect(`/auth/sync-org?orgId=${activeOrg.id}`);
+	}
 
 	const cookieStore = await cookies();
 	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
@@ -43,12 +45,7 @@ export default async function DashboardLayout({
 	return (
 		<ActionLoaderProvider>
 			<SidebarProvider defaultOpen={sidebarOpen}>
-				<AppSidebar
-					user={user}
-					orgs={orgs}
-					activeOrg={activeOrg}
-					needsSync={needsSync}
-				/>
+				<AppSidebar user={user} orgs={orgs} activeOrg={activeOrg} />
 				<SidebarInset>
 					<DashboardHeader />
 					<div className="flex-1 overflow-auto">

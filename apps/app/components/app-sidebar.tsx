@@ -24,7 +24,6 @@ import {
 import { IconChevronDown, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 function LinkArrow({ className }: { className?: string }) {
 	return (
@@ -47,7 +46,6 @@ function LinkArrow({ className }: { className?: string }) {
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { logout } from "@/actions/auth";
-import { setActiveOrg } from "@/actions/orgs";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
@@ -67,32 +65,15 @@ export function AppSidebar({
 	user,
 	orgs,
 	activeOrg,
-	needsSync,
 }: {
 	user: AuthUser;
 	orgs: OrgDetailResponse[];
 	activeOrg: OrgDetailResponse;
-	needsSync?: boolean;
 }) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { runAction } = useActionLoader();
 	const { isMobile, setOpenMobile, state } = useSidebar();
-
-	useEffect(() => {
-		if (!needsSync) return;
-		let cancelled = false;
-		setActiveOrg(activeOrg.id)
-			.then(() => {
-				if (!cancelled) router.refresh();
-			})
-			.catch((err) => {
-				console.error("Failed to sync active org:", err);
-			});
-		return () => {
-			cancelled = true;
-		};
-	}, [needsSync, activeOrg.id, router]);
 
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "top";
 
