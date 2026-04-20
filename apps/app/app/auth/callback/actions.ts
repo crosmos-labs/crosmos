@@ -3,6 +3,7 @@
 import {
 	clearOAuthState,
 	getOAuthState,
+	setActiveOrgCookie,
 	setAuthCookies,
 } from "@/lib/auth/cookies";
 import { getRedirectUri } from "@/lib/auth/redirect";
@@ -38,4 +39,7 @@ export async function handleOAuthCallback(code: string, state: string) {
 
 	const data = (await res.json()) as OAuthCallbackResponse;
 	await setAuthCookies(data.access_token, data.refresh_token);
+	if (data.active_org_id) {
+		await setActiveOrgCookie(data.active_org_id);
+	}
 }
