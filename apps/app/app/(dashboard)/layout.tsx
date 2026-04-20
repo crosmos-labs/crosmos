@@ -1,9 +1,11 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { listOrgs } from "@/actions/orgs";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
+import { getActiveOrgId } from "@/lib/auth/cookies";
 import { verifyAuth } from "@/lib/auth/session";
 import type { AuthUser } from "@/lib/types/auth";
 
@@ -20,13 +22,26 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
+	const [activeOrgId, orgs] = await Promise.all([getActiveOrgId(), listOrgs()]);
+
+	const fallback = orgs[0];
+	if (!fallback) redirect("/signup");
+
+	const activeOrg = orgs.find((o) => o.id === activeOrgId) ?? fallback;
+	const needsSync = activeOrg.id !== activeOrgId;
+
 	const cookieStore = await cookies();
 	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
 
 	return (
 		<ActionLoaderProvider>
 			<SidebarProvider defaultOpen={sidebarOpen}>
-				<AppSidebar user={user} />
+				<AppSidebar
+					user={user}
+					orgs={orgs}
+					activeOrg={activeOrg}
+					needsSync={needsSync}
+				/>
 				<SidebarInset>
 					<DashboardHeader />
 					<div className="flex-1 overflow-auto">

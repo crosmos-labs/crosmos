@@ -24,6 +24,7 @@ import {
 import { IconBuilding, IconChevronDown, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 function LinkArrow({ className }: { className?: string }) {
 	return (
@@ -46,9 +47,11 @@ function LinkArrow({ className }: { className?: string }) {
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { logout } from "@/actions/auth";
+import { setActiveOrg } from "@/actions/orgs";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
 import type { AuthUser } from "@/lib/types/auth";
+import type { OrgDetailResponse } from "@/lib/types/org";
 
 function getInitials(name: string) {
 	return name
@@ -59,11 +62,27 @@ function getInitials(name: string) {
 		.slice(0, 2);
 }
 
-export function AppSidebar({ user }: { user: AuthUser }) {
+export function AppSidebar({
+	user,
+	orgs: _orgs,
+	activeOrg,
+	needsSync,
+}: {
+	user: AuthUser;
+	orgs: OrgDetailResponse[];
+	activeOrg: OrgDetailResponse;
+	needsSync?: boolean;
+}) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { runAction } = useActionLoader();
 	const { isMobile, setOpenMobile, state } = useSidebar();
+
+	useEffect(() => {
+		if (needsSync) {
+			setActiveOrg(activeOrg.id).then(() => router.refresh());
+		}
+	}, [needsSync, activeOrg.id, router]);
 
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "top";
 
@@ -81,7 +100,7 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium select-none">
-									Default Organisation
+									{activeOrg.name}
 								</span>
 							</div>
 							<IconChevronDown className="ml-auto size-4" />
