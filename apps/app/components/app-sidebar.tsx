@@ -21,7 +21,7 @@ import {
 	SidebarRail,
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
-import { IconBuilding, IconChevronDown, IconLogout } from "@tabler/icons-react";
+import { IconChevronDown, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -48,6 +48,7 @@ function LinkArrow({ className }: { className?: string }) {
 import { cn } from "@crosmos/ui/lib/utils";
 import { logout } from "@/actions/auth";
 import { setActiveOrg } from "@/actions/orgs";
+import { OrgSwitcher } from "@/components/org-switcher";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
 import type { AuthUser } from "@/lib/types/auth";
@@ -64,7 +65,7 @@ function getInitials(name: string) {
 
 export function AppSidebar({
 	user,
-	orgs: _orgs,
+	orgs,
 	activeOrg,
 	needsSync,
 }: {
@@ -90,22 +91,7 @@ export function AppSidebar({
 		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
 				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton
-							size="lg"
-							className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-						>
-							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
-								<IconBuilding className="size-4" />
-							</div>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium select-none">
-									{activeOrg.name}
-								</span>
-							</div>
-							<IconChevronDown className="ml-auto size-4" />
-						</SidebarMenuButton>
-					</SidebarMenuItem>
+					<OrgSwitcher orgs={orgs} activeOrg={activeOrg} />
 				</SidebarMenu>
 			</SidebarHeader>
 
