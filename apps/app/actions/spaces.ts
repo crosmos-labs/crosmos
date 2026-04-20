@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getActiveOrgId } from "@/lib/auth/cookies";
 import { apiFetch } from "@/lib/api";
+import { getActiveOrgId } from "@/lib/auth/cookies";
 import type { Space, SpaceListResponse } from "@/lib/types/space";
 
 export async function listSpaces(): Promise<Space[]> {
@@ -13,7 +13,9 @@ export async function listSpaces(): Promise<Space[]> {
 export async function createSpace(name: string, description?: string) {
 	const activeOrgId = await getActiveOrgId();
 	if (!activeOrgId) {
-		throw new Error("No active organization. Please select an organization before creating a space.");
+		throw new Error(
+			"No active organization. Please select an organization before creating a space.",
+		);
 	}
 	await apiFetch("/spaces", {
 		method: "POST",

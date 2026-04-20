@@ -14,11 +14,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
-import {
-	IconCheck,
-	IconChevronDown,
-	IconPlus,
-} from "@tabler/icons-react";
+import { IconCheck, IconChevronDown, IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { setActiveOrg } from "@/actions/orgs";
 import { OrgAvatar } from "@/components/org-avatar";
@@ -50,7 +46,7 @@ export function OrgSwitcher({
 				<DropdownMenuTrigger asChild>
 					<SidebarMenuButton
 						size="lg"
-						className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+						className="group hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
 						<OrgAvatar slug={activeOrg.slug} />
 						<div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
@@ -58,7 +54,7 @@ export function OrgSwitcher({
 								{activeOrg.name}
 							</span>
 						</div>
-						<IconChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
+						<IconChevronDown className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
 					</SidebarMenuButton>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
@@ -80,7 +76,10 @@ export function OrgSwitcher({
 									</span>
 									<span className="flex items-center gap-1.5 text-xs text-muted-foreground">
 										{org.slug}
-										<Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
+										<Badge
+											variant="outline"
+											className="text-[10px] px-1 py-0 h-4"
+										>
 											{org.plan}
 										</Badge>
 									</span>

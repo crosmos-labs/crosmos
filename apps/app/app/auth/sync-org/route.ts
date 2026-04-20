@@ -13,14 +13,16 @@ export async function GET(request: Request) {
 	const orgId = Number.parseInt(searchParams.get("orgId") ?? "", 10);
 	if (!Number.isFinite(orgId) || orgId <= 0) redirect("/");
 
+	const next = searchParams.get("next") ?? "/";
+
 	const orgs = await listOrgs();
 	const valid = orgs.some((o) => o.id === orgId);
 	if (!valid) {
 		const fallback = orgs[0];
 		if (!fallback) redirect("/signup");
-		redirect(`/auth/sync-org?orgId=${fallback.id}`);
+		redirect(`/auth/sync-org?orgId=${fallback.id}&next=${encodeURIComponent(next)}`);
 	}
 
 	await setActiveOrgCookie(orgId);
-	redirect("/");
+	redirect(next);
 }

@@ -21,7 +21,7 @@ import {
 	SidebarRail,
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
-import { IconChevronDown, IconLogout } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -184,7 +184,7 @@ export function AppSidebar({
 											{user.email}
 										</span>
 									</div>
-									<IconChevronDown className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
+									<IconChevronUp className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
