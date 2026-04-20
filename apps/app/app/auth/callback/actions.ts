@@ -3,10 +3,11 @@
 import {
 	clearOAuthState,
 	getOAuthState,
+	setActiveOrgCookie,
 	setAuthCookies,
 } from "@/lib/auth/cookies";
-import type { OAuthCallbackResponse } from "@/lib/auth/types";
 import { getRedirectUri } from "@/lib/auth/redirect";
+import type { OAuthCallbackResponse } from "@/lib/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -38,4 +39,7 @@ export async function handleOAuthCallback(code: string, state: string) {
 
 	const data = (await res.json()) as OAuthCallbackResponse;
 	await setAuthCookies(data.access_token, data.refresh_token);
+	if (data.active_org_id != null) {
+		await setActiveOrgCookie(data.active_org_id);
+	}
 }

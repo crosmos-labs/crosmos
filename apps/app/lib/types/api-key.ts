@@ -1,0 +1,21 @@
+export interface ApiKey {
+	key_id: number;
+	name: string;
+	key_prefix: string;
+	is_active: boolean;
+	expires_at: string | null;
+	last_used_at: string | null;
+	created_at: string;
+}
+
+export interface CreateApiKeyResponse {
+	key_id: number;
+	name: string;
+	key_prefix: string;
+	raw_key: string;
+	expires_at: string | null;
+}
+
+export interface ListApiKeysResponse {
+	keys: ApiKey[];
+}

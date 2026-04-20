@@ -32,10 +32,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html
-			lang="en"
-			className={`${satoshi.variable} ${jetbrainsMono.variable}`}
-		>
+		<html lang="en" className={`${satoshi.variable} ${jetbrainsMono.variable}`}>
 			<body>
 				<a
 					href="#main-content"

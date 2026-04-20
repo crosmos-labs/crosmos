@@ -92,6 +92,39 @@
 		"strict": false,
 		"default": "system"
 	},
+	"seo": {
+		"metatags": {
+			"charset": "UTF-8",
+			"viewport": "width=device-width, initial-scale=1",
+			"robots": "index, follow",
+
+			"application-name": "Crosmos Documentation",
+			"color-scheme": "light dark",
+
+			"description": "Crosmos documentation for memory engine, API, SDKs, MCPs and other tools.",
+
+			"og:title": "Crosmos Docs - Memory Engine",
+			"og:type": "website",
+			"og:url": "https://docs.crosmos.dev",
+			"og:description": "Build apps with our Memory API which supports most modern toolkits",
+			"og:site_name": "Crosmos Docs",
+			"og:locale": "en_US"
+		},
+		"indexing": "all"
+	},
+	"background": {
+		"color": {
+			"light": "#ffffff",
+			"dark": "#1a1a1a"
+		}
+	},
+	"errors": {
+		"404": {
+			"redirect": false,
+			"title": "Page Not Found, Coffee Not Included",
+			"description": "This isn’t where you meant to go. Or maybe it is—either way, nothing’s here."
+		}
+	},
 	"api": {
 		"openapi": "https://api.crosmos.dev/openapi.json"
 	}

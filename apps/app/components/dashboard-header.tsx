@@ -9,15 +9,15 @@ import {
 import { SidebarTrigger } from "@crosmos/ui/components/sidebar";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
-import { PulseSpinner } from "@/components/pulse-spinner";
 import { breadcrumbLabelMap } from "@/config/nav";
 
 function ActionLoaderIndicator() {
 	const { activeCount, result, fading } = useActionLoaderState();
 
 	if (activeCount > 0) {
-		return <PulseSpinner size="1.1em" />;
+		return <AnimatedSpinner name="pulse" size="1.1em" />;
 	}
 
 	if (result === "success") {

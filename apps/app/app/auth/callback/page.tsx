@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PulseSpinner } from "@/components/pulse-spinner";
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { AuthCallbackHandler } from "./handler";
 
 export default function AuthCallbackPage() {
@@ -7,7 +7,7 @@ export default function AuthCallbackPage() {
 		<Suspense
 			fallback={
 				<div className="flex min-h-screen items-center justify-center">
-					<PulseSpinner size="1.5rem" />
+					<AnimatedSpinner name="pulse" size="1.5rem" />
 				</div>
 			}
 		>

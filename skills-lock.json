@@ -1,15 +1,15 @@
 {
-  "version": 1,
-  "skills": {
-    "mintlify": {
-      "source": "mintlify.com",
-      "sourceType": "well-known",
-      "computedHash": "c356cce82c421e8d1e7eff1774a43de9313cf110dc224f4b5e3b353b58a227cf"
-    },
-    "shadcn": {
-      "source": "shadcn/ui",
-      "sourceType": "github",
-      "computedHash": "507f011a70e8b3ae242bdc0bb5b39fd91a1d4049a0f3c281991ccf84973d591c"
-    }
-  }
+	"version": 1,
+	"skills": {
+		"mintlify": {
+			"source": "mintlify.com",
+			"sourceType": "well-known",
+			"computedHash": "c356cce82c421e8d1e7eff1774a43de9313cf110dc224f4b5e3b353b58a227cf"
+		},
+		"shadcn": {
+			"source": "shadcn/ui",
+			"sourceType": "github",
+			"computedHash": "507f011a70e8b3ae242bdc0bb5b39fd91a1d4049a0f3c281991ccf84973d591c"
+		}
+	}
 }

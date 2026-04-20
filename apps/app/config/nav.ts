@@ -5,7 +5,7 @@ import {
 	IconChartBar,
 	IconCreditCard,
 	IconDatabase,
-	IconHome,
+	IconGalaxy,
 	IconKey,
 	IconPlayerPlay,
 	IconSettings,
@@ -29,7 +29,7 @@ export interface NavGroup {
 export const homeItem: NavItem = {
 	label: "Home",
 	href: "/",
-	icon: IconHome,
+	icon: IconGalaxy,
 };
 
 export const navGroups: NavGroup[] = [

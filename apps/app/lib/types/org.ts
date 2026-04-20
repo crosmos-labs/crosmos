@@ -1,0 +1,84 @@
+export interface OrgResponse {
+	id: number;
+	slug: string;
+	name: string;
+	plan: "free" | "starter" | "pro" | "enterprise";
+	billing_email: string | null;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface OrgDetailResponse extends OrgResponse {
+	member_count: number;
+	your_role: "owner" | "admin" | "member";
+}
+
+export interface OrgListResponse {
+	orgs: OrgDetailResponse[];
+	next_cursor: string | null;
+}
+
+export interface CreateOrgRequest {
+	name: string;
+	slug?: string;
+}
+
+export interface UpdateOrgRequest {
+	name?: string;
+	slug?: string;
+	billing_email?: string | null;
+}
+
+export type OrgRole = "owner" | "admin" | "member";
+
+export interface MemberResponse {
+	user_id: number;
+	email: string;
+	name: string;
+	role: OrgRole;
+	joined_at: string;
+}
+
+export interface MemberListResponse {
+	members: MemberResponse[];
+	next_cursor: string | null;
+}
+
+export interface ChangeRoleRequest {
+	role: "admin" | "member";
+}
+
+export interface InviteResponse {
+	id: number;
+	email: string;
+	role: "admin" | "member";
+	invited_by: number;
+	expires_at: string;
+	status: "pending" | "expired" | "accepted";
+}
+
+export interface InviteListResponse {
+	invites: InviteResponse[];
+}
+
+export interface CreateInviteRequest {
+	email: string;
+	role: "admin" | "member";
+}
+
+export interface AcceptInviteRequest {
+	token: string;
+}
+
+export interface AcceptInviteResponse {
+	org: OrgDetailResponse;
+	role: "admin" | "member";
+}
+
+export interface InvitePreviewResponse {
+	org_name: string;
+	inviter_name: string;
+	role: "admin" | "member";
+	email: string;
+	expires_at: string;
+}

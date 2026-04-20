@@ -2,20 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { apiFetch } from "@/lib/api";
-
-export interface Space {
-	id: number;
-	name: string;
-	description: string | null;
-	meta: Record<string, unknown> | null;
-	created_at: string;
-	updated_at: string;
-}
-
-interface SpaceListResponse {
-	spaces: Space[];
-	total: number;
-}
+import { getActiveOrgId } from "@/lib/auth/cookies";
+import type { Space, SpaceListResponse } from "@/lib/types/space";
 
 export async function listSpaces(): Promise<Space[]> {
 	const data = await apiFetch<SpaceListResponse>("/spaces");
@@ -23,9 +11,19 @@ export async function listSpaces(): Promise<Space[]> {
 }
 
 export async function createSpace(name: string, description?: string) {
+	const activeOrgId = await getActiveOrgId();
+	if (!activeOrgId) {
+		throw new Error(
+			"No active organization. Please select an organization before creating a space.",
+		);
+	}
 	await apiFetch("/spaces", {
 		method: "POST",
-		body: JSON.stringify({ name, description: description || null }),
+		body: JSON.stringify({
+			name,
+			description: description || null,
+			org_id: activeOrgId,
+		}),
 	});
 
 	revalidatePath("/spaces");

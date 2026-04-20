@@ -1,17 +1,12 @@
 "use server";
 
 import { apiFetch } from "@/lib/api";
-
-export interface SearchResult {
-	id: string;
-	content: string;
-	score: number;
-	metadata: Record<string, unknown>;
-}
+import type { SearchResponse } from "@/lib/types/search";
 
 export async function searchMemories(query: string, spaceId?: number) {
 	const params = new URLSearchParams({ q: query });
 	if (spaceId) params.set("space_id", String(spaceId));
 
-	return apiFetch<SearchResult[]>(`/api/v1/search?${params}`);
+	const data = await apiFetch<SearchResponse>(`/search?${params}`);
+	return data.candidates;
 }

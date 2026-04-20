@@ -54,14 +54,10 @@ import { IconDotsVertical, IconKey, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-import {
-	type ApiKey,
-	type CreateApiKeyResponse,
-	createApiKey,
-	revokeApiKey,
-} from "@/actions/api-keys";
+import { createApiKey, revokeApiKey } from "@/actions/api-keys";
 import { NewKeyBanner } from "@/components/new-key-banner";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
+import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
 function maskKey(prefix: string) {
 	return prefix + "*".repeat(Math.max(0, 36 - prefix.length));
@@ -309,15 +305,15 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 								})}
 							</span>
 							<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon-sm"
-									aria-label={`Open actions for ${key.name}`}
-									className="focus:ring-0 focus-visible:ring-0"
-								>
-									<IconDotsVertical />
-								</Button>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant="ghost"
+										size="icon-sm"
+										aria-label={`Open actions for ${key.name}`}
+										className="focus:ring-0 focus-visible:ring-0"
+									>
+										<IconDotsVertical />
+									</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="start">
 									<DropdownMenuGroup>

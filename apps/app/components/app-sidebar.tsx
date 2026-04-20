@@ -21,7 +21,7 @@ import {
 	SidebarRail,
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
-import { IconBuilding, IconChevronDown, IconLogout } from "@tabler/icons-react";
+import { IconChevronDown, IconChevronUp, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -46,9 +46,11 @@ function LinkArrow({ className }: { className?: string }) {
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { logout } from "@/actions/auth";
+import { OrgSwitcher } from "@/components/org-switcher";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
-import type { AuthUser } from "@/lib/auth/types";
+import type { AuthUser } from "@/lib/types/auth";
+import type { OrgDetailResponse } from "@/lib/types/org";
 
 function getInitials(name: string) {
 	return name
@@ -59,7 +61,15 @@ function getInitials(name: string) {
 		.slice(0, 2);
 }
 
-export function AppSidebar({ user }: { user: AuthUser }) {
+export function AppSidebar({
+	user,
+	orgs,
+	activeOrg,
+}: {
+	user: AuthUser;
+	orgs: OrgDetailResponse[];
+	activeOrg: OrgDetailResponse;
+}) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const { runAction } = useActionLoader();
@@ -71,22 +81,7 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
 				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton
-							size="lg"
-							className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-						>
-							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
-								<IconBuilding className="size-4" />
-							</div>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium select-none">
-									Default Organisation
-								</span>
-							</div>
-							<IconChevronDown className="ml-auto size-4" />
-						</SidebarMenuButton>
-					</SidebarMenuItem>
+					<OrgSwitcher orgs={orgs} activeOrg={activeOrg} />
 				</SidebarMenu>
 			</SidebarHeader>
 
@@ -189,7 +184,7 @@ export function AppSidebar({ user }: { user: AuthUser }) {
 											{user.email}
 										</span>
 									</div>
-									<IconChevronDown className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
+									<IconChevronUp className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent
