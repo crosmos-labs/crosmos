@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { PulseSpinner } from "@/components/pulse-spinner";
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { handleOAuthCallback } from "./actions";
 
 export function AuthCallbackHandler() {
@@ -39,7 +39,7 @@ export function AuthCallbackHandler() {
 
 	return (
 		<div className="flex min-h-screen items-center justify-center">
-			<PulseSpinner size="1.5rem" />
+			<AnimatedSpinner name="pulse" size="1.5rem" />
 		</div>
 	);
 }

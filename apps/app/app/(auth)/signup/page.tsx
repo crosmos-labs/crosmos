@@ -9,7 +9,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { PulseSpinner } from "@/components/pulse-spinner";
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { loginWithGoogle } from "../actions";
 
 function SignupForm() {
@@ -61,7 +61,7 @@ function SignupForm() {
 					disabled={loading}
 				>
 					{loading ? (
-						<PulseSpinner />
+						<AnimatedSpinner name="pulse" />
 					) : (
 						<>
 							<IconBrandGoogleFilled className="size-5 mr-1" />
