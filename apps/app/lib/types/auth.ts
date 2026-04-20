@@ -11,11 +11,10 @@ export interface TokenResponse {
 	email: string;
 	name: string;
 	token_type: string;
-	active_org_id?: number;
+	active_org_id?: number | null;
 }
 
 export interface OAuthCallbackResponse extends TokenResponse {
 	is_new_user: boolean;
 	default_space_id: number | null;
-	active_org_id?: number | null;
 }
