@@ -82,7 +82,3 @@ export async function getActiveOrgId(): Promise<number | null> {
 	return Number.isNaN(parsed) ? null : parsed;
 }
 
-export async function clearActiveOrgCookie() {
-	const cookieStore = await cookies();
-	cookieStore.delete(ACTIVE_ORG_COOKIE);
-}

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { apiFetch } from "@/lib/api";
-import { setActiveOrgCookie } from "@/lib/auth/cookies";
+// import { setActiveOrgCookie } from "@/lib/auth/cookies";
 import type { OrgDetailResponse } from "@/lib/types/org";
 
 interface OrgListResponse {
@@ -16,6 +16,6 @@ export async function listOrgs(): Promise<OrgDetailResponse[]> {
 }
 
 export async function setActiveOrg(orgId: number): Promise<void> {
-	await setActiveOrgCookie(orgId);
+    // TODO: Implement org selection
 	revalidatePath("/");
 }

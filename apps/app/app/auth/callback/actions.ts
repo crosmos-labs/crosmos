@@ -39,7 +39,7 @@ export async function handleOAuthCallback(code: string, state: string) {
 
 	const data = (await res.json()) as OAuthCallbackResponse;
 	await setAuthCookies(data.access_token, data.refresh_token);
-	if (data.active_org_id) {
+	if (data.active_org_id != null) {
 		await setActiveOrgCookie(data.active_org_id);
 	}
 }

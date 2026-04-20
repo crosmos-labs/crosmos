@@ -53,7 +53,11 @@ export async function apiFetch<T>(
 		cache: fetchOptions.cache ?? "no-store",
 	});
 
-	if (res.status === 401 && accessToken) {
+	const method = (fetchOptions.method ?? "GET").toUpperCase();
+	const isSafeMethod = method === "GET" || method === "HEAD";
+	const hasIdempotencyKey = headers.has("Idempotency-Key");
+
+	if (res.status === 401 && accessToken && (isSafeMethod || hasIdempotencyKey)) {
 		const refreshed = await refreshTokens();
 		if (refreshed) {
 			headers.set("Authorization", `Bearer ${refreshed.access_token}`);

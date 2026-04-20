@@ -9,7 +9,13 @@ export function OrgAvatar({
 	className?: string;
 }) {
 	const [c1, c2] = generateColours(slug);
-	const gradId = `org-grad-${slug}`;
+	const safeSlug =
+		slug
+			.toLowerCase()
+			.replace(/[^a-z0-9_-]/g, "-")
+			.replace(/-+/g, "-")
+			.replace(/^-|-$/g, "") || "fallback";
+	const gradId = `org-grad-${safeSlug}`;
 
 	return (
 		<div

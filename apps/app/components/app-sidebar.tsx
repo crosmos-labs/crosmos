@@ -80,9 +80,18 @@ export function AppSidebar({
 	const { isMobile, setOpenMobile, state } = useSidebar();
 
 	useEffect(() => {
-		if (needsSync) {
-			setActiveOrg(activeOrg.id).then(() => router.refresh());
-		}
+		if (!needsSync) return;
+		let cancelled = false;
+		setActiveOrg(activeOrg.id)
+			.then(() => {
+				if (!cancelled) router.refresh();
+			})
+			.catch((err) => {
+				console.error("Failed to sync active org:", err);
+			});
+		return () => {
+			cancelled = true;
+		};
 	}, [needsSync, activeOrg.id, router]);
 
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "top";

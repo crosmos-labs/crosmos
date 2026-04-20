@@ -22,7 +22,14 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
-	const [activeOrgId, orgs] = await Promise.all([getActiveOrgId(), listOrgs()]);
+	let activeOrgId: string | null = null;
+	let orgs: Awaited<ReturnType<typeof listOrgs>> = [];
+
+	try {
+		[activeOrgId, orgs] = await Promise.all([getActiveOrgId(), listOrgs()]);
+	} catch {
+		redirect("/signup");
+	}
 
 	const fallback = orgs[0];
 	if (!fallback) redirect("/signup");

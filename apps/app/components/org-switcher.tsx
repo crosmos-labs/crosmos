@@ -44,32 +44,6 @@ export function OrgSwitcher({
 		}).then(() => router.refresh());
 	}
 
-	const mockOrgs: OrgDetailResponse[] = [
-		...orgs,
-		{
-			id: 999,
-			slug: "acme-corp",
-			name: "Acme Corp",
-			plan: "pro",
-			billing_email: "billing@acme.com",
-			member_count: 5,
-			your_role: "admin",
-			created_at: "2026-01-15T00:00:00Z",
-			updated_at: "2026-04-01T00:00:00Z",
-		},
-		{
-			id: 1000,
-			slug: "starter-team",
-			name: "Starter Team",
-			plan: "starter",
-			billing_email: null,
-			member_count: 2,
-			your_role: "member",
-			created_at: "2026-03-10T00:00:00Z",
-			updated_at: "2026-03-10T00:00:00Z",
-		},
-	];
-
 	return (
 		<SidebarMenuItem>
 			<DropdownMenu>
@@ -93,7 +67,7 @@ export function OrgSwitcher({
 					className="min-w-[16rem]"
 				>
 					<DropdownMenuGroup>
-						{mockOrgs.map((org) => (
+						{orgs.map((org) => (
 							<DropdownMenuItem
 								key={org.id}
 								onClick={() => handleSwitchOrg(org.id)}
