@@ -11,7 +11,7 @@ interface OrgListResponse {
 }
 
 export async function listOrgs(): Promise<OrgDetailResponse[]> {
-	const data = await apiFetch<OrgListResponse>("/orgs");
+	const data = await apiFetch<OrgListResponse>("/orgs", { skipOrgScope: true });
 	return data.orgs;
 }
 

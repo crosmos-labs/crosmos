@@ -29,11 +29,11 @@ export class ApiError extends Error {
 
 export async function apiFetch<T>(
 	path: string,
-	options: RequestInit & { orgId?: number } = {},
+	options: RequestInit & { orgId?: number; skipOrgScope?: boolean } = {},
 ): Promise<T> {
-	const { orgId, ...fetchOptions } = options;
+	const { orgId, skipOrgScope, ...fetchOptions } = options;
 	const accessToken = await getAccessToken();
-	const activeOrgId = orgId ?? (await getActiveOrgId());
+	const activeOrgId = skipOrgScope ? null : (orgId ?? (await getActiveOrgId()));
 
 	const headers = new Headers(fetchOptions.headers);
 	if (accessToken) {
