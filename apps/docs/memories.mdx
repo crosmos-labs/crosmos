@@ -4,6 +4,109 @@ description: "Store and retrieve memories for AI agents"
 icon: "brain"
 ---
 
-## Memories
-
 Memories are the core primitive in Crosmos. They allow AI agents to store, retrieve, and manage contextual information across sessions.
+
+## Why contextual memories, not atomic facts
+
+Most memory systems treat knowledge as a bag of disconnected atomic facts: tiny sentences stripped of context, relationships, and temporal grounding. This approach breaks down fast.
+
+Consider a conversation where a user says:
+
+> "I switched from my old accounting firm in Chicago to a startup in Austin back in March. The pay cut was rough but I'm way happier here."
+
+An atomic fact extractor might produce:
+
+- `User worked at an accounting firm`
+- `User lived in Chicago`
+- `User moved to Austin`
+- `User changed jobs in March`
+- `User took a pay cut`
+- `User is happier at new job`
+
+Six isolated facts. The problem? **Retrieval doesn't know how they connect.** When the user later asks *"Why did I move to Austin?"*, the system retrieves scattered fragments. Each fact individually matches, but none carry the causal thread.
+
+<Accordion title="The problem with over-splitting">
+Atomic facts create noise. A single conversation about a dinner outing might generate 10+ fragments: the restaurant name, the food ordered, who was there, the location, the price, the rating. Each fragment competes for retrieval budget, diluting the signal. The retriever has to reassemble the story from scattered pieces, and it usually can't.
+</Accordion>
+
+## The Crosmos approach
+
+Crosmos stores memories as **enriched facts with entity-relationship context**. Each memory preserves enough context to be useful on its own, while the knowledge graph captures how everything connects.
+
+### What each memory carries
+
+| Property | Description |
+|----------|-------------|
+| **Content** | The fact written in natural language, detailed enough to answer a question without needing other memories |
+| **Entity relationships** | Structured ERE (Entity-Relation-Entity) triples connecting the memory to the knowledge graph |
+| **Temporal grounding** | When the event happened (`event_time`) and when it was learned (`recorded_at`) |
+| **Importance score** | A scored signal for prioritization (0.3 = minor, 0.6 = moderate, 0.9 = identity-defining) |
+| **Confidence** | How certain the extraction is |
+
+Instead of six fragments, Crosmos produces one memory with the full narrative and its graph connections:
+
+```
+Memory: "User relocated from Chicago to Austin in March for a startup job,
+         accepting a pay cut for greater job satisfaction."
+
+Entities: User, Chicago, Austin, startup
+Edges:
+  (User) —MOVED_TO→ (Austin)
+  (User) —MOVED_FROM→ (Chicago)
+  (User) —WORKS_FOR→ (startup)
+```
+
+Retrieval can find this via any path: semantic similarity, keyword match, or graph traversal through any connected entity.
+
+## Memory types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **Episode** | A specific event or transition with temporal context | "User left Google to join Anthropic in May 2025" |
+| **Semantic** | An ongoing state, identity, or durable fact | "User works at Anthropic as a research engineer" |
+| **Viewpoint** | A preference, feeling, opinion, or subjective judgment | "User prefers Neovim over VS Code for modal editing speed" |
+
+<Note>
+State changes produce multiple types. When a user describes a transition, Crosmos extracts both the event and the resulting state.
+
+- "I left Google last May to join Anthropic" → **episode** (the transition) + **semantic** (current employer)
+- "I switched from VS Code to Neovim" → **episode** (the switch) + **viewpoint** (the preference)
+</Note>
+
+### Extraction principles
+
+<CardGroup cols={2}>
+<Card title="Self-contained" icon="circle-check">
+Each memory answers a question on its own. No memory requires another memory to make sense.
+</Card>
+<Card title="Not over-split" icon="scissors">
+Related facts stay together. "User works at Stripe on payments" is one memory, not two.
+</Card>
+<Card title="Not over-merged" icon="merge">
+Different topics get separate memories. Work, preferences, pets, and location plans are distinct.
+</Card>
+<Card title="Entity-preserving" icon="fingerprint">
+Specific names (brands, stores, venues, people) are kept verbatim, never generalized away.
+</Card>
+</CardGroup>
+
+## Retrieval
+
+Memories are retrieved using a hybrid approach combining four signals:
+
+1. **Semantic search**: vector similarity via HNSW index
+2. **Keyword search**: full-text matching with relevance scoring
+3. **Graph traversal**: BFS through entity relationships, seeded by multiple strategies
+4. **Temporal search**: activated when a query contains time references, ranks memories by proximity to the extracted date window
+
+Results are fused using Reciprocal Rank Fusion (RRF), boosted by recency signals, and optionally reranked with a cross-encoder.
+
+## Soft delete
+
+Memories can be "forgotten" via soft delete. The memory and its connected edges are hidden from retrieval but preserved in the database. This allows:
+
+- User-controlled memory management
+- Reversible deletion (memories can be un-forgotten)
+- Complete audit trail of what was known and when
+
+For endpoint details, see the [API Reference](/api-reference).

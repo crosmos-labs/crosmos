@@ -1,9 +1,71 @@
 ---
 title: "Clusters"
-description: "Automatically group related memories into clusters"
+description: "How Crosmos compresses, consolidates, and organizes memories in the background"
 icon: "layer-group"
 ---
 
-## Clusters
+Every conversation with your AI agent produces memories. After a few hundred conversations, your agent is sitting on thousands of them. Most overlap. Many say the same thing in slightly different words. All of them compete for attention during retrieval.
 
-Clusters automatically group related memories together, making it easier to discover patterns and organize knowledge at scale.
+That's where clusters come in.
+
+## What is a cluster?
+
+A cluster is a **synthesized summary of a group of related memories**. It's not a new memory. It's not a retrieval candidate. It's a compressed, high-level understanding of what a bunch of individual memories have in common.
+
+Your agent has dozens of separate memories about your programming preferences. Rust this. Python that. Vim bindings here. Terminal over IDE there. Individually, each one is a fact. Together, they paint a picture. A cluster captures that picture in one sentence:
+
+> "User strongly prefers low-level systems programming, uses keyboard-centric tools, and avoids GUI-heavy workflows."
+
+Dozens of memories compressed into one insight. Same meaning. Fraction of the footprint.
+
+## Why cluster? Because noise kills recall
+
+More memories doesn't mean better recall. It often means worse.
+
+When you search through thousands of facts, you get redundancy. The same answer appears fifteen times in fifteen different wordings. Unique, important but less frequent memories get buried under the weight of repetitive observations.
+
+Clustering fights back. By grouping related memories and synthesizing their shared meaning, clusters reduce the dimensionality of the knowledge base without losing information. The original memories are all still there. The cluster just gives the system a higher-level vantage point.
+
+## How it works
+
+Clustering happens in two phases:
+
+| Phase | When | What happens |
+|-------|------|-------------|
+| **Assignment** | At ingestion | New memory is matched against existing clusters. If it fits, it joins. If not, it waits for the next batch. |
+| **Synthesis** | When a cluster hits minimum size | All member memories are read together and compressed into one summary. |
+
+A cluster doesn't get its summary the moment it's created. It waits. Synthesizing too early means the summary is based on incomplete information. One memory about Python doesn't tell you much. Three memories about Python, testing frameworks, and type hints tell you this person cares about correctness and tooling.
+
+Clusters also have a maximum size. Beyond that, they split. Compression only works when the group is coherent.
+
+## Clusters and retrieval
+
+Clusters play a supporting role during retrieval:
+
+| Aspect | Role |
+|--------|------|
+| **Individual memories** | Primary retrieval results. Grounded, verifiable, traceable to source. |
+| **Cluster summaries** | Interpretations. Useful for understanding patterns, not a substitute for specific answers. |
+
+The answer to "What IDE does the user prefer?" should be the memory that says "User uses Neovim," not just a cluster summary that says "User prefers keyboard-centric tools."
+
+### So what are they good for?
+
+| Signal | What it tells the system |
+|--------|------------------------|
+| Dense cluster | This topic is well-covered with repeated observations |
+| Memory can't find a cluster | This might be something novel worth paying attention to |
+| Over time | The system self-organizes around what's established, what's forming, and what's noise |
+
+Clusters are the system's internal monologue. They help it think about what it knows. Not something the user ever sees directly.
+
+## The analogy: clusters are dreams
+
+Your brain does something similar while you sleep. It takes the raw experiences of the day, finds patterns, compresses them, and stores the compressed version separately from the vivid episodic memories. You don't dream in verbatim transcripts. You dream in themes.
+
+Crosmos clusters work the same way. They process memories in the background, finding themes and compressing redundancy. But when you ask "what did I say about my job?" the system gives you the actual memory, not the dream. The cluster did its work behind the scenes. The retrieval gives you the real thing.
+
+## Bottom line
+
+Clusters compress, consolidate, and organize knowledge in the background. They never interfere with retrieval because precision matters more than compression when you're answering a question. The memories speak for themselves. The clusters just make sure the system knows what it's hearing.

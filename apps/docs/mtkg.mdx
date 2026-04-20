@@ -1,9 +1,91 @@
 ---
 title: "Knowledge Graph"
-description: "Organize memories with multi-tenant knowledge graphs"
+sidebarTitle: "MTKG (Knowledge Graph)"
+description: "How Crosmos structures, stores, and retrieves knowledge over time"
 icon: "project-diagram"
 ---
 
-## Monotonic Temporal Knowledge Graph
+Crosmos builds a **Monotonic Temporal Knowledge Graph**: a time-aware knowledge structure that grows with every interaction. New observations are added as additional nodes and edges, nothing is overwritten or mutated in place. Every relationship carries temporal metadata, every entity is shared across memories, and older knowledge that loses relevance is pruned by a smart forgetting system based on importance, recency, and access patterns.
 
-The Multi-Tenant Knowledge Graph (MTKG) structures memories into interconnected entities and relationships, enabling rich semantic queries across tenants.
+## Why monotonic?
+
+Most memory systems update facts in place: "User works at Google" becomes "User works at Anthropic." The old fact is gone. But in doing so, you lose the history: when the user changed jobs, what they said about it, what the context was.
+
+**People change.** They switch jobs, move cities, change preferences, update opinions. A memory system that overwrites facts can only tell you the current state. A monotonic graph tells you the full story.
+
+```
+March 2025: (User) —WORKS_FOR→ (Google)
+May 2025:   (User) —WORKS_FOR→ (Anthropic)
+```
+
+Both edges exist. The retrieval pipeline uses recency and confidence to prefer the current state, but the history is always there. You can answer:
+
+- "Where did the user work before Anthropic?"
+- "When did the user move to Austin?"
+- "What did the user think about VS Code before switching?"
+
+Newer edges naturally surface first during retrieval. Each edge is scored with a recency factor based on its `valid_from` timestamp. Recent relationships get a boost, older ones decay over time but never reach zero. So "User works at Anthropic" (May 2025) outranks "User works at Google" (March 2025) in a query about the user's current job, but both remain discoverable when the question is about the past.
+
+### Temporal metadata
+
+Every edge carries two timestamps:
+
+| Field | Meaning | Example |
+|-------|---------|---------|
+| `valid_from` | When the relationship became true | `2025-05-01T00:00:00` (the start date) |
+| `recorded_at` | When the system learned it | `2025-05-03T14:22:00` (the ingestion time) |
+
+This distinction matters. A user might say "I started my new job in May" on June 3rd. `valid_from` is May 1st. `recorded_at` is June 3rd. Temporal queries use `valid_from`. Recency ranking uses `recorded_at`. They serve different purposes.
+
+### No physical deletion
+
+Memories are never hard-deleted. The "forget" operation sets `forgotten_at` on the memory and its connected edges. This hides them from retrieval while preserving the complete audit trail.
+
+## Connected facts, not isolated text
+
+Flat text memories can't reason about structure. You can search them with vectors or keywords, but you can't follow a chain of relationships. You don't know that "Mercury" in one conversation is the same person in another. You can't traverse: "User works at Stripe" → "Stripe uses PostgreSQL" → "PostgreSQL has extension pgvector" → "User might know about vector search."
+
+Every piece of knowledge is stored as a relationship between two entities, with confidence scores and temporal grounding. The entity graph is shared across all memories in a space. Entities are unique nodes that multiple memories can reference.
+
+<Tip>
+A query about "Tokyo" can reach a memory about "Sony" through the graph, even if the memory content never mentions Tokyo. The connection exists because the user said they were "flying to Tokyo for a Sony onsite", and the graph captured both entities and their relationship.
+</Tip>
+
+## Three seeds for graph retrieval
+
+To search the graph, you first need to find the right entry points: the entities most likely connected to relevant memories. Crosmos uses three independent strategies, then fuses them together. Each catches something the others miss.
+
+| Seed strategy | How it works | What it catches |
+|--------------|-------------|-----------------|
+| **Memory seeds** | Compares query against memory embeddings, then extracts connected entities | Entities contextually related to the query's meaning |
+| **Entity embedding seeds** | Compares query directly against entity embeddings | Entities semantically close to the query, even if no memory directly matches |
+| **Entity name seeds** | Matches query text against entity names via full-text search | Exact and partial name matches that embeddings miss |
+
+### Why all three
+
+A single strategy has blind spots. Memory seeds miss semantically distant but structurally connected entities. Entity embedding seeds miss differently phrased names. Entity name seeds miss entities with no text overlap. Running all three and fusing them maximizes coverage. Entities found by multiple seeds get a combined boost.
+
+Consider a user asking *"What editor does the user use?"*
+
+1. Memory seeds find memories about editors (weak match)
+2. Entity name seeds find "Neovim" and "VS Code" via keyword match
+3. Entity embedding seeds find "code editor" concept entities
+4. The graph traverses from those entities through `USES` and `PREFERS` edges
+5. The memory *"User uses Neovim as primary code editor after switching from VS Code"* surfaces, even though the query never said "Neovim"
+
+The graph signal finds memories that semantic and keyword search miss, because it follows **structural relationships** rather than relying on text similarity alone.
+
+## Full retrieval pipeline
+
+The graph signal is one of four retrieval signals that run in parallel:
+
+1. **Semantic search**: HNSW cosine similarity on memory embeddings
+2. **Keyword search**: full-text matching with relevance scoring
+3. **Graph traversal**: 3-seed traversal through the ERE graph
+4. **Temporal search**: activated when a query contains time references, ranks memories by proximity to the extracted date window
+
+All four signal results are **fused** together, then **recency-boosted** based on temporal metadata, and optionally **reranked** for final precision.
+
+<Note>
+No single signal dominates. Each covers the others' blind spots: memories are found by meaning, by keywords, and by graph structure, then ranked by relevance, freshness, and precision.
+</Note>

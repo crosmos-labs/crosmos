@@ -20,7 +20,14 @@
 					},
 					{
 						"group": "Concepts",
-						"pages": ["memories", "mtkg", "clusters"]
+						"pages": [
+							"how-it-works",
+							"memories",
+							"mtkg",
+							"forgetting",
+							"recall",
+							"clusters"
+						]
 					},
 					{
 						"group": "Plugins",
