@@ -1,7 +1,7 @@
 {
 	"$schema": "https://mintlify.com/docs.json",
 	"theme": "maple",
-	"name": "Crosmos - Documentation",
+	"name": "Crosmos",
 	"colors": {
 		"primary": "#298559",
 		"light": "#298559",
@@ -12,64 +12,41 @@
 		"tabs": [
 			{
 				"tab": "Guides",
+				"icon": "compass",
 				"groups": [
 					{
-						"group": "Getting started",
-						"pages": ["index", "quickstart", "development"]
+						"group": "Getting Started",
+						"pages": ["index", "quickstart"]
 					},
 					{
-						"group": "Customization",
-						"pages": ["essentials/settings", "essentials/navigation"]
-					},
-					{
-						"group": "Writing content",
+						"group": "Concepts",
 						"pages": [
-							"essentials/markdown",
-							"essentials/code",
-							"essentials/images",
-							"essentials/reusable-snippets"
+							"how-it-works",
+							"memories",
+							"mtkg",
+							"forgetting",
+							"recall",
+							"clusters"
 						]
 					},
 					{
-						"group": "AI tools",
-						"pages": [
-							"ai-tools/cursor",
-							"ai-tools/claude-code",
-							"ai-tools/windsurf"
-						]
+						"group": "Plugins",
+						"pages": ["mcp"]
 					}
 				]
 			},
 			{
-				"tab": "API reference",
-				"groups": [
-					{
-						"group": "API documentation",
-						"pages": ["api-reference/introduction"]
-					},
-					{
-						"group": "Endpoint examples",
-						"pages": [
-							"api-reference/endpoint/get",
-							"api-reference/endpoint/create",
-							"api-reference/endpoint/delete",
-							"api-reference/endpoint/webhook"
-						]
-					}
-				]
+				"tab": "API Reference",
+				"icon": "code",
+				"openapi": "https://api.crosmos.dev/openapi.json"
 			}
 		],
 		"global": {
 			"anchors": [
 				{
-					"anchor": "Documentation",
-					"href": "https://docs.crosmos.dev",
-					"icon": "book-open-cover"
-				},
-				{
-					"anchor": "Blog",
-					"href": "https://crosmos.dev/blogs",
-					"icon": "newspaper"
+					"anchor": "Console",
+					"href": "https://console.crosmos.dev",
+					"icon": "window-maximize"
 				}
 			]
 		}
@@ -91,18 +68,6 @@
 			"label": "Dashboard",
 			"href": "https://crosmos.dev"
 		}
-	},
-	"contextual": {
-		"options": [
-			"copy",
-			"view",
-			"chatgpt",
-			"claude",
-			"perplexity",
-			"mcp",
-			"cursor",
-			"vscode"
-		]
 	},
 	"footer": {
 		"socials": {
