@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 const ACCESS_TOKEN_COOKIE = "access_token";
 const REFRESH_TOKEN_COOKIE = "refresh_token";
 const OAUTH_STATE_COOKIE = "oauth_state";
+const ACTIVE_ORG_COOKIE = "active_org_id";
 
 const COOKIE_OPTIONS = {
 	httpOnly: true,
@@ -44,6 +45,7 @@ export async function clearAuthCookies() {
 	cookieStore.delete(ACCESS_TOKEN_COOKIE);
 	cookieStore.delete(REFRESH_TOKEN_COOKIE);
 	cookieStore.delete(OAUTH_STATE_COOKIE);
+	cookieStore.delete(ACTIVE_ORG_COOKIE);
 }
 
 export async function setOAuthState(state: string) {
@@ -62,4 +64,25 @@ export async function getOAuthState(): Promise<string | undefined> {
 export async function clearOAuthState() {
 	const cookieStore = await cookies();
 	cookieStore.delete(OAUTH_STATE_COOKIE);
+}
+
+export async function setActiveOrgCookie(orgId: number) {
+	const cookieStore = await cookies();
+	cookieStore.set(ACTIVE_ORG_COOKIE, String(orgId), {
+		...COOKIE_OPTIONS,
+		maxAge: 365 * 24 * 60 * 60,
+	});
+}
+
+export async function getActiveOrgId(): Promise<number | null> {
+	const cookieStore = await cookies();
+	const value = cookieStore.get(ACTIVE_ORG_COOKIE)?.value;
+	if (!value) return null;
+	const parsed = Number.parseInt(value, 10);
+	return Number.isNaN(parsed) ? null : parsed;
+}
+
+export async function clearActiveOrgCookie() {
+	const cookieStore = await cookies();
+	cookieStore.delete(ACTIVE_ORG_COOKIE);
 }
