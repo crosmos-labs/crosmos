@@ -38,7 +38,9 @@ export default async function DashboardLayout({
 	if (activeOrg.id !== activeOrgId) {
 		const headersList = await headers();
 		const pathname = headersList.get("x-invoke-path") ?? "/";
-		redirect(`/auth/sync-org?orgId=${activeOrg.id}&next=${encodeURIComponent(pathname)}`);
+		redirect(
+			`/auth/sync-org?orgId=${activeOrg.id}&next=${encodeURIComponent(pathname)}`,
+		);
 	}
 
 	const cookieStore = await cookies();

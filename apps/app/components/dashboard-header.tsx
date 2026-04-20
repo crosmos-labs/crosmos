@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -9,7 +10,6 @@ import {
 import { SidebarTrigger } from "@crosmos/ui/components/sidebar";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
 import { breadcrumbLabelMap } from "@/config/nav";
 

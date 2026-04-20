@@ -20,7 +20,9 @@ export async function GET(request: Request) {
 	if (!valid) {
 		const fallback = orgs[0];
 		if (!fallback) redirect("/signup");
-		redirect(`/auth/sync-org?orgId=${fallback.id}&next=${encodeURIComponent(next)}`);
+		redirect(
+			`/auth/sync-org?orgId=${fallback.id}&next=${encodeURIComponent(next)}`,
+		);
 	}
 
 	await setActiveOrgCookie(orgId);

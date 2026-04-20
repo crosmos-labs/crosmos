@@ -24,7 +24,10 @@ export default function DashboardError({
 		<div className="flex min-h-[60vh] items-center justify-center">
 			<Empty className="gap-6 p-12">
 				<EmptyHeader className="gap-4">
-					<EmptyMedia variant="icon" className="size-16 [&_svg:not([class*='size-'])]:size-8">
+					<EmptyMedia
+						variant="icon"
+						className="size-16 [&_svg:not([class*='size-'])]:size-8"
+					>
 						<IconBarrierBlock />
 					</EmptyMedia>
 					<EmptyTitle className="text-xl">Something went wrong</EmptyTitle>

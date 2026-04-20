@@ -21,7 +21,7 @@ import {
 	SidebarRail,
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
-import { IconChevronDown, IconChevronUp, IconLogout } from "@tabler/icons-react";
+import { IconChevronUp, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 

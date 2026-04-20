@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -9,7 +10,6 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { loginWithGoogle } from "../actions";
 
 function SignupForm() {
@@ -61,7 +61,7 @@ function SignupForm() {
 					disabled={loading}
 				>
 					{loading ? (
-						<AnimatedSpinner name="pulse" />
+						<AnimatedSpinner name="pulse" color="#ffffff" />
 					) : (
 						<>
 							<IconBrandGoogleFilled className="size-5 mr-1" />

@@ -1,8 +1,8 @@
 "use client";
 
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { handleOAuthCallback } from "./actions";
 
 export function AuthCallbackHandler() {
