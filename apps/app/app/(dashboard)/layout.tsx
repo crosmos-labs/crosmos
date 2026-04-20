@@ -22,7 +22,7 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
-	let activeOrgId: string | null = null;
+	let activeOrgId: number | null = null;
 	let orgs: Awaited<ReturnType<typeof listOrgs>> = [];
 
 	try {

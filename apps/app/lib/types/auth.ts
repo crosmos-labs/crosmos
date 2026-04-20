@@ -16,6 +16,6 @@ export interface TokenResponse {
 
 export interface OAuthCallbackResponse extends TokenResponse {
 	is_new_user: boolean;
-	default_space_id: number;
-	active_org_id: number;
+	default_space_id: number | null;
+	active_org_id?: number | null;
 }

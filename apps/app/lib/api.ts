@@ -70,11 +70,12 @@ export async function apiFetch<T>(
 	}
 
 	if (!res.ok) {
+		const bodyText = await res.text();
 		let body: unknown;
 		try {
-			body = await res.json();
+			body = JSON.parse(bodyText);
 		} catch {
-			body = await res.text();
+			body = bodyText;
 		}
 		throw new ApiError(res.status, body);
 	}
