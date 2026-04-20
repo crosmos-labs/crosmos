@@ -11,30 +11,35 @@
 	"navigation": {
 		"tabs": [
 			{
-				"tab": "Docs",
+				"tab": "Guides",
+				"icon": "compass",
 				"groups": [
 					{
-						"group": "Getting started",
-						"pages": ["index", "quickstart", "development"]
+						"group": "Getting Started",
+						"pages": ["index", "quickstart"]
+					},
+					{
+						"group": "Concepts",
+						"pages": ["memories", "mtkg", "clusters"]
+					},
+					{
+						"group": "Plugins",
+						"pages": ["mcp"]
 					}
 				]
 			},
 			{
 				"tab": "API Reference",
+				"icon": "code",
 				"openapi": "https://api.crosmos.dev/openapi.json"
 			}
 		],
 		"global": {
 			"anchors": [
 				{
-					"anchor": "Documentation",
-					"href": "https://docs.crosmos.dev",
-					"icon": "book-open-cover"
-				},
-				{
-					"anchor": "Blog",
-					"href": "https://crosmos.dev/blogs",
-					"icon": "newspaper"
+					"anchor": "Console",
+					"href": "https://console.crosmos.dev",
+					"icon": "window-maximize"
 				}
 			]
 		}
