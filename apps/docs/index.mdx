@@ -1,18 +1,141 @@
 ---
 title: "Introduction"
-description: "Crosmos documentation"
+description: "Context engineering for AI agents"
 icon: "home"
 ---
 
-## Crosmos
+Every AI agent has the same problem. It listens, responds, and forgets. The next conversation starts from zero. Every time.
 
-Crosmos is a memory engine for AI agents.
+Crosmos fixes that. It gives your agent a memory that grows with every interaction, so responses get better, not just bigger.
 
-<Card
-  title="Get started"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Set up Crosmos in minutes.
+## The problem with how agents remember today
+
+Most tools chunk your documents, embed them in a vector database, and call it memory. That works for finding a paragraph about quarterly revenue. It falls apart the moment you need something like:
+
+<Tabs>
+<Tab title="Temporal">
+
+*"What was I working on last summer?"*
+
+Vector search finds text that mentions "summer." It has no idea when the event happened or that a newer fact might supersede an old one.
+
+</Tab>
+<Tab title="Relational">
+
+*"Who did I say I was collaborating with on the AI project?"*
+
+Flat embeddings cannot follow a chain of relationships. They do not know that Alice manages Bob, or that the project you mentioned last week is the one Alice approved in March.
+
+</Tab>
+<Tab title="Evolving">
+
+*"How has my opinion on remote work changed?"*
+
+A system that overwrites facts in place destroys history. "I love remote work" replaces "I hate remote work." You lose the nuance, the timeline, the context of the change.
+
+</Tab>
+</Tabs>
+
+These are not edge cases. They are the questions your users actually ask. And standard RAG cannot answer them.
+
+## How Crosmos is different
+
+Crosmos does not flatten content into vector chunks. It builds a [Monotonic Temporal Knowledge Graph](/mtkg): a living, time-aware graph of entities and relationships that only grows.
+
+<Steps>
+
+<Step title="Ingest">
+
+You send content. Conversations, PDFs, plain text. Crosmos accepts all of it.
+
+</Step>
+
+<Step title="Extract and connect">
+
+Facts, entities, and relationships are automatically pulled from raw content and woven into the knowledge graph. No manual tagging. No prompt engineering.
+
+</Step>
+
+<Step title="Retrieve">
+
+When your agent asks a question, four independent search signals fire in parallel and return exactly the context it needs. Read more about how [retrieval](/recall) works.
+
+</Step>
+
+</Steps>
+
+That is the entire loop. Ingest, connect, retrieve.
+
+## Why it works
+
+### The graph only grows
+
+New facts append. Old facts stay. Both "I work at Google" and "I joined Anthropic" coexist, timestamped and ranked by recency. History is always recoverable. A smart [forgetting](/forgetting) layer fades low-importance noise while keeping what matters accessible. The result: your agent builds a richer picture with every conversation.
+
+### Time is built in, not bolted on
+
+Every fact carries two timestamps: when the event actually happened, and when the system learned it. Temporal queries are native. Ask "what changed since we last talked" and Crosmos uses the real event time, not the ingestion time.
+
+### Four signals, one answer
+
+No single search method catches everything. Crosmos runs four in parallel and fuses them:
+
+| Signal | What it catches |
+|--------|----------------|
+| **Semantic** | Meaning-level matches through vector similarity |
+| **Keyword** | Exact names and terms that semantics miss |
+| **Graph** | Contextually connected entities beyond text overlap |
+| **Temporal** | Facts inside the queried time window |
+
+Agreement across signals naturally boosts the best results. Each one covers the others' blind spots.
+
+### More than memory, a reasoning layer
+
+Dozens of conversations about programming languages, editor preferences, and tooling choices. Individually, they are scattered facts. Together, they tell you something bigger: this user strongly prefers low-level systems work with keyboard-centric tools and avoids GUI-heavy workflows.
+
+Crosmos clusters related memories into synthesized summaries in the background. It is not just storing facts. It is understanding patterns. Your agent does not just remember what was said. It reasons about what it all means.
+
+Learn more about how clusters work in the [Clusters](/clusters) deep dive.
+
+### Structured, not stuffed
+
+Raw text goes in. Structured knowledge comes out. Conversations, PDFs, and documents become entity-relationship graphs with confidence scores and provenance. The pipeline handles extraction automatically. See how [memories](/memories) are structured and stored.
+
+## Built for the tools you use
+
+<Columns cols={2}>
+<Card title="MCP server" icon="puzzle-piece" href="/mcp">
+  Plug into any MCP-compatible client. Your agent gets memory automatically.
 </Card>
+<Card title="Connectors" icon="plug">
+  Ingest from the tools you already use. No custom pipelines needed.
+</Card>
+<Card title="Multi-tenant" icon="building">
+  Isolated memory spaces per organization. Zero cross-contamination.
+</Card>
+<Card title="Any content type" icon="file-text">
+  PDFs, plain text, conversation transcripts. The pipeline handles them all.
+</Card>
+</Columns>
+
+## Memories as the source of truth
+
+Anthropic's research on [contextual retrieval](https://www.anthropic.com/engineering/contextual-retrieval) makes the case clearly: agents need richer, more connected context to reason well. Raw chunks are not enough.
+
+Crosmos is built around that principle. [Memories](/memories) carry entity relationships, temporal grounding, and importance scores. [Clusters](/clusters) synthesize patterns across those memories. Together, they form the best corpus an LLM could ask for: structured, connected, and ranked by what actually matters.
+
+When your agent retrieves context from Crosmos, it is not getting a bag of text fragments. It is getting a reasoning-ready knowledge base that improves with every conversation.
+
+## Next steps
+
+<CardGroup cols={2}>
+
+<Card title="Quickstart" icon="play" href="/quickstart">
+  Make your first API call in minutes.
+</Card>
+
+<Card title="How it works" icon="cpu" href="/how-it-works">
+  Dive into the architecture behind the engine.
+</Card>
+
+</CardGroup>
