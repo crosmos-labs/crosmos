@@ -6,4 +6,41 @@ icon: "puzzle-piece"
 
 ## Model Context Protocol
 
-Crosmos provides an MCP server plugin, allowing any MCP-compatible AI tool to interact with the memory engine directly.
+Crosmos exposes its memory engine through an MCP server, so any MCP-compatible client can store and retrieve context without custom integrations.
+
+## Installation
+
+```bash
+npx @crosmos/mcp
+```
+
+Or add it to your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "crosmos": {
+      "command": "npx",
+      "args": ["@crosmos/mcp"],
+      "env": {
+        "CROSMOS_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+## Available tools
+
+| Tool | Description |
+|------|-------------|
+| `search_memories` | Retrieve relevant memories for a query |
+| `add_memory` | Store new content into a memory space |
+| `list_spaces` | List available memory spaces |
+| `health_check` | Check API connectivity |
+
+## How agents use it
+
+When an agent receives a user message, it calls `search_memories` to fetch relevant context. After responding, it calls `add_memory` to store the new exchange. The next conversation starts with everything the agent already knows.
+
+No manual context windows. No prompt engineering. Just memory that works.
