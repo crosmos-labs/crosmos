@@ -13,7 +13,7 @@ export const LINKS = {
 		pricing: "/pricing",
 	},
 	documentation: {
-		getStarted: "https://docs.crosmos.dev",
+		getStarted: "/docs",
 		apiReference: "/docs/api",
 		examples: "/docs/examples",
 		sdks: "/docs/sdks",
