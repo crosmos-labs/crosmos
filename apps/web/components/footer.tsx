@@ -5,6 +5,7 @@ import {
 	IconBrandX,
 } from "@tabler/icons-react";
 import { LINKS } from "../config/links";
+import { CornerPlus } from "./ui/corner-plus";
 import PixelBlast from "./ui/pixel-blast";
 
 const FOOTER_DATA = {
@@ -65,10 +66,10 @@ const FOOTER_DATA = {
 export function Footer() {
 	return (
 		<footer className="dark bg-background text-foreground relative">
-			<div className="h-48 sm:h-64 md:h-80 lg:h-90 absolute inset-x-0 ">
+			<div className="absolute inset-0">
 				<PixelBlast
 					variant="square"
-					pixelSize={4}
+					pixelSize={3}
 					color="#298559"
 					patternScale={2}
 					patternDensity={1}
@@ -83,91 +84,96 @@ export function Footer() {
 					className="size-full"
 				/>
 			</div>
-			<div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-64 sm:pt-96 md:pt-112 lg:pt-[440px] pb-12 sm:pb-16">
-				<div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-					<div>
-						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							{FOOTER_DATA.product.title}
-						</h3>
-						<ul className="space-y-2">
-							{FOOTER_DATA.product.links.map((link) => (
-								<li key={link.label}>
-									<a
-										href={link.href}
-										className="text-foreground/90 text-sm link-underline"
-									>
-										{link.label}
-									</a>
-								</li>
-							))}
-						</ul>
-					</div>
-					<div>
-						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							{FOOTER_DATA.documentation.title}
-						</h3>
-						<ul className="space-y-2">
-							{FOOTER_DATA.documentation.links.map((link) => (
-								<li key={link.label}>
-									<a
-										href={link.href}
-										className="text-foreground/90 text-sm link-underline"
-									>
-										{link.label}
-									</a>
-								</li>
-							))}
-						</ul>
-					</div>
-					<div className="lg:text-right">
-						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							{FOOTER_DATA.company.title}
-						</h3>
-						<ul className="space-y-2">
-							{FOOTER_DATA.company.links.map((link) => (
-								<li key={link.label}>
-									<a
-										href={link.href}
-										className="text-foreground/90 text-sm link-underline"
-									>
-										{link.label}
-									</a>
-								</li>
-							))}
-						</ul>
-					</div>
-					<div className="lg:text-right">
-						<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
-							{FOOTER_DATA.social.title}
-						</h3>
-						<ul className="space-y-3">
-							{FOOTER_DATA.social.links.map((social) => {
-								const Icon = social.icon;
-								return (
-									<li
-										key={social.name}
-										className="flex items-center lg:justify-end gap-2"
-									>
+			<div className="relative z-10 max-w-7xl mx-auto lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24">
+				<div className="relative bg-background border border-foreground/10">
+					<CornerPlus className="top-0 left-0 hidden -translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
+					<CornerPlus className="top-0 right-0 hidden translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
+					<CornerPlus className="bottom-0 left-0 hidden -translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
+					<CornerPlus className="bottom-0 right-0 hidden translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
+					<div className="grid grid-cols-2 lg:grid-cols-4 gap-8 p-6 md:p-8">
+						<div>
+							<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
+								{FOOTER_DATA.product.title}
+							</h3>
+							<ul className="space-y-2">
+								{FOOTER_DATA.product.links.map((link) => (
+									<li key={link.label}>
 										<a
-											href={social.href}
-											target="_blank"
-											className="text-foreground/90 text-sm link-underline inline-flex items-center gap-1.5 whitespace-nowrap"
+											href={link.href}
+											className="text-foreground/90 text-sm link-underline"
 										>
-											<Icon size={16} strokeWidth={1} />
-											{social.name}
+											{link.label}
 										</a>
 									</li>
-								);
-							})}
-						</ul>
+								))}
+							</ul>
+						</div>
+						<div>
+							<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
+								{FOOTER_DATA.documentation.title}
+							</h3>
+							<ul className="space-y-2">
+								{FOOTER_DATA.documentation.links.map((link) => (
+									<li key={link.label}>
+										<a
+											href={link.href}
+											className="text-foreground/90 text-sm link-underline"
+										>
+											{link.label}
+										</a>
+									</li>
+								))}
+							</ul>
+						</div>
+						<div className="lg:text-right">
+							<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
+								{FOOTER_DATA.company.title}
+							</h3>
+							<ul className="space-y-2">
+								{FOOTER_DATA.company.links.map((link) => (
+									<li key={link.label}>
+										<a
+											href={link.href}
+											className="text-foreground/90 text-sm link-underline"
+										>
+											{link.label}
+										</a>
+									</li>
+								))}
+							</ul>
+						</div>
+						<div className="lg:text-right">
+							<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
+								{FOOTER_DATA.social.title}
+							</h3>
+							<ul className="space-y-3">
+								{FOOTER_DATA.social.links.map((social) => {
+									const Icon = social.icon;
+									return (
+										<li
+											key={social.name}
+											className="flex items-center lg:justify-end gap-2"
+										>
+											<a
+												href={social.href}
+												target="_blank"
+												className="text-foreground/90 text-sm link-underline inline-flex items-center gap-1.5 whitespace-nowrap"
+											>
+												<Icon size={16} strokeWidth={1} />
+												{social.name}
+											</a>
+										</li>
+									);
+								})}
+							</ul>
+						</div>
 					</div>
-				</div>
-
-				<div className="border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-					<p className="font-bold text-lg">{FOOTER_DATA.brand.name}</p>
-					<p className="text-muted-foreground text-sm">
-						{FOOTER_DATA.brand.copyright}
-					</p>
+					<div className="border-t border-foreground/10 p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+						<p className="font-bold text-lg">{FOOTER_DATA.brand.name}</p>
+						<p className="text-muted-foreground text-sm">
+							{FOOTER_DATA.brand.copyright}
+						</p>
+					</div>
 				</div>
 			</div>
 		</footer>
