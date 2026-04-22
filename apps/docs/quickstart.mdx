@@ -4,25 +4,171 @@ description: "Get started with Crosmos"
 icon: "rocket"
 ---
 
-## Quickstart
+Get Crosmos running and make your first API call in under five minutes.
 
-Get Crosmos running locally.
+### Prerequisites
 
-<Steps>
-<Step title="Install the CLI">
+- An API key from the [Crosmos Console](https://console.crosmos.dev)
+- Basic familiarity with HTTP requests
+- A terminal or any backend language
 
-```bash
-npm i -g mint
+All endpoints require an API key sent as a Bearer token:
+
 ```
-</Step>
-
-<Step title="Preview locally">
-
-```bash
-mint dev
+Authorization: Bearer <your_api_key>
 ```
 
-Open `http://localhost:3000`.
+## Step 1: Create a memory space
 
-</Step>
-</Steps>
+A space is an isolated container for a user, project, or organization. Everything lives inside a space.
+
+```bash
+curl -X POST https://api.crosmos.dev/v1/spaces \
+  -H "Authorization: Bearer $CROSMOS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "my-agent",
+    "description": "Memory space for my AI agent"
+  }'
+```
+
+The response returns your `space_id`. You will use it for everything that follows.
+
+## Step 2: Ingest content
+
+Feed Crosmos a conversation, a document, or a plain text fact. The extraction pipeline handles the rest.
+
+<Note>
+Crosmos accepts text, markdown, and conversation transcripts. File uploads for PDFs and documents are coming soon.
+</Note>
+
+### Option A: Store a text memory
+
+```bash
+curl -X POST https://api.crosmos.dev/v1/sources \
+  -H "Authorization: Bearer $CROSMOS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "space_id": 1,
+    "sources": [
+      {
+        "content": "User switched from Google to Anthropic in May. Prefers Rust over Python for systems work. Uses Neovim with custom keybindings.",
+        "content_type": "text"
+      }
+    ]
+  }'
+```
+
+This returns a `job_id`. The content is processed asynchronously: facts, entities, and relationships are extracted and woven into the knowledge graph.
+
+### Option B: Ingest a conversation
+
+```bash
+curl -X POST https://api.crosmos.dev/v1/sources \
+  -H "Authorization: Bearer $CROSMOS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "space_id": 1,
+    "messages": {
+      "session_id": "conv_001",
+      "session_date": "2025-06-15",
+      "messages": [
+        {"role": "user", "content": "I just moved to Austin for a new startup job"},
+        {"role": "assistant", "content": "Congratulations on the move! How is Austin treating you?"}
+      ]
+    }
+  }'
+```
+
+### Check processing status
+
+```bash
+curl -X GET https://api.crosmos.dev/v1/jobs/<job_id> \
+  -H "Authorization: Bearer $CROSMOS_API_KEY"
+```
+
+## Step 3: Search memories
+
+Now ask a question. Crosmos fires four retrieval signals in parallel and returns the best context.
+
+```bash
+curl -X POST https://api.crosmos.dev/v1/search \
+  -H "Authorization: Bearer $CROSMOS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "Where does the user work and what tools do they prefer?",
+    "space_id": 1
+  }'
+```
+
+**Sample response:**
+
+```json
+{
+  "candidates": [
+    {
+      "content": "User switched from Google to Anthropic in May. Prefers Rust over Python for systems work. Uses Neovim with custom keybindings.",
+      "memory_type": "semantic",
+      "importance_score": 0.85,
+      "entities": ["User", "Google", "Anthropic", "Rust", "Python", "Neovim"]
+    }
+  ]
+}
+```
+
+## Step 4: Give your agent memory
+
+Use the search endpoint before every LLM call. Inject the results into the system prompt so your agent starts with full context.
+
+```python
+import httpx
+
+response = httpx.post(
+    "https://api.crosmos.dev/v1/search",
+    headers={"Authorization": f"Bearer {CROSMOS_API_KEY}"},
+    json={
+        "query": user_message,
+        "space_id": space_id
+    }
+)
+
+context = "\n".join([c["content"] for c in response.json()["candidates"]])
+
+system_prompt = f"Relevant memories:\n{context}\n\nAnswer the user's question using this context."
+```
+
+After the agent responds, feed the conversation back into Crosmos so the graph grows with every interaction.
+
+## Use the MCP server
+
+For agents that support the Model Context Protocol, skip the HTTP calls entirely. Add Crosmos to your MCP config:
+
+```json
+{
+  "mcpServers": {
+    "crosmos": {
+      "command": "npx",
+      "args": ["@crosmos/mcp"],
+      "env": {
+        "CROSMOS_API_KEY": "your-api-key"
+      }
+    }
+  }
+}
+```
+
+Your agent can now search and store memories automatically. See the [MCP](/mcp) page for the full list of available tools.
+
+## Next steps
+
+<CardGroup cols={2}>
+
+<Card title="How it works" icon="lightbulb" href="/how-it-works">
+  Understand the engine behind the API.
+</Card>
+
+<Card title="Memories" icon="brain" href="/memories">
+  Learn how Crosmos structures and retrieves context.
+</Card>
+
+</CardGroup>
