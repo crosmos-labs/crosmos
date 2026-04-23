@@ -85,11 +85,11 @@ export function Footer() {
 				/>
 			</div>
 			<div className="relative z-10 max-w-7xl mx-auto lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24">
-				<div className="relative bg-background border border-foreground/10">
-					<CornerPlus className="top-0 left-0 hidden -translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
-					<CornerPlus className="top-0 right-0 hidden translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
-					<CornerPlus className="bottom-0 left-0 hidden -translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
-					<CornerPlus className="bottom-0 right-0 hidden translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block stroke-2" />
+				<div className="relative bg-background border border-foreground/20">
+					<CornerPlus className="top-0 left-0 hidden -translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block stroke-3" />
+					<CornerPlus className="top-0 right-0 hidden translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block stroke-3" />
+					<CornerPlus className="bottom-0 left-0 hidden -translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block stroke-3" />
+					<CornerPlus className="bottom-0 right-0 hidden translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block stroke-3" />
 					<div className="grid grid-cols-2 lg:grid-cols-4 gap-8 p-6 md:p-8">
 						<div>
 							<h3 className="font-semibold text-foreground mb-4 text-sm uppercase">
