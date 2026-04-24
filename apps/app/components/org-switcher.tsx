@@ -70,7 +70,7 @@ export function OrgSwitcher({
 								className="gap-4 py-2.5 px-3"
 							>
 								<OrgAvatar slug={org.slug} className="size-5.5" />
-								<div className=							"flex-1 min-w-0 space-y-0.75">
+								<div className="flex-1 min-w-0 space-y-0.75">
 									<span className="block text-sm font-medium truncate">
 										{org.name}
 									</span>
