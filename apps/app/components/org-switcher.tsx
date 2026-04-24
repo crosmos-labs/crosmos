@@ -67,10 +67,10 @@ export function OrgSwitcher({
 							<DropdownMenuItem
 								key={org.id}
 								onClick={() => handleSwitchOrg(org.id)}
-								className="gap-2.5 py-2.5 px-3"
+								className="gap-4 py-2.5 px-3"
 							>
-								<OrgAvatar slug={org.slug} className="size-5" />
-								<div className="flex-1 min-w-0">
+								<OrgAvatar slug={org.slug} className="size-5.5" />
+								<div className=							"flex-1 min-w-0 space-y-0.75">
 									<span className="block text-sm font-medium truncate">
 										{org.name}
 									</span>
