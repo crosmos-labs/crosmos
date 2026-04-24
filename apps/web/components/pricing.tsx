@@ -35,27 +35,45 @@ export const PLANS: PLAN[] = [
 			"Up to 2 team members",
 			"10,000 tokens per month",
 			"Access to community plugins",
+			"MCP server integration",
 			"Community email support",
+		],
+		link: "#",
+	},
+	{
+		id: "developer",
+		title: "Developer",
+		desc: "For growing teams that need more power and flexibility.",
+		monthlyPrice: 19,
+		annuallyPrice: 209,
+		badge: "Most Popular",
+		buttonText: "Upgrade to Developer",
+		features: [
+			"2 Organizations",
+			"Up to 3 team members",
+			"5M tokens/month",
+			"100K queries/month",
+			"MCP server integration",
+			"Pre-built data connectors",
+			"Priority email support",
 		],
 		link: "#",
 	},
 	{
 		id: "pro",
 		title: "Pro",
-		desc: "For growing teams that need more power and flexibility.",
-		monthlyPrice: 30,
-		annuallyPrice: 330,
-		badge: "Most Popular",
+		desc: "For teams that need unlimited scale, advanced observability, and dedicated support.",
+		monthlyPrice: 299,
+		annuallyPrice: 2990,
 		buttonText: "Upgrade to Pro",
 		features: [
 			"Unlimited organizations",
-			"Up to 10 team members",
-			"100,000 tokens per month",
-			"Custom plugin development",
+			"Unlimited team members",
+			"50M tokens/month",
+			"5M queries/month",
 			"MCP server integration",
 			"Pre-built data connectors",
-			"Custom ontology builder",
-			"Priority email support",
+			"Dedicated support channel",
 			"Full observability & tracing",
 		],
 		link: "#",
@@ -68,20 +86,12 @@ export const PLANS: PLAN[] = [
 		annuallyPrice: -1,
 		buttonText: "Contact Sales",
 		features: [
-			"Unlimited organizations",
-			"Unlimited team members",
 			"Unlimited tokens",
-			"Custom plugin development",
-			"MCP server integration",
-			"Pre-built data connectors",
-			"Custom ontology builder",
-			"Dedicated support channel",
-			"Full observability & tracing",
+			"Unlimited search queries",
 			"Self-hosted deployment option",
 		],
 		link: "#",
 	},
-	// ].filter((p) => p.id === "enterprise");
 ];
 
 const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
@@ -89,10 +99,11 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 		<div
 			className={cn(
 				"flex flex-col relative bg-background items-start w-full border-foreground/10 border-2 hover:bg-card/60 transition-colors hover:transition-none duration-300",
-				plan.id === "pro" && "lg:border-x-0",
+				plan.id === "developer" && "lg:border-x-0",
+				plan.id === "enterprise" && "lg:col-span-3 border-t-0",
 			)}
 		>
-			{plan.title === "Pro" && (
+			{plan.id === "developer" && (
 				<>
 					<CornerPlus className="top-0 left-0 hidden -translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block" />
 					<CornerPlus className="top-0 right-0 hidden translate-x-[calc(50%+0.5px)] -translate-y-[calc(50%+0.5px)] lg:block" />
@@ -101,11 +112,26 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				</>
 			)}
 
-			<div className="p-4 md:p-8 flex rounded-t-2xl lg:rounded-t-3xl flex-col items-start w-full relative">
-				<h3 className="font-medium text-xl text-foreground pt-5">
+			<div
+				className={cn(
+					"p-4 md:p-8 flex rounded-t-2xl lg:rounded-t-3xl flex-col items-start w-full relative",
+					plan.id === "enterprise" && "pb-2 md:pb-3",
+				)}
+			>
+				<h3
+					className={cn(
+						"font-medium text-xl text-foreground pt-5",
+						plan.id === "enterprise" && "pt-3",
+					)}
+				>
 					{plan.title}
 				</h3>
-				<p className="mt-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold select-none h-18">
+				<p
+					className={cn(
+						"mt-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold select-none h-18",
+						plan.id === "enterprise" && "mt-1",
+					)}
+				>
 					{plan.monthlyPrice === -1 ? (
 						"Custom"
 					) : (
@@ -125,14 +151,27 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 						/>
 					)}
 				</p>
-				<p className="text-sm md:text-base text-muted-foreground mt-2">
+				<p
+					className={cn(
+						"text-sm md:text-base text-muted-foreground mt-2",
+						plan.id === "enterprise" && "mt-1",
+					)}
+				>
 					{plan.desc}
 				</p>
 			</div>
-			<div className="flex flex-col items-start w-full px-4 py-2 md:px-8">
+			<div
+				className={cn(
+					"flex flex-col items-start w-full px-4 py-2 md:px-8",
+					plan.id === "enterprise" && "py-1 md:py-1.5",
+				)}
+			>
 				<Button
 					size="lg"
-					className="w-full bg-accent rounded hover:bg-accent/90"
+					className={cn(
+						"bg-accent rounded hover:bg-accent/90",
+						plan.id !== "enterprise" ? "w-full" : "lg:w-1/3",
+					)}
 				>
 					{plan.buttonText}
 				</Button>

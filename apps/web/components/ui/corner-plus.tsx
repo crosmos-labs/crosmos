@@ -5,7 +5,7 @@ export function CornerPlus({ className }: { className?: string }) {
 		<svg
 			aria-hidden="true"
 			className={cn(
-				"pointer-events-none absolute z-10 size-5 shrink-0 stroke-muted-foreground stroke-1",
+				"pointer-events-none absolute z-10 size-5 shrink-0 stroke-muted-foreground stroke-2",
 				className,
 			)}
 			fill="none"

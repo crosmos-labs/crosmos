@@ -1,4 +1,3 @@
-import { Button } from "@crosmos/ui/components/button";
 import Link from "next/link";
 
 export default function NotFound() {
@@ -16,12 +15,12 @@ export default function NotFound() {
 					<p className="text-base sm:text-lg md:text-xl text-foreground/90">
 						The page may have been removed or try again later...
 					</p>
-					<Button
-						size="lg"
-						className="hover:bg-accent/90 px-6 py-3 rounded font-semibold transition-colors text-sm"
+					<Link
+						href="/"
+						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground active:not-aria-[haspopup]:translate-y-px"
 					>
-						<Link href="/">Go Home</Link>
-					</Button>
+						Go Home
+					</Link>
 				</div>
 			</div>
 		</div>
