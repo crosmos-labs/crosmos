@@ -60,10 +60,11 @@ export function Navbar() {
 							PRICING
 						</Link>
 						<Link
-							href="#developers"
+							href={LINKS.social.discord}
+							target="_blank"
 							className="text-foreground/90 text-sm font-medium link-underline"
 						>
-							DEVELOPERS
+							DISCORD
 						</Link>
 					</div>
 				</div>

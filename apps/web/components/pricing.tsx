@@ -5,6 +5,7 @@ import { cn } from "@crosmos/ui/lib/utils";
 import NumberFlow from "@number-flow/react";
 import { IconCheck } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
 import { useState } from "react";
 import { CornerPlus } from "./ui/corner-plus";
 
@@ -100,7 +101,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 			className={cn(
 				"flex flex-col relative bg-background items-start w-full border-foreground/10 border-2 hover:bg-card/60 transition-colors hover:transition-none duration-300",
 				plan.id === "developer" && "lg:border-x-0",
-				plan.id === "enterprise" && "lg:col-span-3 border-t-0",
+				plan.id === "enterprise" && "lg:col-span-3 overflow-hidden border-t-0",
 			)}
 		>
 			{plan.id === "developer" && (
@@ -110,6 +111,18 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 					<CornerPlus className="bottom-0 left-0 hidden -translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block" />
 					<CornerPlus className="bottom-0 right-0 hidden translate-x-[calc(50%+0.5px)] translate-y-[calc(50%+0.5px)] lg:block" />
 				</>
+			)}
+
+			{plan.id === "enterprise" && (
+				<div className="absolute -bottom-12 -right-12">
+					<Image
+						src="/block.png"
+						alt="enterprise plan hero"
+						width={800}
+						height={800}
+						className="size-full"
+					/>
+				</div>
 			)}
 
 			<div
@@ -135,20 +148,25 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 					{plan.monthlyPrice === -1 ? (
 						"Custom"
 					) : (
-						<NumberFlow
-							value={
-								billPlan === "monthly" ? plan.monthlyPrice : plan.annuallyPrice
-							}
-							suffix={billPlan === "monthly" ? "/mo" : "/yr"}
-							format={{
-								currency: "USD",
-								style: "currency",
-								currencySign: "standard",
-								minimumFractionDigits: 0,
-								maximumFractionDigits: 0,
-								currencyDisplay: "narrowSymbol",
-							}}
-						/>
+						<>
+							{plan.monthlyPrice > 0 && <span>*</span>}
+							<NumberFlow
+								value={
+									billPlan === "monthly"
+										? plan.monthlyPrice
+										: plan.annuallyPrice
+								}
+								suffix={billPlan === "monthly" ? "/mo" : "/yr"}
+								format={{
+									currency: "USD",
+									style: "currency",
+									currencySign: "standard",
+									minimumFractionDigits: 0,
+									maximumFractionDigits: 0,
+									currencyDisplay: "narrowSymbol",
+								}}
+							/>
+						</>
 					)}
 				</p>
 				<p
@@ -167,13 +185,14 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				)}
 			>
 				<Button
+					disabled
 					size="lg"
 					className={cn(
 						"bg-accent rounded hover:bg-accent/90",
 						plan.id !== "enterprise" ? "w-full" : "lg:w-1/3",
 					)}
 				>
-					{plan.buttonText}
+					Coming Soon
 				</Button>
 				{plan.monthlyPrice !== -1 && (
 					<div className="h-8 overflow-hidden w-full mx-auto">
@@ -258,6 +277,9 @@ export function Pricing() {
 						<Plan key={plan.id} plan={plan} billPlan={billPlan} />
 					))}
 				</div>
+				<p className="text-sm text-muted-foreground mt-4 text-right w-full">
+					* Prices are not final and may change upon official release.
+				</p>
 			</div>
 		</section>
 	);
