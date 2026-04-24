@@ -9,7 +9,6 @@ import {
 	IconKey,
 	IconPlayerPlay,
 	IconSettings,
-	IconTopologyStarRing3,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
 
@@ -37,12 +36,12 @@ export const navGroups: NavGroup[] = [
 		label: "MEMORY",
 		items: [
 			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
-			{
-				label: "Entities",
-				href: "/entities",
-				icon: IconTopologyStarRing3,
-				disabled: true,
-			},
+			// {
+			// 	label: "Entities",
+			// 	href: "/entities",
+			// 	icon: IconTopologyStarRing3,
+			// 	disabled: true,
+			// },
 			{
 				label: "Memories",
 				href: "/memories",
