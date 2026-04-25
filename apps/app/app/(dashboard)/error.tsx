@@ -11,5 +11,5 @@ export default function DashboardError({
 	const message =
 		error instanceof Error ? error.message : "Something went wrong";
 
-	return <DataFetchError message={message} onRetry={() => window.location.reload()} />;
+	return <DataFetchError message={message} onRetry={() => new Promise(() => { window.location.reload(); })} />;
 }

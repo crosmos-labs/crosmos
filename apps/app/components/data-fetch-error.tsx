@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@crosmos/ui/components/button";
 import {
 	Empty,
@@ -16,8 +17,24 @@ export function DataFetchError({
 	onRetry,
 }: {
 	message?: string;
-	onRetry?: () => void;
+	onRetry?: () => Promise<unknown>;
 }) {
+	const [retrying, setRetrying] = useState(false);
+
+	const handleRetry = async () => {
+		if (retrying) return;
+		setRetrying(true);
+		try {
+			if (onRetry) {
+				await onRetry();
+			} else {
+				window.location.reload();
+			}
+		} finally {
+			setRetrying(false);
+		}
+	};
+
 	return (
 		<div className="flex min-h-[60vh] items-center justify-center">
 			<Empty className="gap-6 p-12">
@@ -47,7 +64,7 @@ export function DataFetchError({
 					>
 						Go Home
 					</Button>
-					<Button onClick={onRetry ?? (() => window.location.reload())}>
+					<Button onClick={handleRetry} disabled={retrying}>
 						Try Again
 					</Button>
 				</EmptyContent>
