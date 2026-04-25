@@ -115,28 +115,30 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
-			runAction(() => createSpace(name, description), {
+			runAction(async () => {
+				await createSpace(name, description);
+				await mutate("/spaces");
+			}, {
 				toast: {
 					success: "Space created",
 					error: "Failed to create space",
 				},
-			})
-				.then(() => mutate("/spaces"))
-				.catch(() => {});
+			});
 		},
 		[runAction],
 	);
 
 	const handleDeleteSpace = useCallback(
 		(spaceId: number) => {
-			runAction(() => deleteSpace(spaceId), {
+			runAction(async () => {
+				await deleteSpace(spaceId);
+				await mutate("/spaces");
+			}, {
 				toast: {
 					success: "Space deleted",
 					error: "Failed to delete space",
 				},
-			})
-				.then(() => mutate("/spaces"))
-				.catch(() => {});
+			});
 		},
 		[runAction],
 	);

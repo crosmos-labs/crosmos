@@ -171,25 +171,25 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 
 	const handleRevoke = useCallback(
 		(keyId: number) => {
-			runAction(() => revokeApiKey(keyId), {
+			runAction(async () => {
+				await revokeApiKey(keyId);
+				await mutate("/api-keys");
+			}, {
 				toast: { success: "API key revoked", error: "Failed to revoke key" },
-			})
-				.then(() => mutate("/api-keys"))
-				.catch(() => {});
+			});
 		},
 		[runAction],
 	);
 
 	const handleCreateKey = useCallback(
 		(name: string, expiresInDays?: number) => {
-			runAction(() => createApiKey(name, expiresInDays), {
+			runAction(async () => {
+				const res = await createApiKey(name, expiresInDays);
+				setCreatedKeys((prev) => [...prev, res]);
+				await mutate("/api-keys");
+			}, {
 				toast: { success: "API key created", error: "Failed to create key" },
-			})
-				.then((res) => {
-					setCreatedKeys((prev) => [...prev, res]);
-					mutate("/api-keys");
-				})
-				.catch(() => {});
+			});
 		},
 		[runAction],
 	);
