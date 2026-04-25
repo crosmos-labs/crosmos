@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@crosmos/ui/components/alert";
 import { Toaster } from "@crosmos/ui/components/sonner";
 import { TooltipProvider } from "@crosmos/ui/components/tooltip";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { SwrProvider } from "@/components/providers/swr-provider";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -50,8 +51,10 @@ export default function RootLayout({
 						</AlertDescription>
 					</Alert>
 				)}
+			<SwrProvider>
 				<TooltipProvider>{children}</TooltipProvider>
 				<Toaster />
+			</SwrProvider>
 			</body>
 		</html>
 	);
