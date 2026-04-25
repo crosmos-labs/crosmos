@@ -34,10 +34,10 @@ import {
 } from "@crosmos/ui/components/item";
 import { IconBox, IconDotsVertical, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { mutate } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
+import { useActionLoader, useActionLoaderState } from "@/components/providers/action-loader-provider";
 import type { Space } from "@/lib/types/space";
 
 function CreateSpaceDialog({
@@ -110,50 +110,54 @@ function CreateSpaceDialog({
 export function SpaceList({ spaces }: { spaces: Space[] }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<Space | null>(null);
-	const router = useRouter();
 	const { runAction } = useActionLoader();
+	const { activeCount } = useActionLoaderState();
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
-			runAction(() => createSpace(name, description), {
+			runAction(async () => {
+				await createSpace(name, description);
+				await mutate("/spaces");
+			}, {
 				toast: {
 					success: "Space created",
 					error: "Failed to create space",
 				},
-			})
-				.then(() => router.refresh())
-				.catch(() => {});
+			});
 		},
-		[runAction, router],
+		[runAction],
 	);
 
 	const handleDeleteSpace = useCallback(
 		(spaceId: number) => {
-			runAction(() => deleteSpace(spaceId), {
+			runAction(async () => {
+				await deleteSpace(spaceId);
+				await mutate("/spaces");
+			}, {
 				toast: {
 					success: "Space deleted",
 					error: "Failed to delete space",
 				},
-			})
-				.then(() => router.refresh())
-				.catch(() => {});
+			});
 		},
-		[runAction, router],
+		[runAction],
 	);
 
 	function SpaceCountRow({
 		count,
 		onCreateClick,
+		disabled,
 	}: {
 		count: number;
 		onCreateClick: () => void;
+		disabled?: boolean;
 	}) {
 		return (
 			<div className="flex items-center justify-between">
 				<span className="text-sm text-muted-foreground">
 					{count} space{count !== 1 ? "s" : ""}
 				</span>
-				<Button onClick={onCreateClick}>
+				<Button onClick={onCreateClick} disabled={disabled}>
 					<IconPlus data-icon="inline-start" />
 					Create
 				</Button>
@@ -167,6 +171,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				<SpaceCountRow
 					count={spaces.length}
 					onCreateClick={() => setDialogOpen(true)}
+					disabled={activeCount > 0}
 				/>
 				<Empty>
 					<EmptyHeader>
@@ -200,6 +205,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 			<SpaceCountRow
 				count={spaces.length}
 				onCreateClick={() => setDialogOpen(true)}
+				disabled={activeCount > 0}
 			/>
 			<ItemGroup>
 				{spaces.map((space) => (
@@ -236,6 +242,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 										<DropdownMenuItem
 											variant="destructive"
 											onClick={() => setDeleteTarget(space)}
+											disabled={activeCount > 0}
 										>
 											Delete
 										</DropdownMenuItem>

@@ -8,6 +8,8 @@ export function SwrProvider({ children }: { children: React.ReactNode }) {
 			value={{
 				dedupingInterval: 5000,
 				errorRetryCount: 3,
+				revalidateOnFocus: true,
+				revalidateOnReconnect: true,
 			}}
 		>
 			{children}

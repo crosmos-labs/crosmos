@@ -1,8 +1,26 @@
-import { listSpaces } from "@/actions/spaces";
+"use client";
+
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
+import { mutate } from "swr";
+import { DataFetchError } from "@/components/data-fetch-error";
+import { useSpaces } from "@/hooks/use-spaces";
 import { SpaceList } from "@/components/space-list";
 
-export default async function SpacesPage() {
-	const spaces = await listSpaces();
+export default function SpacesPage() {
+	const { data: spaces, isLoading, error } = useSpaces();
+
+	if (isLoading) {
+		return <AnimatedSpinner name="waverows" size="1.5rem" />;
+	}
+
+	if (error) {
+		return (
+			<DataFetchError
+				message={error.message}
+				onRetry={() => mutate("/spaces")}
+			/>
+		);
+	}
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -12,7 +30,7 @@ export default async function SpacesPage() {
 					Manage your memory spaces for storing and retrieving data.
 				</p>
 			</div>
-			<SpaceList spaces={spaces} />
+			<SpaceList spaces={spaces ?? []} />
 		</div>
 	);
 }
