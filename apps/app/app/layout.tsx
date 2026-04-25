@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
@@ -55,6 +56,7 @@ export default function RootLayout({
 					<TooltipProvider>{children}</TooltipProvider>
 					<Toaster />
 				</SwrProvider>
+				<Analytics />
 			</body>
 		</html>
 	);
