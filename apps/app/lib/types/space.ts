@@ -1,6 +1,6 @@
 export interface Space {
 	id: string;
-	org_id: number;
+	org_id: string;
 	name: string;
 	description: string | null;
 	meta: Record<string, unknown> | null;

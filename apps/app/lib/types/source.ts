@@ -1,6 +1,6 @@
 export interface Source {
 	id: string;
-	space_id: number;
+	space_id: string;
 	name: string;
 	type: string;
 	status: string;
