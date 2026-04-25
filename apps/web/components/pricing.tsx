@@ -7,6 +7,7 @@ import { IconCheck } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
+import { LINKS } from "@/config/links";
 import { CornerPlus } from "./ui/corner-plus";
 
 type Plan = "monthly" | "annually";
@@ -39,7 +40,7 @@ export const PLANS: PLAN[] = [
 			"MCP server integration",
 			"Community email support",
 		],
-		link: "#",
+		link: LINKS.product.console,
 	},
 	{
 		id: "developer",
@@ -186,14 +187,20 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				)}
 			>
 				<Button
-					disabled
+					disabled={plan.id !== "basic"}
 					size="lg"
 					className={cn(
 						"bg-accent rounded hover:bg-accent/90 w-full",
 						plan.id === "enterprise" && "lg:w-1/3",
 					)}
 				>
-					Coming Soon
+					{plan.id === "basic" ? (
+						<a href={plan.link} target="_blank" rel="noopener noreferrer" className="w-full">
+							{plan.buttonText}
+						</a>
+					) : (
+						"Coming Soon"
+					)}
 				</Button>
 				{plan.monthlyPrice !== -1 && (
 					<div className="h-8 overflow-hidden w-full mx-auto">
