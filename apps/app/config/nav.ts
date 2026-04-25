@@ -86,7 +86,6 @@ export const navGroups: NavGroup[] = [
 				label: "Billing",
 				href: "/billing",
 				icon: IconCreditCard,
-				disabled: true,
 			},
 			{
 				label: "Settings",
