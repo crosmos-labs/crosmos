@@ -52,11 +52,11 @@ import {
 } from "@crosmos/ui/components/select";
 import { IconDotsVertical, IconKey, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
-import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { mutate } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
 import { NewKeyBanner } from "@/components/new-key-banner";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
+import { useActionLoader, useActionLoaderState } from "@/components/providers/action-loader-provider";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
 function maskKey(prefix: string) {
@@ -166,18 +166,18 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [revokeKey, setRevokeKey] = useState<ApiKey | null>(null);
 	const [createdKeys, setCreatedKeys] = useState<CreateApiKeyResponse[]>([]);
-	const router = useRouter();
 	const { runAction } = useActionLoader();
+	const { activeCount } = useActionLoaderState();
 
 	const handleRevoke = useCallback(
 		(keyId: number) => {
 			runAction(() => revokeApiKey(keyId), {
 				toast: { success: "API key revoked", error: "Failed to revoke key" },
 			})
-				.then(() => router.refresh())
+				.then(() => mutate("/api-keys"))
 				.catch(() => {});
 		},
-		[runAction, router],
+		[runAction],
 	);
 
 	const handleCreateKey = useCallback(
@@ -187,11 +187,11 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 			})
 				.then((res) => {
 					setCreatedKeys((prev) => [...prev, res]);
-					router.refresh();
+					mutate("/api-keys");
 				})
 				.catch(() => {});
 		},
-		[runAction, router],
+		[runAction],
 	);
 
 	const handleDismissCreatedKey = useCallback((keyId: number) => {
@@ -201,16 +201,18 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	function KeyCountRow({
 		count,
 		onCreateClick,
+		disabled,
 	}: {
 		count: number;
 		onCreateClick: () => void;
+		disabled?: boolean;
 	}) {
 		return (
 			<div className="flex items-center justify-between">
 				<span className="text-sm text-muted-foreground">
 					{count} key{count !== 1 ? "s" : ""}
 				</span>
-				<Button onClick={onCreateClick}>
+				<Button onClick={onCreateClick} disabled={disabled}>
 					<IconPlus data-icon="inline-start" />
 					Create
 				</Button>
@@ -224,6 +226,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				<KeyCountRow
 					count={keys.length}
 					onCreateClick={() => setDialogOpen(true)}
+					disabled={activeCount > 0}
 				/>
 				{createdKeys.length > 0 && (
 					<div className="flex flex-col gap-2">
@@ -268,6 +271,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 			<KeyCountRow
 				count={keys.length}
 				onCreateClick={() => setDialogOpen(true)}
+				disabled={activeCount > 0}
 			/>
 			{createdKeys.length > 0 && (
 				<div className="flex flex-col gap-2">
@@ -320,6 +324,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 										<DropdownMenuItem
 											variant="destructive"
 											onClick={() => setRevokeKey(key)}
+											disabled={activeCount > 0}
 										>
 											Revoke
 										</DropdownMenuItem>
