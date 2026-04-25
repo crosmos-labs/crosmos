@@ -1,8 +1,14 @@
 "use server";
 
+import { apiFetch } from "@/lib/api";
 import { clearAuthCookies, getRefreshToken } from "@/lib/auth/cookies";
+import type { AuthUser } from "@/lib/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export async function getCurrentUser(): Promise<AuthUser> {
+	return apiFetch<AuthUser>("/auth/me", { skipOrgScope: true });
+}
 
 export async function logout() {
 	const refreshToken = await getRefreshToken();
