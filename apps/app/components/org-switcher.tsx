@@ -33,7 +33,7 @@ export function OrgSwitcher({
 	const { isMobile, state } = useSidebar();
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "bottom";
 
-	function handleSwitchOrg(orgId: number) {
+	function handleSwitchOrg(orgId: string) {
 		if (orgId === activeOrg.id) return;
 		runAction(() => setActiveOrg(orgId), {
 			toast: { error: "Failed to switch organization" },

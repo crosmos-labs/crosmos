@@ -15,7 +15,7 @@ export async function listOrgs(): Promise<OrgDetailResponse[]> {
 	return data.orgs;
 }
 
-export async function setActiveOrg(orgId: number): Promise<void> {
+export async function setActiveOrg(orgId: string): Promise<void> {
 	await setActiveOrgCookie(orgId);
 	revalidatePath("/");
 }

@@ -129,7 +129,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 	);
 
 	const handleDeleteSpace = useCallback(
-		(spaceId: number) => {
+		(spaceId: string) => {
 			runAction(async () => {
 				await deleteSpace(spaceId);
 				await mutate("/spaces");
@@ -275,7 +275,7 @@ function DeleteSpaceDialog({
 	onOpenChange,
 }: {
 	space: Space | null;
-	onDelete: (spaceId: number) => void;
+	onDelete: (spaceId: string) => void;
 	onOpenChange: (open: boolean) => void;
 }) {
 	const [confirmName, setConfirmName] = useState("");

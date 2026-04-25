@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { apiFetch } from "@/lib/api";
 import type { Source } from "@/lib/types/source";
 
-export async function listSources(spaceId: number) {
+export async function listSources(spaceId: string) {
 	return apiFetch<Source[]>(`/spaces/${spaceId}/sources`);
 }
 
@@ -21,10 +21,7 @@ export async function createSource(formData: FormData) {
 		return { error: "Missing or invalid form fields" };
 	}
 
-	const spaceId = Number(rawSpaceId);
-	if (Number.isNaN(spaceId)) {
-		return { error: "space_id must be a valid number" };
-	}
+	const spaceId = rawSpaceId;
 
 	await apiFetch(`/spaces/${spaceId}/sources`, {
 		method: "POST",
@@ -34,7 +31,7 @@ export async function createSource(formData: FormData) {
 	revalidatePath("/spaces");
 }
 
-export async function deleteSource(spaceId: number, sourceId: number) {
+export async function deleteSource(spaceId: string, sourceId: string) {
 	await apiFetch(`/spaces/${spaceId}/sources/${sourceId}`, {
 		method: "DELETE",
 	});
