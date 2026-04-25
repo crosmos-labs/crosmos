@@ -6,7 +6,6 @@ import {
 	AccordionItem,
 	AccordionTrigger,
 } from "@crosmos/ui/components/accordion";
-import Image from "next/image";
 
 type FAQItem = {
 	question: string;

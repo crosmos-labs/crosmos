@@ -32,10 +32,10 @@ export const PLANS: PLAN[] = [
 		annuallyPrice: 0,
 		buttonText: "Get Started",
 		features: [
-			"1 Organization workspace",
-			"Up to 2 team members",
-			"10,000 tokens per month",
-			"Access to community plugins",
+			"500K tokens/month",
+			"5K queries/month",
+			"3 memory spaces",
+			"10/min - 1k/day rate limit",
 			"MCP server integration",
 			"Community email support",
 		],
@@ -46,14 +46,14 @@ export const PLANS: PLAN[] = [
 		title: "Developer",
 		desc: "For growing teams that need more power and flexibility.",
 		monthlyPrice: 19,
-		annuallyPrice: 209,
+		annuallyPrice: 228,
 		badge: "Most Popular",
 		buttonText: "Upgrade to Developer",
 		features: [
-			"2 Organizations",
-			"Up to 3 team members",
 			"5M tokens/month",
-			"100K queries/month",
+			"50K queries/month",
+			"7 memory spaces",
+			"60/min - 10k/day rate limit",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Priority email support",
@@ -65,13 +65,13 @@ export const PLANS: PLAN[] = [
 		title: "Pro",
 		desc: "For teams that need unlimited scale, advanced observability, and dedicated support.",
 		monthlyPrice: 299,
-		annuallyPrice: 2990,
+		annuallyPrice: 3588,
 		buttonText: "Upgrade to Pro",
 		features: [
-			"Unlimited organizations",
-			"Unlimited team members",
-			"50M tokens/month",
-			"5M queries/month",
+			"80M tokens/month",
+			"300K queries/month",
+			"50 memory spaces",
+			"300/min - 50k/day rate limit",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Dedicated support channel",
@@ -89,6 +89,7 @@ export const PLANS: PLAN[] = [
 		features: [
 			"Unlimited tokens",
 			"Unlimited search queries",
+			"Unlimited memory spaces",
 			"Self-hosted deployment option",
 		],
 		link: "#",
@@ -114,7 +115,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 			)}
 
 			{plan.id === "enterprise" && (
-				<div className="absolute -bottom-12 -right-12">
+				<div className="absolute -bottom-12 -right-12 hidden lg:block">
 					<Image
 						src="/block.png"
 						alt="enterprise plan hero"
@@ -188,8 +189,8 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 					disabled
 					size="lg"
 					className={cn(
-						"bg-accent rounded hover:bg-accent/90",
-						plan.id !== "enterprise" ? "w-full" : "lg:w-1/3",
+						"bg-accent rounded hover:bg-accent/90 w-full",
+						plan.id === "enterprise" && "lg:w-1/3",
 					)}
 				>
 					Coming Soon
@@ -234,7 +235,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 export function Pricing() {
 	const [billPlan, setBillPlan] = useState<Plan>("monthly");
 
-	const handleSwitch = () => {
+	const _handleSwitch = () => {
 		setBillPlan((prev) => (prev === "monthly" ? "annually" : "monthly"));
 	};
 
@@ -253,6 +254,7 @@ export function Pricing() {
 						growing heavier.
 					</p>
 				</div>
+				{/* Billing toggle - hidden for now
 				<div className="sticky top-20 sm:top-16.25 lg:static lg:top-auto z-10 bg-background py-3 -mx-6 px-6 lg:mx-0 lg:px-0 lg:py-0 flex items-center justify-center space-x-4 mt-6 w-full">
 					<span className="text-sm sm:text-base font-medium">Monthly</span>
 					<button
@@ -272,6 +274,7 @@ export function Pricing() {
 					</button>
 					<span className="text-sm sm:text-base font-medium">Annually</span>
 				</div>
+				*/}
 				<div className="grid w-full grid-cols-1 lg:grid-cols-3 pt-8 lg:pt-12">
 					{PLANS.map((plan) => (
 						<Plan key={plan.id} plan={plan} billPlan={billPlan} />
