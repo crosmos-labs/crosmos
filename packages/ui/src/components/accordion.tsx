@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import { IconChevronDown } from "@tabler/icons-react";
 import { Accordion as AccordionPrimitive } from "radix-ui";
 import type * as React from "react";
 
@@ -49,11 +49,7 @@ function AccordionTrigger({
 				{children}
 				<IconChevronDown
 					data-slot="accordion-trigger-icon"
-					className="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden"
-				/>
-				<IconChevronUp
-					data-slot="accordion-trigger-icon"
-					className="pointer-events-none hidden shrink-0 group-aria-expanded/accordion-trigger:inline"
+					className="pointer-events-none shrink-0 transition-transform duration-200 group-aria-expanded/accordion-trigger:rotate-180"
 				/>
 			</AccordionPrimitive.Trigger>
 		</AccordionPrimitive.Header>

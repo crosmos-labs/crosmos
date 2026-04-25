@@ -3,8 +3,10 @@ import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 
 import "@crosmos/ui/globals.css";
+import { Alert, AlertDescription } from "@crosmos/ui/components/alert";
 import { Toaster } from "@crosmos/ui/components/sonner";
 import { TooltipProvider } from "@crosmos/ui/components/tooltip";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -40,6 +42,14 @@ export default function RootLayout({
 				>
 					Skip to content
 				</a>
+				{process.env.NODE_ENV !== "production" && (
+					<Alert className="rounded-none border-x-0 border-t-0 border-b border-sidebar-border bg-sidebar py-1.5">
+						<AlertDescription className="flex items-center justify-center gap-2 text-sm text-sidebar-foreground">
+							<IconInfoCircle className="size-4" />
+							This is a staging version and may not reflect the final product.
+						</AlertDescription>
+					</Alert>
+				)}
 				<TooltipProvider>{children}</TooltipProvider>
 				<Toaster />
 			</body>

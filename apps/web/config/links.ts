@@ -1,6 +1,6 @@
 export const LINKS = {
 	social: {
-		github: "https://github.com/crosmos-app",
+		github: "https://github.com/crosmos-labs",
 		discord: "https://discord.gg/Arw5ysGNN6",
 		linkedin: "https://www.linkedin.com/company/crosmos-ai",
 		x: "https://x.com/crosmoslabs",
