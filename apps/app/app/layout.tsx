@@ -51,10 +51,10 @@ export default function RootLayout({
 						</AlertDescription>
 					</Alert>
 				)}
-			<SwrProvider>
-				<TooltipProvider>{children}</TooltipProvider>
-				<Toaster />
-			</SwrProvider>
+				<SwrProvider>
+					<TooltipProvider>{children}</TooltipProvider>
+					<Toaster />
+				</SwrProvider>
 			</body>
 		</html>
 	);
