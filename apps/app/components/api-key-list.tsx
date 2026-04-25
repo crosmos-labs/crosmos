@@ -56,7 +56,10 @@ import { useCallback, useState } from "react";
 import { mutate } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
 import { NewKeyBanner } from "@/components/new-key-banner";
-import { useActionLoader, useActionLoaderState } from "@/components/providers/action-loader-provider";
+import {
+	useActionLoader,
+	useActionLoaderState,
+} from "@/components/providers/action-loader-provider";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
 function maskKey(prefix: string) {
@@ -171,25 +174,31 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 
 	const handleRevoke = useCallback(
 		(keyId: number) => {
-			runAction(async () => {
-				await revokeApiKey(keyId);
-				await mutate("/api-keys");
-			}, {
-				toast: { success: "API key revoked", error: "Failed to revoke key" },
-			});
+			runAction(
+				async () => {
+					await revokeApiKey(keyId);
+					await mutate("/api-keys");
+				},
+				{
+					toast: { success: "API key revoked", error: "Failed to revoke key" },
+				},
+			);
 		},
 		[runAction],
 	);
 
 	const handleCreateKey = useCallback(
 		(name: string, expiresInDays?: number) => {
-			runAction(async () => {
-				const res = await createApiKey(name, expiresInDays);
-				setCreatedKeys((prev) => [...prev, res]);
-				await mutate("/api-keys");
-			}, {
-				toast: { success: "API key created", error: "Failed to create key" },
-			});
+			runAction(
+				async () => {
+					const res = await createApiKey(name, expiresInDays);
+					setCreatedKeys((prev) => [...prev, res]);
+					await mutate("/api-keys");
+				},
+				{
+					toast: { success: "API key created", error: "Failed to create key" },
+				},
+			);
 		},
 		[runAction],
 	);

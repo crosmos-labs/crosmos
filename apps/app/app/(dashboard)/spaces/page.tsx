@@ -3,8 +3,8 @@
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { mutate } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
-import { useSpaces } from "@/hooks/use-spaces";
 import { SpaceList } from "@/components/space-list";
+import { useSpaces } from "@/hooks/use-spaces";
 
 export default function SpacesPage() {
 	const { data: spaces, isLoading, error } = useSpaces();

@@ -61,7 +61,7 @@ function UsageRow({
 						{formatNumber(used)} / {formatNumber(limit)}
 					</span>
 					<span className="text-sm text-muted-foreground">
-						[ {percentage}					% ]
+						[ {percentage} % ]
 					</span>
 				</div>
 			</div>

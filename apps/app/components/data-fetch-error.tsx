@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@crosmos/ui/components/button";
 import {
 	Empty,
@@ -11,6 +10,7 @@ import {
 	EmptyTitle,
 } from "@crosmos/ui/components/empty";
 import { IconBarrierBlock } from "@tabler/icons-react";
+import { useState } from "react";
 
 export function DataFetchError({
 	message,

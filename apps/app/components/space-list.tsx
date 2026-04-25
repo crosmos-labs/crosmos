@@ -37,7 +37,10 @@ import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { mutate } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
-import { useActionLoader, useActionLoaderState } from "@/components/providers/action-loader-provider";
+import {
+	useActionLoader,
+	useActionLoaderState,
+} from "@/components/providers/action-loader-provider";
 import type { Space } from "@/lib/types/space";
 
 function CreateSpaceDialog({
@@ -115,30 +118,36 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
-			runAction(async () => {
-				await createSpace(name, description);
-				await mutate("/spaces");
-			}, {
-				toast: {
-					success: "Space created",
-					error: "Failed to create space",
+			runAction(
+				async () => {
+					await createSpace(name, description);
+					await mutate("/spaces");
 				},
-			});
+				{
+					toast: {
+						success: "Space created",
+						error: "Failed to create space",
+					},
+				},
+			);
 		},
 		[runAction],
 	);
 
 	const handleDeleteSpace = useCallback(
 		(spaceId: string) => {
-			runAction(async () => {
-				await deleteSpace(spaceId);
-				await mutate("/spaces");
-			}, {
-				toast: {
-					success: "Space deleted",
-					error: "Failed to delete space",
+			runAction(
+				async () => {
+					await deleteSpace(spaceId);
+					await mutate("/spaces");
 				},
-			});
+				{
+					toast: {
+						success: "Space deleted",
+						error: "Failed to delete space",
+					},
+				},
+			);
 		},
 		[runAction],
 	);

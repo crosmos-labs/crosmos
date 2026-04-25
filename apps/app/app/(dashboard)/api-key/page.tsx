@@ -2,9 +2,9 @@
 
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { mutate } from "swr";
+import { ApiKeyList } from "@/components/api-key-list";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { useApiKeys } from "@/hooks/use-api-keys";
-import { ApiKeyList } from "@/components/api-key-list";
 
 export default function ApiKeyPage() {
 	const { data: keys, isLoading, error } = useApiKeys();

@@ -23,8 +23,7 @@ export async function GET(request: Request) {
 
 	const { searchParams } = new URL(request.url);
 	const orgId = searchParams.get("orgId");
-	if (!orgId)
-		return NextResponse.redirect(new URL("/", request.url));
+	if (!orgId) return NextResponse.redirect(new URL("/", request.url));
 
 	const next = searchParams.get("next") ?? "/";
 
@@ -36,7 +35,8 @@ export async function GET(request: Request) {
 
 	if (!valid) {
 		const fallback = orgs[0];
-		if (!fallback) return NextResponse.redirect(new URL("/signup", request.url));
+		if (!fallback)
+			return NextResponse.redirect(new URL("/signup", request.url));
 		finalOrgId = fallback.id;
 		destination = `/auth/sync-org?orgId=${encodeURIComponent(fallback.id)}&next=${encodeURIComponent(next)}`;
 	} else {
