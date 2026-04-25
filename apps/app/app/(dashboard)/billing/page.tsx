@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -11,11 +12,26 @@ import {
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { Progress } from "@crosmos/ui/components/progress";
+import { mutate } from "swr";
+import { DataFetchError } from "@/components/data-fetch-error";
+import { useUsage } from "@/hooks/use-usage";
 
 function formatNumber(n: number): string {
 	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
 	if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K`;
 	return n.toLocaleString();
+}
+
+function capitalize(s: string): string {
+	return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function formatDate(iso: string): string {
+	return new Date(iso).toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+	});
 }
 
 function UsageRow({
@@ -55,6 +71,29 @@ function UsageRow({
 }
 
 export default function BillingPage() {
+	const { data, isLoading, error } = useUsage();
+
+	if (isLoading) {
+		return <AnimatedSpinner name="waverows" size="1.5rem" />;
+	}
+
+	if (error) {
+		return (
+			<DataFetchError
+				message={error.message}
+				onRetry={() => mutate("/usage")}
+			/>
+		);
+	}
+
+	const plan = data?.plan ?? "free";
+	const periodStart = data?.period_start;
+	const periodEnd = data?.period_end;
+	const periodLabel =
+		periodStart && periodEnd
+			? `${formatDate(periodStart)} – ${formatDate(periodEnd)}`
+			: undefined;
+
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-1">
@@ -70,12 +109,13 @@ export default function BillingPage() {
 				>
 					<ItemContent>
 						<ItemTitle className="flex items-center gap-2 text-base">
-							Basic Plan
-							<Badge variant="secondary">Free</Badge>
+							{capitalize(plan)} Plan
+							<Badge variant="secondary">{capitalize(plan)}</Badge>
 						</ItemTitle>
 						<ItemDescription>
-							Up to 500K tokens and 5K queries per month. Upgrade for
-							higher limits and premium features.
+							{data
+								? `Up to ${formatNumber(data.tokens.limit)} tokens and ${formatNumber(data.queries.limit)} queries per month. Upgrade for higher limits and premium features.`
+								: "Upgrade for higher limits and premium features."}
 						</ItemDescription>
 					</ItemContent>
 					<ItemActions>
@@ -87,20 +127,30 @@ export default function BillingPage() {
 				<div className="flex flex-col gap-1">
 					<h2 className="text-lg font-semibold tracking-tight">Usage</h2>
 					<p className="text-sm text-muted-foreground">
-						Your resource usage this billing period.
+						Your resource usage this billing period
+						{periodLabel ? ` (${periodLabel})` : ""}.
 					</p>
 				</div>
 				<div className="flex flex-col gap-6">
-					<UsageRow
-					label="Tokens Ingested"
-					used={65000}
-					limit={500000}
-				/>
-					<UsageRow
-					label="Search Queries"
-					used={720}
-					limit={5000}
-				/>
+					{data && (
+						<>
+							<UsageRow
+								label="Tokens Ingested"
+								used={data.tokens.used}
+								limit={data.tokens.limit}
+							/>
+							<UsageRow
+								label="Search Queries"
+								used={data.queries.used}
+								limit={data.queries.limit}
+							/>
+							<UsageRow
+								label="Spaces"
+								used={data.spaces.used}
+								limit={data.spaces.limit}
+							/>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
