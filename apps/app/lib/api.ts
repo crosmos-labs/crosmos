@@ -29,7 +29,7 @@ export class ApiError extends Error {
 
 export async function apiFetch<T>(
 	path: string,
-	options: RequestInit & { orgId?: number; skipOrgScope?: boolean } = {},
+	options: RequestInit & { orgId?: string; skipOrgScope?: boolean } = {},
 ): Promise<T> {
 	const { orgId, skipOrgScope, ...fetchOptions } = options;
 	const accessToken = await getAccessToken();

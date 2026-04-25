@@ -1,5 +1,5 @@
 export interface OrgResponse {
-	id: number;
+	id: string;
 	slug: string;
 	name: string;
 	plan: "free" | "starter" | "pro" | "enterprise";
@@ -32,7 +32,7 @@ export interface UpdateOrgRequest {
 export type OrgRole = "owner" | "admin" | "member";
 
 export interface MemberResponse {
-	user_id: number;
+	user_id: string;
 	email: string;
 	name: string;
 	role: OrgRole;
@@ -49,10 +49,10 @@ export interface ChangeRoleRequest {
 }
 
 export interface InviteResponse {
-	id: number;
+	id: string;
 	email: string;
 	role: "admin" | "member";
-	invited_by: number;
+	invited_by: string;
 	expires_at: string;
 	status: "pending" | "expired" | "accepted";
 }

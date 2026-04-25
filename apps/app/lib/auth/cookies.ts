@@ -66,18 +66,15 @@ export async function clearOAuthState() {
 	cookieStore.delete(OAUTH_STATE_COOKIE);
 }
 
-export async function setActiveOrgCookie(orgId: number) {
+export async function setActiveOrgCookie(orgId: string) {
 	const cookieStore = await cookies();
-	cookieStore.set(ACTIVE_ORG_COOKIE, String(orgId), {
+	cookieStore.set(ACTIVE_ORG_COOKIE, orgId, {
 		...COOKIE_OPTIONS,
 		maxAge: 365 * 24 * 60 * 60,
 	});
 }
 
-export async function getActiveOrgId(): Promise<number | null> {
+export async function getActiveOrgId(): Promise<string | null> {
 	const cookieStore = await cookies();
-	const value = cookieStore.get(ACTIVE_ORG_COOKIE)?.value;
-	if (!value) return null;
-	const parsed = Number.parseInt(value, 10);
-	return Number.isNaN(parsed) ? null : parsed;
+	return cookieStore.get(ACTIVE_ORG_COOKIE)?.value ?? null;
 }

@@ -1,5 +1,5 @@
 export interface Source {
-	id: number;
+	id: string;
 	space_id: number;
 	name: string;
 	type: string;

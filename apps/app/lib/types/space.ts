@@ -1,5 +1,5 @@
 export interface Space {
-	id: number;
+	id: string;
 	org_id: number;
 	name: string;
 	description: string | null;
