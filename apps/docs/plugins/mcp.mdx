@@ -1,46 +1,221 @@
 ---
 title: "MCP"
-description: "Use Crosmos with the Model Context Protocol"
+description: "Connect Crosmos to any MCP-compatible agent with zero custom integration"
 icon: "puzzle-piece"
 ---
 
-## Model Context Protocol
+Crosmos ships an MCP server that exposes the memory engine's search, ingestion, and management tools over the [Model Context Protocol](https://modelcontextprotocol.io). Any MCP-compatible client can store and retrieve memories without custom integrations.
 
-Crosmos exposes its memory engine through an MCP server, so any MCP-compatible client can store and retrieve context without custom integrations.
+## Install
 
-## Installation
+<Tabs>
+<Tab title="npm (recommended)">
 
 ```bash
-npx @crosmos/mcp
+npm install -g https://mcp.crosmos.dev/crosmos-mcp.tgz
 ```
 
-Or add it to your MCP client config:
+</Tab>
+<Tab title="Install script (macOS / Linux)">
+
+```bash
+curl -fsSL https://mcp.crosmos.dev/install.sh | bash
+```
+
+</Tab>
+<Tab title="From source">
+
+```bash
+git clone https://github.com/crosmos-labs/crosmos-mcp
+cd crosmos-mcp
+bun install
+bun run build
+```
+
+</Tab>
+</Tabs>
+
+Requires Node.js 18 or later.
+
+## Configure
+
+The server authenticates through your Crosmos API key. Generate one from **Settings → API Keys** in the [Crosmos Console](https://console.crosmos.dev). Keys use the `csk_` prefix.
+
+Set the key as an environment variable or pass it in your client config:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CROSMOS_API_KEY` | API key for authentication (required) | — |
+| `CROSMOS_API_BASE_URL` | Base URL for the Crosmos Memory API | `http://localhost:8000` |
+| `DEFAULT_SPACE_ID` | Default memory space ID (optional) | — |
+| `CROSMOS_API_TIMEOUT` | Request timeout in milliseconds | `30000` |
+
+Use `https://api.crosmos.dev` as the base URL for the hosted service.
+
+### Claude Code
+
+```bash
+claude mcp add crosmos-memory -- crosmos-mcp
+```
+
+Then set the environment variables:
+
+```
+CROSMOS_API_BASE_URL=https://api.crosmos.dev
+CROSMOS_API_KEY=csk_your_api_key_here
+```
+
+### Claude Desktop
+
+Add to your config file (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`, Linux: `~/.config/Claude/claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
-    "crosmos": {
-      "command": "npx",
-      "args": ["@crosmos/mcp"],
+    "crosmos-memory": {
+      "command": "crosmos-mcp",
       "env": {
-        "CROSMOS_API_KEY": "your-api-key"
+        "CROSMOS_API_BASE_URL": "https://api.crosmos.dev",
+        "CROSMOS_API_KEY": "csk_your_api_key_here"
       }
     }
   }
 }
 ```
 
-## Available tools
+Restart Claude Desktop after saving.
 
-| Tool | Description |
-|------|-------------|
-| `search_memories` | Retrieve relevant memories for a query |
-| `add_memory` | Store new content into a memory space |
-| `list_spaces` | List available memory spaces |
-| `health_check` | Check API connectivity |
+### Opencode
+
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "crosmos-memory": {
+      "type": "local",
+      "command": ["crosmos-mcp"],
+      "environment": {
+        "CROSMOS_API_BASE_URL": "https://api.crosmos.dev",
+        "CROSMOS_API_KEY": "csk_your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Other MCP clients
+
+The `crosmos-mcp` binary uses stdio transport and works with any MCP-compatible client. Point your client to the binary and set the environment variables listed in the table above.
+
+## Tools
+
+### `search_memories`
+
+Retrieve relevant memories using hybrid retrieval.
+
+<ParamField query="string" required>
+The search query text.
+</ParamField>
+
+<ParamField space_id="string (UUID)" required>
+The memory space to search within. If omitted, the server uses `DEFAULT_SPACE_ID` or auto-detects from available spaces.
+</ParamField>
+
+```json
+{
+  "query": "What programming languages does the user prefer?",
+  "space_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+The server combines semantic (vector), keyword (full-text), and graph-based retrieval and returns ranked results with scores and memory types.
+
+### `add_memory`
+
+Store new content into a memory space. Content is processed through an extraction pipeline that identifies entities, relationships, and creates structured knowledge graph entries.
+
+<ParamField space_id="string (UUID)">
+The memory space to add memories to. If omitted, the server uses `DEFAULT_SPACE_ID` or auto-detects from available spaces.
+</ParamField>
+
+<ParamField sources="array">
+Content sources to ingest. Each source has:
+- `content` (required) — Raw content text
+- `content_type` — `text` (default), `markdown`, etc.
+- `role` — Speaker role (for conversation content)
+- `sequence` — Order within batch (default `0`)
+- `meta` — Arbitrary metadata object
+</ParamField>
+
+<ParamField messages="object">
+Conversation messages with automatic segmentation and lookback context:
+- `messages` (required) — Array of `{ role, content }` objects
+- `session_id` — Session identifier
+- `session_date` — ISO datetime for the conversation reference time
+- `segment_size` — Messages per segment (1–20, default `4`)
+- `lookback` — Prior segments included as context (0–20, default `4`)
+</ParamField>
+
+<Note>
+Provide exactly one of `sources` or `messages`. They are mutually exclusive.
+</Note>
+
+**Store a text memory:**
+
+```json
+{
+  "space_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "sources": [
+    {
+      "content": "User switched from Google to Anthropic. Prefers Rust for systems work.",
+      "content_type": "text"
+    }
+  ]
+}
+```
+
+**Ingest a conversation:**
+
+```json
+{
+  "space_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "messages": {
+    "messages": [
+      { "role": "user", "content": "I just moved to Austin for a new startup job" },
+      { "role": "assistant", "content": "Congratulations on the move!" }
+    ],
+    "session_id": "conv_001",
+    "session_date": "2025-06-15"
+  }
+}
+```
+
+### `list_spaces`
+
+List all memory spaces owned by the authenticated user. Call this to discover available space IDs needed by `search_memories` and `add_memory`.
+
+No parameters required.
+
+### `health_check`
+
+Check the connectivity and status of the Crosmos Memory Engine API.
+
+No parameters required.
 
 ## How agents use it
 
 When an agent receives a user message, it calls `search_memories` to fetch relevant context. After responding, it calls `add_memory` to store the new exchange. The next conversation starts with everything the agent already knows.
 
-No manual context windows. No prompt engineering. Just memory that works.
+The server automatically resolves a default space ID if you don't specify one. If no spaces exist, the agent prompts you to create one from the Crosmos dashboard.
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="How it works" icon="lightbulb" href="/how-it-works">
+  Understand the knowledge graph behind the API.
+</Card>
+<Card title="Memories" icon="brain" href="/memories">
+  Learn how Crosmos structures and retrieves context.
+</Card>
+</CardGroup>
