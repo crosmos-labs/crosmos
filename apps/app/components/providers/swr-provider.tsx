@@ -2,7 +2,13 @@
 
 import { SWRConfig } from "swr";
 
-export function SwrProvider({ children }: { children: React.ReactNode }) {
+export function SwrProvider({
+	children,
+	fallback,
+}: {
+	children: React.ReactNode;
+	fallback?: Record<string, unknown>;
+}) {
 	return (
 		<SWRConfig
 			value={{
@@ -10,6 +16,7 @@ export function SwrProvider({ children }: { children: React.ReactNode }) {
 				errorRetryCount: 3,
 				revalidateOnFocus: true,
 				revalidateOnReconnect: true,
+				...(fallback ? { fallback } : {}),
 			}}
 		>
 			{children}

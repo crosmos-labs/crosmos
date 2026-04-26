@@ -4,6 +4,7 @@ import { DataFetchError } from "@/components/data-fetch-error";
 
 export default function DashboardError({
 	error,
+	reset,
 }: {
 	error: Error & { digest?: string };
 	reset: () => void;
@@ -14,11 +15,9 @@ export default function DashboardError({
 	return (
 		<DataFetchError
 			message={message}
-			onRetry={() =>
-				new Promise(() => {
-					window.location.reload();
-				})
-			}
+			onRetry={async () => {
+				reset();
+			}}
 		/>
 	);
 }
