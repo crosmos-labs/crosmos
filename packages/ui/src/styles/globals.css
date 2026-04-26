@@ -183,6 +183,8 @@
 @layer base {
 	* {
 		@apply border-border outline-ring/50 scroll-smooth;
+		scrollbar-width: thin;
+		scrollbar-color: gray transparent;
 	}
 	body {
 		@apply bg-background text-foreground tracking-normal selection:bg-accent selection:text-accent-foreground;

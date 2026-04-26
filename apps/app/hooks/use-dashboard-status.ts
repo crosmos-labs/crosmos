@@ -1,12 +1,8 @@
 import useSWRImmutable from "swr/immutable";
-import {
-	getDashboardStatus,
-	type DashboardStatus,
-} from "@/actions/dashboard";
+import { type DashboardStatus, getDashboardStatus } from "@/actions/dashboard";
 
 export function useDashboardStatus() {
-	return useSWRImmutable<DashboardStatus>(
-		"/dashboard/status",
-		() => getDashboardStatus(),
+	return useSWRImmutable<DashboardStatus>("/dashboard/status", () =>
+		getDashboardStatus(),
 	);
 }

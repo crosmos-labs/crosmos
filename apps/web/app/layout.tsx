@@ -6,7 +6,6 @@ import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 
 import "@crosmos/ui/globals.css";
-import "./style.css";
 import { Analytics } from "@vercel/analytics/next";
 
 const satoshi = localFont({

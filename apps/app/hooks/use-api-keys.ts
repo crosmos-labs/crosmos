@@ -3,5 +3,9 @@ import { listApiKeys } from "@/actions/api-keys";
 import type { ApiKey } from "@/lib/types/api-key";
 
 export function useApiKeys() {
-	return useSWR<ApiKey[]>("/api-keys", () => listApiKeys(), { keepPreviousData: true, revalidateIfStale: false, revalidateOnFocus: false });
+	return useSWR<ApiKey[]>("/api-keys", () => listApiKeys(), {
+		keepPreviousData: true,
+		revalidateIfStale: false,
+		revalidateOnFocus: false,
+	});
 }

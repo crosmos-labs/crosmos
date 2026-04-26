@@ -48,8 +48,8 @@ import { cn } from "@crosmos/ui/lib/utils";
 import { logout } from "@/actions/auth";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
-import { clearCache } from "@/hooks/use-clear-cache";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
+import { clearCache } from "@/hooks/use-clear-cache";
 import type { AuthUser } from "@/lib/types/auth";
 import type { OrgDetailResponse } from "@/lib/types/org";
 

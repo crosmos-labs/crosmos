@@ -27,11 +27,7 @@ export default function Home() {
 		isLoading: spacesLoading,
 		error: spacesError,
 	} = useSpaces();
-	const {
-		data: keys,
-		isLoading: keysLoading,
-		error: keysError,
-	} = useApiKeys();
+	const { data: keys, isLoading: keysLoading, error: keysError } = useApiKeys();
 
 	const anyLoading = userLoading || spacesLoading || keysLoading;
 
@@ -63,9 +59,7 @@ export default function Home() {
 			{dataError ? (
 				<DataFetchError
 					message={dataError.message}
-					onRetry={() =>
-						Promise.all([mutate("/spaces"), mutate("/api-keys")])
-					}
+					onRetry={() => Promise.all([mutate("/spaces"), mutate("/api-keys")])}
 				/>
 			) : (
 				<GetStarted spaces={spaces ?? []} keys={keys ?? []} />
