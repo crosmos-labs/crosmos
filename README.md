@@ -26,7 +26,7 @@
 </div>
 
 > [!IMPORTANT]
-> Crosmos is currently in **beta**. Expect breaking changes and bugs.
+> Crosmos is currently in **beta**.
 
 ### Workspace
 
@@ -38,6 +38,17 @@
 | `packages/ui` | `@crosmos/ui` — shared components |
 | `packages/graph` | `@crosmos/graph` — force-graph viz |
 | `skills/` | Agent skills (Crosmos Memory) |
+
+### Skills
+
+Enables AI agents to automatically store and retrieve memories via the [Crosmos MCP](https://github.com/crosmos-labs/crosmos-mcp). Agents decide whether to ingest or search based on user intent — no explicit commands needed.
+
+```bash
+npx skills add crosmos-labs/crosmos      # add to project
+npx skills add crosmos-labs/crosmos -g   # add globally
+```
+
+For details, see [skills/README.md](skills/README.md).
 
 ### Commands
 
