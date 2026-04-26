@@ -16,8 +16,11 @@
 **[Crosmos](https://crosmos.dev)** — Memory Engine for AI agents. Store, retrieve, and organize knowledge across sessions.
 
 [Docs](https://docs.crosmos.dev) · [Console](https://console.crosmos.dev) · [X](https://x.com/crosmoslabs) · [GitHub](https://github.com/crosmos-labs) · [LinkedIn](https://linkedin.com/company/crosmos-ai)
-
 **Turborepo · Bun · Next.js · shadcn/ui**
+
+> [!IMPORTANT]
+> Crosmos is currently in **beta**. Expect breaking changes and bugs.
+
 <img width="2000" height="0">
 </td>
 </tbody>
