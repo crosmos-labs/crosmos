@@ -22,9 +22,9 @@ const FOOTER_DATA = {
 		title: "Documentation",
 		links: [
 			{ label: "Get Started", href: LINKS.documentation.getStarted },
+			{ label: "Quickstart", href: LINKS.documentation.quickstart },
 			{ label: "API Reference", href: LINKS.documentation.apiReference },
-			{ label: "Examples", href: LINKS.documentation.examples },
-			{ label: "SDKs", href: LINKS.documentation.sdks },
+			{ label: "MCP", href: LINKS.documentation.mcp },
 		],
 	},
 	company: {
