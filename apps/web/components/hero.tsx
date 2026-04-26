@@ -50,6 +50,8 @@ export function Hero() {
 						<div className="flex flex-col sm:flex-row items-center md:items-start gap-4">
 							<Link
 								href={LINKS.product.console}
+								target="_blank"
+								rel="noopener noreferrer"
 								className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
 							>
 								Get Started

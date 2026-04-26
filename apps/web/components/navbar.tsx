@@ -80,6 +80,8 @@ export function Navbar() {
 					</Link>
 					<Link
 						href={LINKS.product.console}
+						target="_blank"
+						rel="noopener noreferrer"
 						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground"
 					>
 						Get Started
