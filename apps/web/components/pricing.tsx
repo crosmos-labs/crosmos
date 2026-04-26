@@ -195,7 +195,12 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 					)}
 				>
 					{plan.id === "basic" ? (
-						<a href={plan.link} target="_blank" rel="noopener noreferrer" className="w-full">
+						<a
+							href={plan.link}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="w-full"
+						>
 							{plan.buttonText}
 						</a>
 					) : (
