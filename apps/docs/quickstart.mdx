@@ -8,33 +8,72 @@ Get Crosmos running and make your first API call in under five minutes.
 
 ### Prerequisites
 
-- An API key from the [Crosmos Console](https://console.crosmos.dev)
+- An API key from the [Crosmos Console](https://console.crosmos.dev) (starts with `csk_...`)
 - Basic familiarity with HTTP requests
 - A terminal or any backend language
 
 All endpoints require an API key sent as a Bearer token:
 
 ```
-Authorization: Bearer <your_api_key>
+Authorization: Bearer csk_your_api_key
 ```
 
-## Step 1: Create a memory space
+<Note>
+If you belong to multiple organizations, include the `X-Org-Id` header with your organization UUID to set context. If omitted, your active organization is used.
+</Note>
+
+## Step 1: Get your organization ID
+
+Spaces belong to organizations. Find your org ID before creating one.
+
+```bash
+curl -X GET https://api.crosmos.dev/api/v1/orgs \
+  -H "Authorization: Bearer $CROSMOS_API_KEY"
+```
+
+The response returns a list of your organizations. Copy the `id` from the one you want to use.
+
+```json
+{
+  "orgs": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "slug": "my-org",
+      "name": "My Org",
+      "plan": "free",
+      "your_role": "owner"
+    }
+  ]
+}
+```
+
+## Step 2: Create a memory space
 
 A space is an isolated container for a user, project, or organization. Everything lives inside a space.
 
 ```bash
-curl -X POST https://api.crosmos.dev/v1/spaces \
+curl -X POST https://api.crosmos.dev/api/v1/spaces \
   -H "Authorization: Bearer $CROSMOS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
+    "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "name": "my-agent",
     "description": "Memory space for my AI agent"
   }'
 ```
 
-The response returns your `space_id`. You will use it for everything that follows.
+The response returns your `id` (the space UUID). You will use it for everything that follows.
 
-## Step 2: Ingest content
+```json
+{
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "my-agent",
+  "description": "Memory space for my AI agent"
+}
+```
+
+## Step 3: Ingest content
 
 Feed Crosmos a conversation, a document, or a plain text fact. The extraction pipeline handles the rest.
 
@@ -45,11 +84,11 @@ Crosmos accepts text, markdown, and conversation transcripts. File uploads for P
 ### Option A: Store a text memory
 
 ```bash
-curl -X POST https://api.crosmos.dev/v1/sources \
+curl -X POST https://api.crosmos.dev/api/v1/sources \
   -H "Authorization: Bearer $CROSMOS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "space_id": 1,
+    "space_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     "sources": [
       {
         "content": "User switched from Google to Anthropic in May. Prefers Rust over Python for systems work. Uses Neovim with custom keybindings.",
@@ -59,45 +98,55 @@ curl -X POST https://api.crosmos.dev/v1/sources \
   }'
 ```
 
-This returns a `job_id`. The content is processed asynchronously: facts, entities, and relationships are extracted and woven into the knowledge graph.
+This returns a `202 Accepted` with a `job_id`. The content is processed asynchronously: facts, entities, and relationships are extracted and woven into the knowledge graph.
+
+```json
+{
+  "job_id": "9b8a7c6d-5e4f-3210-ba98-76543210abcd",
+  "status": "pending",
+  "source_ids": ["c0d1e2f3-4a5b-6789-abcd-ef0123456789"]
+}
+```
 
 ### Option B: Ingest a conversation
 
+Use the dedicated conversations endpoint for multi-turn dialogue.
+
 ```bash
-curl -X POST https://api.crosmos.dev/v1/sources \
+curl -X POST https://api.crosmos.dev/api/v1/conversations \
   -H "Authorization: Bearer $CROSMOS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "space_id": 1,
-    "messages": {
-      "session_id": "conv_001",
-      "session_date": "2025-06-15",
-      "messages": [
-        {"role": "user", "content": "I just moved to Austin for a new startup job"},
-        {"role": "assistant", "content": "Congratulations on the move! How is Austin treating you?"}
-      ]
-    }
+    "space_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "messages": [
+      {"role": "user", "content": "I just moved to Austin for a new startup job"},
+      {"role": "assistant", "content": "Congratulations on the move! How is Austin treating you?"}
+    ],
+    "session_id": "conv_001",
+    "session_date": "2025-06-15"
   }'
 ```
 
 ### Check processing status
 
 ```bash
-curl -X GET https://api.crosmos.dev/v1/jobs/<job_id> \
+curl -X GET https://api.crosmos.dev/api/v1/jobs/9b8a7c6d-5e4f-3210-ba98-76543210abcd \
   -H "Authorization: Bearer $CROSMOS_API_KEY"
 ```
 
-## Step 3: Search memories
+Poll until `status` becomes `"completed"` before searching.
 
-Now ask a question. Crosmos fires four retrieval signals in parallel and returns the best context.
+## Step 4: Search memories
+
+Now ask a question. Crosmos fires hybrid search and returns the best context.
 
 ```bash
-curl -X POST https://api.crosmos.dev/v1/search \
+curl -X POST https://api.crosmos.dev/api/v1/search \
   -H "Authorization: Bearer $CROSMOS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "query": "Where does the user work and what tools do they prefer?",
-    "space_id": 1
+    "space_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
   }'
 ```
 
@@ -105,18 +154,22 @@ curl -X POST https://api.crosmos.dev/v1/search \
 
 ```json
 {
+  "query": "Where does the user work and what tools do they prefer?",
   "candidates": [
     {
+      "memory_id": "d4e5f6a7-8b9c-0123-def4-567890123456",
       "content": "User switched from Google to Anthropic in May. Prefers Rust over Python for systems work. Uses Neovim with custom keybindings.",
       "memory_type": "semantic",
-      "importance_score": 0.85,
-      "entities": ["User", "Google", "Anthropic", "Rust", "Python", "Neovim"]
+      "score": 0.92,
+      "source": "User switched from Google to Anthropic in May..."
     }
-  ]
+  ],
+  "total": 1,
+  "took_ms": 47.3
 }
 ```
 
-## Step 4: Give your agent memory
+## Step 5: Give your agent memory
 
 Use the search endpoint before every LLM call. Inject the results into the system prompt so your agent starts with full context.
 
@@ -124,11 +177,11 @@ Use the search endpoint before every LLM call. Inject the results into the syste
 import httpx
 
 response = httpx.post(
-    "https://api.crosmos.dev/v1/search",
+    "https://api.crosmos.dev/api/v1/search",
     headers={"Authorization": f"Bearer {CROSMOS_API_KEY}"},
     json={
         "query": user_message,
-        "space_id": space_id
+        "space_id": space_id,
     }
 )
 

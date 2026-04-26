@@ -58,7 +58,7 @@ To target a single package: `bun run dev --filter=app`, `bun run typecheck --fil
 
 - **Never push to `main`.** Never push to `dev` unless asked.
 - Always ask the user before creating a branch or PR — including the branch name.
-- Commit messages use **conventional commits with scope**: `feat(app):`, `fix(web):`, `chore(ui):`, etc. Scope matches the package (`app`, `web`, `docs`, `ui`, `graph`, `ts`). No scope needed for global/root changes.
+- Commit messages use **conventional commits with scope** — subject line only, no description/body: `feat(app): add login page`, `fix(web): fix hero layout`, `chore(ui): bump deps`. Scope matches the package (`app`, `web`, `docs`, `ui`, `graph`, `ts`). No scope needed for global/root changes. **Never use uppercase characters** in commit messages — all lowercase, including the first word after the colon.
 - PR title format: concise and understandable, no conventional commit prefix.
 - PR description format: Summary heading, then individual commit summaries. If >10 commits, write an overall summary in bullet points instead.
 
@@ -66,6 +66,12 @@ To target a single package: `bun run dev --filter=app`, `bun run typecheck --fil
 
 - Mintlify docs site. Pages are MDX with YAML frontmatter. Config in `docs.json`.
 - Use the **mintlify** skill when creating or editing docs pages, navigation, or components.
+
+## Web Research
+
+- Use the **defuddle** skill when fetching web pages for research — it extracts clean markdown and removes clutter, saving tokens.
+  - Run `defuddle parse <url> --md` instead of WebFetch for documentation, articles, and blog posts.
+  - Use WebFetch only for URLs ending in `.md` (already markdown).
 
 ## Framework Documentation
 
