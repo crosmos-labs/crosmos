@@ -6,7 +6,7 @@
   <img alt="Crosmos" src="apps/app/public/banner_dark.svg" width="360">
 </picture>
 
-<br><br><br>
+<br>
 
 <table>
 <tbody>
@@ -18,7 +18,6 @@
 [Docs](https://docs.crosmos.dev) · [Console](https://console.crosmos.dev) · [X](https://x.com/crosmoslabs) · [GitHub](https://github.com/crosmos-labs) · [LinkedIn](https://linkedin.com/company/crosmos-ai)
 
 **Turborepo · Bun · Next.js · shadcn/ui**
-
 <img width="2000" height="0">
 </td>
 </tbody>
