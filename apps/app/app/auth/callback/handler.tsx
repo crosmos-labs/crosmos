@@ -38,7 +38,7 @@ export function AuthCallbackHandler() {
 	}, [searchParams, router]);
 
 	return (
-		<div className="flex min-h-screen items-center justify-center">
+		<div className="flex flex-1 min-h-0 items-center justify-center">
 			<AnimatedSpinner name="pulse" size="1.5rem" />
 		</div>
 	);
