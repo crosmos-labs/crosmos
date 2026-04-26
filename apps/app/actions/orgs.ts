@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { apiFetch } from "@/lib/api";
 import { setActiveOrgCookie } from "@/lib/auth/cookies";
 import type { OrgDetailResponse } from "@/lib/types/org";
