@@ -53,7 +53,7 @@ export default function Home() {
 					Welcome, {getFirstName(user?.name)}
 				</h1>
 				<p className="text-sm text-muted-foreground">
-					Your memory engine for AI agents. Get started below.
+					Your memory layer for AI agents. Get started below.
 				</p>
 			</div>
 			{dataError ? (

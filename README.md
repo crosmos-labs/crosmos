@@ -48,7 +48,7 @@ npx skills add crosmos-labs/crosmos      # add to project
 npx skills add crosmos-labs/crosmos -g   # add globally
 ```
 
-For details, see [skills/README.md](skills/README.md).
+For details, see [readme](skills/README.md).
 
 ### Commands
 

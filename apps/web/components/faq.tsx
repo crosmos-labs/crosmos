@@ -16,7 +16,7 @@ const FAQ_DATA: FAQItem[] = [
 	{
 		question: "What is Crosmos?",
 		answer:
-			"An AI memory engine that stores, retrieves, and acts on structured long-term memory. Agents go beyond stateless responses by maintaining context across sessions, users, and workflows.",
+			"An AI memory layer that stores, retrieves, and acts on structured long-term memory. Agents go beyond stateless responses by maintaining context across sessions, users, and workflows.",
 	},
 	{
 		question: "How is Crosmos different from a vector database?",
