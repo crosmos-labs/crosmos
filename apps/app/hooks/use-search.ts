@@ -6,6 +6,6 @@ export function useSearch(query: string, spaceId?: string) {
 	return useSWR<MemoryCandidate[]>(
 		query.length > 1 ? ["search", query, spaceId] : null,
 		() => searchMemories(query, spaceId),
-		{ dedupingInterval: 300 },
+		{ dedupingInterval: 300, keepPreviousData: true },
 	);
 }
