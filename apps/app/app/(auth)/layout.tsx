@@ -12,7 +12,7 @@ export default async function AuthLayout({
 	if (user) redirect("/");
 
 	return (
-		<div className="min-h-dvh grid grid-cols-1 md:grid-cols-5 overflow-hidden">
+		<div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-5 overflow-hidden">
 			<div className="col-span-3 p-4 sm:p-6 md:p-8">
 				<div>
 					<Link href="/">

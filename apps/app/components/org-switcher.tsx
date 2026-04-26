@@ -15,10 +15,7 @@ import {
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
 import { IconCheck, IconChevronDown, IconPlus } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { setActiveOrg } from "@/actions/orgs";
 import { OrgAvatar } from "@/components/org-avatar";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
 import type { OrgDetailResponse } from "@/lib/types/org";
 
 export function OrgSwitcher({
@@ -28,17 +25,8 @@ export function OrgSwitcher({
 	orgs: OrgDetailResponse[];
 	activeOrg: OrgDetailResponse;
 }) {
-	const router = useRouter();
-	const { runAction } = useActionLoader();
 	const { isMobile, state } = useSidebar();
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "bottom";
-
-	function handleSwitchOrg(orgId: string) {
-		if (orgId === activeOrg.id) return;
-		runAction(() => setActiveOrg(orgId), {
-			toast: { error: "Failed to switch organization" },
-		}).then(() => router.refresh());
-	}
 
 	return (
 		<SidebarMenuItem>
@@ -66,7 +54,7 @@ export function OrgSwitcher({
 						{orgs.map((org) => (
 							<DropdownMenuItem
 								key={org.id}
-								onClick={() => handleSwitchOrg(org.id)}
+								disabled
 								className="gap-4 py-2.5 px-3"
 							>
 								<OrgAvatar slug={org.slug} className="size-5.5" />

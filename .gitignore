@@ -35,6 +35,10 @@ yarn-error.log*
 
 # Agent Skills (local only)
 .agents/skills/crosmos-memory/
+
+# Docs (local only)
+docs/
+
 # Misc
 .DS_Store
 *.pem

@@ -34,10 +34,10 @@ export default function RootLayout({
 	return (
 		<html
 			lang="en"
-			className={`${satoshi.variable} ${jetbrainsMono.variable} dark`}
+			className={`${satoshi.variable} ${jetbrainsMono.variable} dark h-full`}
 			suppressHydrationWarning
 		>
-			<body>
+			<body className="flex flex-col h-dvh">
 				<SkipToContent />
 				<StagingBanner />
 				<SwrProvider>

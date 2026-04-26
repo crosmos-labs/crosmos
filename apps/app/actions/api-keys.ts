@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { apiFetch } from "@/lib/api";
 import type {
 	CreateApiKeyResponse,
@@ -25,7 +24,6 @@ export async function createApiKey(name: string, expiresInDays?: number) {
 		body: JSON.stringify(body),
 	});
 
-	revalidatePath("/api-key");
 	return res;
 }
 
@@ -33,6 +31,4 @@ export async function revokeApiKey(keyId: number) {
 	await apiFetch(`/auth/keys/${keyId}`, {
 		method: "DELETE",
 	});
-
-	revalidatePath("/api-key");
 }

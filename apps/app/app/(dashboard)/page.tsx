@@ -27,9 +27,15 @@ export default function Home() {
 		isLoading: spacesLoading,
 		error: spacesError,
 	} = useSpaces();
-	const { data: keys, isLoading: keysLoading, error: keysError } = useApiKeys();
+	const {
+		data: keys,
+		isLoading: keysLoading,
+		error: keysError,
+	} = useApiKeys();
 
-	if (userLoading || spacesLoading || keysLoading) {
+	const anyLoading = userLoading || spacesLoading || keysLoading;
+
+	if (anyLoading) {
 		return <AnimatedSpinner name="waverows" size="1.5rem" />;
 	}
 
@@ -42,23 +48,7 @@ export default function Home() {
 		);
 	}
 
-	if (spacesError) {
-		return (
-			<DataFetchError
-				message={spacesError.message}
-				onRetry={() => mutate("/spaces")}
-			/>
-		);
-	}
-
-	if (keysError) {
-		return (
-			<DataFetchError
-				message={keysError.message}
-				onRetry={() => mutate("/api-keys")}
-			/>
-		);
-	}
+	const dataError = spacesError ?? keysError;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -70,7 +60,16 @@ export default function Home() {
 					Your memory engine for AI agents. Get started below.
 				</p>
 			</div>
-			<GetStarted spaces={spaces ?? []} keys={keys ?? []} />
+			{dataError ? (
+				<DataFetchError
+					message={dataError.message}
+					onRetry={() =>
+						Promise.all([mutate("/spaces"), mutate("/api-keys")])
+					}
+				/>
+			) : (
+				<GetStarted spaces={spaces ?? []} keys={keys ?? []} />
+			)}
 		</div>
 	);
 }

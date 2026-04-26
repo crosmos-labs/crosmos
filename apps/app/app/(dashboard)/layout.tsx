@@ -1,10 +1,13 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { listApiKeys } from "@/actions/api-keys";
 import { listOrgs } from "@/actions/orgs";
+import { listSpaces } from "@/actions/spaces";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
+import { SwrProvider } from "@/components/providers/swr-provider";
 import { getActiveOrgId } from "@/lib/auth/cookies";
 import { verifyAuth } from "@/lib/auth/session";
 import type { AuthUser } from "@/lib/types/auth";
@@ -31,10 +34,10 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
-	const fallback = orgs[0];
-	if (!fallback) redirect("/signup");
+	const fallbackOrg = orgs[0];
+	if (!fallbackOrg) redirect("/signup");
 
-	const activeOrg = orgs.find((o) => o.id === activeOrgId) ?? fallback;
+	const activeOrg = orgs.find((o) => o.id === activeOrgId) ?? fallbackOrg;
 	if (activeOrg.id !== activeOrgId) {
 		const headersList = await headers();
 		const pathname = headersList.get("x-invoke-path") ?? "/";
@@ -43,22 +46,35 @@ export default async function DashboardLayout({
 		);
 	}
 
+	const [spaces, apiKeys] = await Promise.all([
+		listSpaces().catch(() => undefined),
+		listApiKeys().catch(() => undefined),
+	]);
+
 	const cookieStore = await cookies();
 	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
 
+	const swrFallback: Record<string, unknown> = {
+		"/auth/me": user,
+		...(spaces !== undefined ? { "/spaces": spaces } : {}),
+		...(apiKeys !== undefined ? { "/api-keys": apiKeys } : {}),
+	};
+
 	return (
-		<ActionLoaderProvider>
-			<SidebarProvider defaultOpen={sidebarOpen}>
-				<AppSidebar user={user} orgs={orgs} activeOrg={activeOrg} />
-				<SidebarInset>
-					<DashboardHeader />
-					<div className="flex-1 overflow-auto">
-						<div id="main-content" className="mx-auto max-w-5xl p-6">
-							{children}
+		<SwrProvider fallback={swrFallback}>
+			<ActionLoaderProvider>
+				<SidebarProvider defaultOpen={sidebarOpen}>
+					<AppSidebar user={user} orgs={orgs} activeOrg={activeOrg} />
+					<SidebarInset>
+						<DashboardHeader />
+						<div className="flex-1 overflow-auto">
+							<div id="main-content" className="mx-auto max-w-5xl p-6">
+								{children}
+							</div>
 						</div>
-					</div>
-				</SidebarInset>
-			</SidebarProvider>
-		</ActionLoaderProvider>
+					</SidebarInset>
+				</SidebarProvider>
+			</ActionLoaderProvider>
+		</SwrProvider>
 	);
 }

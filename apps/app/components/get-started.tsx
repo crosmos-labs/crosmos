@@ -89,7 +89,7 @@ export function GetStarted({
 	const hasActiveKey = keys.some((k) => k.is_active);
 
 	return (
-		<Card>
+		<Card className="rounded">
 			<CardHeader>
 				<CardTitle>Get Started</CardTitle>
 				<CardDescription>
