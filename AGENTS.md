@@ -57,8 +57,9 @@ To target a single package: `bun run dev --filter=app`, `bun run typecheck --fil
 ## Git & PR Workflow
 
 - **Never push to `main`.** Never push to `dev` unless asked.
-- Always work on a separate branch. Ask the user for the branch name when planning.
-- PR title format: concise and understandable, **no conventional commit** prefixes (no `feat:`, `fix:`, etc.).
+- Always ask the user before creating a branch or PR — including the branch name.
+- Commit messages use **conventional commits with scope**: `feat(app):`, `fix(web):`, `chore(ui):`, etc. Scope matches the package (`app`, `web`, `docs`, `ui`, `graph`, `ts`). No scope needed for global/root changes.
+- PR title format: concise and understandable, no conventional commit prefix.
 - PR description format: Summary heading, then individual commit summaries. If >10 commits, write an overall summary in bullet points instead.
 
 ## Docs (`apps/docs`)
