@@ -1,7 +1,6 @@
 import {
 	IconActivity,
 	IconBook,
-	IconBrain,
 	IconChartBar,
 	IconCreditCard,
 	IconDatabase,
@@ -34,21 +33,7 @@ export const homeItem: NavItem = {
 export const navGroups: NavGroup[] = [
 	{
 		label: "MEMORY",
-		items: [
-			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
-			// {
-			// 	label: "Entities",
-			// 	href: "/entities",
-			// 	icon: IconTopologyStarRing3,
-			// 	disabled: true,
-			// },
-			{
-				label: "Memories",
-				href: "/memories",
-				icon: IconBrain,
-				disabled: true,
-			},
-		],
+		items: [{ label: "Spaces", href: "/spaces", icon: IconDatabase }],
 	},
 	{
 		label: "INSIGHTS",
@@ -100,8 +85,6 @@ export const navGroups: NavGroup[] = [
 export const breadcrumbLabelMap: Record<string, string> = {
 	"/": "Home",
 	"/spaces": "Spaces",
-	"/entities": "Entities",
-	"/memories": "Memories",
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",

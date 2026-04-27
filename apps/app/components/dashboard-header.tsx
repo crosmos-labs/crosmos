@@ -4,13 +4,17 @@ import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
+	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbPage,
+	BreadcrumbSeparator,
 } from "@crosmos/ui/components/breadcrumb";
 import { SidebarTrigger } from "@crosmos/ui/components/sidebar";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
+import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
 import { breadcrumbLabelMap } from "@/config/nav";
 
 function ActionLoaderIndicator() {
@@ -41,18 +45,40 @@ function ActionLoaderIndicator() {
 
 export function DashboardHeader() {
 	const pathname = usePathname();
-	const label = breadcrumbLabelMap[pathname] ?? "Home";
+	const { breadcrumb } = useBreadcrumb();
+
+	const staticLabel = breadcrumbLabelMap[pathname] ?? "Home";
+
+	const breadcrumbContent = breadcrumb ? (
+		<BreadcrumbList>
+			{breadcrumb.parent && (
+				<>
+					<BreadcrumbItem>
+						<BreadcrumbLink asChild>
+							<Link href={breadcrumb.parent.href}>
+								{breadcrumb.parent.label}
+							</Link>
+						</BreadcrumbLink>
+					</BreadcrumbItem>
+					<BreadcrumbSeparator />
+				</>
+			)}
+			<BreadcrumbItem>
+				<BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	) : (
+		<BreadcrumbList>
+			<BreadcrumbItem>
+				<BreadcrumbPage>{staticLabel}</BreadcrumbPage>
+			</BreadcrumbItem>
+		</BreadcrumbList>
+	);
 
 	return (
 		<header className="flex h-14 shrink-0 items-center gap-2 px-4">
 			<SidebarTrigger />
-			<Breadcrumb>
-				<BreadcrumbList>
-					<BreadcrumbItem>
-						<BreadcrumbPage>{label}</BreadcrumbPage>
-					</BreadcrumbItem>
-				</BreadcrumbList>
-			</Breadcrumb>
+			<Breadcrumb>{breadcrumbContent}</Breadcrumb>
 			<div className="ml-auto flex items-center">
 				<ActionLoaderIndicator />
 			</div>

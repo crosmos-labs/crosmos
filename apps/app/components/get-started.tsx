@@ -8,7 +8,6 @@ import {
 	CardTitle,
 } from "@crosmos/ui/components/card";
 import { CopyButton } from "@crosmos/ui/components/copy-button";
-import { cn } from "@crosmos/ui/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -52,7 +51,7 @@ function CodeBlock({
 
 function McpConfigBlock() {
 	return (
-		<div className="relative rounded-lg border bg-muted/50 p-3 pl-9">
+		<div className="relative rounded-lg border bg-muted/50 p-3 pl-4">
 			<div className="absolute top-2 right-2">
 				<CopyButton value={MCP_CONFIG_PLAIN} />
 			</div>

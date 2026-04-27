@@ -5,6 +5,7 @@ import { listOrgs } from "@/actions/orgs";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
+import { BreadcrumbProvider } from "@/components/providers/breadcrumb-provider";
 import { SwrProvider } from "@/components/providers/swr-provider";
 import { getActiveOrgId } from "@/lib/auth/cookies";
 import { verifyAuth } from "@/lib/auth/session";
@@ -54,17 +55,19 @@ export default async function DashboardLayout({
 	return (
 		<SwrProvider fallback={swrFallback}>
 			<ActionLoaderProvider>
-				<SidebarProvider defaultOpen={sidebarOpen}>
-					<AppSidebar user={user} orgs={orgs} activeOrg={activeOrg} />
-					<SidebarInset>
-						<DashboardHeader />
-						<div className="flex-1 overflow-auto">
-							<div id="main-content" className="mx-auto max-w-5xl p-6">
-								{children}
+				<BreadcrumbProvider>
+					<SidebarProvider defaultOpen={sidebarOpen}>
+						<AppSidebar user={user} orgs={orgs} activeOrg={activeOrg} />
+						<SidebarInset>
+							<DashboardHeader />
+							<div className="flex-1 overflow-auto">
+								<div id="main-content" className="mx-auto max-w-5xl p-6">
+									{children}
+								</div>
 							</div>
-						</div>
-					</SidebarInset>
-				</SidebarProvider>
+						</SidebarInset>
+					</SidebarProvider>
+				</BreadcrumbProvider>
 			</ActionLoaderProvider>
 		</SwrProvider>
 	);

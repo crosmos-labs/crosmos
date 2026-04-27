@@ -47,7 +47,10 @@ function LinkArrow({ className }: { className?: string }) {
 import { cn } from "@crosmos/ui/lib/utils";
 import { logout } from "@/actions/auth";
 import { OrgSwitcher } from "@/components/org-switcher";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
+import {
+	useActionLoader,
+	useActionLoaderState,
+} from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
 import { clearCache } from "@/hooks/use-clear-cache";
 import type { AuthUser } from "@/lib/types/auth";
@@ -74,6 +77,7 @@ export function AppSidebar({
 	const pathname = usePathname();
 	const router = useRouter();
 	const { runAction } = useActionLoader();
+	const { activeCount } = useActionLoaderState();
 	const { isMobile, setOpenMobile, state } = useSidebar();
 
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "top";
@@ -194,6 +198,7 @@ export function AppSidebar({
 								className="w-(--radix-dropdown-menu-trigger-width)"
 							>
 								<DropdownMenuItem
+									disabled={activeCount > 0}
 									onClick={() => {
 										if (isMobile) setOpenMobile(false);
 										runAction(() => logout(), {
