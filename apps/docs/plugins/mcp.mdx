@@ -47,7 +47,8 @@ Set the key as an environment variable or pass it in your client config:
 |----------|-------------|---------|
 | `CROSMOS_API_KEY` | API key for authentication (required) | — |
 | `CROSMOS_API_BASE_URL` | Base URL for the Crosmos Memory API | `http://localhost:8000` |
-| `DEFAULT_SPACE_ID` | Default memory space ID (optional) | — |
+| `DEFAULT_SPACE_ID` | Default memory space UUID (optional) | — |
+| `DEFAULT_SPACE_NAME` | Default memory space name; resolved via `/spaces?name=`. Ignored if `DEFAULT_SPACE_ID` is set. | — |
 | `CROSMOS_API_TIMEOUT` | Request timeout in milliseconds | `30000` |
 
 Use `https://api.crosmos.dev` as the base URL for the hosted service.
@@ -119,7 +120,7 @@ The search query text.
 </ParamField>
 
 <ParamField space_id="string (UUID)" required>
-The memory space to search within. If omitted, the server uses `DEFAULT_SPACE_ID` or auto-detects from available spaces.
+The memory space to search within. If omitted, the server resolves it from `DEFAULT_SPACE_ID`, then `DEFAULT_SPACE_NAME` (looked up via `/spaces?name=`), then falls back to the first available space.
 </ParamField>
 
 ```json
@@ -136,7 +137,7 @@ The server combines semantic (vector), keyword (full-text), and graph-based retr
 Store new content into a memory space. Content is processed through an extraction pipeline that identifies entities, relationships, and creates structured knowledge graph entries.
 
 <ParamField space_id="string (UUID)">
-The memory space to add memories to. If omitted, the server uses `DEFAULT_SPACE_ID` or auto-detects from available spaces.
+The memory space to add memories to. If omitted, the server resolves it from `DEFAULT_SPACE_ID`, then `DEFAULT_SPACE_NAME` (looked up via `/spaces?name=`), then falls back to the first available space.
 </ParamField>
 
 <ParamField sources="array">
@@ -149,12 +150,11 @@ Content sources to ingest. Each source has:
 </ParamField>
 
 <ParamField messages="object">
-Conversation messages with automatic segmentation and lookback context:
+Conversation messages processed with built-in context handling. Routed to `/api/v1/conversations`.
 - `messages` (required) — Array of `{ role, content }` objects
 - `session_id` — Session identifier
 - `session_date` — ISO datetime for the conversation reference time
-- `segment_size` — Messages per segment (1–20, default `4`)
-- `lookback` — Prior segments included as context (0–20, default `4`)
+- `meta` — Optional metadata attached to all created sources
 </ParamField>
 
 <Note>
