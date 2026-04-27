@@ -1,9 +1,7 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { listApiKeys } from "@/actions/api-keys";
 import { listOrgs } from "@/actions/orgs";
-import { listSpaces } from "@/actions/spaces";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
@@ -46,18 +44,11 @@ export default async function DashboardLayout({
 		);
 	}
 
-	const [spaces, apiKeys] = await Promise.all([
-		listSpaces().catch(() => undefined),
-		listApiKeys().catch(() => undefined),
-	]);
-
 	const cookieStore = await cookies();
 	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
 
 	const swrFallback: Record<string, unknown> = {
 		"/auth/me": user,
-		...(spaces !== undefined ? { "/spaces": spaces } : {}),
-		...(apiKeys !== undefined ? { "/api-keys": apiKeys } : {}),
 	};
 
 	return (

@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatedCheckbox } from "@crosmos/ui/components/animated-checkbox";
 import {
 	Card,
 	CardContent,
@@ -11,8 +10,6 @@ import {
 import { CopyButton } from "@crosmos/ui/components/copy-button";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
-import type { ApiKey } from "@/lib/types/api-key";
-import type { Space } from "@/lib/types/space";
 
 const MCP_CONFIG_PLAIN = `{
   "mcpServers": {
@@ -78,16 +75,12 @@ function McpConfigBlock() {
 	);
 }
 
-export function GetStarted({
-	spaces,
-	keys,
-}: {
-	spaces: Space[];
-	keys: ApiKey[];
-}) {
-	const hasSpace = spaces.length > 0;
-	const hasActiveKey = keys.some((k) => k.is_active);
+const STEPS = [
+	{ title: "Create a space", href: "/spaces" as const },
+	{ title: "Create an API key", href: "/api-key" as const },
+];
 
+export function GetStarted() {
 	return (
 		<Card className="rounded">
 			<CardHeader>
@@ -97,42 +90,48 @@ export function GetStarted({
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-5">
-				<GetStartedItem
-					checked={hasSpace}
-					title="Create a space"
-					href="/spaces"
-				/>
-				<GetStartedItem
-					checked={hasActiveKey}
-					title="Create an API key"
-					href="/api-key"
-				/>
-				<div className="flex flex-col gap-3">
-					<AnimatedCheckbox title="Connect with MCP" checked={false} />
-					<McpConfigBlock />
+				{STEPS.map((step, index) => (
+					<GetStartedItem
+						key={step.href}
+						number={index + 1}
+						title={step.title}
+						href={step.href}
+					/>
+				))}
+				<div className="flex items-center gap-3">
+					<span className="flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted text-xs font-medium text-muted-foreground">
+						3
+					</span>
+					<span className="text-sm font-medium">Connect with MCP</span>
 				</div>
+				<McpConfigBlock />
 			</CardContent>
 		</Card>
 	);
 }
 
 function GetStartedItem({
-	checked,
+	number,
 	title,
 	href,
 }: {
-	checked: boolean;
+	number: number;
 	title: string;
 	href: string;
 }) {
 	return (
-		<div className="flex items-center gap-3">
-			<AnimatedCheckbox title={title} checked={checked} />
+		<div className="flex items-center justify-between">
+			<div className="flex items-center gap-3">
+				<span className="flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted text-xs font-medium text-muted-foreground">
+					{number}
+				</span>
+				<span className="text-sm font-medium">{title}</span>
+			</div>
 			<Link
 				href={href}
-				className="ml-auto text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+				className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
 			>
-				{checked ? "View" : "Set up"}
+				Set up
 				<IconArrowRight size={14} />
 			</Link>
 		</div>
