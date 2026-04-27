@@ -10,8 +10,10 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
+import { CopyButton } from "@crosmos/ui/components/copy-button";
 import {
 	Dialog,
 	DialogContent,
@@ -50,12 +52,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
+import { cn } from "@crosmos/ui/lib/utils";
 import { IconDotsVertical, IconKey, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
-import { NewKeyBanner } from "@/components/new-key-banner";
 import {
 	useActionLoader,
 	useActionLoaderState,
@@ -63,7 +65,7 @@ import {
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
 function maskKey(prefix: string) {
-	return prefix + "*".repeat(Math.max(0, 36 - prefix.length));
+	return prefix + "•".repeat(12);
 }
 
 function ExpiryBadge({ expiresAt }: { expiresAt: string | null }) {
@@ -165,10 +167,35 @@ function CreateKeyDialog({
 	);
 }
 
+function KeyCountRow({
+	count,
+	onCreateClick,
+	disabled,
+}: {
+	count: number;
+	onCreateClick: () => void;
+	disabled?: boolean;
+}) {
+	return (
+		<div className="flex items-center justify-between">
+			<span className="text-sm text-muted-foreground">
+				{count} key{count !== 1 ? "s" : ""}
+			</span>
+			<Button onClick={onCreateClick} disabled={disabled}>
+				<IconPlus data-icon="inline-start" />
+				Create
+			</Button>
+		</div>
+	);
+}
+
 export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [revokeKey, setRevokeKey] = useState<ApiKey | null>(null);
-	const [createdKeys, setCreatedKeys] = useState<CreateApiKeyResponse[]>([]);
+	const [recentCreates, setRecentCreates] = useState<
+		Map<number, CreateApiKeyResponse>
+	>(new Map());
+	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
@@ -176,58 +203,75 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 		(keyId: number) => {
 			runAction(
 				async () => {
-					await revokeApiKey(keyId);
-					await mutate("/api-keys");
+					await mutate(
+						"/api-keys",
+						async (current: ApiKey[] | undefined) => {
+							await revokeApiKey(keyId);
+							return current?.filter((k) => k.key_id !== keyId) ?? [];
+						},
+						{
+							optimisticData: (current: ApiKey[] | undefined) =>
+								current?.filter((k) => k.key_id !== keyId) ?? [],
+							rollbackOnError: true,
+							revalidate: false,
+						},
+					);
 				},
 				{
 					toast: { success: "API key revoked", error: "Failed to revoke key" },
 				},
 			);
 		},
-		[runAction],
+		[runAction, mutate],
 	);
 
 	const handleCreateKey = useCallback(
 		(name: string, expiresInDays?: number) => {
+			const tempKeyId = -Date.now();
+			const now = new Date().toISOString();
+			const tempKey: ApiKey = {
+				key_id: tempKeyId,
+				name,
+				key_prefix: "",
+				is_active: true,
+				expires_at: expiresInDays
+					? new Date(Date.now() + expiresInDays * 86400000).toISOString()
+					: null,
+				last_used_at: null,
+				created_at: now,
+			};
 			runAction(
 				async () => {
-					const res = await createApiKey(name, expiresInDays);
-					setCreatedKeys((prev) => [...prev, res]);
-					await mutate("/api-keys");
+					await mutate(
+						"/api-keys",
+						async (current: ApiKey[] | undefined) => {
+							const res = await createApiKey(name, expiresInDays);
+							setRecentCreates((prev) => new Map(prev).set(res.key_id, res));
+							const apiKey: ApiKey = {
+								...res,
+								is_active: true,
+								last_used_at: null,
+								created_at: new Date().toISOString(),
+							};
+							return [apiKey, ...(current ?? [])];
+						},
+						{
+							optimisticData: (current: ApiKey[] | undefined) => [
+								tempKey,
+								...(current ?? []),
+							],
+							rollbackOnError: true,
+							revalidate: false,
+						},
+					);
 				},
 				{
 					toast: { success: "API key created", error: "Failed to create key" },
 				},
 			);
 		},
-		[runAction],
+		[runAction, mutate],
 	);
-
-	const handleDismissCreatedKey = useCallback((keyId: number) => {
-		setCreatedKeys((prev) => prev.filter((k) => k.key_id !== keyId));
-	}, []);
-
-	function KeyCountRow({
-		count,
-		onCreateClick,
-		disabled,
-	}: {
-		count: number;
-		onCreateClick: () => void;
-		disabled?: boolean;
-	}) {
-		return (
-			<div className="flex items-center justify-between">
-				<span className="text-sm text-muted-foreground">
-					{count} key{count !== 1 ? "s" : ""}
-				</span>
-				<Button onClick={onCreateClick} disabled={disabled}>
-					<IconPlus data-icon="inline-start" />
-					Create
-				</Button>
-			</div>
-		);
-	}
 
 	if (keys.length === 0) {
 		return (
@@ -237,17 +281,6 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 					onCreateClick={() => setDialogOpen(true)}
 					disabled={activeCount > 0}
 				/>
-				{createdKeys.length > 0 && (
-					<div className="flex flex-col gap-2">
-						{createdKeys.map((key) => (
-							<NewKeyBanner
-								key={key.key_id}
-								createdKey={key}
-								onDismiss={handleDismissCreatedKey}
-							/>
-						))}
-					</div>
-				)}
 				<Empty>
 					<EmptyHeader>
 						<EmptyMedia variant="icon">
@@ -282,67 +315,96 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				onCreateClick={() => setDialogOpen(true)}
 				disabled={activeCount > 0}
 			/>
-			{createdKeys.length > 0 && (
-				<div className="flex flex-col gap-2">
-					{createdKeys.map((key) => (
-						<NewKeyBanner
-							key={key.key_id}
-							createdKey={key}
-							onDismiss={handleDismissCreatedKey}
-						/>
-					))}
-				</div>
-			)}
 			<ItemGroup>
-				{keys.map((key) => (
-					<Item
-						key={key.key_id}
-						variant="outline"
-						className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
-					>
-						<ItemContent>
-							<ItemTitle className="flex items-center gap-2 text-base">
-								{key.name}
-								<ExpiryBadge expiresAt={key.expires_at} />
-							</ItemTitle>
-							<ItemDescription>
-								<code className="font-mono text-sm">
-									{maskKey(key.key_prefix)}
-								</code>
-							</ItemDescription>
-						</ItemContent>
-						<ItemActions>
-							<span className="text-sm text-muted-foreground whitespace-nowrap">
-								{formatDistanceToNow(new Date(key.created_at), {
-									addSuffix: true,
-								})}
-							</span>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon-sm"
-										aria-label={`Open actions for ${key.name}`}
-										className="focus:ring-0 focus-visible:ring-0"
-									>
-										<IconDotsVertical />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start">
-									<DropdownMenuGroup>
-										<DropdownMenuItem
-											variant="destructive"
-											onClick={() => setRevokeKey(key)}
-											disabled={activeCount > 0}
+				{keys.map((key) => {
+					const recent = recentCreates.get(key.key_id);
+					const isRecent = !!recent;
+					const isOptimistic = key.key_id < 0;
+
+					return (
+						<Item
+							key={key.key_id}
+							variant="outline"
+							className={cn(
+								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
+								isRecent &&
+									"border-green-500/30 bg-green-500/5 dark:bg-green-500/10",
+								isOptimistic && "opacity-50",
+							)}
+						>
+							<ItemContent>
+								<ItemTitle className="flex items-center gap-2 text-base">
+									{key.name}
+									{isRecent && (
+										<Badge
+											variant="outline"
+											className="text-green-600 border-green-500/30 dark:text-green-400"
 										>
-											Revoke
-										</DropdownMenuItem>
-									</DropdownMenuGroup>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</ItemActions>
-					</Item>
-				))}
+											New
+										</Badge>
+									)}
+									<ExpiryBadge expiresAt={key.expires_at} />
+								</ItemTitle>
+								<ItemDescription>
+									{isRecent ? (
+										<span className="flex items-center gap-1.5">
+											<code className="font-mono text-sm">
+												{recent.raw_key}
+											</code>
+											<CopyButton value={recent.raw_key} />
+										</span>
+									) : (
+										<code className="font-mono text-sm">
+											{isOptimistic ? "•".repeat(40) : maskKey(key.key_prefix)}
+										</code>
+									)}
+								</ItemDescription>
+							</ItemContent>
+							<ItemActions>
+								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
+									{isOptimistic ? (
+										<AnimatedSpinner
+											name="diagswipe"
+											size="1.1em"
+											speed={0.8}
+										/>
+									) : (
+										formatDistanceToNow(new Date(key.created_at), {
+											addSuffix: true,
+										})
+									)}
+								</span>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon-sm"
+											aria-label={`Open actions for ${key.name}`}
+											className={cn(
+												"focus:ring-0 focus-visible:ring-0",
+												isRecent &&
+													"hover:bg-transparent dark:hover:bg-transparent aria-expanded:bg-transparent dark:aria-expanded:bg-transparent",
+											)}
+										>
+											<IconDotsVertical />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start">
+										<DropdownMenuGroup>
+											<DropdownMenuItem
+												variant="destructive"
+												onClick={() => setRevokeKey(key)}
+												disabled={activeCount > 0}
+											>
+												Revoke
+											</DropdownMenuItem>
+										</DropdownMenuGroup>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</ItemActions>
+						</Item>
+					);
+				})}
 			</ItemGroup>
 			<CreateKeyDialog
 				open={dialogOpen}
