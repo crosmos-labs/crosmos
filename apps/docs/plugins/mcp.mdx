@@ -150,7 +150,7 @@ Content sources to ingest. Each source has:
 </ParamField>
 
 <ParamField messages="object">
-Conversation messages with automatic segmentation and lookback context. Routed to `/api/v1/conversations`.
+Conversation messages processed with built-in context handling. Routed to `/api/v1/conversations`.
 - `messages` (required) — Array of `{ role, content }` objects
 - `session_id` — Session identifier
 - `session_date` — ISO datetime for the conversation reference time
