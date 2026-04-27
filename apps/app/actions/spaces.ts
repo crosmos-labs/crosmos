@@ -9,7 +9,10 @@ export async function listSpaces(): Promise<Space[]> {
 	return data.spaces;
 }
 
-export async function createSpace(name: string, description?: string) {
+export async function createSpace(
+	name: string,
+	description?: string,
+): Promise<Space> {
 	const activeOrgId = await getActiveOrgId();
 	if (!activeOrgId) {
 		throw new Error(

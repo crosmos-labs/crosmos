@@ -8,6 +8,7 @@ import {
 	CardTitle,
 } from "@crosmos/ui/components/card";
 import { CopyButton } from "@crosmos/ui/components/copy-button";
+import { cn } from "@crosmos/ui/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 
