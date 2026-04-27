@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Button } from "@crosmos/ui/components/button";
 import {
 	Dialog,
@@ -32,10 +33,11 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { cn } from "@crosmos/ui/lib/utils";
 import { IconBox, IconDotsVertical, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
 import {
 	useActionLoader,
@@ -95,7 +97,7 @@ function CreateSpaceDialog({
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 					rows={2}
-					className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-input focus-visible:ring-0 resize-none"
+					className="flex min-h-15 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-input focus-visible:ring-0 resize-none"
 				/>
 				<DialogFooter>
 					<Button variant="outline" onClick={handleClose}>
@@ -110,18 +112,65 @@ function CreateSpaceDialog({
 	);
 }
 
+function SpaceCountRow({
+	count,
+	onCreateClick,
+	disabled,
+}: {
+	count: number;
+	onCreateClick: () => void;
+	disabled?: boolean;
+}) {
+	return (
+		<div className="flex items-center justify-between">
+			<span className="text-sm text-muted-foreground">
+				{count} space{count !== 1 ? "s" : ""}
+			</span>
+			<Button onClick={onCreateClick} disabled={disabled}>
+				<IconPlus data-icon="inline-start" />
+				Create
+			</Button>
+		</div>
+	);
+}
+
 export function SpaceList({ spaces }: { spaces: Space[] }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<Space | null>(null);
+	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
+			const tempId = `optimistic-${Date.now()}`;
+			const now = new Date().toISOString();
+			const tempSpace: Space = {
+				id: tempId,
+				org_id: "",
+				name,
+				description: description || null,
+				meta: null,
+				created_at: now,
+				updated_at: now,
+			};
 			runAction(
 				async () => {
-					await createSpace(name, description);
-					await mutate("/spaces");
+					await mutate(
+						"/spaces",
+						async (current: Space[] | undefined) => {
+							const space = await createSpace(name, description);
+							return [space, ...(current ?? [])];
+						},
+						{
+							optimisticData: (current: Space[] | undefined) => [
+								tempSpace,
+								...(current ?? []),
+							],
+							rollbackOnError: true,
+							revalidate: false,
+						},
+					);
 				},
 				{
 					toast: {
@@ -131,15 +180,26 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				},
 			);
 		},
-		[runAction],
+		[runAction, mutate],
 	);
 
 	const handleDeleteSpace = useCallback(
 		(spaceId: string) => {
 			runAction(
 				async () => {
-					await deleteSpace(spaceId);
-					await mutate("/spaces");
+					await mutate(
+						"/spaces",
+						async (current: Space[] | undefined) => {
+							await deleteSpace(spaceId);
+							return current?.filter((s) => s.id !== spaceId) ?? [];
+						},
+						{
+							optimisticData: (current: Space[] | undefined) =>
+								current?.filter((s) => s.id !== spaceId) ?? [],
+							rollbackOnError: true,
+							revalidate: false,
+						},
+					);
 				},
 				{
 					toast: {
@@ -149,30 +209,8 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				},
 			);
 		},
-		[runAction],
+		[runAction, mutate],
 	);
-
-	function SpaceCountRow({
-		count,
-		onCreateClick,
-		disabled,
-	}: {
-		count: number;
-		onCreateClick: () => void;
-		disabled?: boolean;
-	}) {
-		return (
-			<div className="flex items-center justify-between">
-				<span className="text-sm text-muted-foreground">
-					{count} space{count !== 1 ? "s" : ""}
-				</span>
-				<Button onClick={onCreateClick} disabled={disabled}>
-					<IconPlus data-icon="inline-start" />
-					Create
-				</Button>
-			</div>
-		);
-	}
 
 	if (spaces.length === 0) {
 		return (
@@ -217,50 +255,64 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				disabled={activeCount > 0}
 			/>
 			<ItemGroup>
-				{spaces.map((space) => (
-					<Item
-						key={space.id}
-						variant="outline"
-						className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
-					>
-						<ItemContent>
-							<ItemTitle className="text-base">{space.name}</ItemTitle>
-							<ItemDescription>
-								{space.description ?? "No description"}
-							</ItemDescription>
-						</ItemContent>
-						<ItemActions>
-							<span className="text-sm text-muted-foreground whitespace-nowrap">
-								{formatDistanceToNow(new Date(space.created_at), {
-									addSuffix: true,
-								})}
-							</span>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon-sm"
-										aria-label="Open space actions"
-										className="focus:ring-0 focus-visible:ring-0"
-									>
-										<IconDotsVertical />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="start">
-									<DropdownMenuGroup>
-										<DropdownMenuItem
-											variant="destructive"
-											onClick={() => setDeleteTarget(space)}
-											disabled={activeCount > 0}
+				{spaces.map((space) => {
+					const isOptimistic = space.id.startsWith("optimistic-");
+					return (
+						<Item
+							key={space.id}
+							variant="outline"
+							className={cn(
+								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
+								isOptimistic && "opacity-50",
+							)}
+						>
+							<ItemContent>
+								<ItemTitle className="text-base">{space.name}</ItemTitle>
+								<ItemDescription>
+									{space.description ?? "No description"}
+								</ItemDescription>
+							</ItemContent>
+							<ItemActions>
+								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
+									{isOptimistic ? (
+										<AnimatedSpinner
+											name="diagswipe"
+											size="1.1em"
+											speed={0.8}
+										/>
+									) : (
+										formatDistanceToNow(new Date(space.created_at), {
+											addSuffix: true,
+										})
+									)}
+								</span>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon-sm"
+											aria-label="Open space actions"
+											className="focus:ring-0 focus-visible:ring-0"
 										>
-											Delete
-										</DropdownMenuItem>
-									</DropdownMenuGroup>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</ItemActions>
-					</Item>
-				))}
+											<IconDotsVertical />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="start">
+										<DropdownMenuGroup>
+											<DropdownMenuItem
+												variant="destructive"
+												onClick={() => setDeleteTarget(space)}
+												disabled={activeCount > 0}
+											>
+												Delete
+											</DropdownMenuItem>
+										</DropdownMenuGroup>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</ItemActions>
+						</Item>
+					);
+				})}
 			</ItemGroup>
 			<CreateSpaceDialog
 				open={dialogOpen}

@@ -16,7 +16,7 @@ export async function createSpace(name: string, description?: string) {
 			"No active organization. Please select an organization before creating a space.",
 		);
 	}
-	await apiFetch("/spaces", {
+	const space = await apiFetch<Space>("/spaces", {
 		method: "POST",
 		body: JSON.stringify({
 			org_id: activeOrgId,
@@ -24,6 +24,8 @@ export async function createSpace(name: string, description?: string) {
 			description: description || null,
 		}),
 	});
+
+	return space;
 }
 
 export async function deleteSpace(spaceId: string) {
