@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { GetStarted } from "@/components/get-started";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -15,6 +15,7 @@ function getFirstName(name: string | null | undefined): string {
 }
 
 export default function Home() {
+	const { mutate } = useSWRConfig();
 	const {
 		data: user,
 		isLoading: userLoading,

@@ -6,7 +6,6 @@ import localFont from "next/font/local";
 import "@crosmos/ui/globals.css";
 import { Toaster } from "@crosmos/ui/components/sonner";
 import { TooltipProvider } from "@crosmos/ui/components/tooltip";
-import { SwrProvider } from "@/components/providers/swr-provider";
 import { SkipToContent } from "@/components/skip-to-content";
 import { StagingBanner } from "@/components/staging-banner";
 
@@ -40,10 +39,8 @@ export default function RootLayout({
 			<body className="flex flex-col h-dvh">
 				<SkipToContent />
 				<StagingBanner />
-				<SwrProvider>
-					<TooltipProvider>{children}</TooltipProvider>
-					<Toaster />
-				</SwrProvider>
+				<TooltipProvider>{children}</TooltipProvider>
+				<Toaster />
 				<Analytics />
 			</body>
 		</html>

@@ -12,7 +12,7 @@ import {
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { Progress } from "@crosmos/ui/components/progress";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { useUsage } from "@/hooks/use-usage";
 
@@ -71,6 +71,7 @@ function UsageRow({
 }
 
 export default function BillingPage() {
+	const { mutate } = useSWRConfig();
 	const { data, isLoading, error } = useUsage();
 
 	if (isLoading) {

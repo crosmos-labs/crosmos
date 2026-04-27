@@ -9,14 +9,17 @@ export async function listSpaces(): Promise<Space[]> {
 	return data.spaces;
 }
 
-export async function createSpace(name: string, description?: string) {
+export async function createSpace(
+	name: string,
+	description?: string,
+): Promise<Space> {
 	const activeOrgId = await getActiveOrgId();
 	if (!activeOrgId) {
 		throw new Error(
 			"No active organization. Please select an organization before creating a space.",
 		);
 	}
-	await apiFetch("/spaces", {
+	const space = await apiFetch<Space>("/spaces", {
 		method: "POST",
 		body: JSON.stringify({
 			org_id: activeOrgId,
@@ -24,6 +27,8 @@ export async function createSpace(name: string, description?: string) {
 			description: description || null,
 		}),
 	});
+
+	return space;
 }
 
 export async function deleteSpace(spaceId: string) {

@@ -8,8 +8,12 @@ import {
 	CardTitle,
 } from "@crosmos/ui/components/card";
 import { CopyButton } from "@crosmos/ui/components/copy-button";
+import { cn } from "@crosmos/ui/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
+
+const INSTALL_CMD = "npm i -g @crosmos/crosmos-mcp";
+const SETUP_CMD = "crosmos-mcp setup";
 
 const MCP_CONFIG_PLAIN = `{
   "mcpServers": {
@@ -23,13 +27,36 @@ const MCP_CONFIG_PLAIN = `{
   }
 }`;
 
+function CodeBlock({
+	value,
+	className,
+}: {
+	value: string;
+	className?: string;
+}) {
+	return (
+		<div className="relative rounded-lg border bg-muted/50 p-3 pl-4">
+			<div className="absolute top-2 right-2">
+				<CopyButton value={value} />
+			</div>
+			<pre
+				className={
+					className ?? "text-sm font-mono whitespace-pre overflow-x-auto pr-8"
+				}
+			>
+				{value}
+			</pre>
+		</div>
+	);
+}
+
 function McpConfigBlock() {
 	return (
 		<div className="relative rounded-lg border bg-muted/50 p-3 pl-9">
-			<div className="absolute top-4 right-4">
+			<div className="absolute top-2 right-2">
 				<CopyButton value={MCP_CONFIG_PLAIN} />
 			</div>
-			<pre className="text-sm font-mono whitespace-pre overflow-x-auto">
+			<pre className="text-sm font-mono whitespace-pre overflow-x-auto pr-8">
 				{"{"}
 				{"\n"}
 				{"  "}
@@ -104,7 +131,26 @@ export function GetStarted() {
 					</span>
 					<span className="text-sm font-medium">Connect with MCP</span>
 				</div>
-				<McpConfigBlock />
+				<div className="flex flex-col gap-4 pl-9">
+					<div className="flex flex-col gap-1.5">
+						<span className="text-xs font-medium text-muted-foreground">
+							Install the MCP package
+						</span>
+						<CodeBlock value={INSTALL_CMD} />
+					</div>
+					<div className="flex flex-col gap-1.5">
+						<span className="text-xs font-medium text-muted-foreground">
+							Run auto-setup
+						</span>
+						<CodeBlock value={SETUP_CMD} />
+					</div>
+					<div className="flex flex-col gap-1.5">
+						<span className="text-xs font-medium text-muted-foreground">
+							Or configure manually
+						</span>
+						<McpConfigBlock />
+					</div>
+				</div>
 			</CardContent>
 		</Card>
 	);
