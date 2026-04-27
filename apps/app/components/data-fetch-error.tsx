@@ -1,16 +1,9 @@
 "use client";
 
 import { Button } from "@crosmos/ui/components/button";
-import {
-	Empty,
-	EmptyContent,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@crosmos/ui/components/empty";
 import { IconBarrierBlock } from "@tabler/icons-react";
 import { useState } from "react";
+import { EmptyState } from "@/components/empty-state";
 
 export function DataFetchError({
 	message,
@@ -37,25 +30,17 @@ export function DataFetchError({
 
 	return (
 		<div className="flex min-h-[60vh] items-center justify-center">
-			<Empty className="gap-6 p-12">
-				<EmptyHeader className="gap-4">
-					<EmptyMedia
-						variant="icon"
-						className="size-16 [&_svg:not([class*='size-'])]:size-8"
-					>
-						<IconBarrierBlock />
-					</EmptyMedia>
-					<EmptyTitle className="text-xl">Something went wrong</EmptyTitle>
-					<EmptyDescription className="max-w-sm text-base/relaxed">
-						We hit an unexpected error. Try refreshing or head back home.
-					</EmptyDescription>
-				</EmptyHeader>
+			<EmptyState
+				icon={IconBarrierBlock}
+				title="Something went wrong"
+				description="We hit an unexpected error. Try refreshing or head back home."
+			>
 				{message && (
 					<code className="max-w-lg rounded-md bg-muted px-3 py-2 font-mono text-sm text-muted-foreground">
 						{message}
 					</code>
 				)}
-				<EmptyContent className="flex-row justify-center">
+				<div className="flex items-center gap-2.5">
 					<Button
 						variant="outline"
 						onClick={() => {
@@ -67,8 +52,8 @@ export function DataFetchError({
 					<Button onClick={handleRetry} disabled={retrying}>
 						Try Again
 					</Button>
-				</EmptyContent>
-			</Empty>
+				</div>
+			</EmptyState>
 		</div>
 	);
 }

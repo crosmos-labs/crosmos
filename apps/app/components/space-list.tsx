@@ -17,13 +17,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@crosmos/ui/components/dropdown-menu";
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@crosmos/ui/components/empty";
 import { Input } from "@crosmos/ui/components/input";
 import {
 	Item,
@@ -36,9 +29,11 @@ import {
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconBox, IconDotsVertical, IconPlus } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
+import { EmptyState } from "@/components/empty-state";
 import {
 	useActionLoader,
 	useActionLoaderState,
@@ -220,17 +215,11 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 					onCreateClick={() => setDialogOpen(true)}
 					disabled={activeCount > 0}
 				/>
-				<Empty>
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<IconBox />
-						</EmptyMedia>
-						<EmptyTitle>No spaces yet</EmptyTitle>
-						<EmptyDescription>
-							Create a memory space to start storing and retrieving memories.
-						</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
+				<EmptyState
+					icon={IconBox}
+					title="No spaces yet"
+					description="Create a memory space to start storing and retrieving memories."
+				/>
 				<CreateSpaceDialog
 					open={dialogOpen}
 					onOpenChange={setDialogOpen}
@@ -267,10 +256,12 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 							)}
 						>
 							<ItemContent>
-								<ItemTitle className="text-base">{space.name}</ItemTitle>
-								<ItemDescription>
-									{space.description ?? "No description"}
-								</ItemDescription>
+								<Link href={`/spaces/${space.id}`}>
+									<ItemTitle className="text-base">{space.name}</ItemTitle>
+									<ItemDescription>
+										{space.description ?? "No description"}
+									</ItemDescription>
+								</Link>
 							</ItemContent>
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">

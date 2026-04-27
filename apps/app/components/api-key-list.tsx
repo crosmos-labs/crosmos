@@ -29,13 +29,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@crosmos/ui/components/dropdown-menu";
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@crosmos/ui/components/empty";
 import { Input } from "@crosmos/ui/components/input";
 import {
 	Item,
@@ -58,6 +51,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
+import { EmptyState } from "@/components/empty-state";
 import {
 	useActionLoader,
 	useActionLoaderState,
@@ -281,17 +275,11 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 					onCreateClick={() => setDialogOpen(true)}
 					disabled={activeCount > 0}
 				/>
-				<Empty>
-					<EmptyHeader>
-						<EmptyMedia variant="icon">
-							<IconKey />
-						</EmptyMedia>
-						<EmptyTitle>No API keys yet</EmptyTitle>
-						<EmptyDescription>
-							Create an API key to authenticate requests to the Crosmos API.
-						</EmptyDescription>
-					</EmptyHeader>
-				</Empty>
+				<EmptyState
+					icon={IconKey}
+					title="No API keys yet"
+					description="Create an API key to authenticate requests to the Crosmos API."
+				/>
 				<CreateKeyDialog
 					open={dialogOpen}
 					onOpenChange={setDialogOpen}
