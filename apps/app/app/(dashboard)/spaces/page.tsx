@@ -1,12 +1,13 @@
 "use client";
 
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { SpaceList } from "@/components/space-list";
 import { useSpaces } from "@/hooks/use-spaces";
 
 export default function SpacesPage() {
+	const { mutate } = useSWRConfig();
 	const { data: spaces, isLoading, error } = useSpaces();
 
 	if (isLoading) {
