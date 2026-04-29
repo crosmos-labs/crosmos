@@ -27,17 +27,23 @@ export function HeroBg() {
 			data-hero
 			className="relative min-h-screen flex flex-col overflow-hidden"
 		>
-			<Image src="/bg.png" alt="" fill className="object-cover" priority />
+			<Image
+				src="/bg.png"
+				alt=""
+				fill
+				className="object-cover pointer-events-none select-none"
+				priority
+			/>
 
 			<div className="relative flex flex-col items-center justify-start px-6 lg:px-8 xl:px-0 pt-24 sm:pt-28 md:pt-30">
 				<div className="max-w-7xl mx-auto w-full text-center">
-					<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance">
+					<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance select-none">
 						Agents <span>Forget</span>
 						,<br />
 						Crosmos <span>Doesn&apos;t</span>
 					</h1>
 
-					<p className="mt-6 text-lg text-foreground/80 leading-relaxed max-w-2xl mx-auto">
+					<p className="mt-6 text-lg text-foreground/80 leading-relaxed max-w-2xl mx-auto select-none">
 						Stateful, self-improving memory infrastructure for AI agents. Memory
 						layer that compounds intelligence — so agents get better, not just
 						bigger
@@ -55,7 +61,7 @@ export function HeroBg() {
 						</Link>
 						<Link
 							href={LINKS.documentation.getStarted}
-							className="bg-foreground/10 hover:bg-foreground/20 text-foreground h-full px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
+							className="border border-foreground/30 hover:border-foreground/60 text-foreground h-full px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
 						>
 							Docs
 							<LinkArrow />

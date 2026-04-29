@@ -17,7 +17,10 @@ export function Navbar() {
 		if (!heroSection) return;
 
 		const observer = new IntersectionObserver(
-			([entry]) => setHasBackground(!entry.isIntersecting),
+			(entries) => {
+				const entry = entries[0];
+				if (entry) setHasBackground(!entry.isIntersecting);
+			},
 			{ threshold: 0 },
 		);
 
@@ -28,8 +31,8 @@ export function Navbar() {
 	return (
 		<header
 			className={cn(
-				"fixed top-0 left-0 right-0 z-50 border-border transition-colors",
-				(hasBackground || isMobileMenuOpen) && "border-b bg-background",
+				"fixed top-0 left-0 right-0 z-50 border-b border-transparent bg-transparent transition-colors duration-150",
+				(hasBackground || isMobileMenuOpen) && "border-border bg-background",
 			)}
 		>
 			<nav
@@ -38,7 +41,7 @@ export function Navbar() {
 			>
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
-						<Link href="/" className="block">
+						<Link href="/" className="block select-none">
 							<Image
 								src="/banner_light.svg"
 								alt="Crosmos"
@@ -53,20 +56,20 @@ export function Navbar() {
 					<div className="hidden lg:flex items-center gap-8">
 						<Link
 							href="#products"
-							className="text-foreground/90 text-sm font-medium link-underline"
+							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
 							PRODUCTS
 						</Link>
 						<Link
 							href="#pricing"
-							className="text-foreground/90 text-sm font-medium link-underline"
+							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
 							PRICING
 						</Link>
 						<Link
 							href={LINKS.social.discord}
 							target="_blank"
-							className="text-foreground/90 text-sm font-medium link-underline"
+							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
 							DISCORD
 						</Link>
@@ -86,7 +89,7 @@ export function Navbar() {
 						href={LINKS.product.console}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground"
+						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground select-none"
 					>
 						Get Started
 					</Link>
