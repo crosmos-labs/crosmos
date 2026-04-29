@@ -1,4 +1,11 @@
+"use client";
+
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+import { useEffect, useRef } from "react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const cards = [
 	{
@@ -19,12 +26,45 @@ const cards = [
 ];
 
 export function Features() {
+	const sectionRef = useRef<HTMLElement>(null);
+	const contentRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const section = sectionRef.current;
+		const content = contentRef.current;
+		if (!section || !content) return;
+
+		const ctx = gsap.context(() => {
+			gsap.fromTo(
+				content,
+				{ autoAlpha: 0, y: 40 },
+				{
+					autoAlpha: 1,
+					y: 0,
+					duration: 0.8,
+					ease: "power2.out",
+					scrollTrigger: {
+						trigger: section,
+						start: "top 80%",
+						end: "top 40%",
+						toggleActions: "play none none reverse",
+					},
+				},
+			);
+		}, section);
+
+		return () => {
+			ctx.revert();
+		};
+	}, []);
+
 	return (
 		<section
+			ref={sectionRef}
 			id="features"
-			className="relative px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
+			className="relative z-10 px-6 lg:px-8 xl:px-0 pt-16 sm:pt-20 lg:pt-24 pb-16 sm:pb-20 lg:pb-24"
 		>
-			<div className="max-w-7xl mx-auto">
+			<div ref={contentRef} className="max-w-7xl mx-auto">
 				<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-10 sm:mb-16 lg:mb-20 text-center">
 					Core Features
 				</h2>

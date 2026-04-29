@@ -1,12 +1,12 @@
 import { Faq } from "@/components/faq";
 import { Features } from "@/components/features";
-import { HeroBg } from "@/components/hero-bg";
+import { HeroSection } from "@/components/hero-section";
 import { Pricing } from "@/components/pricing";
 
 export default function Home() {
 	return (
 		<>
-			<HeroBg />
+			<HeroSection />
 			<Features />
 			<Pricing />
 			<Faq />
