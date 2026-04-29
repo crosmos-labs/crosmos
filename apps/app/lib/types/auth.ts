@@ -2,6 +2,7 @@ export interface AuthUser {
 	user_id: string;
 	email: string;
 	name: string;
+	active_org_id?: string | null;
 }
 
 export interface TokenResponse {

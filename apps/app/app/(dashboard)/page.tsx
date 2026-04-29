@@ -22,7 +22,6 @@ export default function Home() {
 		error: userError,
 	} = useCurrentUser();
 
-
 	if (userLoading) {
 		return <AnimatedSpinner name="waverows" size="1.5rem" />;
 	}

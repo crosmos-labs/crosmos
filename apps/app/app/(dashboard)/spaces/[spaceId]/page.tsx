@@ -44,7 +44,6 @@ export default function SpaceDetailPage({
 		return () => setBreadcrumb(null);
 	}, [space, setBreadcrumb]);
 
-
 	const hasMore = memoriesData?.hasMore ?? false;
 	const memories = memoriesData?.memories ?? [];
 

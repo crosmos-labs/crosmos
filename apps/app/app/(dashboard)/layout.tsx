@@ -7,7 +7,6 @@ import { DashboardHeader } from "@/components/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
 import { BreadcrumbProvider } from "@/components/providers/breadcrumb-provider";
 import { SwrProvider } from "@/components/providers/swr-provider";
-import { getActiveOrgId } from "@/lib/auth/cookies";
 import { verifyAuth } from "@/lib/auth/session";
 import type { AuthUser } from "@/lib/types/auth";
 
@@ -24,14 +23,15 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
-	const [activeOrgId, orgs] = await Promise.all([getActiveOrgId(), listOrgs()]);
+	const orgs = await listOrgs();
 
 	const fallbackOrg = orgs[0];
 	if (!fallbackOrg) {
 		redirect("/signup");
 	}
 
-	const activeOrg = orgs.find((o) => o.id === activeOrgId) ?? fallbackOrg;
+	const activeOrg =
+		orgs.find((o) => o.id === user.active_org_id) ?? fallbackOrg;
 
 	const cookieStore = await cookies();
 	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
