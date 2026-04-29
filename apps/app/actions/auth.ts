@@ -7,7 +7,7 @@ import type { AuthUser } from "@/lib/types/auth";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getCurrentUser(): Promise<AuthUser> {
-	return apiFetch<AuthUser>("/auth/me", { skipOrgScope: true });
+	return apiFetch<AuthUser>("/auth/me");
 }
 
 export async function logout() {

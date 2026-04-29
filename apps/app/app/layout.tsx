@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "@crosmos/ui/globals.css";
 import { Toaster } from "@crosmos/ui/components/sonner";
@@ -37,11 +38,13 @@ export default function RootLayout({
 			suppressHydrationWarning
 		>
 			<body className="flex flex-col h-dvh">
-				<SkipToContent />
-				<StagingBanner />
-				<TooltipProvider>{children}</TooltipProvider>
-				<Toaster />
-				<Analytics />
+				<NuqsAdapter>
+					<SkipToContent />
+					<StagingBanner />
+					<TooltipProvider>{children}</TooltipProvider>
+					<Toaster />
+					<Analytics />
+				</NuqsAdapter>
 			</body>
 		</html>
 	);

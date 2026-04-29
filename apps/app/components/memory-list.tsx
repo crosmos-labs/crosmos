@@ -28,6 +28,13 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import {
+	Pagination,
+	PaginationContent,
+	PaginationItem,
+	PaginationNext,
+	PaginationPrevious,
+} from "@crosmos/ui/components/pagination";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrain, IconDotsVertical, IconTrash } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
@@ -115,20 +122,28 @@ function ForgetMemoryDialog({
 	);
 }
 
+interface MemoryListProps {
+	memories: Memory[];
+	spaceUuid: string;
+	page: number;
+	hasMore: boolean;
+	onPageChange: (page: number) => void;
+}
+
 export function MemoryList({
 	memories,
 	spaceUuid,
-}: {
-	memories: Memory[];
-	spaceUuid: string;
-}) {
+	page,
+	hasMore,
+	onPageChange,
+}: MemoryListProps) {
 	const [forgetTarget, setForgetTarget] = useState<Memory | null>(null);
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
-	const swrKey = `/memories?space_uuid=${spaceUuid}`;
+	const swrKey = `/memories?space_uuid=${spaceUuid}&page=${page}`;
 
 	const handleForget = useCallback(
 		(memoryUuid: string) => {
@@ -171,7 +186,7 @@ export function MemoryList({
 		});
 	}, []);
 
-	if (memories.length === 0) {
+	if (memories.length === 0 && page === 1) {
 		return (
 			<EmptyState
 				icon={IconBrain}
@@ -180,6 +195,8 @@ export function MemoryList({
 			/>
 		);
 	}
+
+	const hasPrev = page > 1;
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -263,6 +280,32 @@ export function MemoryList({
 					);
 				})}
 			</ItemGroup>
+			{(hasPrev || hasMore) && (
+				<Pagination>
+					<PaginationContent>
+						<PaginationItem>
+							<PaginationPrevious
+								href="#"
+								onClick={(e) => {
+									e.preventDefault();
+									if (hasPrev) onPageChange(page - 1);
+								}}
+								className={cn(!hasPrev && "pointer-events-none opacity-50")}
+							/>
+						</PaginationItem>
+						<PaginationItem>
+							<PaginationNext
+								href="#"
+								onClick={(e) => {
+									e.preventDefault();
+									if (hasMore) onPageChange(page + 1);
+								}}
+								className={cn(!hasMore && "pointer-events-none opacity-50")}
+							/>
+						</PaginationItem>
+					</PaginationContent>
+				</Pagination>
+			)}
 			<ForgetMemoryDialog
 				memory={forgetTarget}
 				onForget={handleForget}

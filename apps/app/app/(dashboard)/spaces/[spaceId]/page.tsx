@@ -1,15 +1,15 @@
 "use client";
 
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
+import { useQueryStates } from "nuqs";
 import { use, useEffect } from "react";
 import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
-import { EntityGrid } from "@/components/entity-grid";
 import { MemoryList } from "@/components/memory-list";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
-import { useEntities } from "@/hooks/use-entities";
 import { useMemories } from "@/hooks/use-memories";
 import { useSpaces } from "@/hooks/use-spaces";
+import { paginationParsers } from "@/lib/params/pagination";
 
 export default function SpaceDetailPage({
 	params,
@@ -22,16 +22,13 @@ export default function SpaceDetailPage({
 		isLoading: spacesLoading,
 		error: spacesError,
 	} = useSpaces();
+	const [queryParams, setQueryParams] = useQueryStates(paginationParsers);
+	const page = queryParams.page;
 	const {
-		data: memories,
+		data: memoriesData,
 		isLoading: memoriesLoading,
 		error: memoriesError,
-	} = useMemories(spaceId);
-	const {
-		data: entities,
-		isLoading: entitiesLoading,
-		error: entitiesError,
-	} = useEntities(spaceId);
+	} = useMemories(spaceId, page);
 
 	const space = spaces?.find((s) => s.id === spaceId);
 	const { setBreadcrumb } = useBreadcrumb();
@@ -47,7 +44,10 @@ export default function SpaceDetailPage({
 		return () => setBreadcrumb(null);
 	}, [space, setBreadcrumb]);
 
-	const isLoading = spacesLoading || memoriesLoading || entitiesLoading;
+	const hasMore = memoriesData?.hasMore ?? false;
+	const memories = memoriesData?.memories ?? [];
+
+	const isLoading = spacesLoading || memoriesLoading;
 
 	if (isLoading) {
 		return <AnimatedSpinner name="waverows" size="1.5rem" />;
@@ -67,15 +67,6 @@ export default function SpaceDetailPage({
 			<DataFetchError
 				message={memoriesError.message}
 				onRetry={() => mutate(`/memories?space_uuid=${spaceId}`)}
-			/>
-		);
-	}
-
-	if (entitiesError) {
-		return (
-			<DataFetchError
-				message={entitiesError.message}
-				onRetry={() => mutate(`/entities?space_uuid=${spaceId}`)}
 			/>
 		);
 	}
@@ -100,22 +91,14 @@ export default function SpaceDetailPage({
 			<div className="flex flex-col gap-4">
 				<div className="flex items-center justify-between">
 					<h2 className="text-lg font-semibold tracking-tight">Memories</h2>
-					<span className="text-sm text-muted-foreground">
-						{memories?.length ?? 0} memor
-						{(memories?.length ?? 0) !== 1 ? "ies" : "y"}
-					</span>
 				</div>
-				<MemoryList memories={memories ?? []} spaceUuid={spaceId} />
-			</div>
-			<div className="flex flex-col gap-4">
-				<div className="flex items-center justify-between">
-					<h2 className="text-lg font-semibold tracking-tight">Entities</h2>
-					<span className="text-sm text-muted-foreground">
-						{entities?.length ?? 0} entit
-						{(entities?.length ?? 0) !== 1 ? "ies" : "y"}
-					</span>
-				</div>
-				<EntityGrid entities={entities ?? []} />
+				<MemoryList
+					memories={memories}
+					spaceUuid={spaceId}
+					page={page}
+					hasMore={hasMore}
+					onPageChange={(newPage) => setQueryParams({ page: newPage })}
+				/>
 			</div>
 		</div>
 	);
