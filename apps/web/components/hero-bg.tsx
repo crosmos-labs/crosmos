@@ -61,7 +61,7 @@ export function HeroBg() {
 						</Link>
 						<Link
 							href={LINKS.documentation.getStarted}
-							className="border border-foreground/30 hover:border-foreground/60 text-foreground h-full px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
+							className="bg-muted/90 hover:bg-muted text-foreground border border-foreground/10 h-full px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
 						>
 							Docs
 							<LinkArrow />
