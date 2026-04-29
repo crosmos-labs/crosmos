@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { listOrgs } from "@/actions/orgs";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -24,26 +24,14 @@ export default async function DashboardLayout({
 		redirect("/signup");
 	}
 
-	let activeOrgId: string | null = null;
-	let orgs: Awaited<ReturnType<typeof listOrgs>> = [];
+	const [activeOrgId, orgs] = await Promise.all([getActiveOrgId(), listOrgs()]);
 
-	try {
-		[activeOrgId, orgs] = await Promise.all([getActiveOrgId(), listOrgs()]);
-	} catch {
+	const fallbackOrg = orgs[0];
+	if (!fallbackOrg) {
 		redirect("/signup");
 	}
 
-	const fallbackOrg = orgs[0];
-	if (!fallbackOrg) redirect("/signup");
-
 	const activeOrg = orgs.find((o) => o.id === activeOrgId) ?? fallbackOrg;
-	if (activeOrg.id !== activeOrgId) {
-		const headersList = await headers();
-		const pathname = headersList.get("x-invoke-path") ?? "/";
-		redirect(
-			`/auth/sync-org?orgId=${activeOrg.id}&next=${encodeURIComponent(pathname)}`,
-		);
-	}
 
 	const cookieStore = await cookies();
 	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";

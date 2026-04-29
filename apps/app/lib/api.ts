@@ -1,5 +1,6 @@
 import "server-only";
-import { getAccessToken, getActiveOrgId } from "./auth/cookies";
+
+import { getAccessToken } from "./auth/cookies";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
@@ -29,27 +30,22 @@ export class ApiError extends Error {
 
 export async function apiFetch<T>(
 	path: string,
-	options: RequestInit & { orgId?: string; skipOrgScope?: boolean } = {},
+	options: RequestInit = {},
 ): Promise<T> {
-	const { orgId, skipOrgScope, ...fetchOptions } = options;
 	const accessToken = await getAccessToken();
-	const activeOrgId = skipOrgScope ? null : (orgId ?? (await getActiveOrgId()));
 
-	const headers = new Headers(fetchOptions.headers);
+	const headers = new Headers(options.headers);
 	if (accessToken) {
 		headers.set("Authorization", `Bearer ${accessToken}`);
 	}
-	if (activeOrgId) {
-		headers.set("X-Org-Id", String(activeOrgId));
-	}
-	if (!headers.has("Content-Type") && fetchOptions.body) {
+	if (!headers.has("Content-Type") && options.body) {
 		headers.set("Content-Type", "application/json");
 	}
 
 	const res = await fetch(`${API_URL}${path}`, {
-		...fetchOptions,
+		...options,
 		headers,
-		cache: fetchOptions.cache ?? "no-store",
+		cache: options.cache ?? "no-store",
 	});
 
 	if (!res.ok) {
