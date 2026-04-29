@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
 
-import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
-
 import "@crosmos/ui/globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -40,9 +40,11 @@ export default function RootLayout({
 					Skip to content
 				</a>
 				<Analytics />
-				<main id="main-content" className="flex flex-col">
-					<Navbar />
-					{children}
+				<main id="main-content" className="flex flex-col relative">
+					<SmoothScroll>
+						<Navbar />
+						{children}
+					</SmoothScroll>
 				</main>
 				<Footer />
 			</body>
