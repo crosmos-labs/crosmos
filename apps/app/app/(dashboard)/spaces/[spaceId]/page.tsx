@@ -44,9 +44,6 @@ export default function SpaceDetailPage({
 		return () => setBreadcrumb(null);
 	}, [space, setBreadcrumb]);
 
-	useEffect(() => {
-		setQueryParams({ page: 1 });
-	}, [setQueryParams]);
 
 	const hasMore = memoriesData?.hasMore ?? false;
 	const memories = memoriesData?.memories ?? [];
