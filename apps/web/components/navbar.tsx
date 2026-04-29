@@ -9,23 +9,27 @@ import { MobileNavButton, MobileNavSheet } from "@/components/mobile-nav";
 import { LINKS } from "@/config/links";
 
 export function Navbar() {
-	const [isScrolled, setIsScrolled] = useState(false);
+	const [hasBackground, setHasBackground] = useState(false);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	useEffect(() => {
-		const handleScroll = () => {
-			setIsScrolled(window.scrollY > 20);
-		};
+		const heroSection = document.querySelector<HTMLElement>("[data-hero]");
+		if (!heroSection) return;
 
-		window.addEventListener("scroll", handleScroll, { passive: true });
-		return () => window.removeEventListener("scroll", handleScroll);
+		const observer = new IntersectionObserver(
+			([entry]) => setHasBackground(!entry.isIntersecting),
+			{ threshold: 0 },
+		);
+
+		observer.observe(heroSection);
+		return () => observer.disconnect();
 	}, []);
 
 	return (
 		<header
 			className={cn(
-				"fixed top-0 left-0 right-0 z-50 border-border",
-				(isScrolled || isMobileMenuOpen) && "border-b",
+				"fixed top-0 left-0 right-0 z-50 border-border transition-colors",
+				(hasBackground || isMobileMenuOpen) && "border-b bg-background",
 			)}
 		>
 			<nav

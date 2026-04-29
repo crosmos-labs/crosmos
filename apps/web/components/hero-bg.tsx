@@ -23,16 +23,13 @@ function LinkArrow() {
 
 export function HeroBg() {
 	return (
-		<section className="sticky top-0 min-h-screen flex flex-col overflow-hidden z-0">
-			<Image
-				src="/bg.png"
-				alt=""
-				fill
-				className="object-cover -z-10"
-				priority
-			/>
+		<section
+			data-hero
+			className="relative min-h-screen flex flex-col overflow-hidden"
+		>
+			<Image src="/bg.png" alt="" fill className="object-cover" priority />
 
-			<div className="relative z-10 flex flex-col items-center justify-start px-6 lg:px-8 xl:px-0 pt-24 sm:pt-28 md:pt-30">
+			<div className="relative flex flex-col items-center justify-start px-6 lg:px-8 xl:px-0 pt-24 sm:pt-28 md:pt-30">
 				<div className="max-w-7xl mx-auto w-full text-center">
 					<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance">
 						Agents <span>Forget</span>
