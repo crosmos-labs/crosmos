@@ -46,6 +46,7 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import type { MemoriesResponse } from "@/hooks/use-memories";
 import type { Memory, MemoryType } from "@/lib/types/memory";
 
 const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
@@ -151,13 +152,27 @@ export function MemoryList({
 				async () => {
 					await mutate(
 						swrKey,
-						async (current: Memory[] | undefined) => {
+						async (current: MemoriesResponse | undefined) => {
 							await forgetMemory(memoryUuid, spaceUuid);
-							return current?.filter((m) => m.id !== memoryUuid) ?? [];
+							return current
+								? {
+										...current,
+										memories: current.memories.filter(
+											(m) => m.id !== memoryUuid,
+										),
+									}
+								: { memories: [], hasMore: false };
 						},
 						{
-							optimisticData: (current: Memory[] | undefined) =>
-								current?.filter((m) => m.id !== memoryUuid) ?? [],
+							optimisticData: (current: MemoriesResponse | undefined) =>
+								current
+									? {
+											...current,
+											memories: current.memories.filter(
+												(m) => m.id !== memoryUuid,
+											),
+										}
+									: { memories: [], hasMore: false },
 							rollbackOnError: true,
 							revalidate: false,
 						},
