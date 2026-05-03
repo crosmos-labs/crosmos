@@ -14,7 +14,10 @@ export function Navbar() {
 
 	useEffect(() => {
 		const heroSection = document.querySelector<HTMLElement>("[data-hero]");
-		if (!heroSection) return;
+		if (!heroSection) {
+			setHasBackground(true);
+			return;
+		}
 
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -55,10 +58,10 @@ export function Navbar() {
 					</div>
 					<div className="hidden lg:flex items-center gap-8">
 						<Link
-							href="#products"
+							href="#blog"
 							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
-							PRODUCTS
+							BLOGS
 						</Link>
 						<Link
 							href="#pricing"

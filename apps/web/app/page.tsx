@@ -1,3 +1,4 @@
+import { BlogSection } from "@/components/blog-section";
 import { Faq } from "@/components/faq";
 import { Features } from "@/components/features";
 import { HeroBg } from "@/components/hero-bg";
@@ -9,6 +10,7 @@ export default function Home() {
 			<HeroBg />
 			<Features />
 			<Pricing />
+			<BlogSection />
 			<Faq />
 		</>
 	);
