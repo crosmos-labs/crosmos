@@ -40,7 +40,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
 		<article className="min-h-screen px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24">
 			<div className="max-w-3xl mx-auto">
 				<a
-					href="/#blog"
+					href="/blogs"
 					className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
 				>
 					&larr; Back to blogs

@@ -58,7 +58,7 @@ export function Navbar() {
 					</div>
 					<div className="hidden lg:flex items-center gap-8">
 						<Link
-							href="#blog"
+							href="/blogs"
 							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
 							BLOG

@@ -6,108 +6,86 @@ icon: "puzzle-piece"
 
 Crosmos ships an MCP server that exposes the memory layer's search, ingestion, and management tools over the [Model Context Protocol](https://modelcontextprotocol.io). Any MCP-compatible client can store and retrieve memories without custom integrations.
 
-## Install
+See the [Quickstart](/quickstart) for installation and client configuration.
 
-<Tabs>
-<Tab title="npm (recommended)">
+## Authenticate
 
-```bash
-npm install -g https://mcp.crosmos.dev/crosmos-mcp.tgz
-```
+Your API key can be stored in a credentials file or set as an environment variable. Generate one from **Settings → API Keys** in the [Crosmos Console](https://console.crosmos.dev). Keys use the `csk_` prefix.
 
-</Tab>
-<Tab title="Install script (macOS / Linux)">
+The server resolves credentials in this order:
 
-```bash
-curl -fsSL https://mcp.crosmos.dev/install.sh | bash
-```
+1. `CROSMOS_API_KEY` environment variable — overrides everything
+2. `~/.crosmos/credentials.json` — created by `auth login`
+3. Error — no key found
 
-</Tab>
-<Tab title="From source">
+### Login
 
 ```bash
-git clone https://github.com/crosmos-labs/crosmos-mcp
-cd crosmos-mcp
-bun install
-bun run build
+npx @crosmos/crosmos-mcp auth login
 ```
 
-</Tab>
-</Tabs>
+Prompts for your API key, validates it against the Crosmos API, and saves it to `~/.crosmos/credentials.json`. The file is stored with restricted permissions (`0600`).
 
-Requires Node.js 18 or later.
+To use a custom API base URL:
 
-## Configure
+```bash
+npx @crosmos/crosmos-mcp auth login --base-url https://api.crosmos.dev
+```
 
-The server authenticates through your Crosmos API key. Generate one from **Settings → API Keys** in the [Crosmos Console](https://console.crosmos.dev). Keys use the `csk_` prefix.
+### Check status
 
-Set the key as an environment variable or pass it in your client config:
+```bash
+npx @crosmos/crosmos-mcp auth status
+```
+
+### Logout
+
+```bash
+npx @crosmos/crosmos-mcp auth logout
+```
+
+Removes the stored credentials file.
+
+## CLI reference
+
+```bash
+npx @crosmos/crosmos-mcp                        # Start MCP server (stdio)
+npx @crosmos/crosmos-mcp setup                   # Interactive setup (auth + client install + skill)
+npx @crosmos/crosmos-mcp auth login              # Authenticate with API key
+npx @crosmos/crosmos-mcp auth logout             # Remove stored credentials
+npx @crosmos/crosmos-mcp auth status             # Show current auth state
+npx @crosmos/crosmos-mcp skill install <client>  # Install the Crosmos skill
+```
+
+The `skill install` command accepts: `opencode`, `cursor`, `claude-code`, `windsurf`, `vscode`.
+
+## Skills
+
+The Crosmos skill teaches your AI editor how to use memory tools effectively. It adds auto-intent rules so the agent automatically decides when to search or store memories without explicit prompts.
+
+```bash
+npx @crosmos/crosmos-mcp skill install opencode
+```
+
+The skill is also installed during `setup`. Supported clients:
+
+| Client | Skill location |
+|--------|---------------|
+| opencode | `~/.opencode/skills/crosmos/SKILL.md` |
+| Claude Code | `~/.claude/skills/crosmos/SKILL.md` |
+| Cursor | `~/.cursor/skills/crosmos/SKILL.md` |
+| Windsurf | `~/.windsurf/rules/SKILL.md` |
+| VS Code | `~/.vscode/skills/crosmos/SKILL.md` |
+
+## Environment variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `CROSMOS_API_KEY` | API key for authentication (required) | — |
-| `CROSMOS_API_BASE_URL` | Base URL for the Crosmos Memory API | `http://localhost:8000` |
+| `CROSMOS_API_KEY` | API key for authentication (overrides credentials file) | — |
+| `CROSMOS_API_BASE_URL` | Base URL for the Crosmos Memory API | `https://api.crosmos.dev` |
 | `DEFAULT_SPACE_ID` | Default memory space UUID (optional) | — |
 | `DEFAULT_SPACE_NAME` | Default memory space name; resolved via `/spaces?name=`. Ignored if `DEFAULT_SPACE_ID` is set. | — |
 | `CROSMOS_API_TIMEOUT` | Request timeout in milliseconds | `30000` |
-
-Use `https://api.crosmos.dev` as the base URL for the hosted service.
-
-### Claude Code
-
-```bash
-claude mcp add crosmos-memory -- crosmos-mcp
-```
-
-Then set the environment variables:
-
-```
-CROSMOS_API_BASE_URL=https://api.crosmos.dev
-CROSMOS_API_KEY=csk_your_api_key_here
-```
-
-### Claude Desktop
-
-Add to your config file (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`, Linux: `~/.config/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "crosmos-memory": {
-      "command": "crosmos-mcp",
-      "env": {
-        "CROSMOS_API_BASE_URL": "https://api.crosmos.dev",
-        "CROSMOS_API_KEY": "csk_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-Restart Claude Desktop after saving.
-
-### Opencode
-
-Add to `~/.config/opencode/opencode.json`:
-
-```json
-{
-  "mcp": {
-    "crosmos-memory": {
-      "type": "local",
-      "command": ["crosmos-mcp"],
-      "environment": {
-        "CROSMOS_API_BASE_URL": "https://api.crosmos.dev",
-        "CROSMOS_API_KEY": "csk_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-### Other MCP clients
-
-The `crosmos-mcp` binary uses stdio transport and works with any MCP-compatible client. Point your client to the binary and set the environment variables listed in the table above.
 
 ## Tools
 
@@ -119,7 +97,7 @@ Retrieve relevant memories using hybrid retrieval.
 The search query text.
 </ParamField>
 
-<ParamField space_id="string (UUID)" required>
+<ParamField space_id="string (UUID)">
 The memory space to search within. If omitted, the server resolves it from `DEFAULT_SPACE_ID`, then `DEFAULT_SPACE_NAME` (looked up via `/spaces?name=`), then falls back to the first available space.
 </ParamField>
 
@@ -154,6 +132,8 @@ Conversation messages processed with built-in context handling. Routed to `/api/
 - `messages` (required) — Array of `{ role, content }` objects
 - `session_id` — Session identifier
 - `session_date` — ISO datetime for the conversation reference time
+- `segment_size` — Messages per segment (1–20, default `4`)
+- `lookback` — Number of prior segments included as context (0–20, default `4`)
 - `meta` — Optional metadata attached to all created sources
 </ParamField>
 

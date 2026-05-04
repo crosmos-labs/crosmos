@@ -8,9 +8,9 @@ import { useCallback, useEffect, useRef } from "react";
 import { LINKS } from "@/config/links";
 
 const NAV_LINKS = [
-	{ href: "#blog", label: "BLOG" },
+	{ href: "/blogs", label: "BLOGS" },
 	{ href: "#pricing", label: "PRICING" },
-	{ href: "#developers", label: "DEVELOPERS" },
+	{ href: LINKS.social.discord, label: "DISCORD" },
 ] as const;
 
 function MobileNavButton({

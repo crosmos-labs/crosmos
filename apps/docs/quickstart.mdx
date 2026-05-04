@@ -4,224 +4,236 @@ description: "Get started with Crosmos"
 icon: "rocket"
 ---
 
-Get Crosmos running and make your first API call in under five minutes.
+Get Crosmos into your AI agent in under a minute with the MCP server.
 
 ### Prerequisites
 
 - An API key from the [Crosmos Console](https://console.crosmos.dev) (starts with `csk_...`)
-- Basic familiarity with HTTP requests
-- A terminal or any backend language
+- Node.js 18 or later
 
-All endpoints require an API key sent as a Bearer token:
+## Quick setup
 
+Run the interactive setup to authenticate and install to your MCP clients in one command:
+
+```bash
+npx @crosmos/crosmos-mcp setup
 ```
-Authorization: Bearer csk_your_api_key
+
+The setup walks you through:
+
+1. **Authenticate** — Enter your API key, which is validated and saved locally
+2. **Install to clients** — Detects installed MCP clients and writes the server config automatically
+3. **Install skill** — Installs the Crosmos skill into your AI editor for enhanced memory behavior
+
+That's it — your agent now has memory tools. Skip to [client configuration](#configure-your-client) if you need to customize, or see the [MCP reference](/plugins/mcp) for tool details.
+
+## Install
+
+If you prefer not to use the interactive setup, install manually:
+
+<Tabs>
+<Tab title="npx (recommended)">
+
+```bash
+npx -y @crosmos/crosmos-mcp
+```
+
+No install step required. `npx` downloads and runs the server on demand.
+
+</Tab>
+<Tab title="Global install">
+
+```bash
+npm install -g @crosmos/crosmos-mcp
+```
+
+After global install, the `crosmos-mcp` binary is available directly.
+
+</Tab>
+<Tab title="From source">
+
+```bash
+git clone https://github.com/crosmos-labs/crosmos-mcp
+cd crosmos-mcp
+bun install
+bun run build
+```
+
+</Tab>
+</Tabs>
+
+## Authenticate
+
+The server resolves credentials in this order:
+
+1. `CROSMOS_API_KEY` environment variable
+2. `~/.crosmos/credentials.json` (created by `auth login`)
+3. Error — no key found
+
+### Login
+
+```bash
+npx @crosmos/crosmos-mcp auth login
+```
+
+Prompts for your API key, validates it, and saves it to `~/.crosmos/credentials.json` with restricted file permissions.
+
+To use a custom API base URL:
+
+```bash
+npx @crosmos/crosmos/crosmos-mcp auth login --base-url https://api.crosmos.dev
+```
+
+### Check status
+
+```bash
+npx @crosmos/crosmos-mcp auth status
+```
+
+### Logout
+
+```bash
+npx @crosmos/crosmos-mcp auth logout
 ```
 
 <Note>
-If you belong to multiple organizations, include the `X-Org-Id` header with your organization UUID to set context. If omitted, your active organization is used.
+If you used `setup`, authentication is already configured. You can also set `CROSMOS_API_KEY` as an environment variable in your client config instead.
 </Note>
 
-## Step 1: Get your organization ID
+## Configure your client
 
-Spaces belong to organizations. Find your org ID before creating one.
+If you ran `setup`, your MCP clients are already configured. To add Crosmos manually, find your client below.
 
-```bash
-curl -X GET https://api.crosmos.dev/api/v1/orgs \
-  -H "Authorization: Bearer $CROSMOS_API_KEY"
-```
-
-The response returns a list of your organizations. Copy the `id` from the one you want to use.
-
-```json
-{
-  "orgs": [
-    {
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-      "slug": "my-org",
-      "name": "My Org",
-      "plan": "free",
-      "your_role": "owner"
-    }
-  ]
-}
-```
-
-## Step 2: Create a memory space
-
-A space is an isolated container for a user, project, or organization. Everything lives inside a space.
+### Claude Code
 
 ```bash
-curl -X POST https://api.crosmos.dev/api/v1/spaces \
-  -H "Authorization: Bearer $CROSMOS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "name": "my-agent",
-    "description": "Memory space for my AI agent"
-  }'
+claude mcp add crosmos-memory -- npx -y @crosmos/crosmos-mcp
 ```
 
-The response returns your `id` (the space UUID). You will use it for everything that follows.
+### Claude Desktop
 
-```json
-{
-  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "org_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "name": "my-agent",
-  "description": "Memory space for my AI agent"
-}
-```
+Add to your config file:
 
-## Step 3: Ingest content
+<Tabs>
+<Tab title="macOS">
 
-Feed Crosmos a conversation, a document, or a plain text fact. The extraction pipeline handles the rest.
+`~/Library/Application Support/Claude/claude_desktop_config.json`
 
-<Note>
-Crosmos accepts text, markdown, and conversation transcripts. File uploads for PDFs and documents are coming soon.
-</Note>
+</Tab>
+<Tab title="Linux">
 
-### Option A: Store a text memory
+`~/.config/Claude/claude_desktop_config.json`
 
-```bash
-curl -X POST https://api.crosmos.dev/api/v1/sources \
-  -H "Authorization: Bearer $CROSMOS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "space_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-    "sources": [
-      {
-        "content": "User switched from Google to Anthropic in May. Prefers Rust over Python for systems work. Uses Neovim with custom keybindings.",
-        "content_type": "text"
-      }
-    ]
-  }'
-```
+</Tab>
+<Tab title="Windows">
 
-This returns a `202 Accepted` with a `job_id`. The content is processed asynchronously: facts, entities, and relationships are extracted and woven into the knowledge graph.
+`%APPDATA%/Claude/claude_desktop_config.json`
 
-```json
-{
-  "job_id": "9b8a7c6d-5e4f-3210-ba98-76543210abcd",
-  "status": "pending",
-  "source_ids": ["c0d1e2f3-4a5b-6789-abcd-ef0123456789"]
-}
-```
-
-### Option B: Ingest a conversation
-
-Use the dedicated conversations endpoint for multi-turn dialogue.
-
-```bash
-curl -X POST https://api.crosmos.dev/api/v1/conversations \
-  -H "Authorization: Bearer $CROSMOS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "space_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-    "messages": [
-      {"role": "user", "content": "I just moved to Austin for a new startup job"},
-      {"role": "assistant", "content": "Congratulations on the move! How is Austin treating you?"}
-    ],
-    "session_id": "conv_001",
-    "session_date": "2025-06-15"
-  }'
-```
-
-### Check processing status
-
-```bash
-curl -X GET https://api.crosmos.dev/api/v1/jobs/9b8a7c6d-5e4f-3210-ba98-76543210abcd \
-  -H "Authorization: Bearer $CROSMOS_API_KEY"
-```
-
-Poll until `status` becomes `"completed"` before searching.
-
-## Step 4: Search memories
-
-Now ask a question. Crosmos fires hybrid search and returns the best context.
-
-```bash
-curl -X POST https://api.crosmos.dev/api/v1/search \
-  -H "Authorization: Bearer $CROSMOS_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "query": "Where does the user work and what tools do they prefer?",
-    "space_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
-  }'
-```
-
-**Sample response:**
-
-```json
-{
-  "query": "Where does the user work and what tools do they prefer?",
-  "candidates": [
-    {
-      "memory_id": "d4e5f6a7-8b9c-0123-def4-567890123456",
-      "content": "User switched from Google to Anthropic in May. Prefers Rust over Python for systems work. Uses Neovim with custom keybindings.",
-      "memory_type": "semantic",
-      "score": 0.92,
-      "source": "User switched from Google to Anthropic in May..."
-    }
-  ],
-  "total": 1,
-  "took_ms": 47.3
-}
-```
-
-## Step 5: Give your agent memory
-
-Use the search endpoint before every LLM call. Inject the results into the system prompt so your agent starts with full context.
-
-```python
-import httpx
-
-response = httpx.post(
-    "https://api.crosmos.dev/api/v1/search",
-    headers={"Authorization": f"Bearer {CROSMOS_API_KEY}"},
-    json={
-        "query": user_message,
-        "space_id": space_id,
-    }
-)
-
-context = "\n".join([c["content"] for c in response.json()["candidates"]])
-
-system_prompt = f"Relevant memories:\n{context}\n\nAnswer the user's question using this context."
-```
-
-After the agent responds, feed the conversation back into Crosmos so the graph grows with every interaction.
-
-## Use the MCP server
-
-For agents that support the Model Context Protocol, skip the HTTP calls entirely. Add Crosmos to your MCP config:
+</Tab>
+</Tabs>
 
 ```json
 {
   "mcpServers": {
-    "crosmos": {
+    "crosmos-memory": {
       "command": "npx",
-      "args": ["@crosmos/mcp"],
-      "env": {
-        "CROSMOS_API_KEY": "your-api-key"
-      }
+      "args": ["-y", "@crosmos/crosmos-mcp"]
     }
   }
 }
 ```
 
-Your agent can now search and store memories automatically. See the [MCP](/plugins/mcp) page for the full list of available tools.
+Restart Claude Desktop after saving.
+
+### Opencode
+
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "crosmos-memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+### VS Code
+
+Add to your MCP config:
+
+<Tabs>
+<Tab title="macOS">
+
+`~/Library/Application Support/Code/User/mcp.json`
+
+</Tab>
+<Tab title="Linux">
+
+`~/.config/Code/User/mcp.json`
+
+</Tab>
+<Tab title="Windows">
+
+`%APPDATA%/Code/User/mcp.json`
+
+</Tab>
+</Tabs>
+
+```json
+{
+  "servers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+### Other MCP clients
+
+The server uses stdio transport and works with any MCP-compatible client. Point your client to `npx -y @crosmos/crosmos-mcp`. If you used `auth login`, no environment variables are needed — credentials are read from `~/.crosmos/credentials.json` automatically.
 
 ## Next steps
 
 <CardGroup cols={2}>
-
-<Card title="How it works" icon="lightbulb" href="/how-it-works">
-  Understand the engine behind the API.
+<Card title="MCP reference" icon="puzzle-piece" href="/plugins/mcp">
+  See all available tools, CLI commands, and configuration.
 </Card>
-
 <Card title="Memories" icon="brain" href="/memories">
   Learn how Crosmos structures and retrieves context.
 </Card>
-
 </CardGroup>

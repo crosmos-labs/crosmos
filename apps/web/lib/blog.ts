@@ -95,7 +95,9 @@ export function getAllBlogs(): BlogPost[] {
 			throw new Error(`Missing or invalid "publishedAt" in ${file}`);
 		}
 		if (Number.isNaN(new Date(data.publishedAt).getTime())) {
-			throw new Error(`Invalid "publishedAt" date in ${file}: "${data.publishedAt}"`);
+			throw new Error(
+				`Invalid "publishedAt" date in ${file}: "${data.publishedAt}"`,
+			);
 		}
 
 		if (typeof data.readTime !== "number") {
