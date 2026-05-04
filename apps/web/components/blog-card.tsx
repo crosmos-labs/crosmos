@@ -48,83 +48,94 @@ export function BlogCard({
 		: { width: cardWidth, height: CARD_HEIGHT };
 
 	return (
-		<Link
-			href={`/blogs/${slug}`}
+		<div
 			className={cn(
-				"group flex flex-col border border-foreground/10 hover:border-foreground/30 transition-all duration-300 overflow-hidden",
+				"group relative flex flex-col border border-foreground/10 hover:border-foreground/30 transition-all duration-300 overflow-hidden",
 				fullWidth ? "w-full" : "shrink-0",
 				className,
 			)}
 			style={style}
 		>
-			<div className="relative flex-1 overflow-hidden">
-				<Image
-					src={thumbnail}
-					alt={title}
-					fill
-					sizes={`${Math.round(cardWidth)}px`}
-					className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
-				/>
-			</div>
-			<div className="flex flex-col shrink-0 p-4">
-				<h3 className="font-semibold text-sm sm:text-base leading-snug line-clamp-2">
-					{title}
-				</h3>
-				<div className="flex items-center justify-between mt-auto pt-3">
-					<HoverCard>
-						<HoverCardTrigger asChild>
-							<button type="button" className="outline-none">
-								<Avatar size="sm">
-									<AvatarImage src={author.avatar} alt={author.name} />
-									<AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
-								</Avatar>
-							</button>
-						</HoverCardTrigger>
-						<HoverCardContent className="flex flex-col gap-2">
-							<div className="flex items-center gap-3">
-								<Avatar>
-									<AvatarImage src={author.avatar} alt={author.name} />
-									<AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
-								</Avatar>
-								<div className="flex flex-col">
-									<span className="font-semibold text-sm">{author.name}</span>
-									<span className="text-xs text-muted-foreground">
-										{author.role}
-									</span>
-								</div>
-							</div>
-							<div className="flex items-center gap-2 pt-1">
-								{author.socials.x && (
-									<a
-										href={author.socials.x}
-										target="_blank"
-										rel="noopener noreferrer"
-										onClick={(e) => e.stopPropagation()}
-										className="text-muted-foreground hover:text-foreground transition-colors"
-									>
-										<IconBrandX className="size-4" />
-									</a>
-								)}
-								{author.socials.linkedin && (
-									<a
-										href={author.socials.linkedin}
-										target="_blank"
-										rel="noopener noreferrer"
-										onClick={(e) => e.stopPropagation()}
-										className="text-muted-foreground hover:text-foreground transition-colors"
-									>
-										<IconBrandLinkedin className="size-4" />
-									</a>
-								)}
-							</div>
-						</HoverCardContent>
-					</HoverCard>
-					<span className="text-xs text-muted-foreground flex items-center gap-1">
-						<IconClock className="size-3" />
-						{readTime} min read
-					</span>
+			<Link href={`/blogs/${slug}`} className="flex flex-col flex-1">
+				<div className="relative flex-1 overflow-hidden">
+					<Image
+						src={thumbnail}
+						alt={title}
+						fill
+						sizes={`${Math.round(cardWidth)}px`}
+						className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+					/>
 				</div>
+				<div className="flex flex-col shrink-0 px-4 pt-4 pb-0">
+					<h3 className="font-semibold text-sm sm:text-base leading-snug line-clamp-2">
+						{title}
+					</h3>
+				</div>
+			</Link>
+			<div className="flex items-center justify-between shrink-0 px-4 pb-4 pt-3">
+				<HoverCard>
+					<HoverCardTrigger asChild>
+						<button
+							type="button"
+							className="outline-none"
+							onClick={(e) => e.stopPropagation()}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									e.preventDefault();
+									e.stopPropagation();
+								}
+							}}
+						>
+							<Avatar size="sm">
+								<AvatarImage src={author.avatar} alt={author.name} />
+								<AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+							</Avatar>
+						</button>
+					</HoverCardTrigger>
+					<HoverCardContent className="flex flex-col gap-2">
+						<div className="flex items-center gap-3">
+							<Avatar>
+								<AvatarImage src={author.avatar} alt={author.name} />
+								<AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
+							</Avatar>
+							<div className="flex flex-col">
+								<span className="font-semibold text-sm">{author.name}</span>
+								<span className="text-xs text-muted-foreground">
+									{author.role}
+								</span>
+							</div>
+						</div>
+						<div className="flex items-center gap-2 pt-1">
+							{author.socials.x && (
+								<a
+									href={author.socials.x}
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={(e) => e.stopPropagation()}
+									className="text-muted-foreground hover:text-foreground transition-colors"
+								>
+									<IconBrandX className="size-4" />
+								</a>
+							)}
+							{author.socials.linkedin && (
+								<a
+									href={author.socials.linkedin}
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={(e) => e.stopPropagation()}
+									className="text-muted-foreground hover:text-foreground transition-colors"
+								>
+									<IconBrandLinkedin className="size-4" />
+								</a>
+							)}
+						</div>
+					</HoverCardContent>
+				</HoverCard>
+				<span className="text-xs text-muted-foreground flex items-center gap-1">
+					<IconClock className="size-3" />
+					{readTime} min read
+				</span>
 			</div>
-		</Link>
+		</div>
 	);
 }

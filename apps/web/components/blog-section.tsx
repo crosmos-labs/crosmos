@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getAllBlogs } from "@/lib/blog";
-import { BlogCarousel } from "./blog-carousel";
+import { BlogCarousel } from "@/components/blog-carousel";
+import { getAllBlogs, toBlogPreview } from "@/lib/blog";
 
 export function BlogSection() {
 	const blogs = getAllBlogs()
@@ -9,7 +9,8 @@ export function BlogSection() {
 			(a, b) =>
 				new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
 		)
-		.slice(0, 2);
+		.slice(0, 2)
+		.map(toBlogPreview);
 
 	return (
 		<section id="blog" className="py-16 sm:py-20 lg:py-24">

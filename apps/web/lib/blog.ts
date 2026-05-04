@@ -48,26 +48,78 @@ export type BlogPost = {
 	content: string;
 };
 
+export type BlogPostPreview = Pick<
+	BlogPost,
+	| "slug"
+	| "title"
+	| "author"
+	| "readTime"
+	| "thumbnail"
+	| "thumbnailWidth"
+	| "thumbnailHeight"
+>;
+
+export function toBlogPreview(post: BlogPost): BlogPostPreview {
+	return {
+		slug: post.slug,
+		title: post.title,
+		author: post.author,
+		readTime: post.readTime,
+		thumbnail: post.thumbnail,
+		thumbnailWidth: post.thumbnailWidth,
+		thumbnailHeight: post.thumbnailHeight,
+	};
+}
+
 export function getAllBlogs(): BlogPost[] {
 	const files = fs.readdirSync(BLOGS_DIR).filter((f) => f.endsWith(".mdx"));
+	const seenSlugs = new Set<string>();
 
-	const blogs = files.map((file) => {
+	const blogs: BlogPost[] = [];
+
+	for (const file of files) {
 		const raw = fs.readFileSync(path.join(BLOGS_DIR, file), "utf-8");
 		const { data, content } = matter(raw);
+
 		const slug = data.slug || file.replace(/\.mdx$/, "");
-		return {
+
+		if (seenSlugs.has(slug)) {
+			throw new Error(`Duplicate blog slug: "${slug}" (from file: ${file})`);
+		}
+		seenSlugs.add(slug);
+
+		if (typeof data.title !== "string" || !data.title) {
+			throw new Error(`Missing or invalid "title" in ${file}`);
+		}
+		if (typeof data.publishedAt !== "string" || !data.publishedAt) {
+			throw new Error(`Missing or invalid "publishedAt" in ${file}`);
+		}
+
+		const author = AUTHORS[data.author];
+		if (!author) {
+			throw new Error(
+				`Unknown author key "${data.author}" in ${file}. Valid keys: ${Object.keys(AUTHORS).join(", ")}`,
+			);
+		}
+
+		const thumbnailWidth =
+			typeof data.imageWidth === "number" ? data.imageWidth : 1200;
+		const thumbnailHeight =
+			typeof data.imageHeight === "number" ? data.imageHeight : 480;
+
+		blogs.push({
 			slug,
 			title: data.title,
-			author: (AUTHORS[data.author] ?? AUTHORS.rachit) as Author,
-			readTime: data.readTime,
-			thumbnail: data.thumbnail,
-			thumbnailWidth: data.imageWidth ?? 1200,
-			thumbnailHeight: data.imageHeight ?? 480,
+			author,
+			readTime: data.readTime ?? 0,
+			thumbnail: data.thumbnail ?? "",
+			thumbnailWidth,
+			thumbnailHeight,
 			publishedAt: data.publishedAt,
-			tweetUrl: data.tweetUrl,
+			tweetUrl: data.tweetUrl ?? "",
 			content,
-		};
-	});
+		});
+	}
 
 	return blogs.sort(
 		(a, b) =>

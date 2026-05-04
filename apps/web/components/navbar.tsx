@@ -61,7 +61,7 @@ export function Navbar() {
 							href="#blog"
 							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
-							BLOGS
+							BLOG
 						</Link>
 						<Link
 							href="#pricing"

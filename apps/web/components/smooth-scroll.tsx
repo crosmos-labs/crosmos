@@ -19,15 +19,16 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 
 		lenis.on("scroll", ScrollTrigger.update);
 
+		let rafId: number;
 		const raf = (time: number) => {
 			lenis.raf(time);
-			requestAnimationFrame(raf);
+			rafId = requestAnimationFrame(raf);
 		};
-		requestAnimationFrame(raf);
+		rafId = requestAnimationFrame(raf);
 
 		const handleClick = (e: MouseEvent) => {
-			const target = e.target as HTMLElement;
-			const anchor = target.closest("a[href^='#']");
+			if (!(e.target instanceof HTMLElement)) return;
+			const anchor = e.target.closest("a[href^='#']");
 			if (!anchor) return;
 			const href = anchor.getAttribute("href");
 			if (!href) return;
@@ -41,6 +42,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 		document.addEventListener("click", handleClick);
 
 		return () => {
+			cancelAnimationFrame(rafId);
 			document.removeEventListener("click", handleClick);
 			lenis.destroy();
 			lenisRef.current = null;

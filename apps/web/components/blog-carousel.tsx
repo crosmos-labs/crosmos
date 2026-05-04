@@ -1,10 +1,8 @@
-"use client";
-
-import type { BlogPost } from "@/lib/blog";
-import { BlogCard } from "./blog-card";
+import { BlogCard } from "@/components/blog-card";
+import type { BlogPostPreview } from "@/lib/blog";
 
 type BlogCarouselProps = {
-	blogs: BlogPost[];
+	blogs: BlogPostPreview[];
 };
 
 export function BlogCarousel({ blogs }: BlogCarouselProps) {

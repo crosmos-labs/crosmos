@@ -46,13 +46,13 @@ But reasoning about contradictions at the ingestion layer can cause **destructiv
 
 The optimal approach is: reasoning and making decisions/conclusions based on the ingested memories and their states. This even in the worst case, if the model hallucinates, won't contaminate the ingested layer as that is the main evidence.
 
-At [Crosmos](https://x.com/crosmoslabs) we decided to have a similar approach. You can checkout our [docs](https://docs.crosmos.dev/) to understand the approach we took after iterating over multiple architectures.
+At [Crosmos](https://x.com/crosmoslabs) we decided to have a similar approach. You can check out our [docs](https://docs.crosmos.dev/) to understand the approach we took after iterating over multiple architectures.
 
 What we learned is, memory should be auditable, state-aware, and shouldn't lose its provenance.
 
 The bottom line is, at scale, and when it comes to making persistent, context-aware agents and handling the context of a company at scale.
 
-It's all about **tradeoffs**. But the tradeoffs you make decides if your architecture will scale or not.
+It's all about **tradeoffs**. But the tradeoffs you make decide if your architecture will scale or not.
 
 We benchmarked Crosmos, and we recorded a **Recall@5 of 0.98-1** almost always for the whole of Longmemeval-S dataset.
 
