@@ -1,6 +1,6 @@
 # Crosmos Agent Skills
 
-Agent skills for the [Crosmos](https://github.com/crosmos-labs/crosmos) memory engine. These skills give AI agents persistent memory with full temporal history, entity-relationship tracking, and hybrid retrieval.
+Agent skills for the [Crosmos](https://github.com/crosmos-labs/crosmos) memory layer. These skills give AI agents persistent memory with full temporal history, entity-relationship tracking, and hybrid retrieval.
 
 ## Available Skills
 

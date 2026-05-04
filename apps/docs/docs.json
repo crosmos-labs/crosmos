@@ -101,9 +101,9 @@
 			"application-name": "Crosmos Documentation",
 			"color-scheme": "light dark",
 
-			"description": "Crosmos documentation for memory engine, API, SDKs, MCPs and other tools.",
+			"description": "Crosmos documentation for memory layer, API, SDKs, MCPs and other tools.",
 
-			"og:title": "Crosmos Docs - Memory Engine",
+			"og:title": "Crosmos Docs - Memory Layer",
 			"og:type": "website",
 			"og:url": "https://docs.crosmos.dev",
 			"og:description": "Build apps with our Memory API which supports most modern toolkits",

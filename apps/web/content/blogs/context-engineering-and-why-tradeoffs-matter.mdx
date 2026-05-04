@@ -34,6 +34,8 @@ I think AI memory systems are really about "**tradeoffs**", not replacing everyt
 
 **More corpus != better recall.** A living memory system should know when to forget and what to forget according to its importance and the type of memory it is. Many people use the concept of the **Ebbinghaus forgetting curve**.
 
+![Ebbinghaus forgetting curve](/blogs/context-engineering-ebbinghaus.jpg)
+
 The exponential curve by itself is a correct way to think about forgetting memories. But the metrics used in the curve by themselves aren't enough to decide if a memory should be forgotten or not. We need **access patterns** for a more "personalized" behavior. When was a memory retrieved and how many times a memory was retrieved. But not all memories are the same. Some are preferences. Some are just events that happened in the past. Some are just stated facts about the world. Blindly treating them "equally" for forgetting is not the right approach for a truly **cognitive memory system.** The forgetting itself has to be aware of what kind of memory it is. I see many people trying to "over-complicate" the forgetting part. But I feel you just need the right types and the right weights for each type of memory to decide what to forget. An equation itself can't really solve it.
 
 ## Summaries / Consolidation
