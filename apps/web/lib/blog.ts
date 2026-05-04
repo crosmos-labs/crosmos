@@ -94,6 +94,19 @@ export function getAllBlogs(): BlogPost[] {
 		if (typeof data.publishedAt !== "string" || !data.publishedAt) {
 			throw new Error(`Missing or invalid "publishedAt" in ${file}`);
 		}
+		if (Number.isNaN(new Date(data.publishedAt).getTime())) {
+			throw new Error(`Invalid "publishedAt" date in ${file}: "${data.publishedAt}"`);
+		}
+
+		if (typeof data.readTime !== "number") {
+			throw new Error(`Missing or invalid "readTime" in ${file}`);
+		}
+		if (typeof data.thumbnail !== "string" || !data.thumbnail) {
+			throw new Error(`Missing or invalid "thumbnail" in ${file}`);
+		}
+		if (typeof data.tweetUrl !== "string" || !data.tweetUrl) {
+			throw new Error(`Missing or invalid "tweetUrl" in ${file}`);
+		}
 
 		const author = AUTHORS[data.author];
 		if (!author) {
@@ -111,12 +124,12 @@ export function getAllBlogs(): BlogPost[] {
 			slug,
 			title: data.title,
 			author,
-			readTime: data.readTime ?? 0,
-			thumbnail: data.thumbnail ?? "",
+			readTime: data.readTime,
+			thumbnail: data.thumbnail,
 			thumbnailWidth,
 			thumbnailHeight,
 			publishedAt: data.publishedAt,
-			tweetUrl: data.tweetUrl ?? "",
+			tweetUrl: data.tweetUrl,
 			content,
 		});
 	}
