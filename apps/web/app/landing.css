@@ -40,7 +40,8 @@
 	padding: 0;
 	font-size: 0.875rem;
 	color: var(--color-foreground);
-	font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+	font-family:
+		var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
 		"Liberation Mono", "Courier New", monospace;
 }
 
@@ -50,7 +51,8 @@
 	border: 1px solid var(--color-border);
 	border-radius: var(--radius);
 	padding: 0.125rem 0.375rem;
-	font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+	font-family:
+		var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
 		"Liberation Mono", "Courier New", monospace;
 	font-size: 0.875rem;
 }

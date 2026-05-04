@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 @source "../../../apps/**/*.{ts,tsx}";
@@ -182,7 +183,7 @@
 
 @layer base {
 	* {
-		@apply border-border outline-ring/50 scroll-smooth;
+		@apply border-border outline-ring/50;
 		scrollbar-width: thin;
 		scrollbar-color: gray transparent;
 	}
@@ -192,17 +193,4 @@
 	button {
 		@apply cursor-pointer focus:outline-none focus:ring-0;
 	}
-}
-
-.link-underline {
-	@apply relative;
-}
-
-.link-underline::after {
-	content: "";
-	@apply absolute bottom-0 left-0 w-full h-px bg-foreground origin-bottom-right scale-x-0 transition-transform duration-300;
-}
-
-.link-underline:hover::after {
-	@apply origin-bottom-left scale-x-100;
 }
