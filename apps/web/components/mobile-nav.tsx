@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { LINKS } from "@/config/links";
 
 const NAV_LINKS = [
-	{ href: "#products", label: "PRODUCTS" },
+	{ href: "#blog", label: "BLOG" },
 	{ href: "#pricing", label: "PRICING" },
 	{ href: "#developers", label: "DEVELOPERS" },
 ] as const;

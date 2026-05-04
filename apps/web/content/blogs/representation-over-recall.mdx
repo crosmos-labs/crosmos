@@ -1,0 +1,63 @@
+---
+title: "Representation Over Recall"
+slug: "representation-over-recall"
+author: "rachit"
+readTime: 6
+thumbnail: "/blogs/representation-over-recall.jpg"
+publishedAt: "2025-05-05"
+tweetUrl: "https://x.com/rachitcodes/status/2049438769401724974"
+imageWidth: 1200
+imageHeight: 480
+---
+
+Often the pattern in the current memory systems is that, people focus more on the recall and optimizing recall to be the best and trying to fit in all the relevant data into the context.
+
+That goal itself is correct, memory is both a recall and a reasoning problem.
+
+But more than a recall problem, it is also a representation problem.
+
+The representation can be of any type. Files, raw chunks, episodes, conversation turns.
+
+But with each representation the behavior of the system changes completely.
+
+It can either end up in you wasting a lot of tokens on just managing your memory, or can actually save your tokens.
+
+That's the reason why **representation > recall**.
+
+Clean representation, provenance, signal, summary of the memory is more important than the actual recall, because no matter how accurate your retrieval is.
+
+**Real-world data is messy and no one is optimizing for it.**
+
+It can be transcripts, PDFs, videos, texts, conversations, etc. And many memory systems often don't scale more than toy-projects or paper implementations.
+
+You need to have a proper view of how to preserve provenance across changes in real-world, how state-changes are stored to reason over, and how you actually convert it into meaningful recall.
+
+That's probably the reason why you **shouldn't let the LLM reason about contradictions at the ingestion layer**.
+
+Why? Because understanding contradictions between memories and states at ingestion layer means you're basically trusting the LLM to be correct about it all the time.
+
+Ingestion itself is done by an LLM or a domain-specific model.
+
+But why is that fine?
+
+Because the evidence of the extraction is there in the source itself. So there is no explicit reasoning needed except deciding what **not to ingest**.
+
+But reasoning about contradictions at the ingestion layer can cause **destructive updates**, **contamination of the knowledge graph**, or **wrong assumptions**.
+
+The optimal approach is: reasoning and making decisions/conclusions based on the ingested memories and their states. This even in the worst case, if the model hallucinates, won't contaminate the ingested layer as that is the main evidence.
+
+At [Crosmos](https://x.com/crosmoslabs) we decided to have a similar approach. You can check out our [docs](https://docs.crosmos.dev/) to understand the approach we took after iterating over multiple architectures.
+
+What we learned is, memory should be auditable, state-aware, and shouldn't lose its provenance.
+
+The bottom line is, at scale, and when it comes to making persistent, context-aware agents and handling the context of a company at scale.
+
+It's all about **tradeoffs**. But the tradeoffs you make decide if your architecture will scale or not.
+
+We benchmarked Crosmos, and we recorded a **Recall@5 of 0.98-1** almost always for the whole of Longmemeval-S dataset.
+
+But benchmarks are not the full story. They test recall. But they don't test how well your architecture performs at scale for handling edge-cases with any data loss or destructive changes.
+
+We at Crosmos are focusing on providing the best ways to save tokens while you all run your agents. So that your agents are uninterrupted and always persistent.
+
+Evals will be published soon!

@@ -1,0 +1,49 @@
+---
+title: "Context Engineering and Why Tradeoffs Matter"
+slug: "context-engineering-and-why-tradeoffs-matter"
+author: "rachit"
+readTime: 8
+thumbnail: "/blogs/context-engineering.jpg"
+publishedAt: "2025-05-01"
+tweetUrl: "https://x.com/rachitcodes/status/2046215038906535965"
+imageWidth: 1200
+imageHeight: 480
+---
+
+I've been working on the context engineering problem for a while and just wanted to share my thoughts on it and why we are building [Crosmos](https://x.com/crosmoslabs).
+
+I feel like a lot of takes around using agent frameworks or heavily relying on inference in the memory layer are just adding more failure points.
+
+A **stateful memory system** obviously can't be fully deterministic. Ingestion does need inference to handle nuance. But using inference internally for things like invalidating memories or changing states can lead to destructive updates, especially since LLMs can hallucinate.
+
+In the case of knowledge graphs, ontology management is already hard at scale. If you depend on non-deterministic destructive writes from an LLM, the graph can degrade very quickly and become unreliable.
+
+This is also why I don't agree with the idea that RAG or vector databases are dead and everything should be handled through inference. Embeddings and vector DBs are actually very good at what they do. They are just one part of the overall memory orchestration. They help reduce cost at scale and keep the system usable. What I've observed is that if your memory system depends on inference for **around 80%** or more of its operations, it's just not worth it. It adds more failure points, higher cost, and weird edge cases.
+
+A better approach is combining agents with deterministic systems like intent detection, predefined ontologies, and even user-defined schemas for niche use cases.
+
+The real challenge is making temporal reasoning and knowledge updates implicit. Instead of letting an LLM decide what should be removed, I think we should focus on better ranking.
+
+Not just static ranking, but state-aware ranking. Ranking that considers temporal metadata, access patterns, importance, and planning weights. With this approach, the system becomes less dependent on the LLM and more about the trade-offs you make in ranking and weighting. Using a cross-encoder for re-ranking also helps.
+
+The solution is not increased context window. It's correct recall that's state-aware and the right corpus to reason over.
+
+I think AI memory systems are really about "**tradeoffs**", not replacing everything with inference, but deciding where inference actually makes sense.
+
+## Forgetting
+
+**More corpus != better recall.** A living memory system should know when to forget and what to forget according to its importance and the type of memory it is. Many people use the concept of the **Ebbinghaus forgetting curve**.
+
+The exponential curve by itself is a correct way to think about forgetting memories. But the metrics used in the curve by themselves aren't enough to decide if a memory should be forgotten or not. We need **access patterns** for a more "personalized" behavior. When was a memory retrieved and how many times a memory was retrieved. But not all memories are the same. Some are preferences. Some are just events that happened in the past. Some are just stated facts about the world. Blindly treating them "equally" for forgetting is not the right approach for a truly **cognitive memory system.** The forgetting itself has to be aware of what kind of memory it is. I see many people trying to "over-complicate" the forgetting part. But I feel you just need the right types and the right weights for each type of memory to decide what to forget. An equation itself can't really solve it.
+
+## Summaries / Consolidation
+
+This is probably the most misunderstood part of any memory system. Usually the basic mental model is — get a set of semantically/type-based similar memories and consolidate them into a topic/general memory. This itself is correct by definition as the human brain creates a general summary of a person/entity based on the attributes or "memories" the user has about the entity.
+
+But the part where everyone gets it wrong is — they let those consolidated memories take part in recall with the specific memories of the entities. Why is this "wrong" by design? It's because after a while the system will be filled with so many consolidated memories that after a certain threshold of memories stored, it'll just return generic facts about entities. Now this is wrong because when you recall something, you usually want to recall "specific" details. The generic details about an entity are just its traits. So why still consolidate memories? Treat them as **evidence, not just another type of memory.**
+
+We observed this after using Crosmos heavily ourselves for a long time. It all comes down to "giving the LLM the right corpus to reason over." The consolidated evidence should be retrieved "with" the specific facts, not just them. By that I mean, don't let generic statements fight with specific facts to dumb them down.
+
+## Bottom Line
+
+These are the principles [Crosmos](https://x.com/crosmoslabs) is built on. We are actively working on our system, making it better, and making sure it's not just something that can perform "perfect" on a benchmark but also is **usable** to our users and caters to enterprise needs. When a team can share the same memory, that's where the magic happens. Centralized cognition.
