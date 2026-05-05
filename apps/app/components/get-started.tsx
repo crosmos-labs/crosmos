@@ -11,17 +11,13 @@ import { CopyButton } from "@crosmos/ui/components/copy-button";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 
-const INSTALL_CMD = "npm i -g @crosmos/crosmos-mcp";
-const SETUP_CMD = "crosmos-mcp setup";
+const SETUP_CMD = "npx @crosmos/crosmos-mcp setup";
 
 const MCP_CONFIG_PLAIN = `{
   "mcpServers": {
     "crosmos-memory": {
-      "command": "crosmos-mcp",
-      "env": {
-        "CROSMOS_API_BASE_URL": "https://api.crosmos.dev/",
-        "CROSMOS_API_KEY": "csk_your_api_key_here"
-      }
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
     }
   }
 }`;
@@ -69,27 +65,16 @@ function McpConfigBlock() {
 				{"      "}
 				<span className="text-foreground">"command"</span>
 				{": "}
-				<span className="text-muted-foreground">"crosmos-mcp"</span>
+				<span className="text-muted-foreground">"npx"</span>
 				{","}
 				{"\n"}
 				{"      "}
-				<span className="text-foreground">"env"</span>
-				{": {"}
-				{"\n"}
-				{"        "}
-				<span className="text-foreground">"CROSMOS_API_BASE_URL"</span>
-				{": "}
-				<span className="text-muted-foreground">
-					"https://api.crosmos.dev/"
-				</span>
-				{","}
-				{"\n"}
-				{"        "}
-				<span className="text-foreground">"CROSMOS_API_KEY"</span>
-				{": "}
-				<span className="text-muted-foreground">"csk_your_api_key_here"</span>
-				{"\n"}
-				{"      }"}
+				<span className="text-foreground">"args"</span>
+				{": ["}
+				<span className="text-muted-foreground">"-y"</span>
+				{", "}
+				<span className="text-muted-foreground">"@crosmos/crosmos-mcp"</span>
+				{"]"}
 				{"\n"}
 				{"    }"}
 				{"\n"}
@@ -133,13 +118,7 @@ export function GetStarted() {
 				<div className="flex flex-col gap-4 pl-9">
 					<div className="flex flex-col gap-1.5">
 						<span className="text-xs font-medium text-muted-foreground">
-							Install the MCP package
-						</span>
-						<CodeBlock value={INSTALL_CMD} />
-					</div>
-					<div className="flex flex-col gap-1.5">
-						<span className="text-xs font-medium text-muted-foreground">
-							Run auto-setup
+							Run interactive setup
 						</span>
 						<CodeBlock value={SETUP_CMD} />
 					</div>
