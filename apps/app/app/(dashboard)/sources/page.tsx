@@ -96,7 +96,7 @@ export default function SourcesPage() {
 						});
 						return {
 							sources: data.sources,
-							hasMore: data.sources.length === SOURCES_PER_PAGE,
+							hasMore: offset + data.sources.length < data.total,
 							total: data.total,
 						};
 					},
