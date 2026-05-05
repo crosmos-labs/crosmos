@@ -90,7 +90,7 @@ function FilterSection({
 						key={opt}
 						value={opt}
 						size="sm"
-						className="rounded-full border border-transparent px-2.5 text-xs focus:ring-0 focus-visible:ring-0 focus-visible:outline-none data-[state=on]:border-border data-[state=on]:bg-muted"
+						className="rounded-full border border-transparent px-2.5 text-xs text-muted-foreground focus:ring-0 focus-visible:ring-0 focus-visible:outline-none data-[state=on]:border-primary/30 data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:font-medium hover:text-foreground"
 					>
 						{labels[opt]}
 					</ToggleGroupItem>
