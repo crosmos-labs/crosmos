@@ -14,6 +14,7 @@ export async function listSources(options?: {
 	offset?: number;
 	content_type?: ContentTypeStr | null;
 	extraction_status?: ExtractionStatus | null;
+	space_id?: string | null;
 }): Promise<{ sources: SourceSummary[]; hasMore: boolean; total: number }> {
 	const limit = options?.limit ?? SOURCES_PER_PAGE;
 	const offset = options?.offset ?? 0;
@@ -24,6 +25,7 @@ export async function listSources(options?: {
 	if (options?.content_type) params.set("content_type", options.content_type);
 	if (options?.extraction_status)
 		params.set("extraction_status", options.extraction_status);
+	if (options?.space_id) params.set("space_id", options.space_id);
 
 	const data = await apiFetch<SourceListResponse>(
 		`/sources?${params.toString()}`,

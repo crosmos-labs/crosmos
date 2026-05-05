@@ -16,6 +16,7 @@ export interface SourcesResponse {
 export interface SourcesFilters {
 	content_type: ContentTypeStr | null;
 	extraction_status: ExtractionStatus | null;
+	space_id: string | null;
 }
 
 export function buildSourcesKey(page: number, filters: SourcesFilters): string {
@@ -24,6 +25,7 @@ export function buildSourcesKey(page: number, filters: SourcesFilters): string {
 	if (filters.content_type) params.set("content_type", filters.content_type);
 	if (filters.extraction_status)
 		params.set("extraction_status", filters.extraction_status);
+	if (filters.space_id) params.set("space_id", filters.space_id);
 	return `/sources?${params.toString()}`;
 }
 
@@ -38,6 +40,7 @@ export function useSources(page: number = 1, filters: SourcesFilters) {
 				offset,
 				content_type: filters.content_type,
 				extraction_status: filters.extraction_status,
+				space_id: filters.space_id,
 			}),
 		{
 			keepPreviousData: true,
