@@ -181,6 +181,7 @@ interface SourceListProps {
 	hasMore: boolean;
 	hasFilters: boolean;
 	swrKey: string;
+	spaceNameLookup: Map<string, string>;
 	onPageChange: (page: number) => void;
 	onClearFilters: () => void;
 }
@@ -191,6 +192,7 @@ export function SourceList({
 	hasMore,
 	hasFilters,
 	swrKey,
+	spaceNameLookup,
 	onPageChange,
 	onClearFilters,
 }: SourceListProps) {
@@ -303,13 +305,26 @@ export function SourceList({
 									>
 										{EXTRACTION_STATUS_LABELS[source.extraction_status]}
 									</Badge>
-									<Link
-										href={`/spaces/${source.space_id}`}
-										className="text-muted-foreground hover:text-foreground transition-colors"
-										aria-label="View space"
-									>
-										<IconLink className="size-3.5" />
-									</Link>
+									{spaceNameLookup.get(source.space_id) && (
+										<Link
+											href={`/spaces/${source.space_id}`}
+											className="text-muted-foreground hover:text-foreground transition-colors"
+											aria-label={`View space: ${spaceNameLookup.get(source.space_id) ?? ""}`}
+										>
+											<Badge variant="outline" className="text-xs font-normal">
+												{spaceNameLookup.get(source.space_id) ?? ""}
+											</Badge>
+										</Link>
+									)}
+									{!spaceNameLookup.get(source.space_id) && (
+										<Link
+											href={`/spaces/${source.space_id}`}
+											className="text-muted-foreground hover:text-foreground transition-colors"
+											aria-label="View space"
+										>
+											<IconLink className="size-3.5" />
+										</Link>
+									)}
 								</ItemTitle>
 								<ItemDescription>
 									<button

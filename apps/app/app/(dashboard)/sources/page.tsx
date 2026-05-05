@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryStates } from "nuqs";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useSWRConfig } from "swr";
 import { listSources } from "@/actions/sources";
 import { DataFetchError } from "@/components/data-fetch-error";
@@ -10,6 +10,7 @@ import { SourceFilters } from "@/components/source-filters";
 import { SourceList } from "@/components/source-list";
 import { SourceListSkeleton } from "@/components/source-list-skeleton";
 import { buildSourcesKey, useSources } from "@/hooks/use-sources";
+import { useSpaces } from "@/hooks/use-spaces";
 import { SOURCES_PER_PAGE } from "@/lib/params/constants";
 import { paginationParsers } from "@/lib/params/pagination";
 import type { ContentTypeStr, ExtractionStatus } from "@/lib/types/source";
@@ -20,10 +21,12 @@ export default function SourcesPage() {
 	const contentType = queryParams.content_type as ContentTypeStr | null;
 	const extractionStatus =
 		queryParams.extraction_status as ExtractionStatus | null;
+	const spaceId = queryParams.space_id ?? null;
 
 	const filters = {
 		content_type: contentType,
 		extraction_status: extractionStatus,
+		space_id: spaceId,
 	};
 
 	const {
@@ -32,13 +35,26 @@ export default function SourcesPage() {
 		error: sourcesError,
 	} = useSources(page, filters);
 
+	const { data: spacesData, isLoading: spacesLoading } = useSpaces();
+
 	const { cache, mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 
 	const hasMore = sourcesData?.hasMore ?? false;
 	const sources = sourcesData?.sources ?? [];
-	const hasFilters = contentType !== null || extractionStatus !== null;
+	const hasFilters =
+		contentType !== null || extractionStatus !== null || spaceId !== null;
 	const swrKey = buildSourcesKey(page, filters);
+
+	const spaceNameLookup = useMemo(() => {
+		const map = new Map<string, string>();
+		if (spacesData) {
+			for (const space of spacesData) {
+				map.set(space.id, space.name);
+			}
+		}
+		return map;
+	}, [spacesData]);
 
 	const applyQueryChange = useCallback(
 		(
@@ -46,6 +62,7 @@ export default function SourcesPage() {
 				page: number;
 				content_type: ContentTypeStr | null;
 				extraction_status: ExtractionStatus | null;
+				space_id: string | null;
 			}>,
 		) => {
 			const newPage = updates.page ?? 1;
@@ -55,9 +72,12 @@ export default function SourcesPage() {
 				updates.extraction_status !== undefined
 					? updates.extraction_status
 					: extractionStatus;
+			const newSpaceId =
+				updates.space_id !== undefined ? updates.space_id : spaceId;
 			const newKey = buildSourcesKey(newPage, {
 				content_type: newCt,
 				extraction_status: newEs,
+				space_id: newSpaceId,
 			});
 
 			if (cache.get(newKey)?.data !== undefined) {
@@ -75,6 +95,7 @@ export default function SourcesPage() {
 							offset,
 							content_type: newCt,
 							extraction_status: newEs,
+							space_id: newSpaceId,
 						});
 						return {
 							sources: data.sources,
@@ -87,7 +108,15 @@ export default function SourcesPage() {
 				setQueryParams(updates);
 			});
 		},
-		[contentType, extractionStatus, setQueryParams, cache, mutate, runAction],
+		[
+			contentType,
+			extractionStatus,
+			spaceId,
+			setQueryParams,
+			cache,
+			mutate,
+			runAction,
+		],
 	);
 
 	if (sourcesError) {
@@ -118,11 +147,17 @@ export default function SourcesPage() {
 			<SourceFilters
 				contentType={contentType}
 				extractionStatus={extractionStatus}
+				spaceId={spaceId}
+				spaces={spacesData ?? []}
+				spacesLoading={spacesLoading}
 				onContentTypeChange={(value) =>
 					applyQueryChange({ content_type: value, page: 1 })
 				}
 				onExtractionStatusChange={(value) =>
 					applyQueryChange({ extraction_status: value, page: 1 })
+				}
+				onSpaceChange={(value) =>
+					applyQueryChange({ space_id: value, page: 1 })
 				}
 			/>
 			{isLoading && !sourcesData ? (
@@ -134,11 +169,13 @@ export default function SourcesPage() {
 					hasMore={hasMore}
 					hasFilters={hasFilters}
 					swrKey={swrKey}
+					spaceNameLookup={spaceNameLookup}
 					onPageChange={(newPage) => applyQueryChange({ page: newPage })}
 					onClearFilters={() =>
 						applyQueryChange({
 							content_type: null,
 							extraction_status: null,
+							space_id: null,
 							page: 1,
 						})
 					}

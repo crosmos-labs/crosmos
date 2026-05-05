@@ -24,6 +24,7 @@ import {
 	EXTRACTION_STATUS_VALUES,
 } from "@/lib/params/pagination";
 import type { ContentTypeStr, ExtractionStatus } from "@/lib/types/source";
+import type { Space } from "@/lib/types/space";
 
 const CONTENT_TYPE_LABELS: Record<ContentTypeStr, string> = {
 	text: "Text",
@@ -46,8 +47,12 @@ const EXTRACTION_STATUS_LABELS: Record<ExtractionStatus, string> = {
 interface SourceFiltersProps {
 	contentType: ContentTypeStr | null;
 	extractionStatus: ExtractionStatus | null;
+	spaceId: string | null;
+	spaces: Space[];
+	spacesLoading: boolean;
 	onContentTypeChange: (value: ContentTypeStr | null) => void;
 	onExtractionStatusChange: (value: ExtractionStatus | null) => void;
+	onSpaceChange: (value: string | null) => void;
 }
 
 function FilterSection({
@@ -145,14 +150,36 @@ function TriggerButton({
 export function SourceFilters({
 	contentType,
 	extractionStatus,
+	spaceId,
+	spaces,
+	spacesLoading,
 	onContentTypeChange,
 	onExtractionStatusChange,
+	onSpaceChange,
 }: SourceFiltersProps) {
-	const hasFilters = contentType !== null || extractionStatus !== null;
-	const activeCount = (contentType ? 1 : 0) + (extractionStatus ? 1 : 0);
+	const hasFilters =
+		contentType !== null || extractionStatus !== null || spaceId !== null;
+	const activeCount =
+		(contentType ? 1 : 0) + (extractionStatus ? 1 : 0) + (spaceId ? 1 : 0);
+
+	const spaceLabels: Record<string, string> = {};
+	const spaceIds: string[] = [];
+	for (const space of spaces) {
+		spaceLabels[space.id] = space.name;
+		spaceIds.push(space.id);
+	}
 
 	const filterContent = (
 		<>
+			{!spacesLoading && spaceIds.length > 0 && (
+				<FilterSection
+					title="Space"
+					value={spaceId}
+					options={spaceIds}
+					labels={spaceLabels}
+					onChange={(v) => onSpaceChange(v)}
+				/>
+			)}
 			<FilterSection
 				title="Content type"
 				value={contentType}
@@ -172,6 +199,7 @@ export function SourceFilters({
 				onClear={() => {
 					onContentTypeChange(null);
 					onExtractionStatusChange(null);
+					onSpaceChange(null);
 				}}
 			/>
 		</>
