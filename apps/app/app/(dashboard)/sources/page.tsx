@@ -126,7 +126,7 @@ export default function SourcesPage() {
 				</div>
 				<DataFetchError
 					message={sourcesError.message}
-					onRetry={() =>
+					onRetry={async () =>
 						flushQueryState(page, contentType, extractionStatus, spaceId)
 					}
 				/>
