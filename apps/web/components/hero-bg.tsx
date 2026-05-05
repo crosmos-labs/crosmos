@@ -45,7 +45,7 @@ export function HeroBg() {
 
 					<p className="mt-6 text-lg text-foreground/80 leading-relaxed max-w-2xl mx-auto select-none">
 						Stateful, self-improving memory infrastructure for AI agents. Memory
-						layer that compounds intelligence — so agents get better, not just
+						layer that compounds intelligence, so agents get better, not just
 						bigger
 					</p>
 

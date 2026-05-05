@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Link underline animation — used in navbar and footer */
+/* Link underline animation, used in navbar and footer */
 .link-underline {
 	position: relative;
 	display: inline-flex;

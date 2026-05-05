@@ -43,7 +43,7 @@ export function Hero() {
 					<div className="space-y-8">
 						<p className="text-lg text-foreground/80 leading-relaxed">
 							Stateful, self-improving memory infrastructure for AI agents.
-							Memory layer that compounds intelligence — so agents get better,
+							Memory layer that compounds intelligence, so agents get better,
 							not just bigger
 						</p>
 
