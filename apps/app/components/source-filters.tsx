@@ -92,7 +92,7 @@ function FilterSection({
 						size="sm"
 						className="rounded-full border border-transparent px-2.5 text-xs text-muted-foreground focus:ring-0 focus-visible:ring-0 focus-visible:outline-none data-[state=on]:border-primary/30 data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:font-medium hover:text-foreground"
 					>
-						{labels[opt]}
+						{labels[opt] ?? opt}
 					</ToggleGroupItem>
 				))}
 			</ToggleGroup>
@@ -157,11 +157,6 @@ export function SourceFilters({
 	onExtractionStatusChange,
 	onSpaceChange,
 }: SourceFiltersProps) {
-	const hasFilters =
-		contentType !== null || extractionStatus !== null || spaceId !== null;
-	const activeCount =
-		(contentType ? 1 : 0) + (extractionStatus ? 1 : 0) + (spaceId ? 1 : 0);
-
 	const spaceLabels: Record<string, string> = {};
 	const spaceIds: string[] = [];
 	for (const space of spaces) {
@@ -169,9 +164,19 @@ export function SourceFilters({
 		spaceIds.push(space.id);
 	}
 
+	const spaceVisible = !spacesLoading && spaceIds.length > 0;
+	const hasFilters =
+		contentType !== null ||
+		extractionStatus !== null ||
+		(spaceVisible && spaceId !== null);
+	const activeCount =
+		(contentType ? 1 : 0) +
+		(extractionStatus ? 1 : 0) +
+		(spaceVisible && spaceId ? 1 : 0);
+
 	const filterContent = (
 		<>
-			{!spacesLoading && spaceIds.length > 0 && (
+			{spaceVisible && (
 				<FilterSection
 					title="Space"
 					value={spaceId}

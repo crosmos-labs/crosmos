@@ -127,11 +127,7 @@ function DeleteSourceDialog({
 					<div className="flex flex-col gap-1.5 rounded-lg border bg-muted/50 p-3 text-sm">
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Type</span>
-							<Badge
-								variant={
-									EXTRACTION_STATUS_BADGE_VARIANT[source.extraction_status]
-								}
-							>
+							<Badge variant="outline">
 								{CONTENT_TYPE_LABELS[source.content_type]}
 							</Badge>
 						</div>
