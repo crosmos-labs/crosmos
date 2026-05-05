@@ -262,7 +262,7 @@ export function Pricing() {
 						Pricing
 					</h2>
 					<p className="text-base md:text-lg text-center text-foreground/80 mt-6">
-						Efficient by design—so your agents grow smarter over time without
+						Efficient by design, so your agents grow smarter over time without
 						growing heavier.
 					</p>
 				</div>

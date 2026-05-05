@@ -22,7 +22,7 @@ export async function generateMetadata({
 
 	return {
 		title: blog.title,
-		description: `${blog.title} — ${blog.author.name}`,
+		description: `${blog.title} - ${blog.author.name}`,
 		openGraph: {
 			title: blog.title,
 			images: [blog.thumbnail],
