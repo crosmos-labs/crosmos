@@ -4,7 +4,6 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 import { listSources } from "@/actions/sources";
 import { DataFetchError } from "@/components/data-fetch-error";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { SourceFilters } from "@/components/source-filters";
 import { SourceList } from "@/components/source-list";
 import { SourceListSkeleton } from "@/components/source-list-skeleton";
@@ -19,6 +18,7 @@ export default function SourcesPage() {
 	const [extractionStatus, setExtractionStatus] =
 		useState<ExtractionStatus | null>(null);
 	const [spaceId, setSpaceId] = useState<string | null>(null);
+	const [isFetchingFilters, setIsFetchingFilters] = useState(false);
 
 	const filters = {
 		content_type: contentType,
@@ -35,7 +35,6 @@ export default function SourcesPage() {
 	const { data: spacesData, isLoading: spacesLoading } = useSpaces();
 
 	const { cache, mutate } = useSWRConfig();
-	const { runAction } = useActionLoader();
 	const fetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const hasMore = sourcesData?.hasMore ?? false;
@@ -73,38 +72,40 @@ export default function SourcesPage() {
 			});
 
 			if (cache.get(newKey)?.data !== undefined) {
+				setIsFetchingFilters(false);
 				return;
 			}
+
+			setIsFetchingFilters(true);
 
 			if (fetchTimerRef.current) {
 				clearTimeout(fetchTimerRef.current);
 			}
 
-			fetchTimerRef.current = setTimeout(() => {
+			fetchTimerRef.current = setTimeout(async () => {
 				const offset = (newPage - 1) * SOURCES_PER_PAGE;
-				runAction(async () => {
-					await mutate(
-						newKey,
-						async () => {
-							const data = await listSources({
-								limit: SOURCES_PER_PAGE,
-								offset,
-								content_type: newCt,
-								extraction_status: newEs,
-								space_id: newSpace,
-							});
-							return {
-								sources: data.sources,
-								hasMore: data.sources.length === SOURCES_PER_PAGE,
-								total: data.total,
-							};
-						},
-						{ revalidate: false },
-					);
-				});
+				await mutate(
+					newKey,
+					async () => {
+						const data = await listSources({
+							limit: SOURCES_PER_PAGE,
+							offset,
+							content_type: newCt,
+							extraction_status: newEs,
+							space_id: newSpace,
+						});
+						return {
+							sources: data.sources,
+							hasMore: data.sources.length === SOURCES_PER_PAGE,
+							total: data.total,
+						};
+					},
+					{ revalidate: false },
+				);
+				setIsFetchingFilters(false);
 			}, 200);
 		},
-		[cache, mutate, runAction],
+		[cache, mutate],
 	);
 
 	if (sourcesError) {
@@ -123,6 +124,8 @@ export default function SourcesPage() {
 			</div>
 		);
 	}
+
+	const showSkeleton = (isLoading && !sourcesData) || isFetchingFilters;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -148,7 +151,7 @@ export default function SourcesPage() {
 					applyChange(1, contentType, extractionStatus, value)
 				}
 			/>
-			{isLoading && !sourcesData ? (
+			{showSkeleton ? (
 				<SourceListSkeleton />
 			) : (
 				<SourceList
