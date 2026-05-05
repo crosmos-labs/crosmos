@@ -59,6 +59,7 @@ import {
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
 import type { SourcesResponse } from "@/hooks/use-sources";
+import { SOURCES_PER_PAGE } from "@/lib/params/constants";
 import type {
 	ContentTypeStr,
 	ExtractionStatus,
@@ -200,6 +201,18 @@ export function SourceList({
 
 	const handleDelete = useCallback(
 		(sourceUuid: string, spaceUuid: string) => {
+			const offset = (page - 1) * SOURCES_PER_PAGE;
+
+			const recompute = (current: SourcesResponse): SourcesResponse => {
+				const sources = current.sources.filter((s) => s.id !== sourceUuid);
+				const total = current.total - 1;
+				return {
+					sources,
+					total,
+					hasMore: offset + sources.length < total,
+				};
+			};
+
 			runAction(
 				async () => {
 					await mutate(
@@ -207,23 +220,13 @@ export function SourceList({
 						async (current: SourcesResponse | undefined) => {
 							await deleteSource(sourceUuid, spaceUuid);
 							return current
-								? {
-										...current,
-										sources: current.sources.filter((s) => s.id !== sourceUuid),
-										total: current.total - 1,
-									}
+								? recompute(current)
 								: { sources: [], hasMore: false, total: 0 };
 						},
 						{
 							optimisticData: (current: SourcesResponse | undefined) =>
 								current
-									? {
-											...current,
-											sources: current.sources.filter(
-												(s) => s.id !== sourceUuid,
-											),
-											total: current.total - 1,
-										}
+									? recompute(current)
 									: { sources: [], hasMore: false, total: 0 },
 							rollbackOnError: true,
 							revalidate: false,
@@ -238,7 +241,7 @@ export function SourceList({
 				},
 			);
 		},
-		[runAction, mutate, swrKey],
+		[runAction, mutate, swrKey, page],
 	);
 
 	const toggleExpand = useCallback((id: string) => {

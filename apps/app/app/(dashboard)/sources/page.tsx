@@ -1,15 +1,13 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
-import { listSources } from "@/actions/sources";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { SourceFilters } from "@/components/source-filters";
 import { SourceList } from "@/components/source-list";
 import { SourceListSkeleton } from "@/components/source-list-skeleton";
 import { buildSourcesKey, useSources } from "@/hooks/use-sources";
 import { useSpaces } from "@/hooks/use-spaces";
-import { SOURCES_PER_PAGE } from "@/lib/params/constants";
 import type { ContentTypeStr, ExtractionStatus } from "@/lib/types/source";
 
 export default function SourcesPage() {
@@ -18,30 +16,35 @@ export default function SourcesPage() {
 	const [extractionStatus, setExtractionStatus] =
 		useState<ExtractionStatus | null>(null);
 	const [spaceId, setSpaceId] = useState<string | null>(null);
-	const [isFetchingFilters, setIsFetchingFilters] = useState(false);
 
-	const filters = {
-		content_type: contentType,
-		extraction_status: extractionStatus,
-		space_id: spaceId,
+	const [queryPage, setQueryPage] = useState(1);
+	const [queryCt, setQueryCt] = useState<ContentTypeStr | null>(null);
+	const [queryEs, setQueryEs] = useState<ExtractionStatus | null>(null);
+	const [querySpace, setQuerySpace] = useState<string | null>(null);
+
+	const queryFilters = {
+		content_type: queryCt,
+		extraction_status: queryEs,
+		space_id: querySpace,
 	};
 
 	const {
 		data: sourcesData,
 		isLoading,
+		isValidating,
 		error: sourcesError,
-	} = useSources(page, filters);
+	} = useSources(queryPage, queryFilters);
 
 	const { data: spacesData, isLoading: spacesLoading } = useSpaces();
 
-	const { cache, mutate } = useSWRConfig();
-	const fetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const { cache } = useSWRConfig();
+	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const hasMore = sourcesData?.hasMore ?? false;
 	const sources = sourcesData?.sources ?? [];
 	const hasFilters =
 		contentType !== null || extractionStatus !== null || spaceId !== null;
-	const swrKey = buildSourcesKey(page, filters);
+	const swrKey = buildSourcesKey(queryPage, queryFilters);
 
 	const spaceNameLookup = useMemo(() => {
 		const map = new Map<string, string>();
@@ -52,6 +55,27 @@ export default function SourcesPage() {
 		}
 		return map;
 	}, [spacesData]);
+
+	const flushQueryState = useCallback(
+		(
+			newPage: number,
+			newCt: ContentTypeStr | null,
+			newEs: ExtractionStatus | null,
+			newSpace: string | null,
+		) => {
+			setQueryPage(newPage);
+			setQueryCt(newCt);
+			setQueryEs(newEs);
+			setQuerySpace(newSpace);
+		},
+		[],
+	);
+
+	useEffect(() => {
+		return () => {
+			if (debounceRef.current) clearTimeout(debounceRef.current);
+		};
+	}, []);
 
 	const applyChange = useCallback(
 		(
@@ -72,40 +96,23 @@ export default function SourcesPage() {
 			});
 
 			if (cache.get(newKey)?.data !== undefined) {
-				setIsFetchingFilters(false);
+				if (debounceRef.current) {
+					clearTimeout(debounceRef.current);
+					debounceRef.current = null;
+				}
+				flushQueryState(newPage, newCt, newEs, newSpace);
 				return;
 			}
 
-			setIsFetchingFilters(true);
-
-			if (fetchTimerRef.current) {
-				clearTimeout(fetchTimerRef.current);
+			if (debounceRef.current) {
+				clearTimeout(debounceRef.current);
 			}
 
-			fetchTimerRef.current = setTimeout(async () => {
-				const offset = (newPage - 1) * SOURCES_PER_PAGE;
-				await mutate(
-					newKey,
-					async () => {
-						const data = await listSources({
-							limit: SOURCES_PER_PAGE,
-							offset,
-							content_type: newCt,
-							extraction_status: newEs,
-							space_id: newSpace,
-						});
-						return {
-							sources: data.sources,
-							hasMore: offset + data.sources.length < data.total,
-							total: data.total,
-						};
-					},
-					{ revalidate: false },
-				);
-				setIsFetchingFilters(false);
+			debounceRef.current = setTimeout(() => {
+				flushQueryState(newPage, newCt, newEs, newSpace);
 			}, 200);
 		},
-		[cache, mutate],
+		[cache, flushQueryState],
 	);
 
 	if (sourcesError) {
@@ -119,13 +126,16 @@ export default function SourcesPage() {
 				</div>
 				<DataFetchError
 					message={sourcesError.message}
-					onRetry={() => mutate(swrKey)}
+					onRetry={() =>
+						flushQueryState(page, contentType, extractionStatus, spaceId)
+					}
 				/>
 			</div>
 		);
 	}
 
-	const showSkeleton = (isLoading && !sourcesData) || isFetchingFilters;
+	const isFetching = isLoading && !sourcesData;
+	const isValidatingFilters = isValidating && !!sourcesData;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -151,19 +161,23 @@ export default function SourcesPage() {
 					applyChange(1, contentType, extractionStatus, value)
 				}
 				onClearFilters={() => {
-					if (fetchTimerRef.current) {
-						clearTimeout(fetchTimerRef.current);
-						fetchTimerRef.current = null;
+					if (debounceRef.current) {
+						clearTimeout(debounceRef.current);
+						debounceRef.current = null;
 					}
-					applyChange(1, null, null, null);
+					setPage(1);
+					setContentType(null);
+					setExtractionStatus(null);
+					setSpaceId(null);
+					flushQueryState(1, null, null, null);
 				}}
 			/>
-			{showSkeleton ? (
+			{isFetching || isValidatingFilters ? (
 				<SourceListSkeleton />
 			) : (
 				<SourceList
 					sources={sources}
-					page={page}
+					page={queryPage}
 					hasMore={hasMore}
 					hasFilters={hasFilters}
 					swrKey={swrKey}
@@ -171,7 +185,17 @@ export default function SourcesPage() {
 					onPageChange={(newPage) =>
 						applyChange(newPage, contentType, extractionStatus, spaceId)
 					}
-					onClearFilters={() => applyChange(1, null, null, null)}
+					onClearFilters={() => {
+						if (debounceRef.current) {
+							clearTimeout(debounceRef.current);
+							debounceRef.current = null;
+						}
+						setPage(1);
+						setContentType(null);
+						setExtractionStatus(null);
+						setSpaceId(null);
+						flushQueryState(1, null, null, null);
+					}}
 				/>
 			)}
 		</div>
