@@ -2,6 +2,7 @@
 
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { useSWRConfig } from "swr";
+import { DashboardStats } from "@/components/dashboard-stats";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { GetStarted } from "@/components/get-started";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -46,6 +47,7 @@ export default function Home() {
 				</p>
 			</div>
 			<GetStarted />
+			<DashboardStats />
 		</div>
 	);
 }

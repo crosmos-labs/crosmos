@@ -7,39 +7,32 @@ import {
 	ItemDescription,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 
 function SkeletonRow() {
 	return (
-		<Item variant="outline" className="px-4 py-3.5 opacity-40">
+		<Item variant="outline" className="px-4 py-3.5">
 			<ItemContent>
 				<ItemTitle className="text-base">
-					<span className="inline-block h-4 w-20 animate-pulse rounded bg-muted font-mono text-xs text-muted-foreground">
-						▓▓▓▓▓▓
-					</span>
+					<Skeleton className="h-4 w-20" />
 				</ItemTitle>
 				<ItemDescription>
-					<span className="inline-block h-3.5 w-3/4 animate-pulse rounded bg-muted font-mono text-xs">
-						░░░░░░░░░░░░░░░░░░░░░
-					</span>
+					<span className="inline-block animate-pulse rounded-md bg-muted h-3.5 w-3/4" />
 				</ItemDescription>
 			</ItemContent>
 			<ItemActions>
-				<span className="inline-block h-3 w-14 animate-pulse rounded bg-muted font-mono text-xs">
-					░░░░
-				</span>
+				<Skeleton className="h-3 w-14" />
 			</ItemActions>
 		</Item>
 	);
 }
 
-const SKELETON_ROWS = [
-	<SkeletonRow key="skeleton-0" />,
-	<SkeletonRow key="skeleton-1" />,
-	<SkeletonRow key="skeleton-2" />,
-	<SkeletonRow key="skeleton-3" />,
-	<SkeletonRow key="skeleton-4" />,
-];
-
 export function SourceListSkeleton() {
-	return <div className="flex flex-col gap-4">{SKELETON_ROWS}</div>;
+	return (
+		<div className="flex flex-col gap-4">
+			{["a", "b", "c", "d", "e"].map((k) => (
+				<SkeletonRow key={k} />
+			))}
+		</div>
+	);
 }

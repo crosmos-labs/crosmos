@@ -7,7 +7,6 @@ import {
 	IconFileImport,
 	IconGalaxy,
 	IconKey,
-	IconPlayerPlay,
 	IconSettings,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
@@ -60,12 +59,6 @@ export const navGroups: NavGroup[] = [
 		label: "DEVELOPER",
 		items: [
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
-			{
-				label: "Playground",
-				href: "/playground",
-				icon: IconPlayerPlay,
-				disabled: true,
-			},
 		],
 	},
 	{
@@ -93,7 +86,6 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",
-	"/playground": "Playground",
 	"/billing": "Billing",
 	"/settings": "Settings",
 };
