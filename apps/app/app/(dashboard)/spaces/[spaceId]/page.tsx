@@ -1,12 +1,12 @@
 "use client";
 
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { useQueryStates } from "nuqs";
 import { use, useEffect } from "react";
 import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { MemoryList } from "@/components/memory-list";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
+import { SpaceDetailSkeleton } from "@/components/space-detail-skeleton";
 import { useMemories } from "@/hooks/use-memories";
 import { useSpaces } from "@/hooks/use-spaces";
 import { paginationParsers } from "@/lib/params/pagination";
@@ -47,45 +47,74 @@ export default function SpaceDetailPage({
 	const hasMore = memoriesData?.hasMore ?? false;
 	const memories = memoriesData?.memories ?? [];
 
-	const isLoading = spacesLoading || memoriesLoading;
-
-	if (isLoading) {
-		return <AnimatedSpinner name="waverows" size="1.5rem" />;
-	}
+	const isInitialLoading =
+		(spacesLoading && !spaces) || (memoriesLoading && !memoriesData);
 
 	if (spacesError) {
 		return (
-			<DataFetchError
-				message={spacesError.message}
-				onRetry={() => mutate("/spaces")}
-			/>
+			<div className="flex flex-col gap-6">
+				<div className="flex flex-col gap-1">
+					<h1 className="text-2xl font-semibold tracking-tight">
+						Space Details
+					</h1>
+					<p className="text-sm text-muted-foreground">Loading space…</p>
+				</div>
+				<DataFetchError
+					message={spacesError.message}
+					onRetry={() => mutate("/spaces")}
+				/>
+			</div>
 		);
+	}
+
+	if (!spacesLoading && !space) {
+		return (
+			<div className="flex flex-col gap-6">
+				<div className="flex flex-col gap-1">
+					<h1 className="text-2xl font-semibold tracking-tight">
+						Space Not Found
+					</h1>
+					<p className="text-sm text-muted-foreground">
+						This space may have been deleted.
+					</p>
+				</div>
+				<DataFetchError
+					message="Space not found"
+					onRetry={() => mutate("/spaces")}
+				/>
+			</div>
+		);
+	}
+
+	if (isInitialLoading) {
+		return <SpaceDetailSkeleton />;
 	}
 
 	if (memoriesError) {
 		return (
-			<DataFetchError
-				message={memoriesError.message}
-				onRetry={() => mutate(`/memories?space_uuid=${spaceId}`)}
-			/>
-		);
-	}
-
-	if (!space) {
-		return (
-			<DataFetchError
-				message="Space not found"
-				onRetry={() => mutate("/spaces")}
-			/>
+			<div className="flex flex-col gap-6">
+				<div className="flex flex-col gap-1">
+					<h1 className="text-2xl font-semibold tracking-tight">
+						{space?.name}
+					</h1>
+					<p className="text-sm text-muted-foreground">
+						{space?.description ?? "No description"}
+					</p>
+				</div>
+				<DataFetchError
+					message={memoriesError.message}
+					onRetry={() => mutate(`/memories?space_uuid=${spaceId}`)}
+				/>
+			</div>
 		);
 	}
 
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-1">
-				<h1 className="text-2xl font-semibold tracking-tight">{space.name}</h1>
+				<h1 className="text-2xl font-semibold tracking-tight">{space?.name}</h1>
 				<p className="text-sm text-muted-foreground">
-					{space.description ?? "No description"}
+					{space?.description ?? "No description"}
 				</p>
 			</div>
 			<div className="flex flex-col gap-4">

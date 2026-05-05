@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { useSWRConfig } from "swr";
 import { DashboardStats } from "@/components/dashboard-stats";
 import { DataFetchError } from "@/components/data-fetch-error";
@@ -17,15 +16,7 @@ function getFirstName(name: string | null | undefined): string {
 
 export default function Home() {
 	const { mutate } = useSWRConfig();
-	const {
-		data: user,
-		isLoading: userLoading,
-		error: userError,
-	} = useCurrentUser();
-
-	if (userLoading) {
-		return <AnimatedSpinner name="waverows" size="1.5rem" />;
-	}
+	const { data: user, error: userError } = useCurrentUser();
 
 	if (userError) {
 		return (

@@ -143,7 +143,7 @@ export function DashboardStats() {
 				progress={tokensPercent}
 			/>
 			<StatCard
-				title="Queries"
+				title="Requests"
 				value={formatNumber(queriesUsed)}
 				subtitle={`${formatNumber(queriesUsed)} / ${formatNumber(queriesLimit)}`}
 				icon={IconCreditCard}

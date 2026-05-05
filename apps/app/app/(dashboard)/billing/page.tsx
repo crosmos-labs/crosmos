@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@crosmos/ui/components/item";
 import { Progress } from "@crosmos/ui/components/progress";
 import { useSWRConfig } from "swr";
+import { BillingSkeleton } from "@/components/billing-skeleton";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { useUsage } from "@/hooks/use-usage";
 
@@ -74,19 +74,6 @@ export default function BillingPage() {
 	const { mutate } = useSWRConfig();
 	const { data, isLoading, error } = useUsage();
 
-	if (isLoading) {
-		return <AnimatedSpinner name="waverows" size="1.5rem" />;
-	}
-
-	if (error) {
-		return (
-			<DataFetchError
-				message={error.message}
-				onRetry={() => mutate("/usage")}
-			/>
-		);
-	}
-
 	const plan = data?.plan ?? "free";
 	const periodStart = data?.period_start;
 	const periodEnd = data?.period_end;
@@ -103,57 +90,68 @@ export default function BillingPage() {
 					Manage your subscription plan and view usage.
 				</p>
 			</div>
-			<ItemGroup>
-				<Item
-					variant="outline"
-					className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
-				>
-					<ItemContent>
-						<ItemTitle className="flex items-center gap-2 text-base">
-							{capitalize(plan)} Plan
-							<Badge variant="secondary">{capitalize(plan)}</Badge>
-						</ItemTitle>
-						<ItemDescription>
-							{data
-								? `Up to ${formatNumber(data.tokens.limit)} tokens and ${formatNumber(data.queries.limit)} queries per month. Upgrade for higher limits and premium features.`
-								: "Upgrade for higher limits and premium features."}
-						</ItemDescription>
-					</ItemContent>
-					<ItemActions>
-						<Button disabled>Upgrade</Button>
-					</ItemActions>
-				</Item>
-			</ItemGroup>
-			<div className="flex flex-col gap-6">
-				<div className="flex flex-col gap-1">
-					<h2 className="text-lg font-semibold tracking-tight">Usage</h2>
-					<p className="text-sm text-muted-foreground">
-						Your resource usage this billing period
-						{periodLabel ? ` (${periodLabel})` : ""}.
-					</p>
-				</div>
-				<div className="flex flex-col gap-6">
-					{data && (
-						<>
-							<UsageRow
-								label="Tokens Ingested"
-								used={data.tokens.used}
-								limit={data.tokens.limit}
-							/>
-							<UsageRow
-								label="Search Queries"
-								used={data.queries.used}
-								limit={data.queries.limit}
-							/>
-							<UsageRow
-								label="Spaces"
-								used={data.spaces.used}
-								limit={data.spaces.limit}
-							/>
-						</>
-					)}
-				</div>
-			</div>
+			{error ? (
+				<DataFetchError
+					message={error.message}
+					onRetry={() => mutate("/usage")}
+				/>
+			) : isLoading && !data ? (
+				<BillingSkeleton />
+			) : (
+				<>
+					<ItemGroup>
+						<Item
+							variant="outline"
+							className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
+						>
+							<ItemContent>
+								<ItemTitle className="flex items-center gap-2 text-base">
+									{capitalize(plan)} Plan
+									<Badge variant="secondary">{capitalize(plan)}</Badge>
+								</ItemTitle>
+								<ItemDescription>
+									{data
+										? `Up to ${formatNumber(data.tokens.limit)} tokens and ${formatNumber(data.queries.limit)} queries per month. Upgrade for higher limits and premium features.`
+										: "Upgrade for higher limits and premium features."}
+								</ItemDescription>
+							</ItemContent>
+							<ItemActions>
+								<Button disabled>Upgrade</Button>
+							</ItemActions>
+						</Item>
+					</ItemGroup>
+					<div className="flex flex-col gap-6">
+						<div className="flex flex-col gap-1">
+							<h2 className="text-lg font-semibold tracking-tight">Usage</h2>
+							<p className="text-sm text-muted-foreground">
+								Your resource usage this billing period
+								{periodLabel ? ` (${periodLabel})` : ""}.
+							</p>
+						</div>
+						<div className="flex flex-col gap-6">
+							{data && (
+								<>
+									<UsageRow
+										label="Tokens Ingested"
+										used={data.tokens.used}
+										limit={data.tokens.limit}
+									/>
+									<UsageRow
+										label="Search Queries"
+										used={data.queries.used}
+										limit={data.queries.limit}
+									/>
+									<UsageRow
+										label="Spaces"
+										used={data.spaces.used}
+										limit={data.spaces.limit}
+									/>
+								</>
+							)}
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	);
 }
