@@ -54,6 +54,7 @@ interface SourceFiltersProps {
 	onContentTypeChange: (value: ContentTypeStr | null) => void;
 	onExtractionStatusChange: (value: ExtractionStatus | null) => void;
 	onSpaceChange: (value: string | null) => void;
+	onClearFilters: () => void;
 }
 
 function FilterSection({
@@ -157,6 +158,7 @@ export function SourceFilters({
 	onContentTypeChange,
 	onExtractionStatusChange,
 	onSpaceChange,
+	onClearFilters,
 }: SourceFiltersProps) {
 	const spaceLabels: Record<string, string> = {};
 	const spaceIds: string[] = [];
@@ -201,14 +203,7 @@ export function SourceFilters({
 				onChange={(v) => onExtractionStatusChange(v as ExtractionStatus | null)}
 			/>
 			<Separator />
-			<ClearButton
-				hasFilters={hasFilters}
-				onClear={() => {
-					onContentTypeChange(null);
-					onExtractionStatusChange(null);
-					onSpaceChange(null);
-				}}
-			/>
+			<ClearButton hasFilters={hasFilters} onClear={onClearFilters} />
 		</>
 	);
 

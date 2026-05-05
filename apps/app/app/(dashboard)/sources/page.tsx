@@ -150,6 +150,13 @@ export default function SourcesPage() {
 				onSpaceChange={(value) =>
 					applyChange(1, contentType, extractionStatus, value)
 				}
+				onClearFilters={() => {
+					if (fetchTimerRef.current) {
+						clearTimeout(fetchTimerRef.current);
+						fetchTimerRef.current = null;
+					}
+					applyChange(1, null, null, null);
+				}}
 			/>
 			{showSkeleton ? (
 				<SourceListSkeleton />
