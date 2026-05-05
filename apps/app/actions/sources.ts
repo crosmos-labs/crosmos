@@ -32,7 +32,7 @@ export async function listSources(options?: {
 	);
 	return {
 		sources: data.sources,
-		hasMore: data.sources.length === limit,
+		hasMore: offset + data.sources.length < data.total,
 		total: data.total,
 	};
 }
