@@ -6,6 +6,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@crosmos/ui/components/popover";
+import { Separator } from "@crosmos/ui/components/separator";
 import {
 	Sheet,
 	SheetClose,
@@ -69,8 +70,8 @@ function FilterSection({
 	onChange: (value: string | null) => void;
 }) {
 	return (
-		<div className="flex flex-col gap-2">
-			<span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+		<div className="flex flex-col gap-2.5">
+			<span className="text-[0.68rem] font-semibold text-foreground/70 uppercase tracking-widest">
 				{title}
 			</span>
 			<ToggleGroup
@@ -199,6 +200,7 @@ export function SourceFilters({
 				labels={EXTRACTION_STATUS_LABELS}
 				onChange={(v) => onExtractionStatusChange(v as ExtractionStatus | null)}
 			/>
+			<Separator />
 			<ClearButton
 				hasFilters={hasFilters}
 				onClear={() => {
