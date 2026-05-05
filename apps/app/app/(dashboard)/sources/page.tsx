@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 import { listSources } from "@/actions/sources";
 import { DataFetchError } from "@/components/data-fetch-error";
@@ -36,6 +36,7 @@ export default function SourcesPage() {
 
 	const { cache, mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
+	const fetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const hasMore = sourcesData?.hasMore ?? false;
 	const sources = sourcesData?.sources ?? [];
@@ -60,42 +61,48 @@ export default function SourcesPage() {
 			newEs: ExtractionStatus | null,
 			newSpace: string | null,
 		) => {
+			setPage(newPage);
+			setContentType(newCt);
+			setExtractionStatus(newEs);
+			setSpaceId(newSpace);
+
 			const newKey = buildSourcesKey(newPage, {
 				content_type: newCt,
 				extraction_status: newEs,
 				space_id: newSpace,
 			});
 
-			setPage(newPage);
-			setContentType(newCt);
-			setExtractionStatus(newEs);
-			setSpaceId(newSpace);
-
 			if (cache.get(newKey)?.data !== undefined) {
 				return;
 			}
 
-			const offset = (newPage - 1) * SOURCES_PER_PAGE;
-			runAction(async () => {
-				await mutate(
-					newKey,
-					async () => {
-						const data = await listSources({
-							limit: SOURCES_PER_PAGE,
-							offset,
-							content_type: newCt,
-							extraction_status: newEs,
-							space_id: newSpace,
-						});
-						return {
-							sources: data.sources,
-							hasMore: data.sources.length === SOURCES_PER_PAGE,
-							total: data.total,
-						};
-					},
-					{ revalidate: false },
-				);
-			});
+			if (fetchTimerRef.current) {
+				clearTimeout(fetchTimerRef.current);
+			}
+
+			fetchTimerRef.current = setTimeout(() => {
+				const offset = (newPage - 1) * SOURCES_PER_PAGE;
+				runAction(async () => {
+					await mutate(
+						newKey,
+						async () => {
+							const data = await listSources({
+								limit: SOURCES_PER_PAGE,
+								offset,
+								content_type: newCt,
+								extraction_status: newEs,
+								space_id: newSpace,
+							});
+							return {
+								sources: data.sources,
+								hasMore: data.sources.length === SOURCES_PER_PAGE,
+								total: data.total,
+							};
+						},
+						{ revalidate: false },
+					);
+				});
+			}, 200);
 		},
 		[cache, mutate, runAction],
 	);
