@@ -4,6 +4,7 @@ import {
 	IconChartBar,
 	IconCreditCard,
 	IconDatabase,
+	IconFileImport,
 	IconGalaxy,
 	IconKey,
 	IconPlayerPlay,
@@ -33,7 +34,10 @@ export const homeItem: NavItem = {
 export const navGroups: NavGroup[] = [
 	{
 		label: "MEMORY",
-		items: [{ label: "Spaces", href: "/spaces", icon: IconDatabase }],
+		items: [
+			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
+			{ label: "Sources", href: "/sources", icon: IconFileImport },
+		],
 	},
 	{
 		label: "INSIGHTS",
@@ -85,6 +89,7 @@ export const navGroups: NavGroup[] = [
 export const breadcrumbLabelMap: Record<string, string> = {
 	"/": "Home",
 	"/spaces": "Spaces",
+	"/sources": "Sources",
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",
