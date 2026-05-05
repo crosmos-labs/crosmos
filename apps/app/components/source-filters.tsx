@@ -202,8 +202,12 @@ export function SourceFilters({
 				labels={EXTRACTION_STATUS_LABELS}
 				onChange={(v) => onExtractionStatusChange(v as ExtractionStatus | null)}
 			/>
-			<Separator />
-			<ClearButton hasFilters={hasFilters} onClear={onClearFilters} />
+			{hasFilters && (
+				<>
+					<Separator />
+					<ClearButton hasFilters={hasFilters} onClear={onClearFilters} />
+				</>
+			)}
 		</>
 	);
 
