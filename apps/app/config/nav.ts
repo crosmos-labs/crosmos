@@ -57,9 +57,7 @@ export const navGroups: NavGroup[] = [
 	},
 	{
 		label: "DEVELOPER",
-		items: [
-			{ label: "API Keys", href: "/api-key", icon: IconKey },
-		],
+		items: [{ label: "API Keys", href: "/api-key", icon: IconKey }],
 	},
 	{
 		label: "ACCOUNT",
