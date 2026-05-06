@@ -9,13 +9,16 @@ export default function Home() {
 	return (
 		<>
 			<HeroBg />
-			<div className="relative z-10 -mt-[32vh]">
+			<div className="relative z-10 -mt-[20vh] sm:-mt-[16vh] md:-mt-[24vh] lg:-mt-[28vh]">
 				<BlockTransition fromColor="bg-transparent" toColor="bg-background" />
 			</div>
 			<Features />
 			<Pricing />
 			<BlogSection />
-			<BlockTransition fromColor="bg-background" toColor="bg-[oklch(0.19_0_0)]" />
+			<BlockTransition
+				fromColor="bg-background"
+				toColor="bg-[oklch(0.19_0_0)]"
+			/>
 			<Faq />
 		</>
 	);

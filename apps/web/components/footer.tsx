@@ -65,7 +65,7 @@ const FOOTER_DATA = {
 
 export function Footer() {
 	return (
-		<footer className="dark bg-background text-foreground relative z-30">
+		<footer className="dark bg-background text-foreground border-0 relative z-30">
 			<div className="absolute inset-0">
 				<PixelBlast
 					variant="square"

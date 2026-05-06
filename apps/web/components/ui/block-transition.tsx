@@ -57,7 +57,7 @@ export function BlockTransition({
 	return (
 		<div
 			ref={containerRef}
-			className={cn("w-full grid", fromColor, className)}
+			className={cn("w-full grid gap-0", fromColor, className)}
 			style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
 		>
 			{thresholds.length > 0 &&
@@ -87,10 +87,10 @@ function Block({
 		v >= threshold ? 1 : 0,
 	);
 
-	return (
+		return (
 		<div className="w-full aspect-square relative">
 			<motion.div
-				className={cn("absolute inset-0", toColor)}
+				className={cn("absolute -inset-[0.5px]", toColor)}
 				style={{ opacity }}
 			/>
 		</div>
