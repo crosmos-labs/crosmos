@@ -22,7 +22,6 @@ export const GRAPH_CONFIG = {
 	},
 	edge: {
 		fontSize: 6,
-		labelOffsetY: -3,
 		labelPaddingX: 3,
 		labelPaddingY: 1,
 		labelBackgroundColor: "oklch(0.19 0 0)",

@@ -406,7 +406,6 @@ export function ForceGraph({
 						: baseOpacity;
 
 					const clampedOpacity = Math.min(1, Math.max(0, effectiveOpacity));
-					const yOffset = ep * edgeConf.labelOffsetY;
 
 					ctx.globalAlpha = clampedOpacity;
 					ctx.font = `${edgeConf.fontSize}px Satoshi, Inter, ui-sans-serif, system-ui, sans-serif`;
@@ -415,7 +414,7 @@ export function ForceGraph({
 
 					const textWidth = ctx.measureText(relationType).width;
 					const bgX = midX - textWidth / 2 - edgeConf.labelPaddingX;
-					const bgY = midY + yOffset - edgeConf.fontSize / 2 - edgeConf.labelPaddingY;
+					const bgY = midY - edgeConf.fontSize / 2 - edgeConf.labelPaddingY;
 					const bgW = textWidth + edgeConf.labelPaddingX * 2;
 					const bgH = edgeConf.fontSize + edgeConf.labelPaddingY * 2;
 
@@ -423,7 +422,7 @@ export function ForceGraph({
 					ctx.fillRect(bgX, bgY, bgW, bgH);
 
 					ctx.fillStyle = nodeConf.labelColor;
-					ctx.fillText(relationType, midX, midY + yOffset);
+					ctx.fillText(relationType, midX, midY);
 					ctx.globalAlpha = 1;
 				}}
 				d3AlphaDecay={GRAPH_CONFIG.force.alphaDecay}
