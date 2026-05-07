@@ -8,6 +8,7 @@ import {
 	IconGalaxy,
 	IconKey,
 	IconSettings,
+	IconTopologyComplex,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
 
@@ -36,6 +37,7 @@ export const navGroups: NavGroup[] = [
 		items: [
 			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
 			{ label: "Sources", href: "/sources", icon: IconFileImport },
+			{ label: "Graph", href: "/graph", icon: IconTopologyComplex },
 		],
 	},
 	{
@@ -81,6 +83,7 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/": "Home",
 	"/spaces": "Spaces",
 	"/sources": "Sources",
+	"/graph": "Graph",
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",
