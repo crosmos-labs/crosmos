@@ -34,7 +34,7 @@ export default function GraphPage() {
 	const { mutate } = useSWRConfig();
 
 	useEffect(() => {
-		setBreadcrumb({ label: "Graph", parent: { label: "Home", href: "/" } });
+		setBreadcrumb({ label: "Graph" });
 		return () => setBreadcrumb(null);
 	}, [setBreadcrumb]);
 
