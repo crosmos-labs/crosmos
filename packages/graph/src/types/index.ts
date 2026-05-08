@@ -3,6 +3,8 @@ export interface GraphNode {
 	name: string;
 	entity_type: string | null;
 	edge_count: number;
+	created_at: string | null;
+	updated_at: string | null;
 }
 
 export interface GraphEdge {

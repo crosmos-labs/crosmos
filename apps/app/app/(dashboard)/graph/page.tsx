@@ -10,7 +10,7 @@ import {
 	SelectValue,
 } from "@crosmos/ui/components/select";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
@@ -52,6 +52,15 @@ export default function GraphPage() {
 	const handleBackgroundClick = useCallback(() => {
 		setSelectedNode(null);
 	}, []);
+
+	const nodeMap = useMemo(() => {
+		if (!graphData) return new Map<string, GraphNode>();
+		const map = new Map<string, GraphNode>();
+		for (const n of graphData.nodes) {
+			map.set(n.id, n);
+		}
+		return map;
+	}, [graphData]);
 
 	if (spacesError) {
 		return (
@@ -116,9 +125,11 @@ export default function GraphPage() {
 						onNodeClick={handleNodeClick}
 						onBackgroundClick={handleBackgroundClick}
 					/>
-					{selectedNode && (
+					{selectedNode && graphData && (
 						<NodePopover
 							node={selectedNode}
+							edges={graphData.edges}
+							nodeMap={nodeMap}
 							onClose={() => setSelectedNode(null)}
 						/>
 					)}

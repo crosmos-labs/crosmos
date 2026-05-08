@@ -56,6 +56,7 @@ export function ForceGraph({
 	const hoverAnimProgressRef = useRef(0);
 	const animFrameRef = useRef(0);
 	const connectedEdgesRef = useRef<Set<string>>(new Set());
+	const connectedNodeIdsRef = useRef<Set<string>>(new Set());
 	const hoveredEdgeKeyRef = useRef<string | null>(null);
 	const edgeHoverAnimProgressRef = useRef(0);
 	const edgeAnimFrameRef = useRef(0);
@@ -119,15 +120,21 @@ export function ForceGraph({
 		(nodeId: string | null) => {
 			if (!nodeId) {
 				connectedEdgesRef.current = new Set();
+				connectedNodeIdsRef.current = new Set();
 				return;
 			}
-			const set = new Set<string>();
+			const edgeSet = new Set<string>();
+			const nodeSet = new Set<string>();
+			nodeSet.add(nodeId);
 			for (const e of edges) {
 				if (e.source_entity_id === nodeId || e.target_entity_id === nodeId) {
-					set.add(`${e.source_entity_id}->${e.target_entity_id}`);
+					edgeSet.add(`${e.source_entity_id}->${e.target_entity_id}`);
+					nodeSet.add(e.source_entity_id);
+					nodeSet.add(e.target_entity_id);
 				}
 			}
-			connectedEdgesRef.current = set;
+			connectedEdgesRef.current = edgeSet;
+			connectedNodeIdsRef.current = nodeSet;
 		},
 		[edges],
 	);
@@ -349,9 +356,12 @@ export function ForceGraph({
 				onBackgroundClick={handleBackgroundClick}
 				linkColor={(link: Record<string, unknown>) => {
 					const key = getEdgeKey(link as unknown as RFGLink);
-					return isEdgeHighlighted(key)
-						? hoverConf.accentColor
-						: linkConf.color;
+					if (isEdgeHighlighted(key)) {
+						return hoverConf.accentColor;
+					}
+					const p = hoverAnimProgressRef.current;
+					const dimmedAlpha = linkConf.defaultAlpha * (1 - p * (1 - hoverConf.dimOpacity));
+					return `rgba(148,163,184,${dimmedAlpha.toFixed(3)})`;
 				}}
 				linkWidth={(link: Record<string, unknown>) => {
 					const key = getEdgeKey(link as unknown as RFGLink);
@@ -386,6 +396,17 @@ export function ForceGraph({
 					const isDirectHovered = key === hoveredEdgeKeyRef.current;
 					const isConnectedHovered = connectedEdgesRef.current.has(key);
 					const isEdgeActive = isDirectHovered || isConnectedHovered;
+					const p = hoverAnimProgressRef.current;
+
+					const isHighlighted =
+						isEdgeActive ||
+						connectedNodeIdsRef.current.has(
+							(srcNode as RFGNode).id as string,
+						) ||
+						connectedNodeIdsRef.current.has((tgtNode as RFGNode).id as string);
+					const dimFactor = isHighlighted
+						? 1
+						: 1 - p * (1 - hoverConf.dimOpacity);
 
 					const ep = isDirectHovered ? edgeHoverAnimProgressRef.current : 0;
 
@@ -407,7 +428,9 @@ export function ForceGraph({
 
 					const clampedOpacity = Math.min(1, Math.max(0, effectiveOpacity));
 
-					ctx.globalAlpha = clampedOpacity;
+					ctx.globalAlpha = isHighlighted
+						? clampedOpacity
+						: clampedOpacity * dimFactor;
 					ctx.font = `${edgeConf.fontSize}px Satoshi, Inter, ui-sans-serif, system-ui, sans-serif`;
 					ctx.textAlign = "center";
 					ctx.textBaseline = "middle";
@@ -433,12 +456,19 @@ export function ForceGraph({
 					ctx: CanvasRenderingContext2D,
 					globalScale: number,
 				) => {
+					const nodeId = node.id as string;
 					const label = node.name as string;
 					const nodeRadius = nodeConf.radius;
 					const fontSize = nodeConf.fontSize;
 					const labelGap = nodeConf.labelGap;
-					const isHovered = hoveredNodeIdRef.current === (node.id as string);
-					const p = isHovered ? hoverAnimProgressRef.current : 0;
+					const isHovered = hoveredNodeIdRef.current === nodeId;
+					const isConnected = connectedNodeIdsRef.current.has(nodeId);
+					const p = hoverAnimProgressRef.current;
+
+					const isHighlighted = isHovered || isConnected;
+					const dimFactor = isHighlighted
+						? 1
+						: 1 - p * (1 - hoverConf.dimOpacity);
 
 					const labelOpacity = Math.min(
 						1,
@@ -449,9 +479,13 @@ export function ForceGraph({
 						? hoverConf.accentColor
 						: (node.color as string);
 
-					const shouldShowLabel = labelOpacity > 0 || p > 0;
+					const hoverLabelProgress = isHovered
+						? hoverAnimProgressRef.current
+						: 0;
+					const shouldShowLabel = labelOpacity > 0 || hoverLabelProgress > 0;
 
 					if (!shouldShowLabel) {
+						ctx.globalAlpha = dimFactor;
 						ctx.beginPath();
 						ctx.arc(
 							node.x as number,
@@ -462,6 +496,7 @@ export function ForceGraph({
 						);
 						ctx.fillStyle = fillColor;
 						ctx.fill();
+						ctx.globalAlpha = 1;
 						return;
 					}
 
@@ -470,13 +505,14 @@ export function ForceGraph({
 							? hoverConf.hiddenLabelOpacity
 							: Math.max(labelOpacity, hoverConf.highlightOpacityBoost);
 					const effectiveOpacity =
-						labelOpacity + p * (targetOpacity - labelOpacity);
-					const labelYOffset = p * hoverConf.labelShiftY;
+						labelOpacity + hoverLabelProgress * (targetOpacity - labelOpacity);
+					const labelYOffset = hoverLabelProgress * hoverConf.labelShiftY;
 
 					ctx.font = `${fontSize}px Satoshi, Inter, ui-sans-serif, system-ui, sans-serif`;
 					ctx.textAlign = "center";
 					ctx.textBaseline = "top";
 
+					ctx.globalAlpha = dimFactor;
 					ctx.beginPath();
 					ctx.arc(
 						node.x as number,
@@ -488,7 +524,9 @@ export function ForceGraph({
 					ctx.fillStyle = fillColor;
 					ctx.fill();
 
-					ctx.globalAlpha = effectiveOpacity;
+					ctx.globalAlpha = isHighlighted
+						? effectiveOpacity
+						: effectiveOpacity * dimFactor;
 					ctx.fillStyle = nodeConf.labelColor;
 					ctx.fillText(
 						label,

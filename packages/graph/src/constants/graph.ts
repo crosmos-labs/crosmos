@@ -17,6 +17,7 @@ export const GRAPH_CONFIG = {
 	},
 	link: {
 		color: "rgba(148,163,184,0.4)",
+		defaultAlpha: 0.4,
 		defaultWidth: 0.5,
 		highlightedWidth: 1.5,
 	},
@@ -36,6 +37,7 @@ export const GRAPH_CONFIG = {
 		hiddenLabelOpacity: 1,
 		animationDurationMs: 150,
 		highlightOpacityBoost: 0.6,
+		dimOpacity: 0.15,
 	},
 	click: {
 		centerAnimationDuration: 1000,
