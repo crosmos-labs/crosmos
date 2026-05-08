@@ -400,12 +400,7 @@ export function getMockGraphData(): GraphViewportResponse | null {
 	const edges: GraphEdge[] = [];
 	const edgeCounts = new Map<string, number>();
 
-	function addEdge(
-		sourceId: string,
-		targetId: string,
-		relationType: string,
-		confidence: number,
-	) {
+	function addEdge(sourceId: string, targetId: string, relationType: string) {
 		if (sourceId === targetId) return;
 		const id = uuid(edgeId++);
 		const validFrom =
@@ -426,7 +421,6 @@ export function getMockGraphData(): GraphViewportResponse | null {
 			source_entity_id: sourceId,
 			target_entity_id: targetId,
 			relation_type: relationType,
-			confidence,
 			valid_from: validFrom,
 			recorded_at: recordedAt,
 		});
@@ -435,95 +429,57 @@ export function getMockGraphData(): GraphViewportResponse | null {
 	}
 
 	const seeded = new Set<string>();
-	function addUnique(s: string, t: string, rel: string, conf: number) {
+	function addUnique(s: string, t: string, rel: string) {
 		const key = `${s}->${rel}->${t}`;
 		if (seeded.has(key)) return;
 		seeded.add(key);
-		addEdge(s, t, rel, conf);
+		addEdge(s, t, rel);
 	}
 
 	for (let i = 0; i < personIds.length; i++) {
 		const pid = personIds[i];
 		if (!pid) continue;
 
-		addUnique(
-			pid,
-			orgIds[i % orgIds.length]!,
-			"WORKS_FOR",
-			0.85 + Math.random() * 0.1,
-		);
+		addUnique(pid, orgIds[i % orgIds.length]!, "WORKS_FOR");
 
 		const techCount = r(2, 5);
 		for (let t = 0; t < techCount; t++) {
 			const tid = techIds[r(0, techIds.length - 1)];
-			addUnique(pid, tid!, "USES", 0.8 + Math.random() * 0.15);
+			addUnique(pid, tid!, "USES");
 		}
 
 		if (Math.random() > 0.5) {
-			addUnique(
-				pid,
-				conceptIds[r(0, conceptIds.length - 1)]!,
-				"PREFERS",
-				0.7 + Math.random() * 0.2,
-			);
+			addUnique(pid, conceptIds[r(0, conceptIds.length - 1)]!, "PREFERS");
 		}
 		if (Math.random() > 0.7) {
-			addUnique(
-				pid,
-				conceptIds[r(0, conceptIds.length - 1)]!,
-				"LIKES",
-				0.75 + Math.random() * 0.2,
-			);
+			addUnique(pid, conceptIds[r(0, conceptIds.length - 1)]!, "LIKES");
 		}
 		if (Math.random() > 0.8) {
-			addUnique(
-				pid,
-				conceptIds[r(0, conceptIds.length - 1)]!,
-				"DISLIKES",
-				0.7 + Math.random() * 0.2,
-			);
+			addUnique(pid, conceptIds[r(0, conceptIds.length - 1)]!, "DISLIKES");
 		}
 
-		addUnique(
-			pid,
-			locationIds[r(0, locationIds.length - 1)]!,
-			"LOCATED_IN",
-			0.9 + Math.random() * 0.05,
-		);
+		addUnique(pid, locationIds[r(0, locationIds.length - 1)]!, "LOCATED_IN");
 
 		if (Math.random() > 0.5) {
-			addUnique(
-				pid,
-				projectIds[r(0, projectIds.length - 1)]!,
-				"PART_OF",
-				0.8 + Math.random() * 0.1,
-			);
+			addUnique(pid, projectIds[r(0, projectIds.length - 1)]!, "PART_OF");
 		}
 
 		if (Math.random() > 0.6) {
 			const friendId = personIds[r(0, personIds.length - 1)];
-			if (friendId && friendId !== pid)
-				addUnique(pid, friendId, "KNOWS", 0.7 + Math.random() * 0.2);
+			if (friendId && friendId !== pid) addUnique(pid, friendId, "KNOWS");
 		}
 		if (Math.random() > 0.85) {
 			const friendId = personIds[r(0, personIds.length - 1)];
-			if (friendId && friendId !== pid)
-				addUnique(pid, friendId, "FRIEND_OF", 0.8 + Math.random() * 0.1);
+			if (friendId && friendId !== pid) addUnique(pid, friendId, "FRIEND_OF");
 		}
 
 		if (Math.random() > 0.7) {
-			addUnique(
-				pid,
-				objectIds[r(0, objectIds.length - 1)]!,
-				"OWNS",
-				0.85 + Math.random() * 0.1,
-			);
+			addUnique(pid, objectIds[r(0, objectIds.length - 1)]!, "OWNS");
 		}
 
 		if (i < 10) {
 			const mid = personIds[r(0, personIds.length - 1)];
-			if (mid && mid !== pid)
-				addUnique(pid, mid, "MANAGES", 0.8 + Math.random() * 0.1);
+			if (mid && mid !== pid) addUnique(pid, mid, "MANAGES");
 		}
 	}
 
@@ -531,23 +487,18 @@ export function getMockGraphData(): GraphViewportResponse | null {
 		const oid = orgIds[i];
 		if (!oid) continue;
 
-		addUnique(
-			oid,
-			locationIds[i % locationIds.length]!,
-			"LOCATED_IN",
-			0.9 + Math.random() * 0.05,
-		);
+		addUnique(oid, locationIds[i % locationIds.length]!, "LOCATED_IN");
 
-		const techCount = r(2, 4);
-		for (let t = 0; t < techCount; t++) {
+		const orgTechCount = r(2, 4);
+		for (let t = 0; t < orgTechCount; t++) {
 			const tid = techIds[r(0, techIds.length - 1)];
-			addUnique(oid, tid!, "USES", 0.75 + Math.random() * 0.2);
+			addUnique(oid, tid!, "USES");
 		}
 
 		const projCount = r(1, 3);
 		for (let p = 0; p < projCount; p++) {
-			const pid = projectIds[r(0, projectIds.length - 1)];
-			addUnique(pid!, oid, "PART_OF", 0.85 + Math.random() * 0.1);
+			const projId = projectIds[r(0, projectIds.length - 1)];
+			addUnique(projId!, oid, "PART_OF");
 		}
 	}
 
@@ -558,15 +509,10 @@ export function getMockGraphData(): GraphViewportResponse | null {
 		const techCount = r(3, 6);
 		for (let t = 0; t < techCount; t++) {
 			const tid = techIds[r(0, techIds.length - 1)];
-			addUnique(pid, tid!, "USES", 0.8 + Math.random() * 0.15);
+			addUnique(pid, tid!, "USES");
 		}
 
-		addUnique(
-			pid,
-			locationIds[r(0, locationIds.length - 1)]!,
-			"LOCATED_IN",
-			0.7 + Math.random() * 0.2,
-		);
+		addUnique(pid, locationIds[r(0, locationIds.length - 1)]!, "LOCATED_IN");
 	}
 
 	for (let i = 0; i < conceptIds.length; i++) {
@@ -575,41 +521,29 @@ export function getMockGraphData(): GraphViewportResponse | null {
 
 		if (Math.random() > 0.5) {
 			const other = conceptIds[r(0, conceptIds.length - 1)];
-			if (other && other !== cid)
-				addUnique(cid, other, "PART_OF", 0.7 + Math.random() * 0.2);
+			if (other && other !== cid) addUnique(cid, other, "PART_OF");
 		}
 
 		const techCount = r(1, 3);
 		for (let t = 0; t < techCount; t++) {
 			const tid = techIds[r(0, techIds.length - 1)];
-			if (tid) addUnique(tid, cid, "PART_OF", 0.6 + Math.random() * 0.3);
+			if (tid) addUnique(tid, cid, "PART_OF");
 		}
 	}
 
 	for (const lid of locationIds) {
 		if (Math.random() > 0.4) {
 			const other = locationIds[r(0, locationIds.length - 1)];
-			if (other && other !== lid)
-				addUnique(lid, other, "CONTAINS", 0.85 + Math.random() * 0.1);
+			if (other && other !== lid) addUnique(lid, other, "CONTAINS");
 		}
 	}
 
 	for (const oid of objectIds) {
 		if (Math.random() > 0.8) {
-			addUnique(
-				personIds[r(0, personIds.length - 1)]!,
-				oid,
-				"RECOMMENDS",
-				0.7 + Math.random() * 0.2,
-			);
+			addUnique(personIds[r(0, personIds.length - 1)]!, oid, "RECOMMENDS");
 		}
 		if (Math.random() > 0.5) {
-			addUnique(
-				personIds[r(0, personIds.length - 1)]!,
-				oid,
-				"PURCHASED",
-				0.85 + Math.random() * 0.1,
-			);
+			addUnique(personIds[r(0, personIds.length - 1)]!, oid, "PURCHASED");
 		}
 	}
 

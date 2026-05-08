@@ -43,4 +43,9 @@ export const GRAPH_CONFIG = {
 		centerAnimationDuration: 1000,
 		targetZoom: 2,
 	},
+	edgeClick: {
+		animationDuration: 1000,
+		targetZoom: 2,
+		padding: 80,
+	},
 } as const;

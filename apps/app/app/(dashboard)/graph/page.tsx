@@ -1,7 +1,7 @@
 "use client";
 
-import type { GraphNode } from "@crosmos/graph";
-import { ForceGraph, NodePopover } from "@crosmos/graph";
+import type { GraphEdge, GraphNode } from "@crosmos/graph";
+import { EdgePopover, ForceGraph, NodePopover } from "@crosmos/graph";
 import {
 	Select,
 	SelectContent,
@@ -30,6 +30,15 @@ export default function GraphPage() {
 		error: graphError,
 	} = useGraph(selectedSpaceId || null);
 	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+	const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
+	const nodeMap = useMemo(() => {
+		if (!graphData) return new Map<string, GraphNode>();
+		const map = new Map<string, GraphNode>();
+		for (const n of graphData.nodes) {
+			map.set(n.id, n);
+		}
+		return map;
+	}, [graphData]);
 	const { setBreadcrumb } = useBreadcrumb();
 	const { mutate } = useSWRConfig();
 
@@ -47,20 +56,18 @@ export default function GraphPage() {
 
 	const handleNodeClick = useCallback((node: GraphNode) => {
 		setSelectedNode(node);
+		setSelectedEdge(null);
+	}, []);
+
+	const handleEdgeClick = useCallback((edge: GraphEdge) => {
+		setSelectedEdge(edge);
+		setSelectedNode(null);
 	}, []);
 
 	const handleBackgroundClick = useCallback(() => {
 		setSelectedNode(null);
+		setSelectedEdge(null);
 	}, []);
-
-	const nodeMap = useMemo(() => {
-		if (!graphData) return new Map<string, GraphNode>();
-		const map = new Map<string, GraphNode>();
-		for (const n of graphData.nodes) {
-			map.set(n.id, n);
-		}
-		return map;
-	}, [graphData]);
 
 	if (spacesError) {
 		return (
@@ -123,14 +130,20 @@ export default function GraphPage() {
 						nodes={graphData.nodes}
 						edges={graphData.edges}
 						onNodeClick={handleNodeClick}
+						onEdgeClick={handleEdgeClick}
 						onBackgroundClick={handleBackgroundClick}
 					/>
-					{selectedNode && graphData && (
+					{selectedNode && (
 						<NodePopover
 							node={selectedNode}
-							edges={graphData.edges}
-							nodeMap={nodeMap}
 							onClose={() => setSelectedNode(null)}
+						/>
+					)}
+					{selectedEdge && (
+						<EdgePopover
+							edge={selectedEdge}
+							nodeMap={nodeMap}
+							onClose={() => setSelectedEdge(null)}
 						/>
 					)}
 				</div>

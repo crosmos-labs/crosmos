@@ -22,10 +22,16 @@ interface RFGLink {
 	relation_type: string;
 }
 
+interface EdgeInfo {
+	relation_type: string;
+	valid_from: string | null;
+}
+
 interface ForceGraphProps {
 	nodes: GraphNode[];
 	edges: GraphEdge[];
 	onNodeClick?: (node: GraphNode) => void;
+	onEdgeClick?: (edge: GraphEdge) => void;
 	onBackgroundClick?: () => void;
 }
 
@@ -47,6 +53,7 @@ export function ForceGraph({
 	nodes,
 	edges,
 	onNodeClick,
+	onEdgeClick,
 	onBackgroundClick,
 }: ForceGraphProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -109,9 +116,12 @@ export function ForceGraph({
 	}, [nodes]);
 
 	const edgeMap = useMemo(() => {
-		const map = new Map<string, string>();
+		const map = new Map<string, EdgeInfo>();
 		for (const e of edges) {
-			map.set(`${e.source_entity_id}->${e.target_entity_id}`, e.relation_type);
+			map.set(`${e.source_entity_id}->${e.target_entity_id}`, {
+				relation_type: e.relation_type,
+				valid_from: e.valid_from,
+			});
 		}
 		return map;
 	}, [edges]);
@@ -277,6 +287,41 @@ export function ForceGraph({
 		[nodeMap, onNodeClick],
 	);
 
+	const handleEdgeClick = useCallback(
+		(link: Record<string, unknown>) => {
+			const rfgLink = link as unknown as RFGLink;
+			const key = getEdgeKey(rfgLink);
+			const edgeInfo = edgeMap.get(key);
+			if (!edgeInfo) return;
+
+			const original = edges.find(
+				(e) => `${e.source_entity_id}->${e.target_entity_id}` === key,
+			);
+			if (!original) return;
+
+			const srcNode = rfgLink.source;
+			const tgtNode = rfgLink.target;
+			if (typeof srcNode !== "object" || typeof tgtNode !== "object") return;
+
+			const fgApi = fgRef.current as unknown as {
+				centerAt: (x?: number, y?: number, durationMs?: number) => unknown;
+				zoom: (scale: number, durationMs?: number) => unknown;
+			};
+
+			const midX =
+				((srcNode as RFGNode).x ?? 0) / 2 + ((tgtNode as RFGNode).x ?? 0) / 2;
+			const midY =
+				((srcNode as RFGNode).y ?? 0) / 2 + ((tgtNode as RFGNode).y ?? 0) / 2;
+
+			const { animationDuration, targetZoom } = GRAPH_CONFIG.edgeClick;
+			fgApi.centerAt(midX, midY, animationDuration);
+			fgApi.zoom(targetZoom, animationDuration);
+
+			onEdgeClick?.(original);
+		},
+		[edges, edgeMap, onEdgeClick],
+	);
+
 	const handleBackgroundClick = useCallback(() => {
 		onBackgroundClick?.();
 	}, [onBackgroundClick]);
@@ -353,6 +398,7 @@ export function ForceGraph({
 					setRenderTick((v) => v + 1);
 				}}
 				onNodeClick={handleNodeClick}
+				onLinkClick={handleEdgeClick}
 				onBackgroundClick={handleBackgroundClick}
 				linkColor={(link: Record<string, unknown>) => {
 					const key = getEdgeKey(link as unknown as RFGLink);
@@ -360,7 +406,8 @@ export function ForceGraph({
 						return hoverConf.accentColor;
 					}
 					const p = hoverAnimProgressRef.current;
-					const dimmedAlpha = linkConf.defaultAlpha * (1 - p * (1 - hoverConf.dimOpacity));
+					const dimmedAlpha =
+						linkConf.defaultAlpha * (1 - p * (1 - hoverConf.dimOpacity));
 					return `rgba(148,163,184,${dimmedAlpha.toFixed(3)})`;
 				}}
 				linkWidth={(link: Record<string, unknown>) => {
@@ -377,8 +424,11 @@ export function ForceGraph({
 				) => {
 					const rfgLink = link as unknown as RFGLink;
 					const key = getEdgeKey(rfgLink);
-					const relationType = edgeMap.get(key);
-					if (!relationType) return;
+					const edgeInfo = edgeMap.get(key);
+					if (!edgeInfo) return;
+					const label = edgeInfo.valid_from
+						? `${edgeInfo.relation_type} · ${new Date(edgeInfo.valid_from).getFullYear()}`
+						: edgeInfo.relation_type;
 
 					const srcNode = rfgLink.source as RFGNode;
 					const tgtNode = rfgLink.target as RFGNode;
@@ -435,7 +485,7 @@ export function ForceGraph({
 					ctx.textAlign = "center";
 					ctx.textBaseline = "middle";
 
-					const textWidth = ctx.measureText(relationType).width;
+					const textWidth = ctx.measureText(label).width;
 					const bgX = midX - textWidth / 2 - edgeConf.labelPaddingX;
 					const bgY = midY - edgeConf.fontSize / 2 - edgeConf.labelPaddingY;
 					const bgW = textWidth + edgeConf.labelPaddingX * 2;
@@ -445,7 +495,7 @@ export function ForceGraph({
 					ctx.fillRect(bgX, bgY, bgW, bgH);
 
 					ctx.fillStyle = nodeConf.labelColor;
-					ctx.fillText(relationType, midX, midY);
+					ctx.fillText(label, midX, midY);
 					ctx.globalAlpha = 1;
 				}}
 				d3AlphaDecay={GRAPH_CONFIG.force.alphaDecay}
