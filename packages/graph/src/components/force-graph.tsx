@@ -426,9 +426,7 @@ export function ForceGraph({
 					const key = getEdgeKey(rfgLink);
 					const edgeInfo = edgeMap.get(key);
 					if (!edgeInfo) return;
-					const label = edgeInfo.valid_from
-						? `${edgeInfo.relation_type} · ${new Date(edgeInfo.valid_from).getFullYear()}`
-						: edgeInfo.relation_type;
+					const label = edgeInfo.relation_type;
 
 					const srcNode = rfgLink.source as RFGNode;
 					const tgtNode = rfgLink.target as RFGNode;

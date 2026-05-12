@@ -1,6 +1,6 @@
 # @crosmos/graph
 
-Interactive force-graph visualization for knowledge graphs — React component with canvas rendering, hover animations, click interactions, and detail popovers.
+Interactive force-graph visualization for knowledge graphs - React component with canvas rendering, hover animations, click interactions, and detail popovers.
 
 ## Installation
 
@@ -18,9 +18,9 @@ npm install @crosmos/graph
 
 The built-in popovers (`NodePopover`, `EdgePopover`) use Tailwind semantic classes that resolve to CSS variables. Your application must define these variables (typically via `tailwindcss` theme configuration or a CSS file):
 
-- `--card` / `--card-foreground` — used by `bg-card`, `text-card-foreground`
-- `--muted-foreground` — used by `text-muted-foreground`
-- `--secondary` / `--secondary-foreground` — used by the badge pill styles
+- `--card` / `--card-foreground` - used by `bg-card`, `text-card-foreground`
+- `--muted-foreground` - used by `text-muted-foreground`
+- `--secondary` / `--secondary-foreground` - used by the badge pill styles
 
 If you're already using `@crosmos/ui` or a Tailwind CSS theme based on shadcn/ui, these variables are already available.
 
