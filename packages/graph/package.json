@@ -3,6 +3,10 @@
 	"version": "0.0.0",
 	"type": "module",
 	"description": "Official graph visualization package for Crosmos Memory",
+	"author": {
+		"name": "Crosmos Labs",
+		"url": "https://crosmos.dev"
+	},
 	"license": "MIT",
 	"keywords": [
 		"graph",
