@@ -1,0 +1,69 @@
+---
+title: "Forgetting"
+description: "How Crosmos decides what to keep, what to fade, and what to let go"
+icon: "clock"
+---
+
+A memory system that keeps everything is just a hoarder with a database. Your AI agent learned your name on day one. It also learned you muttered "test test test" during a late-night debugging session. One of these matters. One does not.
+
+Crosmos doesn't just remember. It knows **what to keep, what to fade, and what to let go**. Without destroying anything.
+
+## The forgetting spectrum
+
+Most systems pick one of two extremes: keep everything forever (noisy, slow) or delete on a timer (brutal, lossy). Crosmos picks a third path: **gradual forgetting with a safety net**.
+
+Memories don't vanish. They fade. They sink lower in search results. But they're always reconstructable, always auditable. Like your own brain: you don't remember what you had for lunch on March 14th 2022, but if someone showed you a photo, you probably could.
+
+Memories that aren't reinforced slowly drift toward silence. Memories that get referenced and reused stay loud. The system self-organizes around what matters.
+
+## The persistence score
+
+Every memory carries a **persistence score**, computed fresh at query time. Two forces shape it.
+
+### Intrinsic decay
+
+Every memory starts with an importance score. "My name is Sarah" scores higher than "I had a coffee today." That importance is the starting energy.
+
+From there, it decays exponentially over time, inspired by the **Ebbinghaus forgetting curve**. High-importance facts stay relevant longer. Low-importance observations fade fast.
+
+### Reinforcement through use
+
+Every time a memory is retrieved, Crosmos records the access. Two things update: **access frequency** and **last accessed at**.
+
+The more a memory is accessed, the stronger it gets. But reinforcement decays based on how long it's been since the last access. A memory recalled yesterday gets a bigger boost than one recalled six months ago.
+
+This creates a feedback loop. Useful memories get retrieved more, which reinforces them, which makes them surface first next time. The rich get richer, but they earned it.
+
+### The combined score
+
+Persistence is both forces combined. New high-importance facts start strong. Old rarely-accessed facts fade. Medium-importance facts that get recalled weekly stay permanently relevant. When a memory's persistence score drops below a threshold, it's automatically forgotten.
+
+## Soft delete: forgetting without destruction
+
+Sometimes a memory needs to go. The user says "forget my address." Or the system detects a contradiction.
+
+Crosmos sets a `forgotten_at` timestamp. The memory vanishes from all retrieval signals. But it's still in the database, still connected to its entities and edges. Nothing is destroyed.
+
+<Note>
+This matters for compliance and debugging. You never know which "forgotten" fact will turn out to be the key to something important later. Real brains can't un-delete memories. Crosmos can.
+</Note>
+
+## Type-aware forgetting
+
+Not all memories age the same way. Crosmos adjusts decay rates based on memory type.
+
+| Memory type | Decay rate | Contradiction behavior |
+|-------------|-----------|----------------------|
+| **Episode** | Fast | Events don't contradict, they just fade |
+| **Semantic** | Slow | Old fact fades when a new fact supersedes it |
+| **Viewpoint** | Medium | Old viewpoint fades faster when replaced by a new one |
+
+Episodes are events tied to a moment. They fade fast. Semantic facts are time-independent truths that stick around. Viewpoints are preferences that adapt, fading faster when contradicted.
+
+## Forgetting is a feature, not a bug
+
+Human memory doesn't store every sensory input with equal priority. Your brain triages constantly. The result isn't perfect recall, it's efficient recall. You remember what matters because you forgot what didn't.
+
+Crosmos brings the same philosophy to AI memory. The persistence score keeps useful memories accessible while noise naturally sinks. And because nothing is truly deleted, the system can always recover.
+
+That's not forgetting. That's **prioritization at scale**.

@@ -1,0 +1,53 @@
+---
+title: "Recall"
+description: "How Crosmos finds what it knows, fast"
+icon: "zap"
+---
+
+You can have the smartest knowledge graph in the world. If it's slow, your AI agent feels sluggish. Crosmos retrieval is designed to be fast and deterministic.
+
+Let's talk about how.
+
+## The pipeline: four signals fire in parallel
+
+When a query arrives, Crosmos searches **four ways simultaneously** and merges the results.
+
+### Semantic search
+
+The query gets embedded into a vector and matched against memory embeddings. This catches meaning-level matches. Ask "what programming languages do I like?" and it finds memories about Rust, Python, and TypeScript even if those exact words aren't in the query.
+
+### Keyword search
+
+The query text goes through full-text search with relevance scoring. This catches exact term matches that semantic search might miss. Sometimes you just need to find "Photoshop" and fuzzy meaning-matching won't cut it.
+
+### Graph traversal
+
+This is where Crosmos separates itself from every flat vector store. Seed entities related to the query are found through three strategies (memory similarity, entity embeddings, entity name matching), then the system walks the knowledge graph outward, following relationship edges hop by hop. It discovers memories that are contextually connected even if they share no text similarity with your question.
+
+### Temporal search
+
+If the query contains time language ("last month," "since January," "between March and June"), a fourth signal activates. It scores memories by temporal proximity to the extracted date window. If there's no temporal intent, this signal stays dormant. No wasted work.
+
+## Fusion
+
+All four signals return their ranked candidate lists. Then fusion merges them.
+
+Fusion doesn't average scores. It averages **rank positions**. A memory that ranks high across multiple signals rises to the top. A memory that only one signal likes gets a moderate score. The math naturally rewards agreement.
+
+## Scoring and boosting
+
+After fusion, each candidate gets a final score shaped by three factors.
+
+| Factor | What it does |
+|--------|-------------|
+| **Recency boost** | Newer memories get a gentle boost. Older ones get a gentle penalty. Enough to break ties in favor of fresher knowledge, not enough to override relevance. |
+| **Temporal proximity** | For time-based queries, memories inside the target window get an additional boost. The closer to the center, the higher the score. |
+| **Persistence score** | High-importance, frequently-recalled memories score higher. Rarely-accessed, low-importance memories score lower. Computed fresh at query time. |
+
+All three factors combine into a final score. Candidates are sorted and the top results are returned.
+
+## Why this matters
+
+Fast retrieval means your AI agent can answer follow-up questions in real time. It means you can run retrieval loops, checking multiple angles before synthesizing a response. And because retrieval is deterministic, the results are consistent and reproducible.
+
+Four signals. Parallel execution. That's **recall at interactive speed**.

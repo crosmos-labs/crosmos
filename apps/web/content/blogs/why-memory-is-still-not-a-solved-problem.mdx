@@ -1,0 +1,35 @@
+---
+title: "Why Memory Is Still Not a Solved Problem"
+slug: "why-memory-is-still-not-a-solved-problem"
+author: "divyansh"
+readTime: 6
+thumbnail: "/blogs/why-memory-unsolved.jpg"
+publishedAt: "2025-05-07"
+tweetUrl: "https://x.com/iiviieee/status/2050558837208543410"
+imageWidth: 1200
+imageHeight: 480
+---
+
+I love using different models for different tasks. Over the past month I've tried a bunch of new models and vendors. Kimi is amazing for write-ups. GLM 5.1 is a great coding model. DeepSeek is good for scraping stuff for cheap. Minimax is a decent Sonnet replacement.
+
+Claude shipped their memory feature back in March. OpenAI has theirs. I suspect every vendor may end up building their own memory implementation.
+
+That thought worries me.
+
+## It's Not About How Much Context You Can Fit — It's About How Much Relevant Context You Can Provide
+
+The 1M token window announcements sound impressive. The reality is messier. Vendors want you to believe bigger context means smarter models. It doesn't. It means more expensive distractions. Most models start showing performance degradation around 4K-8K tokens. By the time you hit 32K-50K, accuracy on complex reasoning tasks drops substantially. Even for models advertising 128K or 1M token limits.
+
+Research from a few years ago showed models have a U-shaped attention curve ([Lost in the Middle](https://arxiv.org/abs/2307.03172)). They nail information at the start and end of your prompt. The middle gets increasingly ignored as context grows. More tokens just creates a bigger middle for things to get lost in.
+
+Some companies get this. [DeepSeek's Engram architecture](https://arxiv.org/pdf/2601.07372) uses O(1) lookups so the model actually finds things instead of scanning massive context windows. Kimi caps at 256K tokens and focuses on efficiency through Multi-head Latent Attention rather than brute-forcing scale.
+
+## Context Fragmentation Is Coming
+
+Every AI vendor building their own memory system means your context gets split across half a dozen fragmented databases. Claude remembers one thing. GPT remembers another. Neither knows what the other knows.
+
+I switch between models constantly. Soon I'll need to maintain six different memory systems just to keep my work coherent.
+
+This is why OpenRouter works so well. One interface, multiple models. But context fragmentation runs deeper than API routing. The context lives in separate silos.
+
+**Context engineering is evolving right in front of our eyes. It has never been more important.**

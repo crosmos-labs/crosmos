@@ -1,0 +1,141 @@
+---
+title: "How Crosmos Works"
+description: "Why standard RAG fails at memory, and how Crosmos does it differently"
+icon: "lightbulb"
+---
+
+You know the problem. You tell your AI assistant something on Monday and by Thursday it looks at you like you've never met. That's not a memory. That's a goldfish.
+
+Crosmos gives AI agents a **real memory system**. Not the sticky-note kind. The kind that actually remembers, connects the dots, and gets smarter over time.
+
+## Normal RAG: the amnesiac's filing cabinet
+
+Regular RAG works like this: chunk your documents, embed them, stuff them in a vector database, and when someone asks a question, find the closest chunk by cosine similarity. One signal. One dimension.
+
+It works okay for "find me the paragraph about quarterly revenue." It fails spectacularly for things like:
+
+- "What did I tell you about my job last month?"
+- "How has my opinion on remote work changed over time?"
+- "Who did I say I was working with on the AI project?"
+
+Because regular RAG has **no sense of time**. No understanding that facts evolve. No idea that "I work at Google" and "I just joined Anthropic" are connected, conflicting, and the second one is the truth. It just sees two text chunks and picks whichever has a higher cosine score.
+
+It also has **no sense of relationships**. It doesn't know that Alice is your manager, that Bob reports to Alice, and that the project you mentioned last week is the same one Alice approved in March. Everything is a flat bag of text fragments with no structure.
+
+And it has **no sense of self**. Every query is stateless. The system doesn't remember what it already knows about you. There's no growth, no accumulation, no learning curve. Just search, return, forget.
+
+That's fine for document retrieval. It's terrible for memory.
+
+## A living knowledge graph that grows with every conversation
+
+Instead of flattening everything into vector chunks, Crosmos builds a **Monotonic Temporal Knowledge Graph**.
+
+### Monotonic: it only grows, never rewrites
+
+Most systems update records in place. New information overwrites old information. "User lives in Berlin" replaces "User lives in Tokyo." Problem solved, right?
+
+Wrong. You just destroyed history. You no longer know the user ever lived in Tokyo. You can't answer "Where did I live before Berlin?"
+
+Crosmos never deletes or overwrites. Every observation is appended. The graph evolves monotonically: new nodes and edges are added, and older ones that lose relevance are gently pruned by a smart forgetting system that considers importance, recency, and access patterns. The history you need stays, the noise fades.
+
+### Temporal: every fact has a timestamp
+
+Not just when the system recorded it, but when the event actually happened in the real world. "I started learning Rust in March 2024" has a different temporal meaning than "the system ingested this sentence in January 2025."
+
+Crosmos tracks both. And when you ask "What was I working on last summer?" it uses the **event time**, not the ingestion time, to find the answer.
+
+This is why Crosmos can handle questions like "What changed since we last talked?" or "What did I say about my job in October?" The time dimension is baked into the data model, not bolted on as metadata.
+
+### Knowledge graph: facts are connected, not isolated
+
+Every piece of knowledge in Crosmos is stored as a relationship between two entities:
+
+```
+(You) --WORKS_FOR--> (Anthropic)
+(You) --PREFERS--> (Rust)
+(You) --DISLIKES--> (Meetings)
+(You) --COLLABORATES_WITH--> (Alice)
+```
+
+These aren't tags or labels. They're **structured edges** with confidence scores, timestamps, and provenance. When you search for something, Crosmos doesn't just match text. It traverses the graph, following relationships, expanding context hop by hop.
+
+Ask "Who do I work with?" and it follows WORKS_FOR to your company, then COLLABORATES_WITH to your teammates. Ask "What programming languages do I like?" and it follows PREFERS edges directly to the answer.
+
+The graph **grows richer** with every conversation. More entities, more edges, more connections. The system literally gets smarter the more you use it, because it accumulates understanding rather than just accumulating text.
+
+## The retrieval pipeline: four signals, one answer
+
+When you ask Crosmos a question, it doesn't rely on a single search method. It fires **four independent signals in parallel** and fuses them together.
+
+<CardGroup cols={2}>
+<Card title="Semantic search" icon="brain">
+Embeds your query and finds memories with similar meaning using HNSW indexing. Catches the obvious matches, the things that directly relate to what you're asking.
+</Card>
+<Card title="Keyword search" icon="search">
+Full-text search with relevance scoring. Catches exact name matches, specific terms, and things semantic search might miss. Sometimes you just need to find "Photoshop" and cosine similarity isn't the best way.
+</Card>
+<Card title="Graph traversal" icon="project-diagram">
+Walks the knowledge graph following relationship edges from your query. Discovers contextually connected memories even if they share no text similarity with your question.
+</Card>
+<Card title="Temporal search" icon="clock">
+Activated when a query contains time references like "last summer" or "in October." Extracts a date window and ranks memories by proximity to that time range. Finds things based on *when* they happened, not just what they're about.
+</Card>
+</CardGroup>
+
+### Fusion
+
+All four signals are fused together, balancing agreement and disagreement across sources. Then a **recency boost** adjusts scores based on how fresh the memory is, so recent knowledge naturally surfaces first.
+
+The result: you get answers that are semantically relevant, keyword-accurate, graph-connected, temporally aware, and recency-boosted. All at once.
+
+## The ingestion pipeline
+
+Here's what happens when you feed Crosmos a conversation or document:
+
+<Steps>
+<Step title="Extract">
+
+Facts, entities, and relationships are pulled from the raw content. Not summaries. Not keywords. Structured knowledge.
+
+</Step>
+<Step title="Resolve">
+
+Entity mentions are deduplicated. "Rust" and "rust-lang" and "the Rust programming language" all resolve to the same entity node. Entities that share a name but mean different things are kept separate.
+
+</Step>
+<Step title="Link">
+
+Every fact is connected to its source entities via graph edges with confidence scores and timestamps. The knowledge graph grows.
+
+</Step>
+<Step title="Store">
+
+Everything is indexed and stored. Query-ready from the moment it lands.
+
+</Step>
+</Steps>
+
+## Built for production
+
+Crosmos isn't a research prototype. It's designed for production AI agents that need memory they can trust.
+
+<CardGroup cols={2}>
+<Card title="Multi-tenant" icon="building">
+Every organization gets isolated memory spaces. No cross-contamination.
+</Card>
+<Card title="Soft delete" icon="eraser">
+Memories are marked forgotten, never destroyed. Full audit trail.
+</Card>
+<Card title="Content-agnostic" icon="file-text">
+Feed it conversations, documents, markdown, PDFs. The pipeline normalizes everything.
+</Card>
+<Card title="Deterministic retrieval" icon="zap">
+Results are consistent and predictable. Same query, same answer, every time.
+</Card>
+</CardGroup>
+
+## The bottom line
+
+If your AI agent can't remember what you told it yesterday, it's not an assistant. It's a chatbot with amnesia.
+
+Crosmos fixes that. Not with bigger context windows or more prompts. With a fundamentally better way to store, connect, and retrieve knowledge. A memory that grows. A graph that connects. A system that actually remembers.

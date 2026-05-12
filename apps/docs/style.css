@@ -1,0 +1,21 @@
+.rounded,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl {
+	border-radius: 4px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-variation-settings: "wght" 700;
+}
+
+body {
+	font-variation-settings: "wght" 450;
+}

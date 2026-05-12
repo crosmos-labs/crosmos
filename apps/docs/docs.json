@@ -1,148 +1,131 @@
 {
-    "$schema": "https://mintlify.com/docs.json",
-    "theme": "maple",
-    "name": "Crosmos",
-    "colors": {
-        "primary": "#16A34A",
-        "light": "#e9f7ed",
-        "dark": "#178235"
-    },
-    "favicon": "/favicon.svg",
-    "navigation": {
-        "tabs": [
-            {
-                "tab": "Guides",
-                "groups": [
-                    {
-                        "group": "Getting started",
-                        "pages": ["index", "quickstart", "development"]
-                    },
-                    {
-                        "group": "Customization",
-                        "pages": [
-                            "essentials/settings",
-                            "essentials/navigation"
-                        ]
-                    },
-                    {
-                        "group": "Writing content",
-                        "pages": [
-                            "essentials/markdown",
-                            "essentials/code",
-                            "essentials/images",
-                            "essentials/reusable-snippets"
-                        ]
-                    },
-                    {
-                        "group": "AI tools",
-                        "pages": [
-                            "ai-tools/cursor",
-                            "ai-tools/claude-code",
-                            "ai-tools/windsurf"
-                        ]
-                    }
-                ]
-            },
-            {
-                "tab": "API reference",
-                "groups": [
-                    {
-                        "group": "API documentation",
-                        "pages": ["api-reference/introduction"]
-                    },
-                    {
-                        "group": "Endpoint examples",
-                        "pages": [
-                            "api-reference/endpoint/get",
-                            "api-reference/endpoint/create",
-                            "api-reference/endpoint/delete",
-                            "api-reference/endpoint/webhook"
-                        ]
-                    }
-                ]
-            }
-        ],
-        "global": {
-            "anchors": [
-                {
-                    "anchor": "Documentation",
-                    "href": "https://mintlify.com/docs",
-                    "icon": "book-open-cover"
-                },
-                {
-                    "anchor": "Blog",
-                    "href": "https://mintlify.com/blog",
-                    "icon": "newspaper"
-                }
-            ]
-        }
-    },
-    "logo": {
-        "light": "/logo/banner_light.svg",
-        "dark": "/logo/banner_dark.svg"
-    },
-    "navbar": {
-        "links": [
-            {
-                "label": "Support",
-                "href": "mailto:crosmos.ai@gmail.com"
-            }
-        ],
-        "primary": {
-            "type": "button",
-            "label": "Dashboard",
-            "href": "https://dashboard.mintlify.com"
-        }
-    },
-    "contextual": {
-        "options": [
-            "copy",
-            "view",
-            "chatgpt",
-            "claude",
-            "perplexity",
-            "mcp",
-            "cursor",
-            "vscode"
-        ]
-    },
-    "footer": {
-        "socials": {
-            "x": "https://x.com/crosmos_ai",
-            "github": "https://github.com/crosmos",
-            "linkedin": "https://linkedin.com/company/crosmos-ai"
-        }
-    },
-    "fonts": {
-        "heading": {
-            "family": "Satoshi",
-            "source": "/fonts/Satoshi-Variable.woff2",
-            "format": "woff2",
-            "weight": 700
-        }
-    },
-    "appearance": {
-        "strict": false
-    },
-    "seo": {
-        "metatags": {
-            "charset": "UTF-8",
-            "viewport": "width=device-width, initial-scale=1",
-            "robots": "index, follow",
+	"$schema": "https://mintlify.com/docs.json",
+	"theme": "maple",
+	"name": "Crosmos",
+	"colors": {
+		"primary": "#298559",
+		"light": "#298559",
+		"dark": "#298559"
+	},
+	"favicon": "/favicon.svg",
+	"navigation": {
+		"tabs": [
+			{
+				"tab": "Guides",
+				"icon": "compass",
+				"groups": [
+					{
+						"group": "Getting Started",
+						"pages": ["index", "quickstart"]
+					},
+					{
+						"group": "Concepts",
+						"pages": [
+							"how-it-works",
+							"memories",
+							"mtkg",
+							"forgetting",
+							"recall",
+							"clusters"
+						]
+					},
+					{
+						"group": "Plugins",
+						"pages": ["plugins/mcp"]
+					}
+				]
+			},
+			{
+				"tab": "API Reference",
+				"icon": "code",
+				"openapi": "https://api.crosmos.dev/openapi.json"
+			}
+		],
+		"global": {
+			"anchors": [
+				{
+					"anchor": "Console",
+					"href": "https://console.crosmos.dev",
+					"icon": "window-maximize"
+				}
+			]
+		}
+	},
+	"logo": {
+		"light": "/logo/banner_light.svg",
+		"dark": "/logo/banner_dark.svg",
+		"href": "https://crosmos.dev"
+	},
+	"navbar": {
+		"links": [
+			{
+				"label": "Support",
+				"href": "mailto:hello@crosmos.dev"
+			}
+		],
+		"primary": {
+			"type": "button",
+			"label": "Dashboard",
+			"href": "https://crosmos.dev"
+		}
+	},
+	"footer": {
+		"socials": {
+			"x": "https://x.com/crosmoslabs",
+			"github": "https://github.com/crosmos-labs",
+			"linkedin": "https://linkedin.com/company/crosmos-ai"
+		}
+	},
+	"fonts": {
+		"heading": {
+			"family": "Satoshi",
+			"source": "/fonts/Satoshi.woff2",
+			"format": "woff2",
+			"weight": 700
+		},
+		"body": {
+			"family": "Rubik",
+			"weight": 400
+		}
+	},
+	"appearance": {
+		"strict": false,
+		"default": "system"
+	},
+	"seo": {
+		"metatags": {
+			"charset": "UTF-8",
+			"viewport": "width=device-width, initial-scale=1",
+			"robots": "index, follow",
 
-            "application-name": "Crosmos Docs",
-            "theme-color": "#16A34A",
-            "color-scheme": "light dark",
+			"application-name": "Crosmos Documentation",
+			"color-scheme": "light dark",
 
-            "description": "Crosmos documentation for memory engine, API, SDKs, MCPs and other tools.",
+			"description": "Crosmos documentation for memory layer, API, SDKs, MCPs and other tools.",
 
-            "og:title": "Crosmos Docs - Memory Engine",
-            "og:type": "website",
-            "og:url": "https://docs.crosmos.ai",
-            "og:description": "Build apps with our Memory API which supports most modern toolkits",
-            "og:site_name": "Crosmos Docs",
-            "og:locale": "en_US"
-        },
-        "indexing": "all"
-    }
+			"og:title": "Crosmos Documentation",
+			"og:type": "website",
+			"og:url": "https://docs.crosmos.dev",
+			"og:description": "Build apps with our Memory API which supports most modern toolkits",
+			"og:site_name": "Crosmos Docs",
+			"og:locale": "en_US"
+		},
+		"indexing": "all"
+	},
+	"background": {
+		"color": {
+			"light": "#ffffff",
+			"dark": "#1a1a1a"
+		}
+	},
+	"errors": {
+		"404": {
+			"redirect": false,
+			"title": "Page Not Found, Coffee Not Included",
+			"description": "This isn’t where you meant to go. Or maybe it is—either way, nothing’s here."
+		}
+	},
+	"api": {
+		"openapi": "https://api.crosmos.dev/openapi.json"
+	}
 }

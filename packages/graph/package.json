@@ -1,0 +1,74 @@
+{
+	"name": "@crosmos/graph",
+	"version": "0.0.0",
+	"type": "module",
+	"description": "Official graph visualization package for Crosmos Memory",
+	"license": "MIT",
+	"keywords": [
+		"graph",
+		"force-graph",
+		"visualization",
+		"react",
+		"knowledge-graph",
+		"d3",
+		"canvas"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/crosmos-labs/crosmos",
+		"directory": "packages/graph"
+	},
+	"sideEffects": false,
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./src/index.tsx",
+	"exports": {
+		".": {
+			"types": "./src/index.tsx",
+			"import": {
+				"types": "./src/index.tsx",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./src/index.tsx",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"react-force-graph-2d": "^1.27.0"
+	},
+	"peerDependencies": {
+		"react": ">=19.0.0",
+		"react-dom": ">=19.0.0",
+		"tailwindcss": ">=4"
+	},
+	"peerDependenciesMeta": {
+		"tailwindcss": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/git": "^10.0.1",
+		"@types/d3-force": "^3.0.0",
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"semantic-release": "^24.2.0",
+		"tsup": "^8.4.0",
+		"typescript": "^5.9.0"
+	}
+}
