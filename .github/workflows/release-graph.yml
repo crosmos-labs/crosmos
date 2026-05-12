@@ -1,0 +1,36 @@
+name: Release @crosmos/graph
+
+on:
+  push:
+    branches: [main]
+    paths: ["packages/graph/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-graph
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/graph
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+        working-directory: .
+
+      - run: bun run typecheck
+
+      - run: bun run build
+
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

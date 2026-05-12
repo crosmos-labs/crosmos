@@ -2,29 +2,73 @@
 	"name": "@crosmos/graph",
 	"version": "0.0.0",
 	"type": "module",
-	"private": true,
+	"description": "Interactive force-graph visualization for knowledge graphs — React component with canvas rendering, hover animations, click interactions, and popovers.",
+	"license": "MIT",
+	"keywords": [
+		"graph",
+		"force-graph",
+		"visualization",
+		"react",
+		"knowledge-graph",
+		"d3",
+		"canvas"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/crosmos-labs/crosmos",
+		"directory": "packages/graph"
+	},
+	"sideEffects": false,
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./src/index.tsx",
+	"exports": {
+		".": {
+			"types": "./src/index.tsx",
+			"import": {
+				"types": "./src/index.tsx",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./src/index.tsx",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
 		"typecheck": "tsc --noEmit"
 	},
-	"devDependencies": {
-		"@crosmos/typescript-config": "*",
-		"@types/d3-force": "^3.0.0"
-	},
 	"dependencies": {
-		"@crosmos/ui": "workspace:*",
 		"react-force-graph-2d": "^1.27.0"
 	},
 	"peerDependencies": {
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0"
+		"react": ">=19.0.0",
+		"react-dom": ">=19.0.0",
+		"tailwindcss": ">=4"
 	},
-	"exports": {
-		".": "./src/index.tsx",
-		"./components/*": "./src/components/*.tsx",
-		"./hooks/*": "./src/hooks/*.ts",
-		"./utils/*": "./src/utils/*.ts",
-		"./constants/*": "./src/constants/*.ts",
-		"./types/*": "./src/types/*.ts",
-		"./context/*": "./src/context/*.tsx"
+	"peerDependenciesMeta": {
+		"tailwindcss": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/git": "^10.0.1",
+		"@types/d3-force": "^3.0.0",
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"semantic-release": "^24.2.0",
+		"tsup": "^8.4.0",
+		"typescript": "^5.9.0"
 	}
 }

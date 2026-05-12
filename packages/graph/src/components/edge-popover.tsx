@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@crosmos/ui/components/badge";
 import { useEffect } from "react";
 import type { GraphEdge, GraphNode } from "../types";
 
@@ -72,9 +71,9 @@ export function EdgePopover({ edge, nodeMap, onClose }: EdgePopoverProps) {
 					<span className="text-xs text-muted-foreground w-14 shrink-0">
 						Relation
 					</span>
-					<Badge variant="secondary" className="text-xs">
+					<span className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium">
 						{edge.relation_type}
-					</Badge>
+					</span>
 				</div>
 
 				<div className="flex items-center gap-2">
