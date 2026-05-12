@@ -14,12 +14,14 @@ permissions:
 
 jobs:
   release:
+    name: Release
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: packages/graph
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -32,11 +34,13 @@ jobs:
 
       - run: bun run build
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          registry-url: https://registry.npmjs.org
+          node-version: "lts/*"
 
-      - run: npx semantic-release
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
