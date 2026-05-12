@@ -39,4 +39,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release --extends packages/graph/.releaserc.json
+        run: npx semantic-release --extends ./packages/graph/.releaserc.json
