@@ -2,7 +2,7 @@
 	"name": "@crosmos/graph",
 	"version": "0.0.0",
 	"type": "module",
-	"description": "Interactive force-graph visualization for knowledge graphs — React component with canvas rendering, hover animations, click interactions, and popovers.",
+	"description": "Official graph visualization package for Crosmos Memory",
 	"license": "MIT",
 	"keywords": [
 		"graph",
