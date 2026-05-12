@@ -25,7 +25,7 @@ export const GRAPH_CONFIG = {
 		fontSize: 6,
 		labelPaddingX: 3,
 		labelPaddingY: 1,
-		labelBackgroundColor: "oklch(0.19 0 0)",
+		labelBackgroundColor: "transparent",
 	},
 	label: {
 		opacityMinZoom: 1.0,

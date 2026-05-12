@@ -106,7 +106,7 @@ GRAPH_CONFIG.hover.accentColor = "oklch(0.6 0.2 250)";
 GRAPH_CONFIG.click.targetZoom = 3;
 ```
 
-See `src/constants/graph.ts` for all configurable values: force parameters, node/link styling, hover animations, label opacity, and click behavior.
+See `src/constants/graph.ts` for all configurable values: force parameters, node/link styling, hover animations, label opacity, and click behavior. For example, to restore a solid pill behind edge labels, set `GRAPH_CONFIG.edge.labelBackgroundColor = "rgba(0,0,0,0.75)";` – the default is `transparent` so the canvas inherits the container background color.
 
 ## Types
 
