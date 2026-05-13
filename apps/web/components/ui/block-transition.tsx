@@ -9,21 +9,21 @@ interface BlockTransitionProps {
 	toColor: string;
 	className?: string;
 	baseCols?: number;
+	rows?: number;
 }
-
-const ROWS = 12;
 
 export function BlockTransition({
 	fromColor,
 	toColor,
 	className,
 	baseCols = 40,
+	rows = 12,
 }: BlockTransitionProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const { scrollYProgress } = useScroll({
 		target: containerRef,
-		offset: ["start 85%", "end 15%"],
+		offset: ["start 100%", "end 15%"],
 	});
 
 	const [thresholds, setThresholds] = useState<number[]>([]);
@@ -39,9 +39,9 @@ export function BlockTransition({
 			setCols(calculatedCols);
 
 			const newThresholds: number[] = [];
-			for (let r = 0; r < ROWS; r++) {
+			for (let r = 0; r < rows; r++) {
 				for (let c = 0; c < calculatedCols; c++) {
-					const base = (ROWS - 1 - r) / (ROWS - 1);
+					const base = (rows - 1 - r) / Math.max(rows - 1, 1);
 					const noise = (Math.random() - 0.5) * 0.4;
 					newThresholds.push(Math.max(0, Math.min(1, base + noise)));
 				}
@@ -52,7 +52,7 @@ export function BlockTransition({
 		handleResize();
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
-	}, [baseCols]);
+	}, [baseCols, rows]);
 
 	return (
 		<div
@@ -61,7 +61,7 @@ export function BlockTransition({
 			style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
 		>
 			{thresholds.length > 0 &&
-				Array.from({ length: ROWS * cols }).map((_, i) => (
+				Array.from({ length: rows * cols }).map((_, i) => (
 					<Block
 						// biome-ignore lint/suspicious/noArrayIndexKey: positional grid items
 						key={i}
@@ -87,7 +87,7 @@ function Block({
 		v >= threshold ? 1 : 0,
 	);
 
-		return (
+	return (
 		<div className="w-full aspect-square relative">
 			<motion.div
 				className={cn("absolute -inset-[0.5px]", toColor)}

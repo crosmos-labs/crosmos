@@ -1,4 +1,5 @@
 import { BlogSection } from "@/components/blog-section";
+import { Contact } from "@/components/contact";
 import { Faq } from "@/components/faq";
 import { Features } from "@/components/features";
 import { HeroBg } from "@/components/hero-bg";
@@ -15,11 +16,13 @@ export default function Home() {
 			<Features />
 			<Pricing />
 			<BlogSection />
+			<Faq />
 			<BlockTransition
 				fromColor="bg-background"
 				toColor="bg-[oklch(0.19_0_0)]"
+				rows={8}
 			/>
-			<Faq />
+			<Contact />
 		</>
 	);
 }
