@@ -40,12 +40,12 @@ export function Features() {
 			className="relative px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
 		>
 			<div className="max-w-7xl mx-auto">
-				<p className="text-accent font-mono uppercase text-center">
+				<p className="text-accent font-mono font-bold uppercase text-center mb-4">
 					{" "}
 					[ Core Features ]
 				</p>
 				<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-10 sm:mb-16 lg:mb-20 text-center">
-					Designed for Reliable Agent Context
+					Designed for reliable agent context
 				</h2>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
