@@ -10,9 +10,11 @@ imageWidth: 1319
 imageHeight: 528
 ---
 
-Most memory stacks behave like mutable caches: new facts overwrite old ones and the system keeps only a single view of reality. That design is convenient, but it destroys history—exactly the thing long-running agents need to answer questions like *"When did this change?"* or *"Why was this decision made?"*
+Most memory stacks behave like mutable caches: new facts overwrite old ones and the system keeps only a single view of reality. That design is convenient, but it destroys history - exactly the thing long-running agents need to answer questions like *"When did this change?"* or *"Why was this decision made?"*
 
 At Crosmos we treat memory as an audit log. Current state is *derived* from history, never written over it. That's the foundation of our **Monotonic Temporal Knowledge Graph (MTKG)**.
+
+![Diagram showing Crosmos MTKG layers](/blogs/memory-auditable-mtkg.jpg)
 
 ## We never rewrite history
 
@@ -43,7 +45,7 @@ Candidates from each signal are fused (Reciprocal Rank Fusion), rescored for rec
 
 ## Graph is projection, not truth
 
-The graph is a powerful projection for traversal, but the *source of truth* is the underlying memory record—the episodic data, extracted facts, viewpoints, timestamps, and metadata captured exactly as they were observed. Every node/edge carries provenance back to those records, and each record links back to its original source (Slack thread, email, doc, call notes, etc.).
+The graph is a powerful projection for traversal, but the *source of truth* is the underlying memory record - the episodic data, extracted facts, viewpoints, timestamps, and metadata captured exactly as they were observed. Every node/edge carries provenance back to those records, and each record links back to its original source (Slack thread, email, doc, call notes, etc.).
 
 ```
 Source → Memory → Graph
@@ -63,7 +65,7 @@ Scoring during traversal favors higher-confidence, more recent edges without del
 
 ## Memory as infrastructure
 
-Enterprise agents need more than convenience—they need auditable context. Crosmos delivers that by combining:
+Enterprise agents need more than convenience - they need auditable context. Crosmos delivers that by combining:
 
 - episodic memory (append-only log)
 - MTKG for structured reasoning

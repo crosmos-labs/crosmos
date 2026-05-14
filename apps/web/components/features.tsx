@@ -40,15 +40,19 @@ export function Features() {
 			className="relative px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
 		>
 			<div className="max-w-7xl mx-auto">
+				<p className="text-accent font-mono uppercase text-center">
+					{" "}
+					[ Core Features ]
+				</p>
 				<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-10 sm:mb-16 lg:mb-20 text-center">
-					Core Features
+					Designed for Reliable Agent Context
 				</h2>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3">
 					{cards.map((card) => (
 						<div
 							key={card.label}
-							className="relative pt-0 group aspect-[3/4] select-none"
+							className="relative pt-0 group aspect-5/8 select-none"
 						>
 							<Image
 								src={card.src}

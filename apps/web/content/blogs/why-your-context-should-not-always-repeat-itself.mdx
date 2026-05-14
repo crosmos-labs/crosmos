@@ -24,6 +24,8 @@ Consider a food-preference query with a heavily skewed recent history. Without a
 - Meghana Biryani
 - Cheese Quesadilla at California Burrito
 
+![Stacked search results focused on California Burrito before Diversify](/blogs/context-diversify-before.png)
+
 Three out of the first five memories point to the same restaurant. The agent learns that the user really loves California Burrito, but it loses broader coverage of the user's taste. The retrieval is accurate yet not representative.
 
 ## Diversify with Maximal Marginal Relevance
@@ -33,16 +35,18 @@ To keep recency without sacrificing coverage, we introduce **Diversify**, a post
 1. How relevant the memory is to the query.
 2. How similar it is to memories that have already been selected.
 
-A candidate that is highly relevant but nearly identical to something we've already kept gets down-weighted, creating room for a different—yet still relevant—memory to surface.
+A candidate that is highly relevant but nearly identical to something we've already kept gets down-weighted, creating room for a different - yet still relevant - memory to surface.
 
 With Diversify applied, the same query returns a spread that still includes California Burrito, but also highlights Indori Poha, Meghana Biryani, and Thai Express. Freshness remains intact; redundancy does not.
+
+![Representative search results after Diversify showing broader food preferences](/blogs/context-diversify-after.jpg)
 
 ## Lightweight post-processing
 
 Diversify slots in after retrieval and reranking, right before we commit to the final `top_k`. By this stage we already have high-quality candidates. The goal is no longer *finding* relevance, it's *allocating* it.
 
 - No additional LLM calls are required.
-- Memories remain untouched—Diversify only changes ordering, not content.
+- Memories remain untouched - Diversify only changes ordering, not content.
 - The step is deterministic and fast, so it scales alongside existing search pipelines.
 
 ## Using Diversify in the API
