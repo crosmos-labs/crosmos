@@ -1,6 +1,6 @@
 "use client";
 
-import { forceLink, forceManyBody } from "d3-force";
+import { forceCollide, forceLink, forceManyBody } from "d3-force";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GRAPH_CONFIG } from "../constants/graph";
 import type { GraphEdge, GraphNode } from "../types";
@@ -106,6 +106,17 @@ export function ForceGraph({
 		() => ({ nodes: rfgNodes, links: rfgLinks }),
 		[rfgNodes, rfgLinks],
 	);
+
+	const dynamicLinkDistance = useMemo(() => {
+		const baseDistance = GRAPH_CONFIG.force.linkDistance;
+		const nodeCount = nodes.length;
+		if (nodeCount <= 50) {
+			return baseDistance;
+		}
+		const relativeGrowth = (nodeCount - 50) / 50;
+		const multiplier = Math.min(3, 1 + Math.log1p(relativeGrowth));
+		return baseDistance * multiplier;
+	}, [nodes.length]);
 
 	const nodeMap = useMemo(() => {
 		const map = new Map<string, GraphNode>();
@@ -240,6 +251,7 @@ export function ForceGraph({
 			d3ReheatSimulation: () => void;
 		};
 
+		const collisionRadiusBase = GRAPH_CONFIG.node.radius * 2.5;
 		fgApi.d3Force(
 			"link",
 			forceLink()
@@ -247,15 +259,24 @@ export function ForceGraph({
 					((d: unknown) =>
 						(d as Record<string, unknown>).id as string) as never,
 				)
-				.distance(GRAPH_CONFIG.force.linkDistance),
+				.distance(dynamicLinkDistance),
 		);
 		fgApi.d3Force(
 			"charge",
 			forceManyBody().strength(GRAPH_CONFIG.force.chargeStrength),
 		);
+		fgApi.d3Force(
+			"collide",
+			forceCollide<RFGNode>()
+				.radius((node) => {
+					const degreeBoost = Math.min(1.75, 1 + (node.edge_count ?? 0) * 0.05);
+					return collisionRadiusBase * degreeBoost;
+				})
+				.strength(0.7),
+		);
 
 		fgApi.d3ReheatSimulation();
-	}, [ForceGraph2D]);
+	}, [ForceGraph2D, dynamicLinkDistance]);
 
 	const handleZoom = useCallback((e: { k: number }) => {
 		if (zoomLabelRef.current) {
