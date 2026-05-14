@@ -143,7 +143,3 @@ interface GraphStatsResponse {
   top_relations: Array<{ relation: string; count: number }>;
 }
 ```
-
-## License
-
-MIT
