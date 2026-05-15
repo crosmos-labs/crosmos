@@ -23,6 +23,18 @@ interface BlockTransitionProps {
 	rows?: number;
 }
 
+function computeThresholds(seed: number, rows: number, cols: number): number[] {
+	const thresholds: number[] = [];
+	for (let r = 0; r < rows; r++) {
+		for (let c = 0; c < cols; c++) {
+			const base = (rows - 1 - r) / Math.max(rows - 1, 1);
+			const noise = (seededNoise(seed, r, c, cols) - 0.5) * 0.4;
+			thresholds.push(Math.max(0, Math.min(1, base + noise)));
+		}
+	}
+	return thresholds;
+}
+
 export function BlockTransition({
 	fromColor,
 	toColor,
@@ -37,15 +49,16 @@ export function BlockTransition({
 		offset: ["start 100%", "end 15%"],
 	});
 
-	const [thresholds, setThresholds] = useState<number[]>([]);
 	const [cols, setCols] = useState(baseCols);
-	const seedRef = useRef<number>(Math.random());
+	const [thresholds, setThresholds] = useState<number[]>(() =>
+		computeThresholds(Math.random(), rows, baseCols),
+	);
 	const previousRowsRef = useRef(rows);
 
 	useEffect(() => {
 		if (previousRowsRef.current !== rows) {
-			seedRef.current = Math.random();
 			previousRowsRef.current = rows;
+			setThresholds(computeThresholds(Math.random(), rows, baseCols));
 		}
 
 		const handleResize = () => {
@@ -55,17 +68,7 @@ export function BlockTransition({
 			else if (w < 1024) calculatedCols = Math.floor(baseCols * 0.75);
 
 			setCols(calculatedCols);
-
-			const newThresholds: number[] = [];
-			for (let r = 0; r < rows; r++) {
-				for (let c = 0; c < calculatedCols; c++) {
-					const base = (rows - 1 - r) / Math.max(rows - 1, 1);
-					const noise =
-						(seededNoise(seedRef.current, r, c, calculatedCols) - 0.5) * 0.4;
-					newThresholds.push(Math.max(0, Math.min(1, base + noise)));
-				}
-			}
-			setThresholds(newThresholds);
+			setThresholds(computeThresholds(Math.random(), rows, calculatedCols));
 		};
 
 		handleResize();
@@ -111,6 +114,7 @@ function Block({
 			<motion.div
 				className={cn("absolute -inset-[0.5px]", toColor)}
 				style={{ opacity }}
+				suppressHydrationWarning
 			/>
 		</div>
 	);

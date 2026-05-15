@@ -10,7 +10,7 @@ export default function Home() {
 	return (
 		<>
 			<HeroBg />
-			<div className="relative z-10 -mt-[20vh] sm:-mt-[16vh] md:-mt-[24vh] lg:-mt-[28vh]">
+			<div className="relative z-10 -mt-[20vh] sm:-mt-[16vh] md:-mt-[24vh] lg:-mt-[28vh] min-h-[10vh]">
 				<BlockTransition fromColor="bg-transparent" toColor="bg-background" />
 			</div>
 			<Features />
