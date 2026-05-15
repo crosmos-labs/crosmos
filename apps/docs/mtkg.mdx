@@ -79,9 +79,9 @@ The graph signal finds memories that semantic and keyword search miss, because i
 
 The graph signal is one of four retrieval signals that run in parallel:
 
-1. **Semantic search**: HNSW cosine similarity on memory embeddings
+1. **Semantic search**:  Searching for similar context embeddings
 2. **Keyword search**: full-text matching with relevance scoring
-3. **Graph traversal**: 3-seed traversal through the ERE graph
+3. **Graph traversal**: Traversal through the knowledge graph for mulit-hop reasoning
 4. **Temporal search**: activated when a query contains time references, ranks memories by proximity to the extracted date window
 
 All four signal results are **fused** together, then **recency-boosted** based on temporal metadata, and optionally **reranked** for final precision.
