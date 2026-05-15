@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@crosmos/ui/lib/utils";
 import { IconDatabase, IconNetwork, IconSearch } from "@tabler/icons-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
@@ -127,8 +128,7 @@ const graphEdges = [
 	{ from: 10, to: 37, crossCluster: true },
 ];
 
-export function KnowledgeGraphVisual() {
-	const reduceMotion = useReducedMotion();
+export function KnowledgeGraphVisual({ reducedMotion }: { reducedMotion: boolean }) {
 	const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
 	const [isGraphHovered, setIsGraphHovered] = useState(false);
 
@@ -153,26 +153,50 @@ export function KnowledgeGraphVisual() {
 	return (
 		<div className="w-full max-w-3xl mx-auto rounded-xl border border-foreground/10 overflow-hidden bg-[oklch(0.2_0_0)]">
 			<div
-				className={`flex items-center gap-2 px-4 py-2.5 border-b border-foreground/10 transition-colors ${isGraphHovered ? "bg-foreground/[0.06]" : "bg-transparent"}`}
+				className={cn(
+					"flex items-center gap-2 px-4 py-2.5 border-b border-foreground/10 transition-colors",
+					isGraphHovered ? "bg-foreground/[0.06]" : "bg-transparent",
+				)}
 			>
 				<div className="flex gap-1.5">
 					<div
-						className={`size-2.5 rounded-full transition-colors ${isGraphHovered ? "bg-red-600" : "bg-zinc-600"}`}
+						className={cn(
+							"size-2.5 rounded-full transition-colors",
+							isGraphHovered ? "bg-red-600" : "bg-zinc-600",
+						)}
 					/>
 					<div
-						className={`size-2.5 rounded-full transition-colors ${isGraphHovered ? "bg-yellow-600" : "bg-zinc-600"}`}
+						className={cn(
+							"size-2.5 rounded-full transition-colors",
+							isGraphHovered ? "bg-yellow-600" : "bg-zinc-600",
+						)}
 					/>
 					<div
-						className={`size-2.5 rounded-full transition-colors ${isGraphHovered ? "bg-green-600" : "bg-zinc-600"}`}
+						className={cn(
+							"size-2.5 rounded-full transition-colors",
+							isGraphHovered ? "bg-green-600" : "bg-zinc-600",
+						)}
 					/>
 				</div>
 			</div>
 			<div
 				className="pt-4 px-0 pb-0 sm:pt-6"
+				tabIndex={0}
 				onMouseEnter={() => setIsGraphHovered(true)}
 				onMouseLeave={() => {
 					setIsGraphHovered(false);
 					setHoveredNodeId(null);
+				}}
+				onFocus={() => setIsGraphHovered(true)}
+				onBlur={() => {
+					setIsGraphHovered(false);
+					setHoveredNodeId(null);
+				}}
+				onKeyDown={(e) => {
+					if (e.key === "Escape") {
+						setIsGraphHovered(false);
+						setHoveredNodeId(null);
+					}
 				}}
 			>
 				<svg
@@ -210,8 +234,8 @@ export function KnowledgeGraphVisual() {
 									strokeWidth={edge.crossCluster ? 0.8 : 1.2}
 									strokeDasharray={edge.crossCluster ? "2 6" : "2 5"}
 									initial={{
-										pathLength: reduceMotion ? 1 : 0,
-										strokeOpacity: reduceMotion ? baseOpacity : 0,
+										pathLength: reducedMotion ? 1 : 0,
+										strokeOpacity: reducedMotion ? baseOpacity : 0,
 									}}
 									animate={{
 										pathLength: 1,
@@ -227,7 +251,7 @@ export function KnowledgeGraphVisual() {
 									}}
 									style={{ pathLength: 1 as unknown as number }}
 								/>
-								{!reduceMotion && (
+								{!reducedMotion && (
 									<motion.line
 										x1={fromNode.cx}
 										y1={fromNode.cy}
@@ -258,7 +282,7 @@ export function KnowledgeGraphVisual() {
 							// biome-ignore lint/suspicious/noArrayIndexKey: static graph nodes
 							key={node.id}
 							initial={
-								reduceMotion
+								reducedMotion
 									? { scale: 1, opacity: 1 }
 									: { scale: 0, opacity: 0 }
 							}
@@ -288,14 +312,14 @@ export function KnowledgeGraphVisual() {
 								<motion.circle
 									cx={node.cx}
 									cy={node.cy}
-									r={reduceMotion ? node.r + 3 : undefined}
+									r={reducedMotion ? node.r + 3 : undefined}
 									fill="none"
 									stroke="var(--accent)"
 									initial={{
 										strokeOpacity: isNodeHighlighted(node.id) ? 0.2 : 0,
 									}}
 									animate={
-										reduceMotion
+										reducedMotion
 											? {
 													strokeOpacity: isNodeHighlighted(node.id) ? 0.2 : 0,
 													r: node.r + 3,
@@ -306,7 +330,7 @@ export function KnowledgeGraphVisual() {
 												}
 									}
 									transition={
-										reduceMotion
+										reducedMotion
 											? { duration: 0.25, ease: "easeOut" }
 											: {
 													duration: 3,
@@ -326,6 +350,8 @@ export function KnowledgeGraphVisual() {
 }
 
 export function HowItWorks() {
+	const reducedMotion = useReducedMotion() ?? false;
+
 	return (
 		<section
 			id="how-it-works"
@@ -333,27 +359,27 @@ export function HowItWorks() {
 		>
 			<div className="max-w-7xl mx-auto">
 				<motion.p
-					initial={{ opacity: 0, y: 12 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, margin: "-80px" }}
-					transition={{ duration: 0.5 }}
+					initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+					whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+					viewport={reducedMotion ? undefined : { once: true, margin: "-80px" }}
+					transition={reducedMotion ? undefined : { duration: 0.5 }}
 					className="text-accent font-mono font-bold uppercase text-center mb-4"
 				>
 					[ How It Works ]
 				</motion.p>
 
 				<motion.h2
-					initial={{ opacity: 0, y: 16 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, margin: "-80px" }}
-					transition={{ duration: 0.5, delay: 0.1 }}
+					initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+					whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+					viewport={reducedMotion ? undefined : { once: true, margin: "-80px" }}
+					transition={reducedMotion ? undefined : { duration: 0.5, delay: 0.1 }}
 					className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-10 sm:mb-14 lg:mb-16 text-center"
 				>
 					From Content to Knowledge
 				</motion.h2>
 
 				<div className="mb-12 sm:mb-16">
-					<KnowledgeGraphVisual />
+					<KnowledgeGraphVisual reducedMotion={reducedMotion} />
 				</div>
 
 				<div className="max-w-2xl mx-auto relative">
@@ -365,10 +391,10 @@ export function HowItWorks() {
 							<motion.div
 								// biome-ignore lint/suspicious/noArrayIndexKey: ordered steps
 								key={i}
-								initial={{ opacity: 0, x: -20 }}
-								whileInView={{ opacity: 1, x: 0 }}
-								viewport={{ once: true, margin: "-60px" }}
-								transition={{ duration: 0.5, delay: i * 0.15 }}
+								initial={reducedMotion ? false : { opacity: 0, x: -20 }}
+								whileInView={reducedMotion ? undefined : { opacity: 1, x: 0 }}
+								viewport={reducedMotion ? undefined : { once: true, margin: "-60px" }}
+								transition={reducedMotion ? undefined : { duration: 0.5, delay: i * 0.15 }}
 								className="relative flex gap-6 pb-12 last:pb-0"
 							>
 								<div className="relative z-10 flex-shrink-0">
