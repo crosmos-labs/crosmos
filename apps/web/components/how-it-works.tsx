@@ -182,6 +182,8 @@ export function KnowledgeGraphVisual({ reducedMotion }: { reducedMotion: boolean
 			<div
 				className="pt-4 px-0 pb-0 sm:pt-6"
 				tabIndex={0}
+				role="region"
+				aria-label="Interactive knowledge graph"
 				onMouseEnter={() => setIsGraphHovered(true)}
 				onMouseLeave={() => {
 					setIsGraphHovered(false);
@@ -383,7 +385,9 @@ export function HowItWorks() {
 				</div>
 
 				<div className="max-w-2xl mx-auto relative">
-					<div className="absolute left-5 top-5 h-[calc(100%-2.5rem)] w-px bg-foreground/10" />
+					<div className="absolute left-5 top-0 bottom-0 w-px bg-transparent">
+						<div className="absolute top-[1.25rem] bottom-[5.5rem] left-0 w-px bg-foreground/10" />
+					</div>
 
 					{steps.map((step, i) => {
 						const Icon = step.icon;
