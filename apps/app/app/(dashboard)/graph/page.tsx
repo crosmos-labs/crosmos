@@ -57,7 +57,7 @@ export default function GraphPage() {
 	useEffect(() => {
 		setSelectedNode(null);
 		setSelectedEdge(null);
-	}, [selectedSpaceId]);
+	}, []);
 
 	const handleNodeClick = useCallback((node: GraphNode) => {
 		setSelectedNode(node);
@@ -131,15 +131,15 @@ export default function GraphPage() {
 
 			{!isInitialLoading && graphData && (
 				<div className="flex-1 min-h-0 rounded-md border relative">
-				<ForceGraph
-					key={selectedSpaceId}
-					nodes={graphData.nodes}
-					edges={graphData.edges}
-					spaceId={selectedSpaceId}
-					onNodeClick={handleNodeClick}
-					onEdgeClick={handleEdgeClick}
-					onBackgroundClick={handleBackgroundClick}
-				/>
+					<ForceGraph
+						key={selectedSpaceId}
+						nodes={graphData.nodes}
+						edges={graphData.edges}
+						spaceId={selectedSpaceId}
+						onNodeClick={handleNodeClick}
+						onEdgeClick={handleEdgeClick}
+						onBackgroundClick={handleBackgroundClick}
+					/>
 					{graphLoading && (
 						<div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
 							<Skeleton className="h-8 w-8 rounded-full" />
