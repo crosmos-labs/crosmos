@@ -1,0 +1,65 @@
+name: Publish @crosmos/graph
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/graph/**"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm (provenance support)
+        run: npm install -g npm@latest
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Check if version changed
+        id: version-check
+        working-directory: packages/graph
+        run: |
+          PACKAGE_NAME=$(jq -r '.name' package.json)
+          LOCAL_VERSION=$(jq -r '.version' package.json)
+          NPM_VERSION=$(npm view "$PACKAGE_NAME" version 2>/dev/null || echo "0.0.0")
+
+          if [ "$LOCAL_VERSION" = "$NPM_VERSION" ]; then
+            echo "Version $LOCAL_VERSION already published, skipping."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Publishing $PACKAGE_NAME@$LOCAL_VERSION (npm currently has $NPM_VERSION)."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Typecheck
+        if: steps.version-check.outputs.changed == 'true'
+        run: bun run typecheck --filter=@crosmos/graph
+
+      - name: Build
+        if: steps.version-check.outputs.changed == 'true'
+        run: bun run build --filter=@crosmos/graph
+
+      - name: Publish
+        if: steps.version-check.outputs.changed == 'true'
+        working-directory: packages/graph
+        run: npm publish --access public --provenance
