@@ -22,6 +22,7 @@ export const GRAPH_CONFIG = {
 		defaultAlpha: 0.4,
 		defaultWidth: 0.5,
 		highlightedWidth: 1.5,
+		curvatureSpacing: 0.25,
 	},
 	edge: {
 		fontSize: 6,
