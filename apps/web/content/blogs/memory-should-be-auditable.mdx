@@ -1,0 +1,83 @@
+---
+title: "Memory Should Be Auditable"
+slug: "memory-should-be-auditable"
+author: "rachit"
+readTime: 9
+thumbnail: "/blogs/memory-should-be-auditable.jpg"
+publishedAt: "2026-05-09"
+tweetUrl: "https://x.com/rachitcodes/status/2053174741066973673"
+imageWidth: 1319
+imageHeight: 528
+---
+
+Most memory stacks behave like mutable caches: new facts overwrite old ones and the system keeps only a single view of reality. That design is convenient, but it destroys history - exactly the thing long-running agents need to answer questions like *"When did this change?"* or *"Why was this decision made?"*
+
+At Crosmos we treat memory as an audit log. Current state is *derived* from history, never written over it. That's the foundation of our **Monotonic Temporal Knowledge Graph (MTKG)**.
+
+![Diagram showing Crosmos MTKG layers](/blogs/memory-auditable-mtkg.jpg)
+
+## We never rewrite history
+
+Every interaction is converted into structured entities and relationships, then appended to the graph with timestamps and provenance. If a user switches jobs, the previous role remains. If a team reverts an architecture decision, both decisions coexist with their temporal context.
+
+Because the records are append-only, we always know:
+
+- *what* changed
+- *when* it changed
+- *why* it changed (the evidence sits in the originating memory)
+
+## State is resolved at retrieval
+
+Preserving history introduces a harder problem: deciding which fact is true **right now**. Agents often need to pick between multiple valid statements like:
+
+- User worked at OpenAI
+- User joined Anthropic
+- User advises a startup
+
+Instead of mutating data at ingest, we resolve state at query time. When a request arrives, Crosmos fans out across four parallel signals:
+
+1. semantic similarity
+2. keyword search
+3. graph traversal
+4. temporal reasoning
+
+Candidates from each signal are fused (Reciprocal Rank Fusion), rescored for recency and temporal proximity, and finally re-ranked with a cross-encoder. The answer is computed from history every time.
+
+## Graph is projection, not truth
+
+The graph is a powerful projection for traversal, but the *source of truth* is the underlying memory record - the episodic data, extracted facts, viewpoints, timestamps, and metadata captured exactly as they were observed. Every node/edge carries provenance back to those records, and each record links back to its original source (Slack thread, email, doc, call notes, etc.).
+
+```
+Source → Memory → Graph
+```
+
+That chain gives agents explainability: follow any retrieved item back to the raw evidence.
+
+## Relationships evolve
+
+Relationships are temporal objects. Each edge stores:
+
+- provenance to the originating memory
+- extraction confidence
+- temporal metadata describing when it became valid
+
+Scoring during traversal favors higher-confidence, more recent edges without deleting older context. Historical queries can still surface prior states, while present-tense queries remain accurate.
+
+## Memory as infrastructure
+
+Enterprise agents need more than convenience - they need auditable context. Crosmos delivers that by combining:
+
+- episodic memory (append-only log)
+- MTKG for structured reasoning
+- provenance tracking for every hop
+- state-aware retrieval with temporal weighting
+
+When an agent surfaces context, you can trace it end-to-end:
+
+```
+Source → Memory → Graph → Retrieval
+```
+
+That makes memory trustworthy. Instead of hand-waving around stale caches, you get a system that records how knowledge evolves, maintains temporal awareness, and keeps every decision explainable.
+
+Ready to build on top of MTKG? Grab an API key at [crosmos.dev](https://crosmos.dev/) and join the conversation on Discord.

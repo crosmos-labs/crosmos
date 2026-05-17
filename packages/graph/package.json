@@ -1,8 +1,12 @@
 {
 	"name": "@crosmos/graph",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"type": "module",
 	"description": "Official graph visualization package for Crosmos Memory",
+	"author": {
+		"name": "Crosmos Labs",
+		"url": "https://crosmos.dev"
+	},
 	"license": "MIT",
 	"keywords": [
 		"graph",
@@ -43,7 +47,6 @@
 	},
 	"scripts": {
 		"build": "tsup",
-		"dev": "tsup --watch",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {

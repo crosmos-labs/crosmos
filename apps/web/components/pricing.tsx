@@ -258,13 +258,12 @@ export function Pricing() {
 		>
 			<div className="flex flex-col items-center justify-center max-w-7xl mx-auto w-full">
 				<div className="flex flex-col items-center text-center max-w-2xl mx-auto">
-					<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mt-6">
-						Pricing
-					</h2>
-					<p className="text-base md:text-lg text-center text-foreground/80 mt-6">
-						Efficient by design, so your agents grow smarter over time without
-						growing heavier.
+					<p className="text-accent font-mono font-bold uppercase text-center mb-4">
+						[ Pricing ]
 					</p>
+					<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
+						Flexible plans for every scale
+					</h2>
 				</div>
 				{/* Billing toggle - hidden for now
 				<div className="sticky top-20 sm:top-16.25 lg:static lg:top-auto z-10 bg-background py-3 -mx-6 px-6 lg:mx-0 lg:px-0 lg:py-0 flex items-center justify-center space-x-4 mt-6 w-full">

@@ -5,6 +5,7 @@
 		"paths": {
 			"@/*": ["./*"],
 			"@crosmos/ui/*": ["../../packages/ui/src/*"],
+			"@crosmos/graph": ["../../packages/graph/src/index.tsx"],
 			"@crosmos/graph/*": ["../../packages/graph/src/*"]
 		},
 		"plugins": [

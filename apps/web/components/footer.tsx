@@ -12,8 +12,6 @@ const FOOTER_DATA = {
 	product: {
 		title: "Product",
 		links: [
-			{ label: "Playground", href: LINKS.product.playground },
-			{ label: "Download", href: LINKS.product.download },
 			{ label: "Changelog", href: LINKS.product.changelog },
 			{ label: "Pricing", href: LINKS.product.pricing },
 		],
@@ -65,7 +63,7 @@ const FOOTER_DATA = {
 
 export function Footer() {
 	return (
-		<footer className="dark bg-background text-foreground relative z-30">
+		<footer className="dark bg-background text-foreground border-0 relative z-30">
 			<div className="absolute inset-0">
 				<PixelBlast
 					variant="square"

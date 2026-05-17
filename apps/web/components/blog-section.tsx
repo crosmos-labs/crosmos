@@ -15,8 +15,11 @@ export function BlogSection() {
 	return (
 		<section id="blog" className="py-16 sm:py-20 lg:py-24">
 			<div className="max-w-7xl mx-auto px-6 lg:px-8 xl:px-0">
+				<p className="text-accent font-mono font-bold uppercase mb-3">
+					[ Blogs ]
+				</p>
 				<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
-					Blogs
+					Insights from the Crosmos team
 				</h2>
 			</div>
 			<BlogCarousel blogs={blogs} />

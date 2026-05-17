@@ -28,7 +28,7 @@ export function HeroBg() {
 			className="relative min-h-screen flex flex-col overflow-hidden"
 		>
 			<Image
-				src="/bg.png"
+				src="/bg2.png"
 				alt=""
 				fill
 				className="object-cover pointer-events-none select-none"

@@ -20,6 +20,13 @@
 		"Liberation Mono", "Courier New", monospace;
 }
 
+.prose code::before,
+.prose code::after,
+.prose pre code::before,
+.prose pre code::after {
+	content: none;
+}
+
 .prose :not(pre) > code {
 	background: var(--color-muted);
 	color: var(--color-foreground);

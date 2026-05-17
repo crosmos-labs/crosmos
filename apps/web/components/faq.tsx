@@ -39,7 +39,7 @@ export function Faq() {
 	return (
 		<section
 			id="faq"
-			className="relative px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
+			className="relative bg-background text-foreground border-0 px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
 		>
 			<div className="max-w-7xl mx-auto">
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
@@ -56,7 +56,7 @@ export function Faq() {
 									value={`item-${index}`}
 									className="last:mb-0"
 								>
-									<AccordionTrigger className="text-base font-medium py-4">
+									<AccordionTrigger className="text-base font-medium py-4 hover:no-underline">
 										{item.question}
 									</AccordionTrigger>
 									<AccordionContent className="text-muted-foreground pb-4">
