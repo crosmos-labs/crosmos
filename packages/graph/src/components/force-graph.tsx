@@ -119,12 +119,16 @@ export function ForceGraph({
 		const CURVATURE_SPACING = GRAPH_CONFIG.link.curvatureSpacing;
 
 		for (const [pairKey, group] of groups) {
-			void pairKey;
+			const [srcA] = pairKey.split("||");
+			group.sort((a, b) => a.id.localeCompare(b.id));
 			const count = group.length;
 			for (let i = 0; i < count; i++) {
 				const edge = group[i];
 				if (!edge) continue;
-				const curvature = (i - (count - 1) / 2) * CURVATURE_SPACING;
+				const canonicalSrc = srcA;
+				const sign = edge.source_entity_id === canonicalSrc ? 1 : -1;
+				const curvature =
+					sign * (i - (count - 1) / 2) * CURVATURE_SPACING;
 				meta.set(edge.id, { curvature, index: i, count });
 			}
 		}
