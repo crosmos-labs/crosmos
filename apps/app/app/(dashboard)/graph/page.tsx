@@ -126,13 +126,15 @@ export default function GraphPage() {
 
 			{!isInitialLoading && graphData && (
 				<div className="flex-1 min-h-0 rounded-md border relative">
-					<ForceGraph
-						nodes={graphData.nodes}
-						edges={graphData.edges}
-						onNodeClick={handleNodeClick}
-						onEdgeClick={handleEdgeClick}
-						onBackgroundClick={handleBackgroundClick}
-					/>
+				<ForceGraph
+					key={selectedSpaceId}
+					nodes={graphData.nodes}
+					edges={graphData.edges}
+					spaceId={selectedSpaceId}
+					onNodeClick={handleNodeClick}
+					onEdgeClick={handleEdgeClick}
+					onBackgroundClick={handleBackgroundClick}
+				/>
 					{selectedNode && (
 						<NodePopover
 							node={selectedNode}
@@ -148,15 +150,6 @@ export default function GraphPage() {
 					)}
 				</div>
 			)}
-
-			{!isInitialLoading &&
-				graphData &&
-				graphData.nodes.length === 0 &&
-				selectedSpaceId && (
-					<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-						No entities in this space yet. Add sources to populate the graph.
-					</div>
-				)}
 		</div>
 	);
 }

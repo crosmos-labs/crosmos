@@ -36,6 +36,7 @@ interface EdgeInfo {
 interface ForceGraphProps {
 	nodes: GraphNode[];
 	edges: GraphEdge[];
+	spaceId: string;
 	onNodeClick?: (node: GraphNode) => void;
 	onEdgeClick?: (edge: GraphEdge) => void;
 	onBackgroundClick?: () => void;
@@ -58,6 +59,7 @@ function getEdgeKey(link: RFGLink | Record<string, unknown>): string {
 export function ForceGraph({
 	nodes,
 	edges,
+	spaceId,
 	onNodeClick,
 	onEdgeClick,
 	onBackgroundClick,
@@ -149,12 +151,8 @@ export function ForceGraph({
 	const rebuildConnectedEdges = useCallback(
 		(nodeId: string | null) => {
 			if (!nodeId) {
-				prevConnectedEdgesRef.current = new Set(
-					connectedEdgesRef.current,
-				);
-				prevConnectedNodeIdsRef.current = new Set(
-					connectedNodeIdsRef.current,
-				);
+				prevConnectedEdgesRef.current = new Set(connectedEdgesRef.current);
+				prevConnectedNodeIdsRef.current = new Set(connectedNodeIdsRef.current);
 				connectedEdgesRef.current = new Set();
 				connectedNodeIdsRef.current = new Set();
 				return;
@@ -378,8 +376,7 @@ export function ForceGraph({
 
 	const isEdgeHighlighted = useCallback((key: string) => {
 		return (
-			connectedEdgesRef.current.has(key) ||
-			key === hoveredEdgeKeyRef.current
+			connectedEdgesRef.current.has(key) || key === hoveredEdgeKeyRef.current
 		);
 	}, []);
 
