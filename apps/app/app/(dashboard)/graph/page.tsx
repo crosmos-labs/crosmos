@@ -54,6 +54,11 @@ export default function GraphPage() {
 		}
 	}, [spaces, selectedSpaceId]);
 
+	useEffect(() => {
+		setSelectedNode(null);
+		setSelectedEdge(null);
+	}, [selectedSpaceId]);
+
 	const handleNodeClick = useCallback((node: GraphNode) => {
 		setSelectedNode(node);
 		setSelectedEdge(null);
@@ -135,6 +140,11 @@ export default function GraphPage() {
 					onEdgeClick={handleEdgeClick}
 					onBackgroundClick={handleBackgroundClick}
 				/>
+					{graphLoading && (
+						<div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
+							<Skeleton className="h-8 w-8 rounded-full" />
+						</div>
+					)}
 					{selectedNode && (
 						<NodePopover
 							node={selectedNode}
