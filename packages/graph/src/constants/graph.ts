@@ -4,9 +4,11 @@ export const GRAPH_CONFIG = {
 	},
 	force: {
 		linkDistance: 120,
-		chargeStrength: -200,
-		alphaDecay: 0.025,
-		velocityDecay: 0.45,
+		chargeStrength: -150,
+		chargeDistanceMax: 500,
+		alphaDecay: 0.015,
+		velocityDecay: 0.6,
+		boundaryStrength: 0.06,
 	},
 	node: {
 		radius: 4,
@@ -40,11 +42,11 @@ export const GRAPH_CONFIG = {
 		dimOpacity: 0.15,
 	},
 	click: {
-		centerAnimationDuration: 1000,
+		centerAnimationDuration: 300,
 		targetZoom: 2,
 	},
 	edgeClick: {
-		animationDuration: 1000,
+		animationDuration: 300,
 		targetZoom: 2,
 		padding: 80,
 	},

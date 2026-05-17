@@ -1,6 +1,12 @@
 "use client";
 
-import { forceCollide, forceLink, forceManyBody } from "d3-force";
+import {
+	forceCollide,
+	forceLink,
+	forceManyBody,
+	forceX,
+	forceY,
+} from "d3-force";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GRAPH_CONFIG } from "../constants/graph";
 import type { GraphEdge, GraphNode } from "../types";
@@ -60,10 +66,13 @@ export function ForceGraph({
 	const zoomLabelRef = useRef<HTMLDivElement>(null);
 	const fgRef = useRef<Record<string, unknown> | null>(null);
 	const hoveredNodeIdRef = useRef<string | null>(null);
+	const lastHoveredNodeIdRef = useRef<string | null>(null);
 	const hoverAnimProgressRef = useRef(0);
 	const animFrameRef = useRef(0);
 	const connectedEdgesRef = useRef<Set<string>>(new Set());
 	const connectedNodeIdsRef = useRef<Set<string>>(new Set());
+	const prevConnectedEdgesRef = useRef<Set<string>>(new Set());
+	const prevConnectedNodeIdsRef = useRef<Set<string>>(new Set());
 	const hoveredEdgeKeyRef = useRef<string | null>(null);
 	const edgeHoverAnimProgressRef = useRef(0);
 	const edgeAnimFrameRef = useRef(0);
@@ -140,6 +149,12 @@ export function ForceGraph({
 	const rebuildConnectedEdges = useCallback(
 		(nodeId: string | null) => {
 			if (!nodeId) {
+				prevConnectedEdgesRef.current = new Set(
+					connectedEdgesRef.current,
+				);
+				prevConnectedNodeIdsRef.current = new Set(
+					connectedNodeIdsRef.current,
+				);
 				connectedEdgesRef.current = new Set();
 				connectedNodeIdsRef.current = new Set();
 				return;
@@ -167,6 +182,11 @@ export function ForceGraph({
 
 		if (Math.abs(diff) < 0.01) {
 			hoverAnimProgressRef.current = target;
+			if (target === 0) {
+				lastHoveredNodeIdRef.current = null;
+				prevConnectedEdgesRef.current = new Set();
+				prevConnectedNodeIdsRef.current = new Set();
+			}
 			return;
 		}
 
@@ -180,6 +200,10 @@ export function ForceGraph({
 			setRenderTick((v) => v + 1);
 			if (t < 1) {
 				animFrameRef.current = requestAnimationFrame(step);
+			} else if (target === 0) {
+				lastHoveredNodeIdRef.current = null;
+				prevConnectedEdgesRef.current = new Set();
+				prevConnectedNodeIdsRef.current = new Set();
 			}
 		};
 		animFrameRef.current = requestAnimationFrame(step);
@@ -263,7 +287,9 @@ export function ForceGraph({
 		);
 		fgApi.d3Force(
 			"charge",
-			forceManyBody().strength(GRAPH_CONFIG.force.chargeStrength),
+			forceManyBody()
+				.strength(GRAPH_CONFIG.force.chargeStrength)
+				.distanceMax(GRAPH_CONFIG.force.chargeDistanceMax),
 		);
 		fgApi.d3Force(
 			"collide",
@@ -272,8 +298,11 @@ export function ForceGraph({
 					const degreeBoost = Math.min(1.75, 1 + (node.edge_count ?? 0) * 0.05);
 					return collisionRadiusBase * degreeBoost;
 				})
-				.strength(0.7),
+				.strength(0.7)
+				.iterations(4),
 		);
+		fgApi.d3Force("x", forceX().strength(GRAPH_CONFIG.force.boundaryStrength));
+		fgApi.d3Force("y", forceY().strength(GRAPH_CONFIG.force.boundaryStrength));
 
 		fgApi.d3ReheatSimulation();
 	}, [ForceGraph2D, dynamicLinkDistance]);
@@ -349,7 +378,8 @@ export function ForceGraph({
 
 	const isEdgeHighlighted = useCallback((key: string) => {
 		return (
-			connectedEdgesRef.current.has(key) || key === hoveredEdgeKeyRef.current
+			connectedEdgesRef.current.has(key) ||
+			key === hoveredEdgeKeyRef.current
 		);
 	}, []);
 
@@ -398,6 +428,10 @@ export function ForceGraph({
 					hoveredNodeIdRef.current = id;
 					rebuildConnectedEdges(id);
 
+					if (id) {
+						lastHoveredNodeIdRef.current = id;
+					}
+
 					if (id && prevId) {
 						hoverAnimProgressRef.current = 1;
 						setRenderTick((v) => v + 1);
@@ -423,10 +457,13 @@ export function ForceGraph({
 				onBackgroundClick={handleBackgroundClick}
 				linkColor={(link: Record<string, unknown>) => {
 					const key = getEdgeKey(link as unknown as RFGLink);
-					if (isEdgeHighlighted(key)) {
+					const p = hoverAnimProgressRef.current;
+					const isFadeOut =
+						hoveredNodeIdRef.current === null &&
+						lastHoveredNodeIdRef.current !== null;
+					if (isEdgeHighlighted(key) && !isFadeOut) {
 						return hoverConf.accentColor;
 					}
-					const p = hoverAnimProgressRef.current;
 					const dimmedAlpha =
 						linkConf.defaultAlpha * (1 - p * (1 - hoverConf.dimOpacity));
 					return `rgba(148,163,184,${dimmedAlpha.toFixed(3)})`;
@@ -463,17 +500,16 @@ export function ForceGraph({
 					);
 
 					const isDirectHovered = key === hoveredEdgeKeyRef.current;
-					const isConnectedHovered = connectedEdgesRef.current.has(key);
+					const isFadeOut =
+						hoveredNodeIdRef.current === null &&
+						lastHoveredNodeIdRef.current !== null;
+					const isConnectedHovered = isFadeOut
+						? prevConnectedEdgesRef.current.has(key)
+						: connectedEdgesRef.current.has(key);
 					const isEdgeActive = isDirectHovered || isConnectedHovered;
 					const p = hoverAnimProgressRef.current;
 
-					const isHighlighted =
-						isEdgeActive ||
-						connectedNodeIdsRef.current.has(
-							(srcNode as RFGNode).id as string,
-						) ||
-						connectedNodeIdsRef.current.has((tgtNode as RFGNode).id as string);
-					const dimFactor = isHighlighted
+					const dimFactor = isEdgeActive
 						? 1
 						: 1 - p * (1 - hoverConf.dimOpacity);
 
@@ -497,7 +533,7 @@ export function ForceGraph({
 
 					const clampedOpacity = Math.min(1, Math.max(0, effectiveOpacity));
 
-					ctx.globalAlpha = isHighlighted
+					ctx.globalAlpha = isEdgeActive
 						? clampedOpacity
 						: clampedOpacity * dimFactor;
 					ctx.font = `${edgeConf.fontSize}px Satoshi, Inter, ui-sans-serif, system-ui, sans-serif`;
@@ -531,10 +567,16 @@ export function ForceGraph({
 					const fontSize = nodeConf.fontSize;
 					const labelGap = nodeConf.labelGap;
 					const isHovered = hoveredNodeIdRef.current === nodeId;
-					const isConnected = connectedNodeIdsRef.current.has(nodeId);
+					const isFadingOut =
+						hoveredNodeIdRef.current === null &&
+						lastHoveredNodeIdRef.current !== null;
+					const wasHovered = lastHoveredNodeIdRef.current === nodeId;
+					const isConnected = isFadingOut
+						? prevConnectedNodeIdsRef.current.has(nodeId)
+						: connectedNodeIdsRef.current.has(nodeId);
 					const p = hoverAnimProgressRef.current;
 
-					const isHighlighted = isHovered || isConnected;
+					const isHighlighted = isHovered || isConnected || wasHovered;
 					const dimFactor = isHighlighted
 						? 1
 						: 1 - p * (1 - hoverConf.dimOpacity);
@@ -544,13 +586,13 @@ export function ForceGraph({
 						Math.max(0, (globalScale - labelOpacityMin) / labelOpacityRange),
 					);
 
-					const fillColor = isHovered
-						? hoverConf.accentColor
-						: (node.color as string);
+					const fillColor =
+						isHovered || (isFadingOut && wasHovered)
+							? hoverConf.accentColor
+							: (node.color as string);
 
-					const hoverLabelProgress = isHovered
-						? hoverAnimProgressRef.current
-						: 0;
+					const hoverLabelProgress =
+						isHovered || (isFadingOut && wasHovered) ? p : 0;
 					const shouldShowLabel = labelOpacity > 0 || hoverLabelProgress > 0;
 
 					if (!shouldShowLabel) {
