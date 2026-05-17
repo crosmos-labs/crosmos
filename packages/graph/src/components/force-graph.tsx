@@ -26,7 +26,6 @@ interface RFGLink {
 	target: RFGNode | string;
 	color: string;
 	relation_type: string;
-	curvature: number;
 }
 
 interface EdgeInfo {
@@ -103,42 +102,16 @@ export function ForceGraph({
 		[nodes],
 	);
 
-	const rfgLinks = useMemo<RFGLink[]>(() => {
-		const pairCounts = new Map<string, number>();
-		for (const e of edges) {
-			const key =
-				e.source_entity_id < e.target_entity_id
-					? `${e.source_entity_id}||${e.target_entity_id}`
-					: `${e.target_entity_id}||${e.source_entity_id}`;
-			pairCounts.set(key, (pairCounts.get(key) ?? 0) + 1);
-		}
-
-		const pairIndex = new Map<string, number>();
-
-		return edges.map((e) => {
-			const key =
-				e.source_entity_id < e.target_entity_id
-					? `${e.source_entity_id}||${e.target_entity_id}`
-					: `${e.target_entity_id}||${e.source_entity_id}`;
-			const total = pairCounts.get(key) ?? 1;
-			const idx = pairIndex.get(key) ?? 0;
-			pairIndex.set(key, idx + 1);
-
-			let curvature = 0;
-			if (total > 1) {
-				const offset = Math.ceil((total - 1) / 2);
-				curvature = (idx - offset + 1) * 0.2;
-			}
-
-			return {
+	const rfgLinks = useMemo<RFGLink[]>(
+		() =>
+			edges.map((e) => ({
 				source: e.source_entity_id,
 				target: e.target_entity_id,
 				color: GRAPH_CONFIG.link.color,
 				relation_type: e.relation_type,
-				curvature,
-			};
-		});
-	}, [edges]);
+			})),
+		[edges],
+	);
 
 	const graphData = useMemo(
 		() => ({ nodes: rfgNodes, links: rfgLinks }),
@@ -497,9 +470,6 @@ export function ForceGraph({
 					return isEdgeHighlighted(key)
 						? linkConf.highlightedWidth
 						: linkConf.defaultWidth;
-				}}
-				linkCurvature={(link: Record<string, unknown>) => {
-					return (link as unknown as RFGLink).curvature ?? 0;
 				}}
 				linkCanvasObjectMode={() => "after"}
 				linkCanvasObject={(

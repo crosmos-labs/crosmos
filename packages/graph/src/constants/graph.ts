@@ -4,7 +4,7 @@ export const GRAPH_CONFIG = {
 	},
 	force: {
 		linkDistance: 120,
-		chargeStrength: -250,
+		chargeStrength: -150,
 		chargeDistanceMax: 500,
 		alphaDecay: 0.015,
 		velocityDecay: 0.6,
