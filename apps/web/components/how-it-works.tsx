@@ -128,7 +128,11 @@ const graphEdges = [
 	{ from: 10, to: 37, crossCluster: true },
 ];
 
-export function KnowledgeGraphVisual({ reducedMotion }: { reducedMotion: boolean }) {
+export function KnowledgeGraphVisual({
+	reducedMotion,
+}: {
+	reducedMotion: boolean;
+}) {
 	const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
 	const [isGraphHovered, setIsGraphHovered] = useState(false);
 
@@ -181,7 +185,6 @@ export function KnowledgeGraphVisual({ reducedMotion }: { reducedMotion: boolean
 			</div>
 			<div
 				className="pt-4 px-0 pb-0 sm:pt-6"
-				tabIndex={0}
 				role="region"
 				aria-label="Interactive knowledge graph"
 				onMouseEnter={() => setIsGraphHovered(true)}
@@ -397,8 +400,12 @@ export function HowItWorks() {
 								key={i}
 								initial={reducedMotion ? false : { opacity: 0, x: -20 }}
 								whileInView={reducedMotion ? undefined : { opacity: 1, x: 0 }}
-								viewport={reducedMotion ? undefined : { once: true, margin: "-60px" }}
-								transition={reducedMotion ? undefined : { duration: 0.5, delay: i * 0.15 }}
+								viewport={
+									reducedMotion ? undefined : { once: true, margin: "-60px" }
+								}
+								transition={
+									reducedMotion ? undefined : { duration: 0.5, delay: i * 0.15 }
+								}
 								className="relative flex gap-6 pb-12 last:pb-0"
 							>
 								<div className="relative z-10 flex-shrink-0">
