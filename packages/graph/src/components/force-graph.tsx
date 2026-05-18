@@ -26,11 +26,17 @@ interface RFGLink {
 	target: RFGNode | string;
 	color: string;
 	relation_type: string;
+	edge_id: string;
+	curvature: number;
+	parallel_index: number;
+	parallel_count: number;
 }
 
 interface EdgeInfo {
 	relation_type: string;
 	valid_from: string | null;
+	source_entity_id: string;
+	target_entity_id: string;
 }
 
 interface ForceGraphProps {
@@ -44,16 +50,8 @@ interface ForceGraphProps {
 
 const HOVER_ANIM_MS = GRAPH_CONFIG.hover.animationDurationMs;
 
-function getEdgeKey(link: RFGLink | Record<string, unknown>): string {
-	const src =
-		typeof (link as RFGLink).source === "object"
-			? ((link as RFGLink).source as RFGNode).id
-			: ((link as RFGLink).source as string);
-	const tgt =
-		typeof (link as RFGLink).target === "object"
-			? ((link as RFGLink).target as RFGNode).id
-			: ((link as RFGLink).target as string);
-	return `${src}->${tgt}`;
+function getPairKey(src: string, tgt: string): string {
+	return src < tgt ? `${src}||${tgt}` : `${tgt}||${src}`;
 }
 
 export function ForceGraph({
@@ -75,7 +73,7 @@ export function ForceGraph({
 	const connectedNodeIdsRef = useRef<Set<string>>(new Set());
 	const prevConnectedEdgesRef = useRef<Set<string>>(new Set());
 	const prevConnectedNodeIdsRef = useRef<Set<string>>(new Set());
-	const hoveredEdgeKeyRef = useRef<string | null>(null);
+	const hoveredEdgeIdRef = useRef<string | null>(null);
 	const edgeHoverAnimProgressRef = useRef(0);
 	const edgeAnimFrameRef = useRef(0);
 	const [ForceGraph2D, setForceGraph2D] = useState<React.ComponentType<
@@ -102,15 +100,64 @@ export function ForceGraph({
 		[nodes],
 	);
 
+	const parallelEdgeMeta = useMemo(() => {
+		const groups = new Map<string, GraphEdge[]>();
+
+		for (const e of edges) {
+			if (e.source_entity_id === e.target_entity_id) {
+				continue;
+			}
+			const key = getPairKey(e.source_entity_id, e.target_entity_id);
+			if (!groups.has(key)) groups.set(key, []);
+			groups.get(key)?.push(e);
+		}
+
+		const meta = new Map<
+			string,
+			{ curvature: number; index: number; count: number }
+		>();
+		const CURVATURE_SPACING = GRAPH_CONFIG.link.curvatureSpacing;
+
+		for (const [pairKey, group] of groups) {
+			const [srcA] = pairKey.split("||");
+			group.sort((a, b) => a.id.localeCompare(b.id));
+			const count = group.length;
+			for (let i = 0; i < count; i++) {
+				const edge = group[i];
+				if (!edge) continue;
+				const canonicalSrc = srcA;
+				const sign = edge.source_entity_id === canonicalSrc ? 1 : -1;
+				const curvature =
+					sign * (i - (count - 1) / 2) * CURVATURE_SPACING;
+				meta.set(edge.id, { curvature, index: i, count });
+			}
+		}
+
+		for (const e of edges) {
+			if (e.source_entity_id === e.target_entity_id && !meta.has(e.id)) {
+				meta.set(e.id, { curvature: 0, index: 0, count: 1 });
+			}
+		}
+
+		return meta;
+	}, [edges]);
+
 	const rfgLinks = useMemo<RFGLink[]>(
 		() =>
-			edges.map((e) => ({
-				source: e.source_entity_id,
-				target: e.target_entity_id,
-				color: GRAPH_CONFIG.link.color,
-				relation_type: e.relation_type,
-			})),
-		[edges],
+			edges.map((e) => {
+				const meta = parallelEdgeMeta.get(e.id);
+				return {
+					source: e.source_entity_id,
+					target: e.target_entity_id,
+					color: GRAPH_CONFIG.link.color,
+					relation_type: e.relation_type,
+					edge_id: e.id,
+					curvature: meta?.curvature ?? 0,
+					parallel_index: meta?.index ?? 0,
+					parallel_count: meta?.count ?? 1,
+				};
+			}),
+		[edges, parallelEdgeMeta],
 	);
 
 	const graphData = useMemo(
@@ -140,9 +187,11 @@ export function ForceGraph({
 	const edgeMap = useMemo(() => {
 		const map = new Map<string, EdgeInfo>();
 		for (const e of edges) {
-			map.set(`${e.source_entity_id}->${e.target_entity_id}`, {
+			map.set(e.id, {
 				relation_type: e.relation_type,
 				valid_from: e.valid_from,
+				source_entity_id: e.source_entity_id,
+				target_entity_id: e.target_entity_id,
 			});
 		}
 		return map;
@@ -162,7 +211,7 @@ export function ForceGraph({
 			nodeSet.add(nodeId);
 			for (const e of edges) {
 				if (e.source_entity_id === nodeId || e.target_entity_id === nodeId) {
-					edgeSet.add(`${e.source_entity_id}->${e.target_entity_id}`);
+					edgeSet.add(e.id);
 					nodeSet.add(e.source_entity_id);
 					nodeSet.add(e.target_entity_id);
 				}
@@ -338,13 +387,10 @@ export function ForceGraph({
 	const handleEdgeClick = useCallback(
 		(link: Record<string, unknown>) => {
 			const rfgLink = link as unknown as RFGLink;
-			const key = getEdgeKey(rfgLink);
-			const edgeInfo = edgeMap.get(key);
+			const edgeInfo = edgeMap.get(rfgLink.edge_id);
 			if (!edgeInfo) return;
 
-			const original = edges.find(
-				(e) => `${e.source_entity_id}->${e.target_entity_id}` === key,
-			);
+			const original = edges.find((e) => e.id === rfgLink.edge_id);
 			if (!original) return;
 
 			const srcNode = rfgLink.source;
@@ -374,9 +420,10 @@ export function ForceGraph({
 		onBackgroundClick?.();
 	}, [onBackgroundClick]);
 
-	const isEdgeHighlighted = useCallback((key: string) => {
+	const isEdgeHighlighted = useCallback((edgeId: string) => {
 		return (
-			connectedEdgesRef.current.has(key) || key === hoveredEdgeKeyRef.current
+			connectedEdgesRef.current.has(edgeId) ||
+			edgeId === hoveredEdgeIdRef.current
 		);
 	}, []);
 
@@ -440,12 +487,12 @@ export function ForceGraph({
 				}}
 				onLinkHover={(link: Record<string, unknown> | null) => {
 					if (!link) {
-						hoveredEdgeKeyRef.current = null;
+						hoveredEdgeIdRef.current = null;
 						animateEdgeHover(0);
 						return;
 					}
-					const key = getEdgeKey(link as unknown as RFGLink);
-					hoveredEdgeKeyRef.current = key;
+					const rfgLink = link as unknown as RFGLink;
+					hoveredEdgeIdRef.current = rfgLink.edge_id;
 					edgeHoverAnimProgressRef.current = 1;
 					setRenderTick((v) => v + 1);
 				}}
@@ -453,12 +500,13 @@ export function ForceGraph({
 				onLinkClick={handleEdgeClick}
 				onBackgroundClick={handleBackgroundClick}
 				linkColor={(link: Record<string, unknown>) => {
-					const key = getEdgeKey(link as unknown as RFGLink);
+					const rfgLink = link as unknown as RFGLink;
+					const edgeId = rfgLink.edge_id;
 					const p = hoverAnimProgressRef.current;
 					const isFadeOut =
 						hoveredNodeIdRef.current === null &&
 						lastHoveredNodeIdRef.current !== null;
-					if (isEdgeHighlighted(key) && !isFadeOut) {
+					if (isEdgeHighlighted(edgeId) && !isFadeOut) {
 						return hoverConf.accentColor;
 					}
 					const dimmedAlpha =
@@ -466,10 +514,14 @@ export function ForceGraph({
 					return `rgba(148,163,184,${dimmedAlpha.toFixed(3)})`;
 				}}
 				linkWidth={(link: Record<string, unknown>) => {
-					const key = getEdgeKey(link as unknown as RFGLink);
-					return isEdgeHighlighted(key)
+					const rfgLink = link as unknown as RFGLink;
+					return isEdgeHighlighted(rfgLink.edge_id)
 						? linkConf.highlightedWidth
 						: linkConf.defaultWidth;
+				}}
+				linkCurvature={(link: Record<string, unknown>) => {
+					const rfgLink = link as unknown as RFGLink;
+					return rfgLink.curvature ?? 0;
 				}}
 				linkCanvasObjectMode={() => "after"}
 				linkCanvasObject={(
@@ -478,8 +530,7 @@ export function ForceGraph({
 					globalScale: number,
 				) => {
 					const rfgLink = link as unknown as RFGLink;
-					const key = getEdgeKey(rfgLink);
-					const edgeInfo = edgeMap.get(key);
+					const edgeInfo = edgeMap.get(rfgLink.edge_id);
 					if (!edgeInfo) return;
 					const label = edgeInfo.relation_type;
 
@@ -488,21 +539,41 @@ export function ForceGraph({
 					if (typeof srcNode !== "object" || typeof tgtNode !== "object")
 						return;
 
-					const midX = ((srcNode.x ?? 0) + (tgtNode.x ?? 0)) / 2;
-					const midY = ((srcNode.y ?? 0) + (tgtNode.y ?? 0)) / 2;
+					const x1 = srcNode.x ?? 0;
+					const y1 = srcNode.y ?? 0;
+					const x2 = tgtNode.x ?? 0;
+					const y2 = tgtNode.y ?? 0;
+
+					const midX = (x1 + x2) / 2;
+					const midY = (y1 + y2) / 2;
+
+					const dx = x2 - x1;
+					const dy = y2 - y1;
+					const dist = Math.sqrt(dx * dx + dy * dy);
+
+					let labelX = midX;
+					let labelY = midY;
+
+					if (dist > 0 && rfgLink.curvature !== 0) {
+						const perpX = -dy / dist;
+						const perpY = dx / dist;
+						const offset = 0.5 * rfgLink.curvature * dist;
+						labelX = midX + perpX * offset;
+						labelY = midY + perpY * offset;
+					}
 
 					const labelOpacity = Math.min(
 						1,
 						Math.max(0, (globalScale - labelOpacityMin) / labelOpacityRange),
 					);
 
-					const isDirectHovered = key === hoveredEdgeKeyRef.current;
+					const isDirectHovered = rfgLink.edge_id === hoveredEdgeIdRef.current;
 					const isFadeOut =
 						hoveredNodeIdRef.current === null &&
 						lastHoveredNodeIdRef.current !== null;
 					const isConnectedHovered = isFadeOut
-						? prevConnectedEdgesRef.current.has(key)
-						: connectedEdgesRef.current.has(key);
+						? prevConnectedEdgesRef.current.has(rfgLink.edge_id)
+						: connectedEdgesRef.current.has(rfgLink.edge_id);
 					const isEdgeActive = isDirectHovered || isConnectedHovered;
 					const p = hoverAnimProgressRef.current;
 
@@ -538,8 +609,8 @@ export function ForceGraph({
 					ctx.textBaseline = "middle";
 
 					const textWidth = ctx.measureText(label).width;
-					const bgX = midX - textWidth / 2 - edgeConf.labelPaddingX;
-					const bgY = midY - edgeConf.fontSize / 2 - edgeConf.labelPaddingY;
+					const bgX = labelX - textWidth / 2 - edgeConf.labelPaddingX;
+					const bgY = labelY - edgeConf.fontSize / 2 - edgeConf.labelPaddingY;
 					const bgW = textWidth + edgeConf.labelPaddingX * 2;
 					const bgH = edgeConf.fontSize + edgeConf.labelPaddingY * 2;
 
@@ -547,7 +618,7 @@ export function ForceGraph({
 					ctx.fillRect(bgX, bgY, bgW, bgH);
 
 					ctx.fillStyle = nodeConf.labelColor;
-					ctx.fillText(label, midX, midY);
+					ctx.fillText(label, labelX, labelY);
 					ctx.globalAlpha = 1;
 				}}
 				d3AlphaDecay={GRAPH_CONFIG.force.alphaDecay}
