@@ -127,8 +127,7 @@ export function ForceGraph({
 				if (!edge) continue;
 				const canonicalSrc = srcA;
 				const sign = edge.source_entity_id === canonicalSrc ? 1 : -1;
-				const curvature =
-					sign * (i - (count - 1) / 2) * CURVATURE_SPACING;
+				const curvature = sign * (i - (count - 1) / 2) * CURVATURE_SPACING;
 				meta.set(edge.id, { curvature, index: i, count });
 			}
 		}
