@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LINKS } from "@/config/links";
+import { HeroVideo } from "./hero-video";
 import { LogoCarousel } from "./ui/logo-carousel";
 
 function LinkArrow() {
@@ -73,15 +74,7 @@ export function Hero() {
 				</div>
 
 				<div className="mt-14 relative text-left -mx-6 lg:mx-0">
-					<video
-						src="/showcase.mp4"
-						autoPlay
-						loop
-						muted
-						playsInline
-						preload="auto"
-						className="w-full rounded object-cover"
-					/>
+					<HeroVideo />
 				</div>
 			</div>
 		</section>

@@ -86,7 +86,7 @@ export function Problem() {
 					<div className="lg:col-span-2">
 						<div className="relative aspect-3/5 w-full overflow-hidden rounded">
 							<Image
-								src="/current.png"
+								src="/current.avif"
 								alt="A winding river — fragmented streams converging into a single flow"
 								fill
 								sizes="(min-width: 1024px) 40vw, 100vw"
