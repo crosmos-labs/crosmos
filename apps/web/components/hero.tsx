@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { LINKS } from "@/config/links";
 import { LogoCarousel } from "./ui/logo-carousel";
-import { TerminalAnimationDemo } from "./ui/terminal-animation-demo";
 
 function LinkArrow() {
 	return (
@@ -28,8 +27,10 @@ export function Hero() {
 			<div className="max-w-7xl mx-auto w-full text-center md:text-left">
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 					<div>
-						<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-none text-foreground text-balance">
-							Context that evolves with your{" "}
+						<h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-none text-foreground">
+							Context that evolves
+							<br />
+							with your{" "}
 							<span className="italic font-serif font-light underline decoration-2">
 								Company
 							</span>
@@ -38,9 +39,9 @@ export function Hero() {
 
 					<div className="space-y-8">
 						<p className="text-lg text-foreground/80 leading-relaxed">
-							Stateful, self-improving memory infrastructure for AI agents.
-							Memory layer that compounds intelligence, so agents get better,
-							not just bigger
+							Persistent memory for enterprise AI. Connect your data sources,
+							build a living knowledge graph, and give every agent your
+							organization's full context.
 						</p>
 
 						<div className="flex flex-col sm:flex-row items-center md:items-start gap-4">
@@ -72,7 +73,15 @@ export function Hero() {
 				</div>
 
 				<div className="mt-14 relative text-left -mx-6 lg:mx-0">
-					<TerminalAnimationDemo />
+					<video
+						src="/showcase.mp4"
+						autoPlay
+						loop
+						muted
+						playsInline
+						preload="auto"
+						className="w-full rounded object-cover"
+					/>
 				</div>
 			</div>
 		</section>
