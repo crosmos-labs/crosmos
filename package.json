@@ -24,5 +24,11 @@
 	],
 	"dependencies": {
 		"@tailwindcss/typography": "^0.5.19"
+	},
+	"overrides": {
+		"three": "0.183.0"
+	},
+	"resolutions": {
+		"three": "0.183.0"
 	}
 }
