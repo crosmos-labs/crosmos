@@ -1,16 +1,4 @@
-"use client";
-
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@crosmos/ui/components/accordion";
-
-type FAQItem = {
-	question: string;
-	answer: string;
-};
+import { type FAQItem, FaqAccordion } from "./faq-accordion";
 
 const FAQ_DATA: FAQItem[] = [
 	{
@@ -35,12 +23,30 @@ const FAQ_DATA: FAQItem[] = [
 	},
 ];
 
+const faqJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "FAQPage",
+	mainEntity: FAQ_DATA.map((item) => ({
+		"@type": "Question",
+		name: item.question,
+		acceptedAnswer: {
+			"@type": "Answer",
+			text: item.answer,
+		},
+	})),
+};
+
 export function Faq() {
 	return (
 		<section
 			id="faq"
 			className="relative bg-background text-foreground border-0 px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
 		>
+			<script
+				type="application/ld+json"
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: required for JSON-LD
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+			/>
 			<div className="max-w-7xl mx-auto">
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
 					<div className="flex flex-col gap-6">
@@ -49,22 +55,7 @@ export function Faq() {
 						</h2>
 					</div>
 					<div className="lg:col-span-2">
-						<Accordion type="multiple" defaultValue={[]}>
-							{FAQ_DATA.map((item, index) => (
-								<AccordionItem
-									key={index}
-									value={`item-${index}`}
-									className="last:mb-0"
-								>
-									<AccordionTrigger className="text-base font-medium py-4 hover:no-underline">
-										{item.question}
-									</AccordionTrigger>
-									<AccordionContent className="text-muted-foreground pb-4">
-										{item.answer}
-									</AccordionContent>
-								</AccordionItem>
-							))}
-						</Accordion>
+						<FaqAccordion items={FAQ_DATA} />
 					</div>
 				</div>
 			</div>

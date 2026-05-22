@@ -1,16 +1,9 @@
-"use client";
-
 import { Button } from "@crosmos/ui/components/button";
 import { cn } from "@crosmos/ui/lib/utils";
-import NumberFlow from "@number-flow/react";
 import { IconCheck } from "@tabler/icons-react";
-import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import { useState } from "react";
 import { LINKS } from "@/config/links";
 import { CornerPlus } from "./ui/corner-plus";
-
-type Plan = "monthly" | "annually";
 
 type PLAN = {
 	id: string;
@@ -36,7 +29,6 @@ export const PLANS: PLAN[] = [
 			"500K tokens/month",
 			"5K queries/month",
 			"3 memory spaces",
-			// "10/min - 1k/day rate limit",
 			"MCP server integration",
 			"Community email support",
 		],
@@ -54,7 +46,6 @@ export const PLANS: PLAN[] = [
 			"5M tokens/month",
 			"50K queries/month",
 			"7 memory spaces",
-			// "60/min - 10k/day rate limit",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Priority email support",
@@ -72,7 +63,6 @@ export const PLANS: PLAN[] = [
 			"80M tokens/month",
 			"300K queries/month",
 			"50 memory spaces",
-			// "300/min - 50k/day rate limit",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Dedicated support channel",
@@ -97,7 +87,7 @@ export const PLANS: PLAN[] = [
 	},
 ];
 
-const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
+const PlanCard = ({ plan }: { plan: PLAN }) => {
 	return (
 		<div
 			className={cn(
@@ -118,10 +108,11 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 			{plan.id === "enterprise" && (
 				<div className="absolute -bottom-12 -right-12 hidden lg:block">
 					<Image
-						src="/block.png"
+						src="/block.avif"
 						alt="enterprise plan hero"
 						width={800}
 						height={800}
+						sizes="(min-width: 1024px) 800px, 0px"
 						className="size-full"
 					/>
 				</div>
@@ -152,22 +143,7 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 					) : (
 						<>
 							{plan.monthlyPrice > 0 && <span>*</span>}
-							<NumberFlow
-								value={
-									billPlan === "monthly"
-										? plan.monthlyPrice
-										: plan.annuallyPrice
-								}
-								suffix={billPlan === "monthly" ? "/mo" : "/yr"}
-								format={{
-									currency: "USD",
-									style: "currency",
-									currencySign: "standard",
-									minimumFractionDigits: 0,
-									maximumFractionDigits: 0,
-									currencyDisplay: "narrowSymbol",
-								}}
-							/>
+							<span>${plan.monthlyPrice}/mo</span>
 						</>
 					)}
 				</p>
@@ -209,20 +185,9 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 				</Button>
 				{plan.monthlyPrice !== -1 && (
 					<div className="h-8 overflow-hidden w-full mx-auto">
-						<AnimatePresence mode="wait">
-							<motion.span
-								key={billPlan}
-								initial={{ y: 20, opacity: 0 }}
-								animate={{ y: 0, opacity: 1 }}
-								exit={{ y: -20, opacity: 0 }}
-								transition={{ duration: 0.2, ease: "easeOut" }}
-								className="text-sm text-center text-muted-foreground mt-3 mx-auto block"
-							>
-								{billPlan === "monthly"
-									? "Billed monthly"
-									: "Billed in one annual payment"}
-							</motion.span>
-						</AnimatePresence>
+						<span className="text-sm text-center text-muted-foreground mt-3 mx-auto block">
+							Billed monthly
+						</span>
 					</div>
 				)}
 			</div>
@@ -245,12 +210,6 @@ const Plan = ({ plan, billPlan }: { plan: PLAN; billPlan: Plan }) => {
 };
 
 export function Pricing() {
-	const [billPlan, setBillPlan] = useState<Plan>("monthly");
-
-	const _handleSwitch = () => {
-		setBillPlan((prev) => (prev === "monthly" ? "annually" : "monthly"));
-	};
-
 	return (
 		<section
 			id="pricing"
@@ -265,30 +224,9 @@ export function Pricing() {
 						Flexible plans for every scale
 					</h2>
 				</div>
-				{/* Billing toggle - hidden for now
-				<div className="sticky top-20 sm:top-16.25 lg:static lg:top-auto z-10 bg-background py-3 -mx-6 px-6 lg:mx-0 lg:px-0 lg:py-0 flex items-center justify-center space-x-4 mt-6 w-full">
-					<span className="text-sm sm:text-base font-medium">Monthly</span>
-					<button
-						onClick={handleSwitch}
-						role="switch"
-						aria-checked={billPlan === "annually"}
-						aria-label="Toggle between monthly and annual billing"
-						className="relative rounded-full focus:outline-none"
-					>
-						<div className="w-12 h-6 transition rounded-full shadow-md outline-none bg-accent/90"></div>
-						<div
-							className={cn(
-								"absolute inline-flex items-center justify-center size-4 transition-all duration-500 ease-in-out top-1 left-1 rounded-full bg-white",
-								billPlan === "annually" ? "translate-x-6" : "translate-x-0",
-							)}
-						/>
-					</button>
-					<span className="text-sm sm:text-base font-medium">Annually</span>
-				</div>
-				*/}
 				<div className="grid w-full grid-cols-1 lg:grid-cols-3 pt-8 lg:pt-12">
 					{PLANS.map((plan) => (
-						<Plan key={plan.id} plan={plan} billPlan={billPlan} />
+						<PlanCard key={plan.id} plan={plan} />
 					))}
 				</div>
 				<p className="text-sm text-muted-foreground mt-4 text-right w-full">
