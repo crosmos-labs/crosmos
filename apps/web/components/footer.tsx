@@ -6,7 +6,7 @@ import {
 } from "@tabler/icons-react";
 import { LINKS } from "../config/links";
 import { CornerPlus } from "./ui/corner-plus";
-import PixelBlast from "./ui/pixel-blast";
+import { LazyPixelBlast } from "./ui/lazy-pixel-blast";
 
 const FOOTER_DATA = {
 	product: {
@@ -65,7 +65,7 @@ export function Footer() {
 	return (
 		<footer className="dark bg-background text-foreground border-0 relative z-30">
 			<div className="absolute inset-0">
-				<PixelBlast
+				<LazyPixelBlast
 					variant="square"
 					pixelSize={3}
 					color="#298559"
