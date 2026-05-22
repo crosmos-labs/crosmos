@@ -770,10 +770,10 @@ function PersistenceScoringVisual() {
 
 function PerQueryControlsVisual() {
 	const toggles = [
-		{ label: "recency", y: 32, phase: 0 },
-		{ label: "graph_depth", y: 72, phase: 2.4 },
-		{ label: "cross_encoder", y: 112, phase: 4.8 },
-		{ label: "diversity", y: 152, phase: 7.2 },
+		{ label: "recency_bias", y: 32, phase: 0 },
+		{ label: "graph", y: 72, phase: 2.4 },
+		{ label: "rerank", y: 112, phase: 4.8 },
+		{ label: "diversify", y: 152, phase: 7.2 },
 	] as const;
 	const trackX = 210;
 	const trackW = 60;

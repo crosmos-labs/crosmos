@@ -31,7 +31,7 @@ export function Hero() {
 							Context that evolves
 							<br />
 							with your{" "}
-							<span className="italic font-serif font-light underline decoration-2">
+							<span className="italic font-serif font-light underline decoration-2 underline-offset-4">
 								Company
 							</span>
 						</h1>

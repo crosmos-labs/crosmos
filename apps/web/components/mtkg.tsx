@@ -3,7 +3,6 @@
 import {
 	IconClock,
 	IconShieldCheck,
-	IconStack2,
 	IconTimelineEvent,
 } from "@tabler/icons-react";
 import { motion, useReducedMotion } from "motion/react";
@@ -325,16 +324,10 @@ const POINTS: {
 	description: string;
 }[] = [
 	{
-		icon: IconStack2,
-		title: "Append-Only Architecture",
-		description:
-			"Facts are never overwritten — only added. The graph grows monotonically, preserving every state change for complete audit history.",
-	},
-	{
 		icon: IconClock,
 		title: "Temporal Validity",
 		description:
-			"Every relationship carries a valid_from timestamp. Track when organizational facts became true and query the graph at any point in time.",
+			"Every relationship is timestamped. Track when organizational facts became true and query the graph at any point in time.",
 	},
 	{
 		icon: IconTimelineEvent,
