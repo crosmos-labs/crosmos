@@ -25,7 +25,7 @@ const steps = [
 		icon: IconSearch,
 		title: "Retrieve with Precision",
 		description:
-			"Multi-signal hybrid retrieval combines semantic search, keyword matching, and graph traversal: fused and ranked deterministically. No LLM calls at query time. Fast, predictable, reliable.",
+			"Multi-signal hybrid retrieval combines semantic search, keyword matching, and graph traversal. No LLM calls at query time. Fast, predictable, reliable.",
 	},
 ];
 
