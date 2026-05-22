@@ -235,13 +235,14 @@ function LogoSlot({
 	const styles = variantStyles[variant];
 	const isColored = logo?.colored;
 	const imgEl = (
-		// TODO: change to next Image tag
-		// biome-ignore lint/performance/noImgElement: Do not require optimisation
+		// biome-ignore lint/performance/noImgElement: SVG logos do not benefit from next/image optimization; carousel preloads them manually
 		<img
 			src={logo?.src}
 			alt={disableLinks ? logo?.name : ""}
 			width={logo?.width}
 			height={logo?.height}
+			loading="lazy"
+			decoding="async"
 			className={cn(
 				!isColored && styles.base,
 				!disableLinks && styles.interactive,

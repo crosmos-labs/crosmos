@@ -105,7 +105,7 @@ function HybridRetrievalVisual() {
 						key={`bead-${s.label}`}
 						r={3}
 						fill="currentColor"
-						initial={{ opacity: 0 }}
+						initial={{ cx: 0, cy: s.y, opacity: 0 }}
 						animate={{
 							cx: samples.map((p) => p.x),
 							cy: samples.map((p) => p.y),
@@ -643,6 +643,7 @@ function TemporalInferenceVisual() {
 				rx={3}
 				fill="currentColor"
 				fillOpacity={0.55}
+				initial={{ x: p0.x, width: p0.w }}
 				animate={{
 					x: [p0.x, p1.x, p1.x, p2.x, p0.x],
 					width: [p0.w, p1.w, p1.w, p2.w, p0.w],
@@ -684,6 +685,7 @@ function PersistenceScoringVisual() {
 						fill="none"
 						stroke="currentColor"
 						strokeWidth={0.8}
+						initial={{ r: 12, opacity: 0.6 }}
 						animate={{
 							r: [12, 50],
 							opacity: [0.6, 0],
@@ -719,6 +721,7 @@ function PersistenceScoringVisual() {
 					key={`ping-${s.label}`}
 					r={2.5}
 					fill="currentColor"
+					initial={{ cx: s.x, cy: s.y, opacity: 0 }}
 					animate={{
 						cx: [s.x, center.x],
 						cy: [s.y, center.y],
@@ -753,6 +756,7 @@ function PersistenceScoringVisual() {
 				cx={center.x}
 				cy={center.y}
 				fill="currentColor"
+				initial={{ r: 9, fillOpacity: 0.55 }}
 				animate={{ r: [9, 14, 9], fillOpacity: [0.55, 1, 0.55] }}
 				transition={{
 					duration: 10,
@@ -838,6 +842,7 @@ function PerQueryControlsVisual() {
 						fill="var(--background)"
 						stroke="currentColor"
 						strokeWidth={1}
+						initial={{ cx: offCx }}
 						animate={{ cx: [offCx, onCx, onCx, offCx, offCx] }}
 						transition={{
 							duration: cycle,
