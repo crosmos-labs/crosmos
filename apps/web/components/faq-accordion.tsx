@@ -17,7 +17,7 @@ export function FaqAccordion({ items }: { items: FAQItem[] }) {
 		<Accordion type="multiple" defaultValue={[]}>
 			{items.map((item, index) => (
 				<AccordionItem
-					key={item.question}
+					key={`item-${index}`}
 					value={`item-${index}`}
 					className="last:mb-0"
 				>

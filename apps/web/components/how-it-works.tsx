@@ -209,7 +209,9 @@ export function HowItWorks() {
 							<button
 								type="button"
 								role="tab"
+								id={`tab-${s.number}`}
 								aria-selected={i === activeStep}
+								aria-controls={`tabpanel-${s.number}`}
 								key={s.number}
 								className={cn(
 									"flex-1 text-center cursor-pointer bg-transparent border-none",
@@ -323,6 +325,9 @@ export function HowItWorks() {
 					<AnimatePresence mode="wait">
 						<motion.div
 							key={activeStep}
+							role="tabpanel"
+							id={`tabpanel-${step.number}`}
+							aria-labelledby={`tab-${step.number}`}
 							initial={reducedMotion ? false : { opacity: 0, y: 8 }}
 							animate={{ opacity: 1, y: 0 }}
 							exit={reducedMotion ? {} : { opacity: 0, y: -4 }}

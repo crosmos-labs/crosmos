@@ -42,8 +42,8 @@ export function HeroBg() {
 					</h1>
 
 					<p className="mt-6 text-lg text-foreground/80 leading-relaxed max-w-2xl mx-auto select-none">
-						Persistent memory for enterprise AI. Connect your data
-						sources, build a living knowledge graph, and give every agent your
+						Persistent memory for enterprise AI. Connect your data sources,
+						build a living knowledge graph, and give every agent your
 						organization's full context.
 					</p>
 

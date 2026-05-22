@@ -7,8 +7,9 @@ export function HeroVideo() {
 	const [shouldAutoplay, setShouldAutoplay] = useState(false);
 
 	useEffect(() => {
-		const allowMotion =
-			window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+		const allowMotion = window.matchMedia(
+			"(prefers-reduced-motion: no-preference)",
+		).matches;
 		setShouldAutoplay(allowMotion);
 	}, []);
 

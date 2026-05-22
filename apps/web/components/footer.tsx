@@ -4,9 +4,9 @@ import {
 	IconBrandLinkedinFilled,
 	IconBrandX,
 } from "@tabler/icons-react";
+import { LazyPixelBlast } from "@/components/ui/lazy-pixel-blast";
 import { LINKS } from "../config/links";
 import { CornerPlus } from "./ui/corner-plus";
-import { LazyPixelBlast } from "./ui/lazy-pixel-blast";
 
 const FOOTER_DATA = {
 	product: {

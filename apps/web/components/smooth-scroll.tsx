@@ -21,7 +21,10 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 				const el = document.querySelector<HTMLElement>(href);
 				if (el) {
 					e.preventDefault();
-					el.scrollIntoView({ behavior: "smooth", block: "start" });
+					el.scrollIntoView({
+						behavior: reducedMotion ? "auto" : "smooth",
+						block: "start",
+					});
 				}
 			};
 			document.addEventListener("click", handleAnchorClick);

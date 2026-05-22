@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
-import type { ComponentType } from "react";
+import { motion, useInView, useReducedMotion } from "motion/react";
+import { type ComponentType, useRef } from "react";
 
 const VIEW = { w: 320, h: 180 };
 
@@ -53,7 +53,7 @@ function MonoLabel({
 // 01 Hybrid Retrieval — 4 streams converge into a result pill
 // ----------------------------------------------------------------------------
 
-function HybridRetrievalVisual() {
+function HybridRetrievalVisual({ shouldAnimate }: VisualProps) {
 	const target = { x: 240, y: 90 };
 	const streams = [
 		{ y: 36, label: "semantic", delay: 0 },
@@ -127,7 +127,7 @@ function HybridRetrievalVisual() {
 						}}
 						transition={{
 							duration: 3.8,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 							delay: s.delay,
 							// Linear so the bead moves at constant speed along the
 							// pre-sampled bezier — EASE_HOUSE on every segment was
@@ -145,7 +145,7 @@ function HybridRetrievalVisual() {
 					animate={{ scale: [1, 1.05, 1] }}
 					transition={{
 						duration: 2.8,
-						repeat: Number.POSITIVE_INFINITY,
+						repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 						ease: EASE_BOB,
 					}}
 				>
@@ -188,7 +188,7 @@ function HybridRetrievalVisual() {
 // 02 Active Consolidation — drifting dots cluster into 3 groups
 // ----------------------------------------------------------------------------
 
-function ActiveConsolidationVisual() {
+function ActiveConsolidationVisual({ shouldAnimate }: VisualProps) {
 	// 3 cluster centers, evenly spaced at the same vertical line.
 	const clusters = [
 		{ cx: 80, cy: 95, label: "cluster_01" },
@@ -244,7 +244,7 @@ function ActiveConsolidationVisual() {
 					}}
 					transition={{
 						duration: 9.5,
-						repeat: Number.POSITIVE_INFINITY,
+						repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 						ease: EASE_HOUSE,
 						times: [0, 0.42, 0.48, 0.6, 0.66, 1],
 						delay: idx * 0.05,
@@ -271,7 +271,7 @@ function ActiveConsolidationVisual() {
 					}}
 					transition={{
 						duration: 9.5,
-						repeat: Number.POSITIVE_INFINITY,
+						repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 						ease: EASE_HOUSE,
 						times: [0, 0.42, 0.48, 0.6, 0.66, 1],
 					}}
@@ -306,7 +306,7 @@ function ActiveConsolidationVisual() {
 						}}
 						transition={{
 							duration: 9.5,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 							ease: EASE_HOUSE,
 							times: [0, 0.18, 0.42, 0.62, 0.85, 1],
 							delay: (d.i % 6) * 0.04,
@@ -322,7 +322,7 @@ function ActiveConsolidationVisual() {
 // 03 Forgetting — central node fades to outline, satellites stay solid
 // ----------------------------------------------------------------------------
 
-function ForgettingVisual() {
+function ForgettingVisual({ shouldAnimate }: VisualProps) {
 	const center = { x: 160, y: 90 };
 	const satellites = [
 		{ x: 60, y: 45 },
@@ -347,7 +347,7 @@ function ForgettingVisual() {
 					animate={{ strokeOpacity: [0.45, 0.45, 0.12, 0.12, 0.45] }}
 					transition={{
 						duration: 9,
-						repeat: Number.POSITIVE_INFINITY,
+						repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 						ease: EASE_HOUSE,
 						times: [0, 0.3, 0.55, 0.85, 1],
 					}}
@@ -382,7 +382,7 @@ function ForgettingVisual() {
 						}}
 						transition={{
 							duration: 9,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 							ease: EASE_HOUSE,
 							times: [0, 0.45, 0.7, 0.88, 1],
 							delay: i * 0.1,
@@ -424,7 +424,7 @@ function ForgettingVisual() {
 				}}
 				transition={{
 					duration: 9,
-					repeat: Number.POSITIVE_INFINITY,
+					repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 					ease: EASE_HOUSE,
 					times: [0, 0.35, 0.55, 0.85, 1],
 				}}
@@ -448,7 +448,7 @@ function ForgettingVisual() {
 				}}
 				transition={{
 					duration: 9,
-					repeat: Number.POSITIVE_INFINITY,
+					repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 					ease: EASE_HOUSE,
 					times: [0, 0.3, 0.55, 0.85, 1],
 				}}
@@ -469,7 +469,7 @@ function ForgettingVisual() {
 				}}
 				transition={{
 					duration: 9,
-					repeat: Number.POSITIVE_INFINITY,
+					repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 					ease: EASE_HOUSE,
 					times: [0, 0.4, 0.55, 0.85, 1],
 				}}
@@ -490,7 +490,7 @@ function ForgettingVisual() {
 // 04 Temporal Inference — phrase chip + timeline + morphing range bar
 // ----------------------------------------------------------------------------
 
-function TemporalInferenceVisual() {
+function TemporalInferenceVisual({ shouldAnimate }: VisualProps) {
 	const phrases = [
 		{ text: "last Tuesday", x: 240, w: 25 },
 		{ text: "since January", x: 35, w: 215 },
@@ -576,7 +576,7 @@ function TemporalInferenceVisual() {
 					}}
 					transition={{
 						duration: 9,
-						repeat: Number.POSITIVE_INFINITY,
+						repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 						ease: EASE_HOUSE,
 						times: [0, 0.3, 0.5, 0.75, 1],
 					}}
@@ -650,7 +650,7 @@ function TemporalInferenceVisual() {
 				}}
 				transition={{
 					duration: 9,
-					repeat: Number.POSITIVE_INFINITY,
+					repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 					ease: EASE_HOUSE,
 					times: [0, 0.3, 0.5, 0.75, 1],
 				}}
@@ -663,7 +663,7 @@ function TemporalInferenceVisual() {
 // 05 Persistence Scoring — center node strengthens as team pings arrive
 // ----------------------------------------------------------------------------
 
-function PersistenceScoringVisual() {
+function PersistenceScoringVisual({ shouldAnimate }: VisualProps) {
 	const center = { x: 160, y: 100 };
 	const sats = [
 		{ x: 40, y: 40, label: "team_1" },
@@ -692,7 +692,7 @@ function PersistenceScoringVisual() {
 						}}
 						transition={{
 							duration: 3.6,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 							ease: EASE_HOUSE,
 							delay: r * 1.2,
 						}}
@@ -735,7 +735,7 @@ function PersistenceScoringVisual() {
 					}}
 					transition={{
 						duration: 2.4,
-						repeat: Number.POSITIVE_INFINITY,
+						repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 						ease: EASE_HOUSE,
 						delay: i * 0.6,
 						times: [0, 0.85, 1],
@@ -760,7 +760,7 @@ function PersistenceScoringVisual() {
 				animate={{ r: [9, 14, 9], fillOpacity: [0.55, 1, 0.55] }}
 				transition={{
 					duration: 10,
-					repeat: Number.POSITIVE_INFINITY,
+					repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 					ease: EASE_BOB,
 				}}
 			/>
@@ -772,7 +772,7 @@ function PersistenceScoringVisual() {
 // 06 Per-Query Search Controls — 4 toggleable retrieval switches
 // ----------------------------------------------------------------------------
 
-function PerQueryControlsVisual() {
+function PerQueryControlsVisual({ shouldAnimate }: VisualProps) {
 	const toggles = [
 		{ label: "recency_bias", y: 32, phase: 0 },
 		{ label: "graph", y: 72, phase: 2.4 },
@@ -827,7 +827,7 @@ function PerQueryControlsVisual() {
 						}}
 						transition={{
 							duration: cycle,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 							ease: EASE_HOUSE,
 							delay: t.phase,
 							times: [0, 0.18, 0.55, 0.7, 1],
@@ -846,7 +846,7 @@ function PerQueryControlsVisual() {
 						animate={{ cx: [offCx, onCx, onCx, offCx, offCx] }}
 						transition={{
 							duration: cycle,
-							repeat: Number.POSITIVE_INFINITY,
+							repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 							ease: EASE_HOUSE,
 							delay: t.phase,
 							times: [0, 0.18, 0.55, 0.7, 1],
@@ -862,11 +862,13 @@ function PerQueryControlsVisual() {
 // FEATURES list + card
 // ----------------------------------------------------------------------------
 
+type VisualProps = { shouldAnimate: boolean };
+
 type Feature = {
 	num: string;
 	title: string;
 	description: string;
-	Visual: ComponentType;
+	Visual: ComponentType<VisualProps>;
 };
 
 const FEATURES: Feature[] = [
@@ -913,7 +915,13 @@ const FEATURES: Feature[] = [
 	},
 ];
 
-function FeatureCard({ feature }: { feature: Feature }) {
+function FeatureCard({
+	feature,
+	shouldAnimate,
+}: {
+	feature: Feature;
+	shouldAnimate: boolean;
+}) {
 	const { Visual } = feature;
 	return (
 		<div className="group relative flex flex-col bg-background hover:bg-card/50 transition-colors duration-200">
@@ -928,7 +936,7 @@ function FeatureCard({ feature }: { feature: Feature }) {
 					aria-label={feature.title}
 					preserveAspectRatio="xMidYMid meet"
 				>
-					<Visual />
+					<Visual shouldAnimate={shouldAnimate} />
 				</svg>
 			</div>
 
@@ -945,8 +953,14 @@ function FeatureCard({ feature }: { feature: Feature }) {
 }
 
 export function Features() {
+	const sectionRef = useRef<HTMLElement>(null);
+	const inView = useInView(sectionRef, { amount: 0.1, margin: "200px 0px" });
+	const reducedMotion = useReducedMotion();
+	const shouldAnimate = inView && !reducedMotion;
+
 	return (
 		<section
+			ref={sectionRef}
 			id="features"
 			className="relative px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
 		>
@@ -960,7 +974,11 @@ export function Features() {
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-foreground/10 border border-foreground/10">
 					{FEATURES.map((feature) => (
-						<FeatureCard key={feature.num} feature={feature} />
+						<FeatureCard
+							key={feature.num}
+							feature={feature}
+							shouldAnimate={shouldAnimate}
+						/>
 					))}
 				</div>
 			</div>
