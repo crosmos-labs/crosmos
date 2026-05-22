@@ -31,7 +31,7 @@ interface ReinitConfig {
 	noiseAmount: number;
 }
 
-type PixelBlastProps = {
+export type PixelBlastProps = {
 	variant?: PixelBlastVariant;
 	pixelSize?: number;
 	color?: string;

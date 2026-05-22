@@ -24,10 +24,22 @@
 			"sourceType": "well-known",
 			"computedHash": "c356cce82c421e8d1e7eff1774a43de9313cf110dc224f4b5e3b353b58a227cf"
 		},
+		"motion-design": {
+			"source": "LottieFiles/motion-design-skill",
+			"sourceType": "github",
+			"skillPath": "skills/motion-design/SKILL.md",
+			"computedHash": "9fcf9130cc46ee8fd1d8e09a9263347a9d76efbcbfa46591cc4cefaf19bbb453"
+		},
 		"shadcn": {
 			"source": "shadcn/ui",
 			"sourceType": "github",
 			"computedHash": "507f011a70e8b3ae242bdc0bb5b39fd91a1d4049a0f3c281991ccf84973d591c"
+		},
+		"transitions-dev": {
+			"source": "Jakubantalik/transitions.dev",
+			"sourceType": "github",
+			"skillPath": "skills/transitions-dev/SKILL.md",
+			"computedHash": "2bd1d5142edb75c988faf5562e01c659623f713a11c3a5f94f5744b9801ccd2a"
 		}
 	}
 }

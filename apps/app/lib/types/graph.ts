@@ -12,6 +12,7 @@ export interface GraphEdge {
 	source_entity_id: string;
 	target_entity_id: string;
 	relation_type: string;
+	confidence: number;
 	valid_from: string | null;
 	recorded_at: string;
 }

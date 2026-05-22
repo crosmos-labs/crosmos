@@ -79,7 +79,7 @@ export function BlockTransition({
 	return (
 		<div
 			ref={containerRef}
-			className={cn("w-full grid gap-0", fromColor, className)}
+			className={cn("relative w-full grid gap-0", fromColor, className)}
 			style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
 		>
 			{thresholds.length > 0 &&
