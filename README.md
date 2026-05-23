@@ -13,7 +13,7 @@
 <td align="center">
 <img width="2000" height="0"><br>
 
-**[Crosmos](https://crosmos.dev)** — Memory Layer for AI agents. Store, retrieve, and organize knowledge across sessions.
+**[Crosmos](https://crosmos.dev)** — Persistent memory for enterprise AI. Connect your data sources, build a living knowledge graph, and give every agent your organization's full context.
 
 [Docs](https://docs.crosmos.dev) · [Console](https://console.crosmos.dev) · [X](https://x.com/crosmoslabs) · [GitHub](https://github.com/crosmos-labs) · [LinkedIn](https://linkedin.com/company/crosmos-ai)
 
