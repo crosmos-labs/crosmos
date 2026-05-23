@@ -13,9 +13,16 @@ const STEP_DURATION = 5;
 const EASE_HOUSE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 type TLine =
-	| { kind: "prompt"; text: string; delay: number }
+	| { kind: "thought"; text: string; delay: number }
+	| { kind: "action"; verb: string; detail: string; delay: number }
 	| { kind: "proc"; text: string; delay: number }
-	| { kind: "out"; key: string; value: string; delay: number; prefix?: boolean }
+	| {
+			kind: "out";
+			key: string;
+			value: string;
+			delay: number;
+			highlight?: boolean;
+	  }
 	| {
 			kind: "ranked";
 			rank: string;
@@ -23,13 +30,15 @@ type TLine =
 			detail: string;
 			score: string;
 			delay: number;
-			prefix?: boolean;
+			highlight?: boolean;
 	  };
 
 const STEPS: {
 	number: string;
 	title: string;
 	description: string;
+	prompt: string;
+	status: string;
 	lines: TLine[];
 }[] = [
 	{
@@ -37,21 +46,26 @@ const STEPS: {
 		title: "Ingest",
 		description:
 			"Send any content — conversations, documents, notes. Crosmos extracts structured facts, identifies entities, and maps relationships in a single pass.",
+		prompt: '/ingest "Alice joined Acme Corp as Head of Engineering."',
+		status: "crosmos · ingest",
 		lines: [
-			{
-				kind: "prompt",
-				text: 'ingest("Alice joined Acme Corp as Head of Engineering.")',
-				delay: 0,
-			},
+			{ kind: "thought", text: "Thought for 1.3s", delay: 0.2 },
 			{
 				kind: "proc",
 				text: "extracting entities and relationships...",
-				delay: 0.45,
+				delay: 0.55,
 			},
-			{ kind: "out", key: "entities", value: "3", delay: 1.3, prefix: true },
-			{ kind: "out", key: "edges", value: "2", delay: 1.45 },
-			{ kind: "out", key: "confidence", value: "0.97", delay: 1.6 },
-			{ kind: "out", key: "id", value: "mem_8f2a4c", delay: 1.75 },
+			{ kind: "action", verb: "Ingest", detail: "conversation", delay: 0.95 },
+			{ kind: "out", key: "entities", value: "3", delay: 1.25 },
+			{ kind: "out", key: "edges", value: "2", delay: 1.4 },
+			{ kind: "out", key: "confidence", value: "0.97", delay: 1.55 },
+			{
+				kind: "out",
+				key: "id",
+				value: "mem_8f2a4c",
+				delay: 1.7,
+				highlight: true,
+			},
 		],
 	},
 	{
@@ -59,26 +73,40 @@ const STEPS: {
 		title: "Structure",
 		description:
 			"Facts are embedded, entities are resolved against your existing knowledge, and typed relationships are created with confidence scores. Everything is timestamped and traceable to its source.",
+		prompt: "/graph update",
+		status: "crosmos · structure",
 		lines: [
-			{ kind: "prompt", text: "graph.update()", delay: 0 },
+			{ kind: "thought", text: "Thought for 2.1s", delay: 0.2 },
+			{
+				kind: "action",
+				verb: "Resolve",
+				detail: "entities  graph",
+				delay: 0.5,
+			},
 			{
 				kind: "proc",
 				text: "resolving  Alice Johnson    person",
-				delay: 0.45,
+				delay: 0.75,
 			},
 			{
 				kind: "proc",
 				text: "resolving  Acme Corp        org",
-				delay: 0.65,
+				delay: 0.95,
 			},
 			{
 				kind: "proc",
 				text: "linking    WORKS_FOR        valid_from: 2025-05-13",
-				delay: 0.85,
+				delay: 1.15,
 			},
-			{ kind: "out", key: "nodes", value: "1,284", delay: 1.5, prefix: true },
-			{ kind: "out", key: "edges", value: "3,891", delay: 1.65 },
-			{ kind: "out", key: "status", value: "updated", delay: 1.8 },
+			{ kind: "out", key: "nodes", value: "1,284", delay: 1.55 },
+			{ kind: "out", key: "edges", value: "3,891", delay: 1.7 },
+			{
+				kind: "out",
+				key: "status",
+				value: "updated",
+				delay: 1.85,
+				highlight: true,
+			},
 		],
 	},
 	{
@@ -86,21 +114,20 @@ const STEPS: {
 		title: "Retrieve",
 		description:
 			"When your agents need context, Crosmos runs multiple search signals in parallel, fuses the results, and returns precise, ranked context.",
+		prompt: '/search "who leads engineering at Acme Corp?"',
+		status: "crosmos · retrieve",
 		lines: [
-			{
-				kind: "prompt",
-				text: 'search("who leads engineering at Acme Corp?")',
-				delay: 0,
-			},
-			{ kind: "proc", text: "running hybrid retrieval...", delay: 0.45 },
+			{ kind: "thought", text: "Thought for 1.8s", delay: 0.2 },
+			{ kind: "proc", text: "running hybrid retrieval...", delay: 0.5 },
+			{ kind: "action", verb: "Search", detail: "graph  hybrid", delay: 0.9 },
 			{
 				kind: "ranked",
 				rank: "1",
 				entity: "Alice Johnson",
 				detail: "WORKS_FOR Acme Corp",
 				score: "0.97",
-				delay: 1.3,
-				prefix: true,
+				delay: 1.25,
+				highlight: true,
 			},
 			{
 				kind: "ranked",
@@ -108,7 +135,7 @@ const STEPS: {
 				entity: "Acme Corp",
 				detail: "Engineering Team",
 				score: "0.89",
-				delay: 1.45,
+				delay: 1.4,
 			},
 			{
 				kind: "ranked",
@@ -116,41 +143,58 @@ const STEPS: {
 				entity: "Project Phoenix",
 				detail: "led by Alice J.",
 				score: "0.84",
-				delay: 1.6,
+				delay: 1.55,
 			},
 		],
 	},
 ];
 
+const COLOR_PRIMARY = "oklch(0.92 0 0)";
+const COLOR_SECONDARY = "oklch(0.70 0 0)";
+const COLOR_MUTED = "oklch(0.50 0 0)";
+const COLOR_PROMPT_CHEVRON = "oklch(0.74 0.11 290)";
+const COLOR_HIGHLIGHT_BG = "oklch(0.30 0.08 135 / 0.32)";
+
 function LineContent({ line }: { line: TLine }) {
-	if (line.kind === "prompt") {
+	if (line.kind === "thought") {
 		return (
 			<>
-				<span style={{ color: "var(--accent)" }}>{">"}</span>{" "}
-				<span style={{ color: "oklch(0.88 0 0)" }}>{line.text}</span>
+				<span style={{ color: "var(--accent)", fontSize: "0.7em" }}>◆</span>{" "}
+				<span style={{ color: COLOR_MUTED }}>{line.text}</span>
+			</>
+		);
+	}
+	if (line.kind === "action") {
+		return (
+			<>
+				<span style={{ color: "var(--accent)", fontSize: "0.7em" }}>◆</span>{" "}
+				<span style={{ color: COLOR_PRIMARY, fontWeight: 600 }}>
+					{line.verb}
+				</span>
+				<span style={{ color: COLOR_SECONDARY }}>{`  ${line.detail}`}</span>
 			</>
 		);
 	}
 	if (line.kind === "proc") {
-		return <span style={{ color: "oklch(0.38 0 0)" }}>{line.text}</span>;
+		return <span style={{ color: COLOR_SECONDARY }}>{`  ${line.text}`}</span>;
 	}
 	if (line.kind === "out") {
 		return (
 			<>
-				<span style={{ color: "var(--accent)" }}>
-					{line.prefix ? "<" : " "}
-				</span>{" "}
-				<span style={{ color: "oklch(0.42 0 0)" }}>{line.key.padEnd(14)}</span>
-				<span style={{ color: "oklch(0.88 0 0)" }}>{line.value}</span>
+				<span
+					style={{ color: COLOR_SECONDARY }}
+				>{`  ${line.key.padEnd(14)}`}</span>
+				<span style={{ color: COLOR_PRIMARY }}>{line.value}</span>
 			</>
 		);
 	}
 	return (
 		<>
-			<span style={{ color: "var(--accent)" }}>{line.prefix ? "<" : " "}</span>{" "}
-			<span style={{ color: "oklch(0.42 0 0)" }}>{line.rank.padEnd(3)}</span>
-			<span style={{ color: "oklch(0.88 0 0)" }}>{line.entity.padEnd(18)}</span>
-			<span style={{ color: "oklch(0.42 0 0)" }}>{line.detail.padEnd(22)}</span>
+			<span
+				style={{ color: COLOR_SECONDARY }}
+			>{`  ${line.rank.padEnd(3)}`}</span>
+			<span style={{ color: COLOR_PRIMARY }}>{line.entity.padEnd(20)}</span>
+			<span style={{ color: COLOR_SECONDARY }}>{line.detail.padEnd(24)}</span>
 			<span style={{ color: "var(--accent)" }}>{line.score}</span>
 		</>
 	);
@@ -160,7 +204,6 @@ export function HowItWorks() {
 	const [activeStep, setActiveStep] = useState(0);
 	const [progressKey, setProgressKey] = useState(0);
 	const [started, setStarted] = useState(false);
-	const [terminalHovered, setTerminalHovered] = useState(false);
 	const reducedMotion = useReducedMotion() ?? false;
 
 	const sectionRef = useRef<HTMLDivElement>(null);
@@ -258,37 +301,21 @@ export function HowItWorks() {
 						))}
 					</div>
 
-					{/* Terminal card — mouse events are cosmetic (dot color change only) */}
-					{/* biome-ignore lint/a11y/noStaticElementInteractions: hover-only visual effect, no keyboard interaction needed */}
+					{/* Terminal card */}
 					<div
-						className="rounded-xl overflow-hidden bg-[oklch(0.18_0_0)] mb-8"
-						onMouseEnter={() => setTerminalHovered(true)}
-						onMouseLeave={() => setTerminalHovered(false)}
+						className="rounded-xl overflow-hidden mb-8"
+						style={{ backgroundColor: "oklch(0.19 0 0)" }}
 					>
-						{/* macOS title bar */}
-						<div className="relative flex items-center px-4 py-2.5 border-b border-white/[0.06]">
+						{/* Header bar — traffic lights + working directory */}
+						<div className="flex items-center gap-3 px-4 py-2.5 border-b border-white/[0.06]">
 							<div className="flex gap-1.5">
-								<div
-									className={cn(
-										"size-2.5 rounded-full transition-colors duration-200",
-										terminalHovered ? "bg-[#ff5f57]" : "bg-zinc-600",
-									)}
-								/>
-								<div
-									className={cn(
-										"size-2.5 rounded-full transition-colors duration-200",
-										terminalHovered ? "bg-[#febc2e]" : "bg-zinc-600",
-									)}
-								/>
-								<div
-									className={cn(
-										"size-2.5 rounded-full transition-colors duration-200",
-										terminalHovered ? "bg-[#28c840]" : "bg-zinc-600",
-									)}
-								/>
+								<div className="size-2.5 rounded-full bg-[#ff5f57]" />
+								<div className="size-2.5 rounded-full bg-[#febc2e]" />
+								<div className="size-2.5 rounded-full bg-[#28c840]" />
 							</div>
-							<span className="absolute left-1/2 -translate-x-1/2 pointer-events-none text-[11px] font-mono text-[oklch(0.35_0_0)]">
-								crosmos memory
+							<span className="text-xs font-mono pointer-events-none">
+								<span style={{ color: COLOR_MUTED }}>crosmos/</span>
+								<span style={{ color: COLOR_SECONDARY }}>memory</span>
 							</span>
 						</div>
 
@@ -300,23 +327,101 @@ export function HowItWorks() {
 								animate={{ opacity: 1 }}
 								exit={reducedMotion ? {} : { opacity: 0 }}
 								transition={{ duration: 0.18 }}
-								className="p-5 min-h-[224px] font-mono text-sm leading-[1.85] whitespace-pre overflow-x-auto"
+								className="px-5 pt-4 pb-4 font-mono text-sm leading-[1.85]"
+								aria-hidden="true"
 							>
-								{step.lines.map((line, i) => (
-									<motion.div
-										// biome-ignore lint/suspicious/noArrayIndexKey: static ordered lines per step
-										key={i}
-										initial={reducedMotion ? false : { opacity: 0, y: 4 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{
-											duration: 0.3,
-											delay: reducedMotion ? 0 : line.delay,
-											ease: EASE_HOUSE,
-										}}
+								{/* Top input box — user prompt. Lighter grey for contrast against the terminal.
+								    overflow-y-hidden prevents an implicit vertical scrollbar when the prompt overflows horizontally
+								    on narrow viewports (overflow-x-auto alone makes the y-axis "auto" too). */}
+								<div
+									className="rounded-lg px-3.5 py-2.5 mb-3 whitespace-pre overflow-x-auto overflow-y-hidden"
+									style={{
+										backgroundColor: "oklch(0.24 0 0)",
+										boxShadow:
+											"inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.03)",
+									}}
+								>
+									<span style={{ color: COLOR_PROMPT_CHEVRON }}>{"›"}</span>{" "}
+									<span style={{ color: COLOR_PROMPT_CHEVRON }}>
+										{step.prompt}
+									</span>
+								</div>
+
+								{/* Body lines — fixed height fits the tallest step (8 lines) to prevent layout shift across step changes.
+								    overflow-y-clip (not -hidden, not overflow-x-auto): each line uses `-mx-5 px-5` to bleed
+								    the highlight band past this container into motion.div's padding. With overflow-x-auto,
+								    the children-wider-than-container case shows a horizontal scrollbar just above the bottom
+								    input — visible briefly on overlay-scrollbar platforms during state shifts. `clip` is the
+								    one overflow value that does NOT trigger the CSS visible→auto coercion on the other axis,
+								    so x stays visible, children bleed freely, and the terminal card's outer overflow-hidden
+								    clips at the card edge. */}
+								<div className="whitespace-pre overflow-y-clip h-[224px]">
+									{step.lines.map((line, i) => (
+										<motion.div
+											// biome-ignore lint/suspicious/noArrayIndexKey: static ordered lines per step
+											key={i}
+											initial={reducedMotion ? false : { opacity: 0, y: 4 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={{
+												duration: 0.3,
+												delay: reducedMotion ? 0 : line.delay,
+												ease: EASE_HOUSE,
+											}}
+											className={cn(
+												"-mx-5 px-5",
+												(line.kind === "out" || line.kind === "ranked") &&
+													line.highlight &&
+													"highlight-row",
+											)}
+											style={
+												(line.kind === "out" || line.kind === "ranked") &&
+												line.highlight
+													? { backgroundColor: COLOR_HIGHLIGHT_BG }
+													: undefined
+											}
+										>
+											<LineContent line={line} />
+										</motion.div>
+									))}
+								</div>
+
+								{/* Bottom input box — empty with blinking caret + per-step status */}
+								<div
+									className="rounded-lg px-3.5 py-2.5 mt-3 flex items-center justify-between gap-3"
+									style={{
+										backgroundColor: "oklch(0.24 0 0)",
+										boxShadow:
+											"inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.03)",
+									}}
+								>
+									<span className="flex items-center gap-2 min-w-0">
+										<span style={{ color: COLOR_PROMPT_CHEVRON }}>{"›"}</span>
+										{reducedMotion ? (
+											<span
+												className="inline-block w-[4px] h-[1em] align-middle"
+												style={{ backgroundColor: COLOR_MUTED }}
+											/>
+										) : (
+											<motion.span
+												className="inline-block w-[4px] h-[1em] align-middle"
+												style={{ backgroundColor: COLOR_MUTED }}
+												animate={{ opacity: [1, 1, 0, 0] }}
+												transition={{
+													duration: 1,
+													repeat: Number.POSITIVE_INFINITY,
+													ease: "linear",
+													times: [0, 0.49, 0.5, 1],
+												}}
+											/>
+										)}
+									</span>
+									<span
+										className="text-xs whitespace-nowrap"
+										style={{ color: COLOR_SECONDARY }}
 									>
-										<LineContent line={line} />
-									</motion.div>
-								))}
+										{step.status}
+									</span>
+								</div>
 							</motion.div>
 						</AnimatePresence>
 					</div>
@@ -332,7 +437,7 @@ export function HowItWorks() {
 							animate={{ opacity: 1, y: 0 }}
 							exit={reducedMotion ? {} : { opacity: 0, y: -4 }}
 							transition={{ duration: 0.35, ease: EASE_HOUSE }}
-							className="text-center max-w-2xl mx-auto"
+							className="text-center max-w-2xl mx-auto min-h-[130px] sm:min-h-[140px]"
 						>
 							<h3 className="font-semibold text-foreground text-lg">
 								{step.title}
