@@ -11,6 +11,7 @@
 		"clean": "rm -rf .next"
 	},
 	"dependencies": {
+		"@calcom/embed-react": "^1.5.3",
 		"@crosmos/ui": "workspace:*",
 		"@tabler/icons-react": "^3.41.1",
 		"@vercel/analytics": "^2.0.1",
