@@ -319,111 +319,131 @@ export function HowItWorks() {
 							</span>
 						</div>
 
-						{/* Terminal content — AnimatePresence crossfades on step change */}
-						<AnimatePresence mode="wait">
-							<motion.div
-								key={activeStep}
-								initial={reducedMotion ? false : { opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={reducedMotion ? {} : { opacity: 0 }}
-								transition={{ duration: 0.18 }}
-								className="px-5 pt-4 pb-4 font-mono text-sm leading-[1.85]"
-								aria-hidden="true"
+						{/* Terminal content. Input box containers, chevrons, and caret are static across all 3 steps —
+						    only the changing text/lines crossfade via per-region AnimatePresence. */}
+						<div
+							className="px-5 pt-4 pb-4 font-mono text-sm leading-[1.85]"
+							aria-hidden="true"
+						>
+							{/* Top input box — container is static; only the prompt text crossfades.
+							    overflow-y-hidden prevents an implicit vertical scrollbar when the prompt overflows horizontally
+							    on narrow viewports (overflow-x-auto alone makes the y-axis "auto" too). */}
+							<div
+								className="rounded-lg px-3.5 py-2.5 mb-3 whitespace-pre overflow-x-auto overflow-y-hidden"
+								style={{
+									backgroundColor: "oklch(0.24 0 0)",
+									boxShadow:
+										"inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.03)",
+								}}
 							>
-								{/* Top input box — user prompt. Lighter grey for contrast against the terminal.
-								    overflow-y-hidden prevents an implicit vertical scrollbar when the prompt overflows horizontally
-								    on narrow viewports (overflow-x-auto alone makes the y-axis "auto" too). */}
-								<div
-									className="rounded-lg px-3.5 py-2.5 mb-3 whitespace-pre overflow-x-auto overflow-y-hidden"
-									style={{
-										backgroundColor: "oklch(0.24 0 0)",
-										boxShadow:
-											"inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.03)",
-									}}
-								>
-									<span style={{ color: COLOR_PROMPT_CHEVRON }}>{"›"}</span>{" "}
-									<span style={{ color: COLOR_PROMPT_CHEVRON }}>
+								<span style={{ color: COLOR_PROMPT_CHEVRON }}>{"›"}</span>{" "}
+								<AnimatePresence mode="wait" initial={false}>
+									<motion.span
+										key={activeStep}
+										initial={reducedMotion ? false : { opacity: 0 }}
+										animate={{ opacity: 1 }}
+										exit={reducedMotion ? {} : { opacity: 0 }}
+										transition={{ duration: 0.18 }}
+										style={{ color: COLOR_PROMPT_CHEVRON }}
+									>
 										{step.prompt}
-									</span>
-								</div>
+									</motion.span>
+								</AnimatePresence>
+							</div>
 
-								{/* Body lines — fixed height fits the tallest step (8 lines) to prevent layout shift across step changes.
-								    overflow-y-clip (not -hidden, not overflow-x-auto): each line uses `-mx-5 px-5` to bleed
-								    the highlight band past this container into motion.div's padding. With overflow-x-auto,
-								    the children-wider-than-container case shows a horizontal scrollbar just above the bottom
-								    input — visible briefly on overlay-scrollbar platforms during state shifts. `clip` is the
-								    one overflow value that does NOT trigger the CSS visible→auto coercion on the other axis,
-								    so x stays visible, children bleed freely, and the terminal card's outer overflow-hidden
-								    clips at the card edge. */}
-								<div className="whitespace-pre overflow-y-clip h-[224px]">
-									{step.lines.map((line, i) => (
-										<motion.div
-											// biome-ignore lint/suspicious/noArrayIndexKey: static ordered lines per step
-											key={i}
-											initial={reducedMotion ? false : { opacity: 0, y: 4 }}
-											animate={{ opacity: 1, y: 0 }}
-											transition={{
-												duration: 0.3,
-												delay: reducedMotion ? 0 : line.delay,
-												ease: EASE_HOUSE,
-											}}
-											className={cn(
-												"-mx-5 px-5",
-												(line.kind === "out" || line.kind === "ranked") &&
-													line.highlight &&
-													"highlight-row",
-											)}
-											style={
-												(line.kind === "out" || line.kind === "ranked") &&
-												line.highlight
-													? { backgroundColor: COLOR_HIGHLIGHT_BG }
-													: undefined
-											}
-										>
-											<LineContent line={line} />
-										</motion.div>
-									))}
-								</div>
-
-								{/* Bottom input box — empty with blinking caret + per-step status */}
-								<div
-									className="rounded-lg px-3.5 py-2.5 mt-3 flex items-center justify-between gap-3"
-									style={{
-										backgroundColor: "oklch(0.24 0 0)",
-										boxShadow:
-											"inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.03)",
-									}}
-								>
-									<span className="flex items-center gap-2 min-w-0">
-										<span style={{ color: COLOR_PROMPT_CHEVRON }}>{"›"}</span>
-										{reducedMotion ? (
-											<span
-												className="inline-block w-[4px] h-[1em] align-middle"
-												style={{ backgroundColor: COLOR_MUTED }}
-											/>
-										) : (
-											<motion.span
-												className="inline-block w-[4px] h-[1em] align-middle"
-												style={{ backgroundColor: COLOR_MUTED }}
-												animate={{ opacity: [1, 1, 0, 0] }}
+							{/* Body lines — fixed height fits the tallest step (8 lines) to prevent layout shift across step changes.
+							    overflow-y-clip (not -hidden, not overflow-x-auto): each line uses `-mx-5 px-5` to bleed
+							    the highlight band past this container into the parent's padding. With overflow-x-auto,
+							    the children-wider-than-container case shows a horizontal scrollbar just above the bottom
+							    input — visible briefly on overlay-scrollbar platforms during state shifts. `clip` is the
+							    one overflow value that does NOT trigger the CSS visible→auto coercion on the other axis,
+							    so x stays visible, children bleed freely, and the terminal card's outer overflow-hidden
+							    clips at the card edge. */}
+							<div className="whitespace-pre overflow-y-clip h-[224px]">
+								<AnimatePresence mode="wait">
+									<motion.div
+										key={activeStep}
+										initial={reducedMotion ? false : { opacity: 0 }}
+										animate={{ opacity: 1 }}
+										exit={reducedMotion ? {} : { opacity: 0 }}
+										transition={{ duration: 0.18 }}
+									>
+										{step.lines.map((line, i) => (
+											<motion.div
+												// biome-ignore lint/suspicious/noArrayIndexKey: static ordered lines per step
+												key={i}
+												initial={reducedMotion ? false : { opacity: 0, y: 4 }}
+												animate={{ opacity: 1, y: 0 }}
 												transition={{
-													duration: 1,
-													repeat: Number.POSITIVE_INFINITY,
-													ease: "linear",
-													times: [0, 0.49, 0.5, 1],
+													duration: 0.3,
+													delay: reducedMotion ? 0 : line.delay,
+													ease: EASE_HOUSE,
 												}}
-											/>
-										)}
-									</span>
-									<span
+												className={cn(
+													"-mx-5 px-5",
+													(line.kind === "out" || line.kind === "ranked") &&
+														line.highlight &&
+														"highlight-row",
+												)}
+												style={
+													(line.kind === "out" || line.kind === "ranked") &&
+													line.highlight
+														? { backgroundColor: COLOR_HIGHLIGHT_BG }
+														: undefined
+												}
+											>
+												<LineContent line={line} />
+											</motion.div>
+										))}
+									</motion.div>
+								</AnimatePresence>
+							</div>
+
+							{/* Bottom input box — container, chevron, and caret are static; only the right-side status crossfades. */}
+							<div
+								className="rounded-lg px-3.5 py-2.5 mt-3 flex items-center justify-between gap-3"
+								style={{
+									backgroundColor: "oklch(0.24 0 0)",
+									boxShadow:
+										"inset 0 1px 0 rgb(255 255 255 / 0.06), inset 0 0 0 1px rgb(255 255 255 / 0.03)",
+								}}
+							>
+								<span className="flex items-center gap-2 min-w-0">
+									<span style={{ color: COLOR_PROMPT_CHEVRON }}>{"›"}</span>
+									{reducedMotion ? (
+										<span
+											className="inline-block w-[4px] h-[1em] align-middle"
+											style={{ backgroundColor: COLOR_MUTED }}
+										/>
+									) : (
+										<motion.span
+											className="inline-block w-[4px] h-[1em] align-middle"
+											style={{ backgroundColor: COLOR_MUTED }}
+											animate={{ opacity: [1, 1, 0, 0] }}
+											transition={{
+												duration: 1,
+												repeat: Number.POSITIVE_INFINITY,
+												ease: "linear",
+												times: [0, 0.49, 0.5, 1],
+											}}
+										/>
+									)}
+								</span>
+								<AnimatePresence mode="wait" initial={false}>
+									<motion.span
+										key={activeStep}
+										initial={reducedMotion ? false : { opacity: 0 }}
+										animate={{ opacity: 1 }}
+										exit={reducedMotion ? {} : { opacity: 0 }}
+										transition={{ duration: 0.18 }}
 										className="text-xs whitespace-nowrap"
 										style={{ color: COLOR_SECONDARY }}
 									>
 										{step.status}
-									</span>
-								</div>
-							</motion.div>
-						</AnimatePresence>
+									</motion.span>
+								</AnimatePresence>
+							</div>
+						</div>
 					</div>
 
 					{/* Active step description */}
