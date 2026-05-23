@@ -338,21 +338,21 @@ export function SourceList({
 											{source.content_preview}
 										</span>
 									</button>
-									{isExpanded &&
-										source.meta &&
-										Object.keys(source.meta).length > 0 && (
-											<div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-												{Object.entries(source.meta).map(([key, value]) => (
-													<span
-														key={key}
-														className="rounded bg-muted px-1.5 py-0.5"
-													>
-														{key}: {String(value)}
-													</span>
-												))}
-											</div>
-										)}
 								</ItemDescription>
+								{isExpanded &&
+									source.meta &&
+									Object.keys(source.meta).length > 0 && (
+										<div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+											{Object.entries(source.meta).map(([key, value]) => (
+												<span
+													key={key}
+													className="rounded bg-muted px-1.5 py-0.5"
+												>
+													{key}: {String(value)}
+												</span>
+											))}
+										</div>
+									)}
 							</ItemContent>
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap">
