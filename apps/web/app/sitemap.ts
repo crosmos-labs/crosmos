@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllBlogs } from "@/lib/blog";
+import { getLegalDoc } from "@/lib/legal";
 
 const BASE_URL = "https://crosmos.dev";
 
@@ -18,6 +19,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			lastModified: now,
 			changeFrequency: "weekly",
 			priority: 0.8,
+		},
+		{
+			url: `${BASE_URL}/terms`,
+			lastModified: new Date(getLegalDoc("terms").updatedAt),
+			changeFrequency: "yearly",
+			priority: 0.3,
+		},
+		{
+			url: `${BASE_URL}/privacy`,
+			lastModified: new Date(getLegalDoc("privacy").updatedAt),
+			changeFrequency: "yearly",
+			priority: 0.3,
 		},
 	];
 
