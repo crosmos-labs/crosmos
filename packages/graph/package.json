@@ -22,22 +22,44 @@
 		"url": "https://github.com/crosmos-labs/crosmos",
 		"directory": "packages/graph"
 	},
-	"sideEffects": false,
+	"sideEffects": [
+		"**/*.css"
+	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
-	"types": "./src/index.tsx",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./src/index.tsx",
 			"import": {
-				"types": "./src/index.tsx",
+				"types": "./dist/index.d.ts",
 				"default": "./dist/index.js"
 			},
 			"require": {
-				"types": "./src/index.tsx",
+				"types": "./dist/index.d.cts",
 				"default": "./dist/index.cjs"
 			}
-		}
+		},
+		"./adapters/crosmos": {
+			"import": {
+				"types": "./dist/adapters/crosmos/index.d.ts",
+				"default": "./dist/adapters/crosmos/index.js"
+			},
+			"require": {
+				"types": "./dist/adapters/crosmos/index.d.cts",
+				"default": "./dist/adapters/crosmos/index.cjs"
+			}
+		},
+		"./mock": {
+			"import": {
+				"types": "./dist/mock/index.d.ts",
+				"default": "./dist/mock/index.js"
+			},
+			"require": {
+				"types": "./dist/mock/index.d.cts",
+				"default": "./dist/mock/index.cjs"
+			}
+		},
+		"./styles.css": "./dist/styles.css"
 	},
 	"files": [
 		"dist"
@@ -47,20 +69,13 @@
 	},
 	"scripts": {
 		"build": "tsup",
-		"typecheck": "tsc --noEmit"
-	},
-	"dependencies": {
-		"react-force-graph-2d": "^1.27.0"
+		"typecheck": "tsc --noEmit",
+		"prepublishOnly": "tsup"
 	},
 	"peerDependencies": {
 		"react": ">=19.0.0",
 		"react-dom": ">=19.0.0",
-		"tailwindcss": ">=4"
-	},
-	"peerDependenciesMeta": {
-		"tailwindcss": {
-			"optional": true
-		}
+		"react-force-graph-2d": ">=1.27.0"
 	},
 	"devDependencies": {
 		"@semantic-release/changelog": "^6.0.3",
@@ -68,10 +83,16 @@
 		"@types/d3-force": "^3.0.0",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
+		"d3-force": "^3.0.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
+		"react-force-graph-2d": "^1.27.0",
 		"semantic-release": "^24.2.0",
 		"tsup": "^8.4.0",
 		"typescript": "^5.9.0"
+	},
+	"dependencies": {
+		"graphology": "^0.26.0",
+		"graphology-communities-louvain": "^2.0.2"
 	}
 }
