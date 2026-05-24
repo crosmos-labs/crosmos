@@ -936,7 +936,10 @@ function FeatureCard({
 					aria-label={feature.title}
 					preserveAspectRatio="xMidYMid meet"
 				>
-					<Visual key={shouldAnimate ? "on" : "off"} shouldAnimate={shouldAnimate} />
+					<Visual
+						key={shouldAnimate ? "on" : "off"}
+						shouldAnimate={shouldAnimate}
+					/>
 				</svg>
 			</div>
 

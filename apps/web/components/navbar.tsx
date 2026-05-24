@@ -32,7 +32,10 @@ export function Navbar() {
 			>
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
-						<Link href="/" className="block select-none">
+						<Link
+							href="/"
+							className="block select-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+						>
 							<Image
 								src="/banner_light.svg"
 								alt="Crosmos"
