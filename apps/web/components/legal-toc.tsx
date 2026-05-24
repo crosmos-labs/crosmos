@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { LegalSection } from "@/lib/legal";
 
-const SCROLL_LOCK_MS = 1400;
+const SCROLL_LOCK_MS = 800;
+const ACTIVE_OFFSET_PX = 120;
 
 export function LegalToc({
 	sections,
@@ -39,23 +40,45 @@ export function LegalToc({
 
 		if (elements.length === 0) return;
 
-		const observer = new IntersectionObserver(
-			(entries) => {
-				if (lockedRef.current) return;
-				const visible = entries
-					.filter((e) => e.isIntersecting)
-					.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-				if (visible[0]) {
-					setActiveId(visible[0].target.id);
-				}
-			},
-			{
-				rootMargin: "-96px 0px -60% 0px",
-				threshold: [0, 1],
-			},
-		);
+		let rafId: number | null = null;
 
-		for (const el of elements) observer.observe(el);
+		const compute = () => {
+			rafId = null;
+			if (lockedRef.current) return;
+
+			const threshold = ACTIVE_OFFSET_PX;
+			const scrollBottom = window.innerHeight + window.scrollY;
+			const docBottom = document.documentElement.scrollHeight;
+			const atBottom = scrollBottom >= docBottom - 2;
+
+			let currentId: string | null = elements[0]?.id ?? null;
+
+			if (atBottom) {
+				currentId = elements[elements.length - 1]?.id ?? currentId;
+			} else {
+				for (const el of elements) {
+					const top = el.getBoundingClientRect().top;
+					if (top - threshold <= 0) {
+						currentId = el.id;
+					} else {
+						break;
+					}
+				}
+			}
+
+			if (currentId) {
+				setActiveId((prev) => (prev === currentId ? prev : currentId));
+			}
+		};
+
+		const onScroll = () => {
+			if (rafId !== null) return;
+			rafId = window.requestAnimationFrame(compute);
+		};
+
+		compute();
+		window.addEventListener("scroll", onScroll, { passive: true });
+		window.addEventListener("resize", onScroll);
 
 		const onHashChange = () => {
 			const id = window.location.hash.slice(1);
@@ -66,8 +89,10 @@ export function LegalToc({
 		window.addEventListener("hashchange", onHashChange);
 
 		return () => {
-			observer.disconnect();
+			window.removeEventListener("scroll", onScroll);
+			window.removeEventListener("resize", onScroll);
 			window.removeEventListener("hashchange", onHashChange);
+			if (rafId !== null) window.cancelAnimationFrame(rafId);
 			if (unlockTimerRef.current !== null) {
 				window.clearTimeout(unlockTimerRef.current);
 				unlockTimerRef.current = null;
