@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "@crosmos/ui/globals.css";
+import "@crosmos/graph/styles.css";
 import { Toaster } from "@crosmos/ui/components/sonner";
 import { TooltipProvider } from "@crosmos/ui/components/tooltip";
 import { SkipToContent } from "@/components/skip-to-content";

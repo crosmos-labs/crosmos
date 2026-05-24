@@ -1,7 +1,14 @@
 "use client";
 
-import type { GraphEdge, GraphNode } from "@crosmos/graph";
-import { EdgePopover, ForceGraph, NodePopover } from "@crosmos/graph";
+import { ForceGraph } from "@crosmos/graph";
+import {
+	type CrosmosEdge,
+	type CrosmosNode,
+	edgeFromWire,
+	EdgePopover,
+	nodeFromWire,
+	NodePopover,
+} from "@crosmos/graph/adapters/crosmos";
 import {
 	Select,
 	SelectContent,
@@ -29,16 +36,25 @@ export default function GraphPage() {
 		isLoading: graphLoading,
 		error: graphError,
 	} = useGraph(selectedSpaceId || null);
-	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-	const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
+
+	const nodes = useMemo<CrosmosNode[]>(
+		() => graphData?.nodes.map(nodeFromWire) ?? [],
+		[graphData],
+	);
+	const edges = useMemo<CrosmosEdge[]>(
+		() => graphData?.edges.map(edgeFromWire) ?? [],
+		[graphData],
+	);
+
+	const [selectedNode, setSelectedNode] = useState<CrosmosNode | null>(null);
+	const [selectedEdge, setSelectedEdge] = useState<CrosmosEdge | null>(null);
+
 	const nodeMap = useMemo(() => {
-		if (!graphData) return new Map<string, GraphNode>();
-		const map = new Map<string, GraphNode>();
-		for (const n of graphData.nodes) {
-			map.set(n.id, n);
-		}
+		const map = new Map<string, CrosmosNode>();
+		for (const n of nodes) map.set(n.id, n);
 		return map;
-	}, [graphData]);
+	}, [nodes]);
+
 	const { setBreadcrumb } = useBreadcrumb();
 	const { mutate } = useSWRConfig();
 
@@ -59,12 +75,12 @@ export default function GraphPage() {
 		setSelectedEdge(null);
 	}, []);
 
-	const handleNodeClick = useCallback((node: GraphNode) => {
+	const handleNodeClick = useCallback((node: CrosmosNode) => {
 		setSelectedNode(node);
 		setSelectedEdge(null);
 	}, []);
 
-	const handleEdgeClick = useCallback((edge: GraphEdge) => {
+	const handleEdgeClick = useCallback((edge: CrosmosEdge) => {
 		setSelectedEdge(edge);
 		setSelectedNode(null);
 	}, []);
@@ -131,14 +147,15 @@ export default function GraphPage() {
 
 			{!isInitialLoading && graphData && (
 				<div className="flex-1 min-h-0 rounded-md border relative">
-					<ForceGraph
+					<ForceGraph<CrosmosNode, CrosmosEdge>
 						key={selectedSpaceId}
-						nodes={graphData.nodes}
-						edges={graphData.edges}
-						spaceId={selectedSpaceId}
+						nodes={nodes}
+						edges={edges}
 						onNodeClick={handleNodeClick}
 						onEdgeClick={handleEdgeClick}
 						onBackgroundClick={handleBackgroundClick}
+						isLoading={graphLoading}
+						showZoomLevel="top-right"
 					/>
 					{graphLoading && (
 						<div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
