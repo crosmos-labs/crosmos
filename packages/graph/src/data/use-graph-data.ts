@@ -31,6 +31,7 @@ export function useGraphData<TNode extends BaseNode, TEdge extends BaseEdge>(
 		if (!source) {
 			setData(null);
 			setIsLoading(false);
+			setError(null);
 			return undefined;
 		}
 		const version = ++versionRef.current;
@@ -60,9 +61,15 @@ export function useGraphData<TNode extends BaseNode, TEdge extends BaseEdge>(
 
 	useEffect(() => {
 		if (!source?.subscribe) return;
-		return source.subscribe(() => {
-			runLoad();
+		let cancel: (() => void) | undefined;
+		const unsubscribe = source.subscribe(() => {
+			cancel?.();
+			cancel = runLoad();
 		});
+		return () => {
+			unsubscribe();
+			cancel?.();
+		};
 	}, [source, runLoad]);
 
 	const refetch = useCallback(() => {
