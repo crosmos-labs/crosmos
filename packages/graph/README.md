@@ -116,8 +116,8 @@ export function CrosmosGraph() {
 | `showZoomLevel`       | `false \| "top-right" \| "top-left" \| "bottom-right" \| "bottom-left"`                               | `false`               | Render a live zoom-percentage indicator at the given corner.                |
 | `className`           | `string`                                                                                              | `"cg-root"`           | Replaces the container class entirely.                                      |
 | `aria-label`          | `string`                                                                                              | `"Knowledge graph"`   | Container `aria-label`.                                                     |
-| `emptyState`          | `ReactNode`                                                                                           | "No entities to display" | Rendered when `nodes` is empty.                                             |
-| `loadingState`        | `ReactNode`                                                                                           | —                     | Rendered while the canvas lib is dynamic-imported.                          |
+| `emptyState`          | `ReactNode`                                                                                           | "No entities to display" | Rendered when `nodes` is empty and `isLoading` is falsy.                    |
+| `loadingState`        | `ReactNode`                                                                                           | —                     | Rendered while the canvas lib is dynamic-imported, or when `nodes` is empty and `isLoading` is true. |
 | `isLoading`           | `boolean`                                                                                             | —                     | Sets `aria-busy` on the container.                                          |
 | `ref`                 | `Ref<ForceGraphHandle>`                                                                               | —                     | Imperative handle — see below.                                              |
 
@@ -213,11 +213,11 @@ Pass any subset of `GraphTheme` to `theme`. Deep-merged with [`DEFAULT_THEME`](.
 | Key                | Type     | Default | Description                                              |
 | ------------------ | -------- | ------- | -------------------------------------------------------- |
 | `linkDistance`     | `number` | `120`   | Fallback target link length when clustering is disabled. |
-| `chargeStrength`   | `number` | `-150`  | `forceManyBody` strength (negative = repulsion).         |
+| `chargeStrength`   | `number` | `-250`  | `forceManyBody` strength (negative = repulsion).         |
 | `chargeDistanceMax`| `number` | `500`   | Maximum distance over which charge applies.              |
 | `alphaDecay`       | `number` | `0.015` | Simulation cooldown rate.                                |
 | `velocityDecay`    | `number` | `0.6`   | Per-tick velocity damping.                               |
-| `boundaryStrength` | `number` | `0.06`  | `forceX`/`forceY` strength pulling toward (0, 0).        |
+| `boundaryStrength` | `number` | `0.01`  | `forceX`/`forceY` strength pulling toward (0, 0).        |
 
 #### `theme.cluster`
 
@@ -225,7 +225,7 @@ Pass any subset of `GraphTheme` to `theme`. Deep-merged with [`DEFAULT_THEME`](.
 | ------------------- | -------- | ------- | ------------------------------------------------------------ |
 | `intraLinkDistance` | `number` | `120`   | Target link length between two nodes in the same community.  |
 | `interLinkDistance` | `number` | `280`   | Target link length for cross-community bridges.              |
-| `strength`          | `number` | `0.18`  | Centroid pull strength (`alpha`-scaled on top of this).      |
+| `strength`          | `number` | `0.14`  | Centroid pull strength (`alpha`-scaled on top of this).      |
 
 #### `theme.click` / `theme.edgeClick`
 
