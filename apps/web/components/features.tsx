@@ -889,7 +889,7 @@ const FEATURES: Feature[] = [
 		num: "03",
 		title: "Forgetting",
 		description:
-			"Memories are never physically deleted. Soft-delete with full audit trail and cascading edge invalidation.",
+			"Memories are never deleted — just soft-hidden with a full audit trail. Low-signal knowledge fades, what matters stays.",
 		Visual: ForgettingVisual,
 	},
 	{
