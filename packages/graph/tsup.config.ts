@@ -3,7 +3,6 @@ import { defineConfig } from "tsup";
 export default defineConfig({
 	entry: {
 		index: "src/index.ts",
-		"adapters/crosmos/index": "src/adapters/crosmos/index.ts",
 		"mock/index": "src/mock/index.ts",
 	},
 	format: ["esm", "cjs"],

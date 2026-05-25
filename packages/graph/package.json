@@ -1,6 +1,6 @@
 {
 	"name": "@crosmos/graph",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"type": "module",
 	"description": "Official graph visualization package for Crosmos Memory",
 	"author": {
@@ -37,16 +37,6 @@
 			"require": {
 				"types": "./dist/index.d.cts",
 				"default": "./dist/index.cjs"
-			}
-		},
-		"./adapters/crosmos": {
-			"import": {
-				"types": "./dist/adapters/crosmos/index.d.ts",
-				"default": "./dist/adapters/crosmos/index.js"
-			},
-			"require": {
-				"types": "./dist/adapters/crosmos/index.d.cts",
-				"default": "./dist/adapters/crosmos/index.cjs"
 			}
 		},
 		"./mock": {

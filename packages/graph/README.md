@@ -3,7 +3,7 @@
 # `@crosmos/graph`
 
 **Force-directed knowledge-graph rendering for React.**
-Cluster-aware out of the box. Bring your own data — or wire up [Crosmos](https://crosmos.dev) in three lines.
+Cluster-aware out of the box. Bring your own data — feed `<ForceGraph>` two arrays and you're done.
 
 <br />
 
@@ -11,7 +11,7 @@ Cluster-aware out of the box. Bring your own data — or wire up [Crosmos](https
 [![npm downloads](https://img.shields.io/npm/dw/%40crosmos%2Fgraph?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@crosmos/graph)
 [![license](https://img.shields.io/npm/l/%40crosmos%2Fgraph?style=for-the-badge&logo=npm)](./LICENSE)
 
-[Install](#install) · [Quickstart](#quickstart) · [Props](#props) · [Theme](#theme) · [Data sources](#data-sources) · [SSR](#ssr--nextjs)
+[Install](#install) · [Quickstart](#quickstart) · [Props](#props) · [Theme](#theme) · [SSR](#ssr--nextjs)
 
 </div>
 
@@ -28,9 +28,6 @@ npm install @crosmos/graph react react-dom react-force-graph-2d
 
 
 ## Quickstart
-
-<details open>
-<summary><strong>With your own data</strong></summary>
 
 ```tsx
 import { ForceGraph, type BaseNode, type BaseEdge } from "@crosmos/graph";
@@ -52,45 +49,7 @@ export function MyGraph({ nodes, edges }: { nodes: MyNode[]; edges: MyEdge[] }) 
 }
 ```
 
-The root entry only exposes generic shapes — `BaseNode { id }` and `BaseEdge { id, source, target }`. Carry your domain fields on the node/edge directly; accessor functions stay fully type-safe.
-
-</details>
-
-<details>
-<summary><strong>With Crosmos data</strong></summary>
-
-```tsx
-import { ForceGraph, useGraphData } from "@crosmos/graph";
-import {
-  CrosmosDataSource,
-  type CrosmosEdge,
-  type CrosmosNode,
-  EdgePopover,
-  NodePopover,
-} from "@crosmos/graph/adapters/crosmos";
-import "@crosmos/graph/styles.css";
-
-const source = new CrosmosDataSource({
-  spaceId: "<space-uuid>",
-  getToken: async () => myAuth.getAccessToken(),
-});
-
-export function CrosmosGraph() {
-  const { data, isLoading } = useGraphData(source);
-  return (
-    <ForceGraph<CrosmosNode, CrosmosEdge>
-      nodes={data?.nodes ?? []}
-      edges={data?.edges ?? []}
-      isLoading={isLoading}
-      showZoomLevel="top-right"
-    />
-  );
-}
-```
-
-`CrosmosDataSource` calls `GET /api/v1/graph` on the Crosmos API with `Authorization: Bearer <token>`. Pass `apiKey` for static keys (`csk_*`) or `getToken` for dynamic JWTs.
-
-</details>
+The package only exposes generic shapes — `BaseNode { id }` and `BaseEdge { id, source, target }`. Carry your domain fields on the node/edge directly; accessor functions stay fully type-safe. Fetch with TanStack Query / SWR / RSC / anything — the package does no fetching.
 
 
 ## Props
@@ -239,35 +198,15 @@ Pass any subset of `GraphTheme` to `theme`. Deep-merged with [`DEFAULT_THEME`](.
 
 </details>
 
-### CSS variables (popovers · zoom indicator)
+### CSS variables (zoom indicator)
 
-Override on `.cg-root` or `.cg-popover`. Defaults follow a shadcn-style palette and the included `.dark` block follows the `next-themes` class convention.
+Override on `.cg-root`. The package only styles the container and the optional zoom indicator — everything inside the canvas is painted via theme values, not CSS.
 
-| Variable         | Default (light)                      | Purpose                                  |
-| ---------------- | ------------------------------------ | ---------------------------------------- |
-| `--cg-bg`        | `oklch(0.96 0.005 99.4974)`          | Popover background.                      |
-| `--cg-fg`        | `oklch(0.1 0.02 99.4974)`            | Popover text.                            |
-| `--cg-muted-fg`  | `oklch(0.35 0.02 99.4974)`           | Row labels / zoom indicator text.        |
-| `--cg-border`    | `oklch(0.7 0.02 99.4974)`            | Popover border.                          |
-| `--cg-chip-bg`   | `oklch(0.82 0.04 158.24)`            | Chip background.                         |
-| `--cg-radius`    | `4px`                                | Popover corner radius.                   |
-| `--cg-shadow`    | shadcn `--shadow-sm`                 | Popover elevation.                       |
-| `--cg-zoom-bg`   | `transparent`                        | Zoom indicator background.               |
-| `--cg-zoom-fg`   | `var(--cg-muted-fg)`                 | Zoom indicator text.                     |
-
-Map straight to your design tokens:
-
-```css
-.cg-root, .cg-popover {
-  --cg-bg:        var(--card);
-  --cg-fg:        var(--card-foreground);
-  --cg-muted-fg:  var(--muted-foreground);
-  --cg-border:    var(--border);
-  --cg-chip-bg:   var(--secondary);
-  --cg-radius:    var(--radius);
-  --cg-shadow:    var(--shadow-sm);
-}
-```
+| Variable         | Default (light)            | Purpose                          |
+| ---------------- | -------------------------- | -------------------------------- |
+| `--cg-muted-fg`  | `oklch(0.35 0.02 99.4974)` | Empty-state / zoom-label colour. |
+| `--cg-zoom-bg`   | `transparent`              | Zoom indicator background.       |
+| `--cg-zoom-fg`   | `var(--cg-muted-fg)`       | Zoom indicator text.             |
 
 The zoom indicator picks up `cg-zoom-label--{position}` modifier classes — override any of them in your own CSS to retarget placement.
 
@@ -285,65 +224,7 @@ Pass `disableClustering` to turn the whole thing off — the rest of the simulat
 > Bundle impact: `graphology` + `graphology-communities-louvain` add ~60 KB gzipped. Both are bundled into the package — no peer.
 
 
-## Data sources
-
-Two ways to feed data in:
-
-### 1. Pass arrays directly
-
-The simplest path. Fetch with TanStack Query / SWR / RSC / anything; hand `nodes` and `edges` to `<ForceGraph>`. The package does no fetching.
-
-### 2. Implement `GraphDataSource<TNode, TEdge>`
-
-```ts
-import type { GraphDataSource } from "@crosmos/graph";
-
-class MyDataSource implements GraphDataSource<MyNode, MyEdge> {
-  async load({ signal }) {
-    const res = await fetch("/api/graph", { signal });
-    const json = await res.json();
-    return {
-      nodes: json.repos.map((r) => ({ id: r.id, label: r.name, weight: r.stars })),
-      edges: json.deps.map((d) => ({ id: d.id, source: d.from, target: d.to })),
-    };
-  }
-}
-```
-
-Drive it with the built-in hook:
-
-```tsx
-import { useGraphData } from "@crosmos/graph";
-
-const { data, isLoading, error, refetch } = useGraphData(new MyDataSource());
-```
-
-Or compose with your own React Query / SWR setup — `useGraphData` is convenience, not a requirement.
-
-### 3. Use the Crosmos adapter
-
-`@crosmos/graph/adapters/crosmos` ships a ready-made source backed by the Crosmos REST API.
-
-```tsx
-import { CrosmosDataSource } from "@crosmos/graph/adapters/crosmos";
-
-const source = new CrosmosDataSource({
-  spaceId,                            // required
-  getToken: async () => token,        // OR apiKey for static csk_* keys
-  baseUrl: "https://api.crosmos.dev/api/v1", // default
-});
-```
-
-The adapter also exports Crosmos-shaped `NodePopover` and `EdgePopover` components, the raw `CrosmosGraphNodeWire` / `CrosmosGraphEdgeWire` types if you need to inspect the payload directly, and two pure helpers — `nodeFromWire` / `edgeFromWire` — for when you already have your own fetching layer and just need the wire-shape → `CrosmosNode`/`CrosmosEdge` mapping.
-
-```ts
-import { nodeFromWire, edgeFromWire } from "@crosmos/graph/adapters/crosmos";
-
-const nodes = response.nodes.map(nodeFromWire);
-const edges = response.edges.map(edgeFromWire);
-```
-
-### Mock data for development
+## Mock data for development
 
 ```ts
 import { MOCK_NODES, MOCK_EDGES } from "@crosmos/graph/mock";
@@ -354,12 +235,11 @@ import { MOCK_NODES, MOCK_EDGES } from "@crosmos/graph/mock";
 
 ## Sub-path exports
 
-| Import path                          | What's there                                                          |
-| ------------------------------------ | --------------------------------------------------------------------- |
-| `@crosmos/graph`                     | `ForceGraph`, public types, `useGraphData`, `DEFAULT_THEME`, `mergeTheme`. |
-| `@crosmos/graph/adapters/crosmos`    | `CrosmosDataSource`, `CrosmosNode`/`CrosmosEdge`, popovers, wire types. |
-| `@crosmos/graph/mock`                | 500-node mock dataset.                                                |
-| `@crosmos/graph/styles.css`          | Popover and zoom-indicator default styles.                            |
+| Import path                 | What's there                                                                                  |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| `@crosmos/graph`            | `ForceGraph`, `BaseNode`, `BaseEdge`, theme types, `DEFAULT_THEME`, `mergeTheme`.             |
+| `@crosmos/graph/mock`       | 500-node mock dataset.                                                                        |
+| `@crosmos/graph/styles.css` | Container + zoom-indicator default styles.                                                    |
 
 
 ## SSR / Next.js
@@ -372,7 +252,7 @@ The renderer wraps `react-force-graph-2d`, which is canvas-based and client-only
 
 ## Browser support
 
-Modern evergreen browsers — Chrome / Edge / Firefox / Safari latest two majors. The CSS defaults use `oklch()` color (Chrome ≥ 111, Safari ≥ 15.4, Firefox ≥ 113); older browsers fall through to no background on the popover.
+Modern evergreen browsers — Chrome / Edge / Firefox / Safari latest two majors. The CSS defaults use `oklch()` color (Chrome ≥ 111, Safari ≥ 15.4, Firefox ≥ 113).
 
 
 ## License

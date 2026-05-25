@@ -2,14 +2,6 @@
 
 import { ForceGraph } from "@crosmos/graph";
 import {
-	type CrosmosEdge,
-	type CrosmosNode,
-	EdgePopover,
-	edgeFromWire,
-	NodePopover,
-	nodeFromWire,
-} from "@crosmos/graph/adapters/crosmos";
-import {
 	Select,
 	SelectContent,
 	SelectItem,
@@ -20,9 +12,17 @@ import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
+import { EdgePopover } from "@/components/graph/edge-popover";
+import { NodePopover } from "@/components/graph/node-popover";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
 import { useGraph } from "@/hooks/use-graph";
 import { useSpaces } from "@/hooks/use-spaces";
+import {
+	edgeFromWire,
+	type GraphEdge,
+	type GraphNode,
+	nodeFromWire,
+} from "@/lib/graph/mappers";
 
 export default function GraphPage() {
 	const {
@@ -37,20 +37,20 @@ export default function GraphPage() {
 		error: graphError,
 	} = useGraph(selectedSpaceId || null);
 
-	const nodes = useMemo<CrosmosNode[]>(
+	const nodes = useMemo<GraphNode[]>(
 		() => graphData?.nodes.map(nodeFromWire) ?? [],
 		[graphData],
 	);
-	const edges = useMemo<CrosmosEdge[]>(
+	const edges = useMemo<GraphEdge[]>(
 		() => graphData?.edges.map(edgeFromWire) ?? [],
 		[graphData],
 	);
 
-	const [selectedNode, setSelectedNode] = useState<CrosmosNode | null>(null);
-	const [selectedEdge, setSelectedEdge] = useState<CrosmosEdge | null>(null);
+	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+	const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
 
 	const nodeMap = useMemo(() => {
-		const map = new Map<string, CrosmosNode>();
+		const map = new Map<string, GraphNode>();
 		for (const n of nodes) map.set(n.id, n);
 		return map;
 	}, [nodes]);
@@ -75,12 +75,12 @@ export default function GraphPage() {
 		setSelectedEdge(null);
 	}, []);
 
-	const handleNodeClick = useCallback((node: CrosmosNode) => {
+	const handleNodeClick = useCallback((node: GraphNode) => {
 		setSelectedNode(node);
 		setSelectedEdge(null);
 	}, []);
 
-	const handleEdgeClick = useCallback((edge: CrosmosEdge) => {
+	const handleEdgeClick = useCallback((edge: GraphEdge) => {
 		setSelectedEdge(edge);
 		setSelectedNode(null);
 	}, []);
@@ -147,7 +147,7 @@ export default function GraphPage() {
 
 			{!isInitialLoading && graphData && (
 				<div className="flex-1 min-h-0 rounded-md border relative">
-					<ForceGraph<CrosmosNode, CrosmosEdge>
+					<ForceGraph<GraphNode, GraphEdge>
 						key={selectedSpaceId}
 						nodes={nodes}
 						edges={edges}

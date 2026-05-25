@@ -20,10 +20,7 @@ npm install @crosmos/graph react react-dom react-force-graph-2d
 
 ## Render a graph
 
-The most common path is to fetch data with whatever you already use (TanStack Query, SWR, RSC, plain `fetch`) and pass arrays straight in.
-
-<Tabs>
-<Tab title="Your own data">
+Fetch data with whatever you already use (TanStack Query, SWR, RSC, plain `fetch`) and pass arrays straight in.
 
 ```tsx
 import { ForceGraph, type BaseNode, type BaseEdge } from "@crosmos/graph";
@@ -51,45 +48,7 @@ export function MyGraph({ nodes, edges }: { nodes: MyNode[]; edges: MyEdge[] }) 
 }
 ```
 
-The root entry only exposes generic shapes — `BaseNode { id }` and `BaseEdge { id, source, target }`. Carry your domain fields on the node and edge directly; accessor functions stay fully type-safe.
-
-</Tab>
-
-<Tab title="Crosmos adapter">
-
-If you want graph data sourced directly from the Crosmos API, the `adapters/crosmos` sub-path ships a ready-made data source and popovers.
-
-```tsx
-import { ForceGraph, useGraphData } from "@crosmos/graph";
-import {
-  CrosmosDataSource,
-  type CrosmosEdge,
-  type CrosmosNode,
-} from "@crosmos/graph/adapters/crosmos";
-import "@crosmos/graph/styles.css";
-
-const source = new CrosmosDataSource({
-  spaceId: "<space-uuid>",
-  getToken: async () => myAuth.getAccessToken(),
-});
-
-export function CrosmosGraph() {
-  const { data, isLoading } = useGraphData(source);
-  return (
-    <ForceGraph<CrosmosNode, CrosmosEdge>
-      nodes={data?.nodes ?? []}
-      edges={data?.edges ?? []}
-      isLoading={isLoading}
-      showZoomLevel="top-right"
-    />
-  );
-}
-```
-
-See [Data sources](/toolkit/graph/reference#data-sources) for the full Crosmos adapter surface.
-
-</Tab>
-</Tabs>
+The package only exposes generic shapes — `BaseNode { id }` and `BaseEdge { id, source, target }`. Carry your domain fields on the node and edge directly; accessor functions stay fully type-safe.
 
 ## Mock data for development
 

@@ -1,7 +1,25 @@
-import type {
-	CrosmosGraphEdgeWire,
-	CrosmosGraphNodeWire,
-} from "../adapters/crosmos/wire";
+// Wire shapes for the mock dataset. These mirror Crosmos's `/graph` API
+// payload so the fixtures can be fed through any matching mapper, but they're
+// not exported from the package's public types — consumers using the mocks
+// rely on TypeScript structural typing.
+interface MockGraphNodeWire {
+	id: string;
+	name: string;
+	entity_type: string | null;
+	edge_count: number;
+	created_at: string | null;
+	updated_at: string | null;
+}
+
+interface MockGraphEdgeWire {
+	id: string;
+	source_entity_id: string;
+	target_entity_id: string;
+	relation_type: string;
+	confidence: number;
+	valid_from: string | null;
+	recorded_at: string;
+}
 
 // Procedural generator that produces a ~500-node Crosmos-shaped knowledge
 // graph. Mirrors production conventions: 7 canonical lowercase entity types,
@@ -892,8 +910,8 @@ function fanOutTargetsFor(
 }
 
 function buildGraph(): {
-	nodes: CrosmosGraphNodeWire[];
-	edges: CrosmosGraphEdgeWire[];
+	nodes: MockGraphNodeWire[];
+	edges: MockGraphEdgeWire[];
 } {
 	const rng = createRng(SEED);
 	const state: BuildState = {
@@ -1012,7 +1030,7 @@ function buildGraph(): {
 		degree.set(e.target_entity_id, (degree.get(e.target_entity_id) ?? 0) + 1);
 	}
 
-	const nodes: CrosmosGraphNodeWire[] = state.nodes.map((n) => ({
+	const nodes: MockGraphNodeWire[] = state.nodes.map((n) => ({
 		id: n.id,
 		name: n.name,
 		entity_type: n.entity_type,
@@ -1021,7 +1039,7 @@ function buildGraph(): {
 		updated_at: n.updated_at,
 	}));
 
-	const edges: CrosmosGraphEdgeWire[] = state.edges.map((e) => ({
+	const edges: MockGraphEdgeWire[] = state.edges.map((e) => ({
 		id: e.id,
 		source_entity_id: e.source_entity_id,
 		target_entity_id: e.target_entity_id,
@@ -1036,5 +1054,5 @@ function buildGraph(): {
 
 const { nodes, edges } = buildGraph();
 
-export const MOCK_NODES: CrosmosGraphNodeWire[] = nodes;
-export const MOCK_EDGES: CrosmosGraphEdgeWire[] = edges;
+export const MOCK_NODES: MockGraphNodeWire[] = nodes;
+export const MOCK_EDGES: MockGraphEdgeWire[] = edges;

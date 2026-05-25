@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import type { CrosmosNode } from "./index";
+import type { GraphNode } from "@/lib/graph/mappers";
 
 function formatDate(dateStr: string | null): string | null {
 	if (!dateStr) return null;
@@ -17,7 +17,7 @@ function formatDate(dateStr: string | null): string | null {
 }
 
 interface NodePopoverProps {
-	node: CrosmosNode;
+	node: GraphNode;
 	onClose: () => void;
 }
 

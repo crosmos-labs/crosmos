@@ -1,6 +1,6 @@
 ---
 title: "Reference"
-description: "Props, imperative handle, data sources, clustering behaviour, and SSR notes for @crosmos/graph."
+description: "Props, imperative handle, clustering behaviour, and SSR notes for @crosmos/graph."
 icon: "book"
 ---
 
@@ -130,14 +130,9 @@ For 500+ node graphs that still feel cramped at high zoom, the right knobs to re
 
 **Bundle impact:** `graphology` + `graphology-communities-louvain` add ~60 KB gzipped. Both are bundled into the package — no peer dependency to install.
 
-## Data sources
+## Data
 
-Three ways to feed data into `<ForceGraph>`.
-
-<Tabs>
-<Tab title="Pass arrays directly">
-
-The simplest path. Fetch with TanStack Query, SWR, RSC, or anything else; hand `nodes` and `edges` to `<ForceGraph>`. The package itself does no fetching.
+The package does no fetching. Pull data with whatever you already use (TanStack Query, SWR, RSC, plain `fetch`) and pass arrays straight in.
 
 ```tsx
 const { data } = useQuery({ queryKey: ["graph"], queryFn: loadGraph });
@@ -145,75 +140,15 @@ const { data } = useQuery({ queryKey: ["graph"], queryFn: loadGraph });
 <ForceGraph nodes={data?.nodes ?? []} edges={data?.edges ?? []} />;
 ```
 
-</Tab>
-
-<Tab title="Implement GraphDataSource">
-
-For pluggable data sources (multiple backends, swappable mocks), implement the `GraphDataSource<TNode, TEdge>` interface.
-
-```ts
-import type { GraphDataSource } from "@crosmos/graph";
-
-class MyDataSource implements GraphDataSource<MyNode, MyEdge> {
-  async load({ signal }) {
-    const res = await fetch("/api/graph", { signal });
-    const json = await res.json();
-    return {
-      nodes: json.repos.map((r) => ({ id: r.id, label: r.name, weight: r.stars })),
-      edges: json.deps.map((d) => ({ id: d.id, source: d.from, target: d.to })),
-    };
-  }
-}
-```
-
-Drive it with the built-in hook:
-
-```tsx
-import { useGraphData } from "@crosmos/graph";
-
-const { data, isLoading, error, refetch } = useGraphData(new MyDataSource());
-```
-
-`useGraphData` is convenience, not a requirement — you can compose with React Query or SWR however you prefer.
-
-</Tab>
-
-<Tab title="Crosmos adapter">
-
-`@crosmos/graph/adapters/crosmos` ships a data source backed by the Crosmos REST API plus Crosmos-shaped `NodePopover` and `EdgePopover` components.
-
-```tsx
-import { CrosmosDataSource } from "@crosmos/graph/adapters/crosmos";
-
-const source = new CrosmosDataSource({
-  spaceId,                                   // required
-  getToken: async () => token,               // or apiKey for static csk_* keys
-  baseUrl: "https://api.crosmos.dev/api/v1", // default
-});
-```
-
-If you already have your own fetching layer, two pure helpers map the wire format to the `CrosmosNode` and `CrosmosEdge` shapes:
-
-```ts
-import { nodeFromWire, edgeFromWire } from "@crosmos/graph/adapters/crosmos";
-
-const nodes = response.nodes.map(nodeFromWire);
-const edges = response.edges.map(edgeFromWire);
-```
-
-The adapter also re-exports `CrosmosGraphNodeWire` and `CrosmosGraphEdgeWire` types so you can inspect the raw payload directly.
-
-</Tab>
-</Tabs>
+`TNode` must extend `BaseNode { id: string }`; `TEdge` must extend `BaseEdge { id: string; source: string; target: string }`. Carry any domain fields on the node or edge directly.
 
 ## Sub-path exports
 
-| Import path                       | What's there                                                                |
-| --------------------------------- | --------------------------------------------------------------------------- |
-| `@crosmos/graph`                  | `ForceGraph`, public types, `useGraphData`, `DEFAULT_THEME`, `mergeTheme`.  |
-| `@crosmos/graph/adapters/crosmos` | `CrosmosDataSource`, `CrosmosNode` / `CrosmosEdge`, popovers, wire types.   |
-| `@crosmos/graph/mock`             | 500-node mock dataset.                                                      |
-| `@crosmos/graph/styles.css`       | Popover and zoom-indicator default styles.                                  |
+| Import path                 | What's there                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------- |
+| `@crosmos/graph`            | `ForceGraph`, `BaseNode`, `BaseEdge`, theme types, `DEFAULT_THEME`, `mergeTheme`. |
+| `@crosmos/graph/mock`       | 500-node mock dataset.                                                            |
+| `@crosmos/graph/styles.css` | Container and zoom-indicator default styles.                                      |
 
 ## SSR and Next.js
 

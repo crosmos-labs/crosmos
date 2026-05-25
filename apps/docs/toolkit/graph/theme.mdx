@@ -1,6 +1,6 @@
 ---
 title: "Theme"
-description: "Every theme key in @crosmos/graph, with defaults, and the CSS variables that drive popovers and the zoom indicator."
+description: "Every theme key in @crosmos/graph, with defaults, and the CSS variables that drive the zoom indicator."
 icon: "palette"
 ---
 
@@ -132,33 +132,12 @@ The three knobs that most affect "nodes feel cramped at high zoom" are `chargeSt
 
 ## CSS variables
 
-Override on `.cg-root` or `.cg-popover` to retarget popovers and the zoom indicator. Defaults follow a shadcn-style palette and the included `.dark` block follows the `next-themes` class convention.
+The package only styles the container and the optional zoom indicator — everything inside the canvas is painted from the theme. Override on `.cg-root`.
 
-| Variable         | Default (light)              | Purpose                           |
-| ---------------- | ---------------------------- | --------------------------------- |
-| `--cg-bg`        | `oklch(0.96 0.005 99.4974)`  | Popover background.               |
-| `--cg-fg`        | `oklch(0.1 0.02 99.4974)`    | Popover text.                     |
-| `--cg-muted-fg`  | `oklch(0.35 0.02 99.4974)`   | Row labels and zoom indicator.    |
-| `--cg-border`    | `oklch(0.7 0.02 99.4974)`    | Popover border.                   |
-| `--cg-chip-bg`   | `oklch(0.82 0.04 158.24)`    | Chip background.                  |
-| `--cg-radius`    | `4px`                        | Popover corner radius.            |
-| `--cg-shadow`    | shadcn `--shadow-sm`         | Popover elevation.                |
-| `--cg-zoom-bg`   | `transparent`                | Zoom indicator background.        |
-| `--cg-zoom-fg`   | `var(--cg-muted-fg)`         | Zoom indicator text.              |
-
-Map straight to your existing design tokens:
-
-```css
-.cg-root,
-.cg-popover {
-  --cg-bg: var(--card);
-  --cg-fg: var(--card-foreground);
-  --cg-muted-fg: var(--muted-foreground);
-  --cg-border: var(--border);
-  --cg-chip-bg: var(--secondary);
-  --cg-radius: var(--radius);
-  --cg-shadow: var(--shadow-sm);
-}
-```
+| Variable         | Default (light)            | Purpose                          |
+| ---------------- | -------------------------- | -------------------------------- |
+| `--cg-muted-fg`  | `oklch(0.35 0.02 99.4974)` | Empty-state and zoom-label text. |
+| `--cg-zoom-bg`   | `transparent`              | Zoom indicator background.       |
+| `--cg-zoom-fg`   | `var(--cg-muted-fg)`       | Zoom indicator text.             |
 
 The zoom indicator picks up `cg-zoom-label--{position}` modifier classes — override any of them in your own CSS to retarget placement.
