@@ -68,15 +68,14 @@
 		"react-force-graph-2d": ">=1.27.0"
 	},
 	"devDependencies": {
-		"@semantic-release/changelog": "^6.0.3",
-		"@semantic-release/git": "^10.0.1",
+		"@arethetypeswrong/cli": "^0.17.0",
 		"@types/d3-force": "^3.0.0",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
+		"publint": "^0.3.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
 		"react-force-graph-2d": "^1.27.0",
-		"semantic-release": "^24.2.0",
 		"tsup": "^8.4.0",
 		"typescript": "^5.9.0"
 	},
