@@ -15,7 +15,7 @@ Cluster-aware out of the box. Bring your own data — or wire up [Crosmos](https
 
 </div>
 
----
+![Crosmos knowledge graph — 500 nodes, 554 edges](./docs/graph.png)
 
 ## Install
 
@@ -26,7 +26,6 @@ npm install @crosmos/graph react react-dom react-force-graph-2d
 > [!NOTE]
 > `react`, `react-dom`, and `react-force-graph-2d` are peer dependencies — install them in the host app so you don't end up with duplicates.
 
----
 
 ## Quickstart
 
@@ -93,7 +92,6 @@ export function CrosmosGraph() {
 
 </details>
 
----
 
 ## Props
 
@@ -136,7 +134,6 @@ const ref = useRef<ForceGraphHandle>(null);
 | `resumeAnimation` | `() => void`                                             | Resume the simulation.                                 |
 | `refresh`         | `() => void`                                             | Force a single canvas repaint.                         |
 
----
 
 ## Theme
 
@@ -274,7 +271,6 @@ Map straight to your design tokens:
 
 The zoom indicator picks up `cg-zoom-label--{position}` modifier classes — override any of them in your own CSS to retarget placement.
 
----
 
 ## Clustering
 
@@ -288,7 +284,6 @@ Pass `disableClustering` to turn the whole thing off — the rest of the simulat
 > [!TIP]
 > Bundle impact: `graphology` + `graphology-communities-louvain` add ~60 KB gzipped. Both are bundled into the package — no peer.
 
----
 
 ## Data sources
 
@@ -356,7 +351,6 @@ import { MOCK_NODES, MOCK_EDGES } from "@crosmos/graph/mock";
 
 500 nodes / ~550 edges of production-faithful data — single `USER` hub, the 7 canonical entity types (`person`, `organization`, `technology`, `project`, `concept`, `location`, `object`), the 23-relation canonical vocabulary, bimodal confidence, deterministic across loads. Useful for stress-testing the renderer or screenshots.
 
----
 
 ## Sub-path exports
 
@@ -367,7 +361,6 @@ import { MOCK_NODES, MOCK_EDGES } from "@crosmos/graph/mock";
 | `@crosmos/graph/mock`                | 500-node mock dataset.                                                |
 | `@crosmos/graph/styles.css`          | Popover and zoom-indicator default styles.                            |
 
----
 
 ## SSR / Next.js
 
@@ -376,13 +369,11 @@ The renderer wraps `react-force-graph-2d`, which is canvas-based and client-only
 > [!IMPORTANT]
 > Don't import `@crosmos/graph` from a server-only module. It needs the browser to actually draw.
 
----
 
 ## Browser support
 
 Modern evergreen browsers — Chrome / Edge / Firefox / Safari latest two majors. The CSS defaults use `oklch()` color (Chrome ≥ 111, Safari ≥ 15.4, Firefox ≥ 113); older browsers fall through to no background on the popover.
 
----
 
 ## License
 
