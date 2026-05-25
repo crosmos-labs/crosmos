@@ -63,13 +63,10 @@ jobs:
           gh release create "$TAG" --title "$TAG" --generate-notes --verify-tag
 
   publish-npm:
-    name: publish-npm (manual approval)
+    name: publish-npm
     needs: [check-version, create-release]
     if: needs.check-version.outputs.should_release == 'true'
     runs-on: ubuntu-latest
-    environment:
-      name: production-npm
-      url: https://www.npmjs.com/package/@crosmos/graph
     permissions:
       contents: read
       id-token: write

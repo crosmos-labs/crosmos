@@ -70,10 +70,12 @@ Releases use a manual version-bump PR. No bot writes to the repo. The workflow o
 
 1. On `dev`, edit `packages/graph/package.json` and bump the version (you decide the semver bump). Commit: `chore(graph): release X.Y.Z`. Push.
 2. Open a PR `dev → main` titled e.g. `release: graph X.Y.Z`. Merge as a **merge commit**.
-3. `release.yml` fires on main. The `check-version` job sees the new version, the `create-release` job creates the git tag `@crosmos/graph@X.Y.Z` and a GitHub Release with auto-generated notes (`gh release create --generate-notes`).
-4. The `publish-npm` job **pauses** on the `production-npm` environment.
-5. Preview the GitHub Release in the UI. Edit the notes if you want polish. When happy → Actions tab → **Review deployments → Approve and deploy** → `npm publish --provenance` runs.
-6. To abort instead: **Reject** the deployment, then `gh release delete '@crosmos/graph@X.Y.Z' --cleanup-tag`. npm is untouched.
+3. `release.yml` fires on main and runs end-to-end:
+   - `check-version` detects the new version.
+   - `create-release` creates git tag `@crosmos/graph@X.Y.Z` and a GitHub Release with auto-generated notes.
+   - `publish-npm` runs typecheck / build / publint / attw, then `npm publish --provenance`.
+4. To polish the GitHub Release notes, edit them in the UI any time after publish — they live only on GitHub, not in the npm tarball.
+5. To unship a bad release (within 72h): `npm unpublish @crosmos/graph@X.Y.Z` and `gh release delete '@crosmos/graph@X.Y.Z' --cleanup-tag`. After 72h, use `npm deprecate` instead.
 
 Because the version bump originates on `dev`, no back-merge is needed — `dev` and `main` stay aligned after merging.
 
