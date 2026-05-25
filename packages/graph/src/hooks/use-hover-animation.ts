@@ -60,6 +60,7 @@ export function useHoverAnimation(
 			if (channel.flushRef.current) {
 				cancelAnimationFrame(channel.flushRef.current);
 				channel.flushRef.current = 0;
+				decActive();
 			}
 		},
 		[decActive],

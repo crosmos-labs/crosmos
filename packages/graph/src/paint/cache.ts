@@ -72,7 +72,10 @@ export function createPaintCache(theme: GraphTheme): PaintCache {
 		labelShiftY: theme.hover.labelShiftY,
 		opacityMinZoom: theme.label.opacityMinZoom,
 		opacityMaxZoom: theme.label.opacityMaxZoom,
-		opacityRange: theme.label.opacityMaxZoom - theme.label.opacityMinZoom,
+		opacityRange: Math.max(
+			1e-6,
+			theme.label.opacityMaxZoom - theme.label.opacityMinZoom,
+		),
 		radius: theme.node.radius,
 		labelGap: theme.node.labelGap,
 		edgePaddingX: theme.edge.labelPaddingX,

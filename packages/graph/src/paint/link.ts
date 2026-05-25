@@ -1,14 +1,15 @@
 import type { PaintCache } from "./cache";
 import type { PaintHoverState, RFGLink, RFGNode } from "./types";
 
-const RGBA_CACHE = new Map<number, string>();
+const RGBA_CACHE = new Map<string, string>();
 
 function rgba(rgb: string, alpha: number): string {
 	const quantized = Math.round(alpha * 1000);
-	const cached = RGBA_CACHE.get(quantized);
+	const key = `${rgb}|${quantized}`;
+	const cached = RGBA_CACHE.get(key);
 	if (cached) return cached;
 	const str = `rgba(${rgb},${(quantized / 1000).toFixed(3)})`;
-	RGBA_CACHE.set(quantized, str);
+	RGBA_CACHE.set(key, str);
 	return str;
 }
 

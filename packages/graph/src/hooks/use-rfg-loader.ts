@@ -11,10 +11,16 @@ let pending: Promise<RFGComponent> | null = null;
 function loadOnce(): Promise<RFGComponent> {
 	if (cached) return Promise.resolve(cached);
 	if (pending) return pending;
-	pending = import("react-force-graph-2d").then((mod) => {
-		cached = mod.default as unknown as RFGComponent;
-		return cached;
-	});
+	pending = import("react-force-graph-2d").then(
+		(mod) => {
+			cached = mod.default as unknown as RFGComponent;
+			return cached;
+		},
+		(err) => {
+			pending = null;
+			throw err;
+		},
+	);
 	return pending;
 }
 
@@ -26,9 +32,14 @@ export function useForceGraph2D(): RFGComponent | null {
 			return;
 		}
 		let cancelled = false;
-		loadOnce().then((C) => {
-			if (!cancelled) setComp(() => C);
-		});
+		loadOnce()
+			.then((C) => {
+				if (!cancelled) setComp(() => C);
+			})
+			.catch((err) => {
+				if (!cancelled)
+					console.error("Failed to load react-force-graph-2d", err);
+			});
 		return () => {
 			cancelled = true;
 		};

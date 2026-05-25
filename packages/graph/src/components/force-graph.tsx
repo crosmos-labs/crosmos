@@ -444,7 +444,7 @@ export function ForceGraph<
 		[hover, commitLinkHoverOut],
 	);
 
-	if (nodes.length === 0) {
+	if (nodes.length === 0 && !isLoading) {
 		return (
 			<div
 				ref={containerRef}
@@ -456,6 +456,20 @@ export function ForceGraph<
 				{emptyState ?? (
 					<span className="cg-empty-text">No entities to display</span>
 				)}
+			</div>
+		);
+	}
+
+	if (nodes.length === 0 && isLoading) {
+		return (
+			<div
+				ref={containerRef}
+				className={className ?? "cg-root"}
+				role="img"
+				aria-label={ariaLabel}
+				aria-busy
+			>
+				{loadingState}
 			</div>
 		);
 	}

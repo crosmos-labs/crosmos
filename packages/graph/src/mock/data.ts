@@ -716,7 +716,10 @@ const NAME_POOLS: Record<EntityType, readonly string[]> = {
 };
 
 function pick<T>(rng: () => number, arr: readonly T[]): T {
-	return arr[Math.floor(rng() * arr.length)] as T;
+	if (arr.length === 0) throw new Error("pick: empty array");
+	const item = arr[Math.floor(rng() * arr.length)];
+	if (item === undefined) throw new Error("pick: empty array");
+	return item;
 }
 
 function pickWeighted<T>(
