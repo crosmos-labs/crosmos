@@ -60,7 +60,21 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag "$TAG"
           git push origin "$TAG"
-          gh release create "$TAG" --title "$TAG" --generate-notes --verify-tag
+
+          PREV_TAG=$(git tag --list "@crosmos/graph@*" --sort=-version:refname | grep -vxF "$TAG" | head -n1)
+
+          if [ -z "$PREV_TAG" ]; then
+            NOTES=$'Initial release of `@crosmos/graph`.\n\nSee the [README](https://github.com/crosmos-labs/crosmos/blob/main/packages/graph/README.md) for usage.'
+          else
+            CHANGES=$(git log --pretty=format:'- %s (%h)' "${PREV_TAG}..${TAG}" -- packages/graph/)
+            if [ -z "$CHANGES" ]; then
+              NOTES="No changes to \`packages/graph/\` since ${PREV_TAG}."
+            else
+              NOTES=$(printf '## Changes since %s\n\n%s\n' "$PREV_TAG" "$CHANGES")
+            fi
+          fi
+
+          gh release create "$TAG" --title "$TAG" --notes "$NOTES" --verify-tag
 
   publish:
     name: Publish to npm
