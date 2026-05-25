@@ -55,19 +55,13 @@ export function useGraphData<TNode extends BaseNode, TEdge extends BaseEdge>(
 	}, [source, limit, offset, cursor]);
 
 	useEffect(() => {
-		const cancel = runLoad();
-		return cancel;
-	}, [runLoad]);
-
-	useEffect(() => {
-		if (!source?.subscribe) return;
-		let cancel: (() => void) | undefined;
-		const unsubscribe = source.subscribe(() => {
+		let cancel: (() => void) | undefined = runLoad();
+		const unsubscribe = source?.subscribe?.(() => {
 			cancel?.();
 			cancel = runLoad();
 		});
 		return () => {
-			unsubscribe();
+			unsubscribe?.();
 			cancel?.();
 		};
 	}, [source, runLoad]);

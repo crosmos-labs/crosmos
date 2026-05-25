@@ -112,8 +112,8 @@ export class CrosmosDataSource
 		params?: LoadParams,
 	): Promise<GraphPage<CrosmosNode, CrosmosEdge>> {
 		const requested = params?.limit ?? this.defaultLimit;
-		const limit = Math.min(requested, 500);
-		const offset = params?.offset ?? 0;
+		const limit = Math.min(500, Math.max(1, requested));
+		const offset = Math.max(0, params?.offset ?? 0);
 		const qs = new URLSearchParams({
 			space_uuid: this.spaceId,
 			limit: String(limit),

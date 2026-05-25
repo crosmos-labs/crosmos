@@ -69,6 +69,7 @@
       "name": "@crosmos/graph",
       "version": "0.0.2",
       "dependencies": {
+        "d3-force": "^3.0.0",
         "graphology": "^0.26.0",
         "graphology-communities-louvain": "^2.0.2",
       },
@@ -78,7 +79,6 @@
         "@types/d3-force": "^3.0.0",
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
-        "d3-force": "^3.0.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-force-graph-2d": "^1.27.0",

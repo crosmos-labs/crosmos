@@ -41,7 +41,7 @@ export interface GraphTheme {
 		 * this cap, labels scale linearly with zoom (the familiar
 		 * "zoom-in-makes-text-bigger" feel). At or above this cap, labels stay
 		 * at a fixed screen size so neighbouring labels stop colliding as
-		 * nodes spread further apart. Default `2`.
+		 * nodes spread further apart. Default `3`.
 		 */
 		zoomGrowthCap: number;
 	};
