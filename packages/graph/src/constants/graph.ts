@@ -3,11 +3,11 @@ import type { GraphTheme } from "../types/public";
 export const DEFAULT_THEME: GraphTheme = {
 	force: {
 		linkDistance: 120,
-		chargeStrength: -150,
+		chargeStrength: -250,
 		chargeDistanceMax: 500,
 		alphaDecay: 0.015,
 		velocityDecay: 0.6,
-		boundaryStrength: 0.06,
+		boundaryStrength: 0.02,
 	},
 	node: {
 		radius: 4,
@@ -55,7 +55,7 @@ export const DEFAULT_THEME: GraphTheme = {
 	cluster: {
 		intraLinkDistance: 120,
 		interLinkDistance: 280,
-		strength: 0.18,
+		strength: 0.14,
 	},
 	fontFamily: "Satoshi, Inter, ui-sans-serif, system-ui, sans-serif",
 };
@@ -64,13 +64,23 @@ type DeepPartial<T> = {
 	[K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 
+function cloneDefaultTheme(): GraphTheme {
+	const src = DEFAULT_THEME as unknown as Record<string, unknown>;
+	const out: Record<string, unknown> = {};
+	for (const k of Object.keys(src)) {
+		const v = src[k];
+		out[k] = v && typeof v === "object" ? { ...(v as object) } : v;
+	}
+	return out as unknown as GraphTheme;
+}
+
 export function mergeTheme(
 	override: DeepPartial<GraphTheme> | undefined,
 ): GraphTheme {
-	if (!override) return DEFAULT_THEME;
-	const out = { ...DEFAULT_THEME } as GraphTheme;
+	const out = cloneDefaultTheme();
+	if (!override) return out;
 	for (const k of Object.keys(override) as Array<keyof GraphTheme>) {
-		const baseVal = DEFAULT_THEME[k];
+		const baseVal = out[k];
 		const overVal = override[k];
 		if (
 			baseVal &&
