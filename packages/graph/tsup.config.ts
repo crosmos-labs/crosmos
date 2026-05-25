@@ -10,12 +10,7 @@ export default defineConfig({
 	dts: true,
 	splitting: true,
 	clean: true,
-	external: [
-		"react",
-		"react-dom",
-		"react-force-graph-2d",
-		"d3-force",
-	],
+	external: ["react", "react-dom", "react-force-graph-2d", "d3-force"],
 	loader: {
 		".css": "copy",
 	},
