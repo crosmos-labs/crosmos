@@ -7,11 +7,9 @@ Cluster-aware out of the box. Bring your own data — or wire up [Crosmos](https
 
 <br />
 
-[![npm version](https://img.shields.io/npm/v/@crosmos/graph?style=flat-square&color=0a0a0a&label=npm)](https://www.npmjs.com/package/@crosmos/graph)
-[![npm downloads](https://img.shields.io/npm/dm/@crosmos/graph?style=flat-square&color=0a0a0a&label=downloads)](https://www.npmjs.com/package/@crosmos/graph)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@crosmos/graph?style=flat-square&color=0a0a0a&label=min%2Bgzip)](https://bundlephobia.com/package/@crosmos/graph)
-[![types](https://img.shields.io/npm/types/@crosmos/graph?style=flat-square&color=0a0a0a)](https://www.npmjs.com/package/@crosmos/graph)
-[![license](https://img.shields.io/npm/l/@crosmos/graph?style=flat-square&color=0a0a0a)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/%40crosmos%2Fgraph?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@crosmos/graph)
+[![npm downloads](https://img.shields.io/npm/dw/%40crosmos%2Fgraph?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/@crosmos/graph)
+[![license](https://img.shields.io/npm/l/%40crosmos%2Fgraph?style=for-the-badge&logo=npm)](./LICENSE)
 
 [Install](#install) · [Quickstart](#quickstart) · [Props](#props) · [Theme](#theme) · [Data sources](#data-sources) · [SSR](#ssr--nextjs)
 
