@@ -11,38 +11,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check-version:
-    name: check version
+  detect:
+    name: Detect version bump
     runs-on: ubuntu-latest
     outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
-      version: ${{ steps.check.outputs.version }}
-      tag: ${{ steps.check.outputs.tag }}
+      should_release: ${{ steps.compare.outputs.should_release }}
+      version: ${{ steps.compare.outputs.version }}
+      tag: ${{ steps.compare.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - id: check
-        name: Compare package.json version to existing tags
+      - name: Compare version against tags
+        id: compare
         run: |
           VERSION=$(jq -r .version packages/graph/package.json)
           TAG="@crosmos/graph@$VERSION"
 
           if git rev-parse "refs/tags/$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists — nothing to release."
+            echo "Tag $TAG already exists — no release needed."
             echo "should_release=false" >> "$GITHUB_OUTPUT"
           else
-            echo "Releasing @crosmos/graph@$VERSION"
+            echo "New version detected: $VERSION"
             echo "should_release=true" >> "$GITHUB_OUTPUT"
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
             echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           fi
 
-  create-release:
-    name: tag + github release
-    needs: check-version
-    if: needs.check-version.outputs.should_release == 'true'
+  release:
+    name: Tag and release
+    needs: detect
+    if: needs.detect.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -54,7 +54,7 @@ jobs:
       - name: Create tag and GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ needs.check-version.outputs.tag }}
+          TAG: ${{ needs.detect.outputs.tag }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -62,32 +62,29 @@ jobs:
           git push origin "$TAG"
           gh release create "$TAG" --title "$TAG" --generate-notes --verify-tag
 
-  publish-npm:
-    name: publish-npm
-    needs: [check-version, create-release]
-    if: needs.check-version.outputs.should_release == 'true'
+  publish:
+    name: Publish to npm
+    needs: [detect, release]
+    if: needs.detect.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
-      - name: Checkout tagged commit
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.check-version.outputs.tag }}
+          ref: ${{ needs.detect.outputs.tag }}
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "24"
           registry-url: https://registry.npmjs.org
 
-      - name: Upgrade npm (provenance support)
+      - name: Upgrade npm
         run: npm install -g npm@latest
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -98,12 +95,19 @@ jobs:
       - name: Build
         run: bun run build --filter=@crosmos/graph
 
-      - name: publint
+      - name: Lint package with publint
         run: bunx publint packages/graph
 
-      - name: Are The Types Wrong
+      - name: Pack tarball
+        id: pack
         working-directory: packages/graph
-        run: bunx --bun @arethetypeswrong/cli --pack .
+        run: |
+          TARBALL=$(npm pack --json | jq -r '.[0].filename')
+          echo "tarball=$TARBALL" >> "$GITHUB_OUTPUT"
+
+      - name: Check types with attw
+        working-directory: packages/graph
+        run: bunx @arethetypeswrong/cli "${{ steps.pack.outputs.tarball }}"
 
       - name: Publish to npm
         working-directory: packages/graph
