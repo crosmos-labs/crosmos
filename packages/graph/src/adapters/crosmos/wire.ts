@@ -1,4 +1,6 @@
-export interface GraphNode {
+// Mirrors `crosmos-mem/app/api/graph/schemas.py` — regen via `openapi-typescript` if it drifts.
+
+export interface CrosmosGraphNodeWire {
 	id: string;
 	name: string;
 	entity_type: string | null;
@@ -7,7 +9,7 @@ export interface GraphNode {
 	updated_at: string | null;
 }
 
-export interface GraphEdge {
+export interface CrosmosGraphEdgeWire {
 	id: string;
 	source_entity_id: string;
 	target_entity_id: string;
@@ -17,14 +19,14 @@ export interface GraphEdge {
 	recorded_at: string;
 }
 
-export interface GraphViewportResponse {
-	nodes: GraphNode[];
-	edges: GraphEdge[];
+export interface CrosmosGraphViewportResponse {
+	nodes: CrosmosGraphNodeWire[];
+	edges: CrosmosGraphEdgeWire[];
 	total_nodes: number;
 	total_edges: number;
 }
 
-export interface GraphStatsResponse {
+export interface CrosmosGraphStatsResponse {
 	total_entities: number;
 	total_edges: number;
 	entity_types: Record<string, number>;
