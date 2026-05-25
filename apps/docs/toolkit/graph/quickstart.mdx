@@ -1,0 +1,119 @@
+---
+title: "Quickstart"
+description: "Install @crosmos/graph and render a force-directed knowledge graph in any React app."
+icon: "rocket"
+---
+
+`@crosmos/graph` is a force-directed graph renderer for React. It is cluster-aware by default and works with any data shape — give it nodes and edges with `id`s and you get an interactive canvas.
+
+<img src="/images/graph.png" alt="Crosmos knowledge graph with cluster-aware layout — 500 nodes and 554 edges arranged in distinct communities" />
+
+## Install
+
+```bash
+npm install @crosmos/graph react react-dom react-force-graph-2d
+```
+
+<Info>
+`react`, `react-dom`, and `react-force-graph-2d` are peer dependencies. Install them in your host app so you don't end up with duplicates.
+</Info>
+
+## Render a graph
+
+The most common path is to fetch data with whatever you already use (TanStack Query, SWR, RSC, plain `fetch`) and pass arrays straight in.
+
+<Tabs>
+<Tab title="Your own data">
+
+```tsx
+import { ForceGraph, type BaseNode, type BaseEdge } from "@crosmos/graph";
+import "@crosmos/graph/styles.css";
+
+interface MyNode extends BaseNode {
+  label: string;
+  team: string;
+}
+
+interface MyEdge extends BaseEdge {
+  label: string;
+}
+
+export function MyGraph({ nodes, edges }: { nodes: MyNode[]; edges: MyEdge[] }) {
+  return (
+    <ForceGraph<MyNode, MyEdge>
+      nodes={nodes}
+      edges={edges}
+      getNodeLabel={(n) => n.label}
+      getEdgeLabel={(e) => e.label}
+      onNodeClick={(n) => console.log("clicked", n.team)}
+    />
+  );
+}
+```
+
+The root entry only exposes generic shapes — `BaseNode { id }` and `BaseEdge { id, source, target }`. Carry your domain fields on the node and edge directly; accessor functions stay fully type-safe.
+
+</Tab>
+
+<Tab title="Crosmos adapter">
+
+If you want graph data sourced directly from the Crosmos API, the `adapters/crosmos` sub-path ships a ready-made data source and popovers.
+
+```tsx
+import { ForceGraph, useGraphData } from "@crosmos/graph";
+import {
+  CrosmosDataSource,
+  type CrosmosEdge,
+  type CrosmosNode,
+} from "@crosmos/graph/adapters/crosmos";
+import "@crosmos/graph/styles.css";
+
+const source = new CrosmosDataSource({
+  spaceId: "<space-uuid>",
+  getToken: async () => myAuth.getAccessToken(),
+});
+
+export function CrosmosGraph() {
+  const { data, isLoading } = useGraphData(source);
+  return (
+    <ForceGraph<CrosmosNode, CrosmosEdge>
+      nodes={data?.nodes ?? []}
+      edges={data?.edges ?? []}
+      isLoading={isLoading}
+      showZoomLevel="top-right"
+    />
+  );
+}
+```
+
+See [Data sources](/toolkit/graph/reference#data-sources) for the full Crosmos adapter surface.
+
+</Tab>
+</Tabs>
+
+## Mock data for development
+
+A 500-node mock dataset ships with the package and is useful for screenshots, performance tests, and trying tuning options.
+
+```ts
+import { MOCK_NODES, MOCK_EDGES } from "@crosmos/graph/mock";
+```
+
+The dataset mirrors a production-faithful shape: one `USER` hub, the 7 canonical entity types, the 23-relation vocabulary, and bimodal confidence scores. It's deterministic across loads.
+
+## What's next
+
+<Columns cols={2}>
+<Card title="Reference" icon="book" href="/toolkit/graph/reference">
+  Every prop, the imperative handle, data sources, clustering, and SSR notes.
+</Card>
+<Card title="Theme" icon="palette" href="/toolkit/graph/theme">
+  Every theme key, with defaults and the CSS variables that drive popovers and the zoom indicator.
+</Card>
+</Columns>
+
+<Note>
+Targets modern evergreen browsers (latest two majors of Chrome, Edge, Firefox, Safari). The default CSS uses `oklch()` color, which falls back to no background on older browsers.
+</Note>
+
+Licensed under [MIT](https://github.com/crosmos-labs/crosmos/blob/main/packages/graph/LICENSE).
