@@ -10,7 +10,7 @@ export async function getGraphViewport(
 	spaceUuid: string,
 	options?: { limit?: number; offset?: number },
 ): Promise<GraphViewportResponse> {
-	const limit = options?.limit ?? 100;
+	const limit = options?.limit ?? 500;
 	const offset = options?.offset ?? 0;
 	return apiFetch<GraphViewportResponse>(
 		`/graph?space_uuid=${spaceUuid}&limit=${limit}&offset=${offset}`,

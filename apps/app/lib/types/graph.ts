@@ -1,6 +1,6 @@
 export type {
-	CrosmosGraphEdgeWire as GraphEdge,
-	CrosmosGraphNodeWire as GraphNode,
-	CrosmosGraphStatsResponse as GraphStatsResponse,
-	CrosmosGraphViewportResponse as GraphViewportResponse,
-} from "@crosmos/graph/adapters/crosmos";
+	GraphEdgeWire,
+	GraphNodeWire,
+	GraphStatsResponse,
+	GraphViewportResponse,
+} from "@/lib/graph/wire";

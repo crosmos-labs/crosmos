@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import type { CrosmosEdge, CrosmosNode } from "./index";
+import type { GraphEdge, GraphNode } from "@/lib/graph/mappers";
 
 function formatDateTime(dateStr: string | null): string | null {
 	if (!dateStr) return null;
@@ -19,8 +19,8 @@ function formatDateTime(dateStr: string | null): string | null {
 }
 
 interface EdgePopoverProps {
-	edge: CrosmosEdge;
-	nodeMap: Map<string, CrosmosNode>;
+	edge: GraphEdge;
+	nodeMap: Map<string, GraphNode>;
 	onClose: () => void;
 }
 

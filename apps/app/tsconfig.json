@@ -6,9 +6,6 @@
 			"@/*": ["./*"],
 			"@crosmos/ui/*": ["../../packages/ui/src/*"],
 			"@crosmos/graph": ["../../packages/graph/src/index.ts"],
-			"@crosmos/graph/adapters/crosmos": [
-				"../../packages/graph/src/adapters/crosmos/index.ts"
-			],
 			"@crosmos/graph/mock": ["../../packages/graph/src/mock/index.ts"],
 			"@crosmos/graph/styles.css": [
 				"../../packages/graph/src/public/styles.css"

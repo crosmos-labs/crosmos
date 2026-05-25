@@ -1,0 +1,143 @@
+---
+title: "Theme"
+description: "Every theme key in @crosmos/graph, with defaults, and the CSS variables that drive the zoom indicator."
+icon: "palette"
+---
+
+Pass any subset of `GraphTheme` to the `theme` prop. The value is deep-merged with [`DEFAULT_THEME`](https://github.com/crosmos-labs/crosmos/blob/main/packages/graph/src/constants/graph.ts), so you only override what you care about.
+
+```tsx
+<ForceGraph
+  theme={{
+    node:    { color: "#0ea5e9", hoverColor: "#f97316" },
+    link:    { defaultAlpha: 0.55, dimRgbTuple: "100,116,139" },
+    cluster: { intraLinkDistance: 100, interLinkDistance: 320, strength: 0.22 },
+    label:   { zoomGrowthCap: 2 },
+  }}
+  nodes={nodes}
+  edges={edges}
+/>
+```
+
+## Theme reference
+
+<AccordionGroup>
+
+<Accordion title="theme.node">
+
+| Key          | Type     | Default                         | Description                          |
+| ------------ | -------- | ------------------------------- | ------------------------------------ |
+| `radius`     | `number` | `4`                             | Visible node radius in graph units.  |
+| `fontSize`   | `number` | `8`                             | Label font size at zoom 1×.          |
+| `labelGap`   | `number` | `3`                             | Vertical gap between node and label. |
+| `labelColor` | `string` | `oklch(0.95 0 0)`               | Label text colour.                   |
+| `color`      | `string` | `#ffffff`                       | Default fill.                        |
+| `hoverColor` | `string` | `oklch(0.5544 0.1146 158.24)`   | Fill while hovered.                  |
+
+</Accordion>
+
+<Accordion title="theme.link">
+
+| Key                | Type     | Default                   | Description                                      |
+| ------------------ | -------- | ------------------------- | ------------------------------------------------ |
+| `color`            | `string` | `rgba(148,163,184,0.4)`   | Line colour at rest.                             |
+| `defaultAlpha`     | `number` | `0.4`                     | Alpha at rest (used to derive the dimmed state). |
+| `defaultWidth`     | `number` | `0.5`                     | Line width at rest.                              |
+| `highlightedWidth` | `number` | `1.5`                     | Line width while highlighted.                    |
+| `curvatureSpacing` | `number` | `0.25`                    | Curvature applied to parallel edges.             |
+| `dimRgbTuple`      | `string` | `"148,163,184"`           | RGB tuple used to build the dimmed `rgba(...)`.  |
+
+</Accordion>
+
+<Accordion title="theme.edge">
+
+| Key                    | Type     | Default       | Description                       |
+| ---------------------- | -------- | ------------- | --------------------------------- |
+| `fontSize`             | `number` | `6`           | Edge label size at zoom 1×.       |
+| `labelPaddingX`        | `number` | `3`           | Horizontal padding of label rect. |
+| `labelPaddingY`        | `number` | `1`           | Vertical padding of label rect.   |
+| `labelBackgroundColor` | `string` | `transparent` | Background fill of the label rect.|
+
+</Accordion>
+
+<Accordion title="theme.label">
+
+| Key              | Type     | Default | Description                                                                 |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------- |
+| `opacityMinZoom` | `number` | `1.2`   | Zoom at which labels start fading in.                                       |
+| `opacityMaxZoom` | `number` | `1.7`   | Zoom at which labels reach full opacity.                                    |
+| `zoomGrowthCap`  | `number` | `3`     | Above this zoom, labels stop growing in screen pixels and zoom de-clutters. |
+
+</Accordion>
+
+<Accordion title="theme.hover">
+
+| Key                     | Type     | Default | Description                                |
+| ----------------------- | -------- | ------- | ------------------------------------------ |
+| `labelShiftY`           | `number` | `2`     | Vertical shift when hovered.               |
+| `hiddenLabelOpacity`    | `number` | `1`     | Target opacity for labels that were hidden.|
+| `animationDurationMs`   | `number` | `150`   | Fade-in / fade-out duration.               |
+| `highlightOpacityBoost` | `number` | `0.6`   | Floor for label opacity while hovered.     |
+| `dimOpacity`            | `number` | `0.15`  | Multiplier applied to non-hovered nodes.   |
+
+</Accordion>
+
+<Accordion title="theme.force">
+
+| Key                 | Type     | Default | Description                                              |
+| ------------------- | -------- | ------- | -------------------------------------------------------- |
+| `linkDistance`      | `number` | `120`   | Fallback target link length when clustering is disabled. |
+| `chargeStrength`    | `number` | `-250`  | `forceManyBody` strength (negative = repulsion).         |
+| `chargeDistanceMax` | `number` | `500`   | Maximum distance over which charge applies.              |
+| `alphaDecay`        | `number` | `0.015` | Simulation cooldown rate.                                |
+| `velocityDecay`     | `number` | `0.6`   | Per-tick velocity damping.                               |
+| `boundaryStrength`  | `number` | `0.01`  | `forceX` / `forceY` strength pulling toward (0, 0).      |
+
+<Tip>
+The three knobs that most affect "nodes feel cramped at high zoom" are `chargeStrength` (push apart harder), `boundaryStrength` (let the layout breathe further from origin), and `node.radius` (raise the collision floor). Reasonable ranges: `chargeStrength` between `-30` and `-500`, `boundaryStrength` between `0.01` and `0.3`.
+</Tip>
+
+</Accordion>
+
+<Accordion title="theme.cluster">
+
+| Key                 | Type     | Default | Description                                                 |
+| ------------------- | -------- | ------- | ----------------------------------------------------------- |
+| `intraLinkDistance` | `number` | `120`   | Target link length between two nodes in the same community. |
+| `interLinkDistance` | `number` | `280`   | Target link length for cross-community bridges.             |
+| `strength`          | `number` | `0.14`  | Centroid pull strength (`alpha`-scaled on top of this).     |
+
+</Accordion>
+
+<Accordion title="theme.click / theme.edgeClick">
+
+| Key                       | Type     | Default | Description                              |
+| ------------------------- | -------- | ------- | ---------------------------------------- |
+| `centerAnimationDuration` | `number` | `300`   | Pan animation duration (ms).             |
+| `targetZoom`              | `number` | `2`     | Zoom level after a node or edge click.   |
+| `animationDuration`       | `number` | `300`   | (edgeClick) Pan animation duration (ms). |
+| `padding`                 | `number` | `80`    | (edgeClick) Padding around the edge.     |
+
+</Accordion>
+
+<Accordion title="theme.fontFamily">
+
+| Key          | Type     | Default                                                  |
+| ------------ | -------- | -------------------------------------------------------- |
+| `fontFamily` | `string` | `Satoshi, Inter, ui-sans-serif, system-ui, sans-serif`   |
+
+</Accordion>
+
+</AccordionGroup>
+
+## CSS variables
+
+The package only styles the container and the optional zoom indicator — everything inside the canvas is painted from the theme. Override on `.cg-root`.
+
+| Variable         | Default (light)            | Purpose                          |
+| ---------------- | -------------------------- | -------------------------------- |
+| `--cg-muted-fg`  | `oklch(0.35 0.02 99.4974)` | Empty-state and zoom-label text. |
+| `--cg-zoom-bg`   | `transparent`              | Zoom indicator background.       |
+| `--cg-zoom-fg`   | `var(--cg-muted-fg)`       | Zoom indicator text.             |
+
+The zoom indicator picks up `cg-zoom-label--{position}` modifier classes — override any of them in your own CSS to retarget placement.

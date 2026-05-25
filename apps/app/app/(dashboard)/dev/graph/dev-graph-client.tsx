@@ -1,27 +1,27 @@
 "use client";
 
 import { ForceGraph } from "@crosmos/graph";
-import {
-	type CrosmosEdge,
-	type CrosmosNode,
-	EdgePopover,
-	edgeFromWire,
-	NodePopover,
-	nodeFromWire,
-} from "@crosmos/graph/adapters/crosmos";
 import { MOCK_EDGES, MOCK_NODES } from "@crosmos/graph/mock";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { EdgePopover } from "@/components/graph/edge-popover";
+import { NodePopover } from "@/components/graph/node-popover";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
+import {
+	edgeFromWire,
+	type GraphEdge,
+	type GraphNode,
+	nodeFromWire,
+} from "@/lib/graph/mappers";
 
 export function DevGraphClient() {
-	const nodes = useMemo<CrosmosNode[]>(() => MOCK_NODES.map(nodeFromWire), []);
-	const edges = useMemo<CrosmosEdge[]>(() => MOCK_EDGES.map(edgeFromWire), []);
+	const nodes = useMemo<GraphNode[]>(() => MOCK_NODES.map(nodeFromWire), []);
+	const edges = useMemo<GraphEdge[]>(() => MOCK_EDGES.map(edgeFromWire), []);
 
-	const [selectedNode, setSelectedNode] = useState<CrosmosNode | null>(null);
-	const [selectedEdge, setSelectedEdge] = useState<CrosmosEdge | null>(null);
+	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+	const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
 
 	const nodeMap = useMemo(() => {
-		const map = new Map<string, CrosmosNode>();
+		const map = new Map<string, GraphNode>();
 		for (const n of nodes) map.set(n.id, n);
 		return map;
 	}, [nodes]);
@@ -33,12 +33,12 @@ export function DevGraphClient() {
 		return () => setBreadcrumb(null);
 	}, [setBreadcrumb]);
 
-	const handleNodeClick = useCallback((node: CrosmosNode) => {
+	const handleNodeClick = useCallback((node: GraphNode) => {
 		setSelectedNode(node);
 		setSelectedEdge(null);
 	}, []);
 
-	const handleEdgeClick = useCallback((edge: CrosmosEdge) => {
+	const handleEdgeClick = useCallback((edge: GraphEdge) => {
 		setSelectedEdge(edge);
 		setSelectedNode(null);
 	}, []);
@@ -59,7 +59,7 @@ export function DevGraphClient() {
 			</p>
 
 			<div className="flex-1 min-h-0 rounded-md border relative">
-				<ForceGraph<CrosmosNode, CrosmosEdge>
+				<ForceGraph<GraphNode, GraphEdge>
 					nodes={nodes}
 					edges={edges}
 					onNodeClick={handleNodeClick}
