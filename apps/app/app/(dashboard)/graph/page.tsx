@@ -1,7 +1,14 @@
 "use client";
 
-import type { GraphEdge, GraphNode } from "@crosmos/graph";
-import { EdgePopover, ForceGraph, NodePopover } from "@crosmos/graph";
+import { ForceGraph } from "@crosmos/graph";
+import {
+	type CrosmosEdge,
+	type CrosmosNode,
+	EdgePopover,
+	edgeFromWire,
+	NodePopover,
+	nodeFromWire,
+} from "@crosmos/graph/adapters/crosmos";
 import {
 	Select,
 	SelectContent,
@@ -29,16 +36,25 @@ export default function GraphPage() {
 		isLoading: graphLoading,
 		error: graphError,
 	} = useGraph(selectedSpaceId || null);
-	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-	const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
+
+	const nodes = useMemo<CrosmosNode[]>(
+		() => graphData?.nodes.map(nodeFromWire) ?? [],
+		[graphData],
+	);
+	const edges = useMemo<CrosmosEdge[]>(
+		() => graphData?.edges.map(edgeFromWire) ?? [],
+		[graphData],
+	);
+
+	const [selectedNode, setSelectedNode] = useState<CrosmosNode | null>(null);
+	const [selectedEdge, setSelectedEdge] = useState<CrosmosEdge | null>(null);
+
 	const nodeMap = useMemo(() => {
-		if (!graphData) return new Map<string, GraphNode>();
-		const map = new Map<string, GraphNode>();
-		for (const n of graphData.nodes) {
-			map.set(n.id, n);
-		}
+		const map = new Map<string, CrosmosNode>();
+		for (const n of nodes) map.set(n.id, n);
 		return map;
-	}, [graphData]);
+	}, [nodes]);
+
 	const { setBreadcrumb } = useBreadcrumb();
 	const { mutate } = useSWRConfig();
 
@@ -54,12 +70,17 @@ export default function GraphPage() {
 		}
 	}, [spaces, selectedSpaceId]);
 
-	const handleNodeClick = useCallback((node: GraphNode) => {
+	useEffect(() => {
+		setSelectedNode(null);
+		setSelectedEdge(null);
+	}, []);
+
+	const handleNodeClick = useCallback((node: CrosmosNode) => {
 		setSelectedNode(node);
 		setSelectedEdge(null);
 	}, []);
 
-	const handleEdgeClick = useCallback((edge: GraphEdge) => {
+	const handleEdgeClick = useCallback((edge: CrosmosEdge) => {
 		setSelectedEdge(edge);
 		setSelectedNode(null);
 	}, []);
@@ -126,13 +147,21 @@ export default function GraphPage() {
 
 			{!isInitialLoading && graphData && (
 				<div className="flex-1 min-h-0 rounded-md border relative">
-					<ForceGraph
-						nodes={graphData.nodes}
-						edges={graphData.edges}
+					<ForceGraph<CrosmosNode, CrosmosEdge>
+						key={selectedSpaceId}
+						nodes={nodes}
+						edges={edges}
 						onNodeClick={handleNodeClick}
 						onEdgeClick={handleEdgeClick}
 						onBackgroundClick={handleBackgroundClick}
+						isLoading={graphLoading}
+						showZoomLevel="top-right"
 					/>
+					{graphLoading && (
+						<div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
+							<Skeleton className="h-8 w-8 rounded-full" />
+						</div>
+					)}
 					{selectedNode && (
 						<NodePopover
 							node={selectedNode}
@@ -148,15 +177,6 @@ export default function GraphPage() {
 					)}
 				</div>
 			)}
-
-			{!isInitialLoading &&
-				graphData &&
-				graphData.nodes.length === 0 &&
-				selectedSpaceId && (
-					<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-						No entities in this space yet. Add sources to populate the graph.
-					</div>
-				)}
 		</div>
 	);
 }

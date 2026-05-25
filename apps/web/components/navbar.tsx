@@ -9,33 +9,21 @@ import { MobileNavButton, MobileNavSheet } from "@/components/mobile-nav";
 import { LINKS } from "@/config/links";
 
 export function Navbar() {
-	const [hasBackground, setHasBackground] = useState(false);
+	const [scrolled, setScrolled] = useState(false);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
 	useEffect(() => {
-		const heroSection = document.querySelector<HTMLElement>("[data-hero]");
-		if (!heroSection) {
-			setHasBackground(true);
-			return;
-		}
-
-		const observer = new IntersectionObserver(
-			(entries) => {
-				const entry = entries[0];
-				if (entry) setHasBackground(!entry.isIntersecting);
-			},
-			{ threshold: 0 },
-		);
-
-		observer.observe(heroSection);
-		return () => observer.disconnect();
+		const onScroll = () => setScrolled(window.scrollY > 0);
+		onScroll();
+		window.addEventListener("scroll", onScroll, { passive: true });
+		return () => window.removeEventListener("scroll", onScroll);
 	}, []);
 
 	return (
 		<header
 			className={cn(
-				"fixed top-0 left-0 right-0 z-50 border-b border-transparent bg-transparent transition-colors duration-150",
-				(hasBackground || isMobileMenuOpen) && "border-border bg-background",
+				"fixed top-0 left-0 right-0 z-50 bg-background border-b transition-colors duration-150",
+				scrolled ? "border-border" : "border-transparent",
 			)}
 		>
 			<nav
@@ -44,7 +32,10 @@ export function Navbar() {
 			>
 				<div className="flex items-center gap-10">
 					<div className="flex items-center gap-2">
-						<Link href="/" className="block select-none">
+						<Link
+							href="/"
+							className="block select-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+						>
 							<Image
 								src="/banner_light.svg"
 								alt="Crosmos"

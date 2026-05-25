@@ -159,11 +159,11 @@ export function AppSidebar({
 								className="pl-4 opacity-80 hover:opacity-100 hover:bg-transparent active:bg-transparent"
 							>
 								<a href={item.href} target="_blank" rel="noopener noreferrer">
-									<span className="inline-flex items-center gap-2">
-										<item.icon />
-										<span>{item.label}</span>
+									<item.icon />
+									<span className="overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
+										{item.label}
 									</span>
-									<LinkArrow className="ml-auto" />
+									<LinkArrow className="ml-auto overflow-hidden transition-[max-width,opacity] duration-200 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0" />
 								</a>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
@@ -178,18 +178,18 @@ export function AppSidebar({
 									tooltip={
 										state === "collapsed" && !isMobile ? undefined : user.name
 									}
-									className="group data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+									className="group data-[state=open]:pointer-events-auto data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 								>
 									<Avatar className="size-8">
 										<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
 									</Avatar>
-									<div className="grid flex-1 text-left text-sm leading-tight">
+									<div className="grid flex-1 text-left text-sm leading-tight overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
 										<span className="truncate">{user.name}</span>
 										<span className="truncate text-xs text-muted-foreground">
 											{user.email}
 										</span>
 									</div>
-									<IconChevronUp className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
+									<IconChevronUp className="ml-auto size-4 overflow-hidden transition-[transform,rotate,max-width,opacity] duration-200 ease-in-out group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0" />
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent

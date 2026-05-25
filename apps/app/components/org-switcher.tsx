@@ -34,15 +34,17 @@ export function OrgSwitcher({
 				<DropdownMenuTrigger asChild>
 					<SidebarMenuButton
 						size="lg"
-						className="group hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+						className="group hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:pointer-events-auto data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
-						<OrgAvatar slug={activeOrg.slug} />
-						<div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+						<div className="flex size-8 shrink-0 items-center justify-center">
+							<OrgAvatar slug={activeOrg.slug} />
+						</div>
+						<div className="grid flex-1 text-left text-sm leading-tight overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
 							<span className="truncate font-medium select-none">
 								{activeOrg.name}
 							</span>
 						</div>
-						<IconChevronDown className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:hidden" />
+						<IconChevronDown className="ml-auto size-4 overflow-hidden transition-[transform,rotate,max-width,opacity] duration-200 ease-in-out group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0" />
 					</SidebarMenuButton>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent
@@ -57,7 +59,7 @@ export function OrgSwitcher({
 								disabled
 								className="gap-4 py-2.5 px-3"
 							>
-								<OrgAvatar slug={org.slug} className="size-5.5" />
+								<OrgAvatar slug={org.slug} size={20} />
 								<div className="flex-1 min-w-0 space-y-0.75">
 									<span className="block text-sm font-medium truncate">
 										{org.name}

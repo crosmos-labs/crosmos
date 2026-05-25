@@ -2,19 +2,20 @@ import { BlogSection } from "@/components/blog-section";
 import { Contact } from "@/components/contact";
 import { Faq } from "@/components/faq";
 import { Features } from "@/components/features";
-import { HeroBg } from "@/components/hero-bg";
+import { Hero } from "@/components/hero";
 import { HowItWorks } from "@/components/how-it-works";
+import { Mtkg } from "@/components/mtkg";
 import { Pricing } from "@/components/pricing";
+import { Problem } from "@/components/problem";
 import { BlockTransition } from "@/components/ui/block-transition";
 
 export default function Home() {
 	return (
 		<>
-			<HeroBg />
-			<div className="relative z-10 -mt-[20vh] sm:-mt-[16vh] md:-mt-[24vh] lg:-mt-[28vh] min-h-[10vh]">
-				<BlockTransition fromColor="bg-transparent" toColor="bg-background" />
-			</div>
+			<Hero />
+			<Problem />
 			<Features />
+			<Mtkg />
 			<HowItWorks />
 			<Pricing />
 			<BlogSection />
