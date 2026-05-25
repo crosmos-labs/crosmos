@@ -36,6 +36,20 @@
 				]
 			},
 			{
+				"tab": "Toolkit",
+				"icon": "wrench",
+				"groups": [
+					{
+						"group": "Graph",
+						"pages": [
+							"toolkit/graph/quickstart",
+							"toolkit/graph/reference",
+							"toolkit/graph/theme"
+						]
+					}
+				]
+			},
+			{
 				"tab": "API Reference",
 				"icon": "code",
 				"openapi": "https://api.crosmos.dev/openapi.json"

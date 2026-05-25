@@ -1,0 +1,224 @@
+---
+title: "Reference"
+description: "Props, imperative handle, data sources, clustering behaviour, and SSR notes for @crosmos/graph."
+icon: "book"
+---
+
+## Props
+
+`<ForceGraph<TNode, TEdge>>` accepts the following props. `TNode` must extend `BaseNode { id: string }` and `TEdge` must extend `BaseEdge { id: string; source: string; target: string }`.
+
+<ParamField path="nodes" type="TNode[]" required>
+  Array of nodes to render. Each must have a unique `id`.
+</ParamField>
+
+<ParamField path="edges" type="TEdge[]" required>
+  Array of edges connecting nodes by their `id`.
+</ParamField>
+
+<ParamField path="getNodeLabel" type="(node: TNode) => string" default="n.label ?? n.name ?? n.id">
+  Text rendered below each node.
+</ParamField>
+
+<ParamField path="getNodeWeight" type="(node: TNode) => number" default="n.weight ?? 0">
+  Drives degree-based collision radius and clustering hub priority.
+</ParamField>
+
+<ParamField path="getEdgeLabel" type="(edge: TEdge) => string" default='e.label ?? ""'>
+  Text rendered on the midpoint of the edge. An empty string hides the label.
+</ParamField>
+
+<ParamField path="onNodeClick" type="(node: TNode) => void">
+  Fires after the camera centres on the node.
+</ParamField>
+
+<ParamField path="onEdgeClick" type="(edge: TEdge) => void">
+  Fires after the camera centres on the edge midpoint.
+</ParamField>
+
+<ParamField path="onBackgroundClick" type="() => void">
+  Fires on canvas background click.
+</ParamField>
+
+<ParamField path="theme" type="Partial<GraphTheme>" default="DEFAULT_THEME">
+  Deep-merged with defaults. See [Theme](/toolkit/graph/theme).
+</ParamField>
+
+<ParamField path="disableClustering" type="boolean" default="false">
+  Skip Louvain detection and the cluster-aware forces. The rest of the simulation (charge, collision, link spring) is untouched.
+</ParamField>
+
+<ParamField path="showZoomLevel" type='false | "top-right" | "top-left" | "bottom-right" | "bottom-left"' default="false">
+  Render a live zoom-percentage indicator at the given corner.
+</ParamField>
+
+<ParamField path="className" type="string" default='"cg-root"'>
+  Replaces the container class entirely.
+</ParamField>
+
+<ParamField path="aria-label" type="string" default='"Knowledge graph"'>
+  Container `aria-label`.
+</ParamField>
+
+<ParamField path="emptyState" type="ReactNode" default='"No entities to display"'>
+  Rendered when `nodes` is empty and `isLoading` is falsy.
+</ParamField>
+
+<ParamField path="loadingState" type="ReactNode">
+  Rendered while the canvas lib is dynamic-imported, or when `nodes` is empty and `isLoading` is true.
+</ParamField>
+
+<ParamField path="isLoading" type="boolean">
+  Sets `aria-busy` on the container.
+</ParamField>
+
+<ParamField path="ref" type="Ref<ForceGraphHandle>">
+  Imperative handle — see below.
+</ParamField>
+
+### Imperative handle
+
+Grab a ref to drive the graph from outside React state.
+
+```tsx
+import { useRef } from "react";
+import { ForceGraph, type ForceGraphHandle } from "@crosmos/graph";
+
+const ref = useRef<ForceGraphHandle>(null);
+
+<ForceGraph ref={ref} nodes={nodes} edges={edges} />;
+```
+
+<ResponseField name="zoom" type="(scale: number, durationMs?: number) => void">
+  Animate to an absolute zoom level.
+</ResponseField>
+
+<ResponseField name="zoomToFit" type="(durationMs?: number, paddingPx?: number) => void">
+  Fit every node in view.
+</ResponseField>
+
+<ResponseField name="centerAt" type="(x: number, y: number, durationMs?: number) => void">
+  Pan to graph coordinates.
+</ResponseField>
+
+<ResponseField name="pauseAnimation" type="() => void">
+  Stop the simulation.
+</ResponseField>
+
+<ResponseField name="resumeAnimation" type="() => void">
+  Resume the simulation.
+</ResponseField>
+
+<ResponseField name="refresh" type="() => void">
+  Force a single canvas repaint.
+</ResponseField>
+
+## Clustering
+
+Enabled by default. On each `nodes` or `edges` change, the renderer runs [Louvain community detection](https://en.wikipedia.org/wiki/Louvain_method) and feeds the result into the simulation as:
+
+- **Variable link distance** — intra-community links pull to `theme.cluster.intraLinkDistance` (`120` by default); inter-community bridges pull to `theme.cluster.interLinkDistance` (`280`).
+- **Centroid force** — every tick each node is nudged toward its community's centroid at strength `theme.cluster.strength · alpha`.
+
+<Warning>
+Pass `disableClustering` to turn the whole thing off. Useful when you already have a layout, but the result is a single gravity-well that often looks crowded for graphs with natural communities.
+</Warning>
+
+<Tip>
+For 500+ node graphs that still feel cramped at high zoom, the right knobs to reach for are `force.chargeStrength` (more negative = more repulsion), `cluster.strength` (lower = looser clusters), and `node.radius` (bigger collision floor). See [Theme](/toolkit/graph/theme) for ranges.
+</Tip>
+
+**Bundle impact:** `graphology` + `graphology-communities-louvain` add ~60 KB gzipped. Both are bundled into the package — no peer dependency to install.
+
+## Data sources
+
+Three ways to feed data into `<ForceGraph>`.
+
+<Tabs>
+<Tab title="Pass arrays directly">
+
+The simplest path. Fetch with TanStack Query, SWR, RSC, or anything else; hand `nodes` and `edges` to `<ForceGraph>`. The package itself does no fetching.
+
+```tsx
+const { data } = useQuery({ queryKey: ["graph"], queryFn: loadGraph });
+
+<ForceGraph nodes={data?.nodes ?? []} edges={data?.edges ?? []} />;
+```
+
+</Tab>
+
+<Tab title="Implement GraphDataSource">
+
+For pluggable data sources (multiple backends, swappable mocks), implement the `GraphDataSource<TNode, TEdge>` interface.
+
+```ts
+import type { GraphDataSource } from "@crosmos/graph";
+
+class MyDataSource implements GraphDataSource<MyNode, MyEdge> {
+  async load({ signal }) {
+    const res = await fetch("/api/graph", { signal });
+    const json = await res.json();
+    return {
+      nodes: json.repos.map((r) => ({ id: r.id, label: r.name, weight: r.stars })),
+      edges: json.deps.map((d) => ({ id: d.id, source: d.from, target: d.to })),
+    };
+  }
+}
+```
+
+Drive it with the built-in hook:
+
+```tsx
+import { useGraphData } from "@crosmos/graph";
+
+const { data, isLoading, error, refetch } = useGraphData(new MyDataSource());
+```
+
+`useGraphData` is convenience, not a requirement — you can compose with React Query or SWR however you prefer.
+
+</Tab>
+
+<Tab title="Crosmos adapter">
+
+`@crosmos/graph/adapters/crosmos` ships a data source backed by the Crosmos REST API plus Crosmos-shaped `NodePopover` and `EdgePopover` components.
+
+```tsx
+import { CrosmosDataSource } from "@crosmos/graph/adapters/crosmos";
+
+const source = new CrosmosDataSource({
+  spaceId,                                   // required
+  getToken: async () => token,               // or apiKey for static csk_* keys
+  baseUrl: "https://api.crosmos.dev/api/v1", // default
+});
+```
+
+If you already have your own fetching layer, two pure helpers map the wire format to the `CrosmosNode` and `CrosmosEdge` shapes:
+
+```ts
+import { nodeFromWire, edgeFromWire } from "@crosmos/graph/adapters/crosmos";
+
+const nodes = response.nodes.map(nodeFromWire);
+const edges = response.edges.map(edgeFromWire);
+```
+
+The adapter also re-exports `CrosmosGraphNodeWire` and `CrosmosGraphEdgeWire` types so you can inspect the raw payload directly.
+
+</Tab>
+</Tabs>
+
+## Sub-path exports
+
+| Import path                       | What's there                                                                |
+| --------------------------------- | --------------------------------------------------------------------------- |
+| `@crosmos/graph`                  | `ForceGraph`, public types, `useGraphData`, `DEFAULT_THEME`, `mergeTheme`.  |
+| `@crosmos/graph/adapters/crosmos` | `CrosmosDataSource`, `CrosmosNode` / `CrosmosEdge`, popovers, wire types.   |
+| `@crosmos/graph/mock`             | 500-node mock dataset.                                                      |
+| `@crosmos/graph/styles.css`       | Popover and zoom-indicator default styles.                                  |
+
+## SSR and Next.js
+
+The renderer wraps `react-force-graph-2d`, which is canvas-based and client-only. `<ForceGraph>` is marked `"use client"` and dynamic-imports the lib internally, so it's safe to mount inside Next.js server components — the container renders its `loadingState` (or nothing) on the server and hydrates on the client.
+
+<Note>
+Don't import `@crosmos/graph` from a server-only module. It needs the browser to actually draw.
+</Note>
