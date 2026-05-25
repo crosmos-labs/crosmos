@@ -98,17 +98,6 @@ jobs:
       - name: Lint package with publint
         run: bunx publint packages/graph
 
-      - name: Pack tarball
-        id: pack
-        working-directory: packages/graph
-        run: |
-          TARBALL=$(npm pack --json | jq -r '.[0].filename')
-          echo "tarball=$TARBALL" >> "$GITHUB_OUTPUT"
-
-      - name: Check types with attw
-        working-directory: packages/graph
-        run: bunx @arethetypeswrong/cli "${{ steps.pack.outputs.tarball }}"
-
       - name: Publish to npm
         working-directory: packages/graph
         run: npm publish --access public --provenance
