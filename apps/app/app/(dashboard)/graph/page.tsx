@@ -4,10 +4,10 @@ import { ForceGraph } from "@crosmos/graph";
 import {
 	type CrosmosEdge,
 	type CrosmosNode,
-	edgeFromWire,
 	EdgePopover,
-	nodeFromWire,
+	edgeFromWire,
 	NodePopover,
+	nodeFromWire,
 } from "@crosmos/graph/adapters/crosmos";
 import {
 	Select,

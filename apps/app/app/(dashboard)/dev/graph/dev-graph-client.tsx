@@ -4,10 +4,10 @@ import { ForceGraph } from "@crosmos/graph";
 import {
 	type CrosmosEdge,
 	type CrosmosNode,
-	edgeFromWire,
 	EdgePopover,
-	nodeFromWire,
+	edgeFromWire,
 	NodePopover,
+	nodeFromWire,
 } from "@crosmos/graph/adapters/crosmos";
 import { MOCK_EDGES, MOCK_NODES } from "@crosmos/graph/mock";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -29,7 +29,7 @@ export function DevGraphClient() {
 	const { setBreadcrumb } = useBreadcrumb();
 
 	useEffect(() => {
-		setBreadcrumb({ label: 				"[DEV] Graph"});
+		setBreadcrumb({ label: "[DEV] Graph" });
 		return () => setBreadcrumb(null);
 	}, [setBreadcrumb]);
 
