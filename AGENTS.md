@@ -64,34 +64,24 @@ To target a single package: `bun run dev --filter=app`, `bun run typecheck --fil
 
 ## Releasing (`packages/graph`)
 
-Releases are automated by **release-please**. Devs only write Conventional Commits — the tool reads them, opens a release PR, and publishes after a manual approval gate.
+Releases use a manual version-bump PR. No bot writes to the repo. The workflow only reads `packages/graph/package.json` and acts when the version changes.
 
-### Commit-type → version bump
+### Flow
 
-| Prefix | Effect on next `@crosmos/graph` release |
-|---|---|
-| `feat(graph): …` | **minor** |
-| `fix(graph): …` / `perf(graph): …` | **patch** |
-| `feat(graph)!: …` or `BREAKING CHANGE:` footer | **major** |
-| `refactor` / `docs` / `style` / `test` / `build` / `ci` / `chore` / `revert` | no bump |
+1. On `dev`, edit `packages/graph/package.json` and bump the version (you decide the semver bump). Commit: `chore(graph): release X.Y.Z`. Push.
+2. Open a PR `dev → main` titled e.g. `release: graph X.Y.Z`. Merge as a **merge commit**.
+3. `release.yml` fires on main. The `check-version` job sees the new version, the `create-release` job creates the git tag `@crosmos/graph@X.Y.Z` and a GitHub Release with auto-generated notes (`gh release create --generate-notes`).
+4. The `publish-npm` job **pauses** on the `production-npm` environment.
+5. Preview the GitHub Release in the UI. Edit the notes if you want polish. When happy → Actions tab → **Review deployments → Approve and deploy** → `npm publish --provenance` runs.
+6. To abort instead: **Reject** the deployment, then `gh release delete '@crosmos/graph@X.Y.Z' --cleanup-tag`. npm is untouched.
 
-Only commits scoped to `graph` (or unscoped repo-wide) influence the bump. `feat(app): …` does not trigger a graph release.
-
-### Daily flow
-
-1. Branch off `dev`, commit with the right Conventional Commit type (the type is load-bearing — it decides the next version).
-2. PR → `dev`. CI runs lint / typecheck / build / commitlint, plus publint + attw if `packages/graph/**` changed.
-3. When ready to ship, PR `dev → main` and merge as a **merge commit**.
-4. `release-please` opens a "chore: release graph X.Y.Z" PR on `main`. Review the bump. Merge as a **merge commit** (never squash or rebase the release PR).
-5. The workflow creates the tag `@crosmos/graph@X.Y.Z` + GitHub Release (auto-generated notes), then **pauses** on the `production-npm` environment.
-6. Preview the GH Release. If happy → Actions → **Approve and deploy** → `npm publish` runs. If not → reject the deployment and `gh release delete '@crosmos/graph@X.Y.Z' --cleanup-tag`; npm was never touched.
-7. A `chore/sync-release-to-dev` PR opens automatically — merge it to bring the version bump back to `dev`.
+Because the version bump originates on `dev`, no back-merge is needed — `dev` and `main` stay aligned after merging.
 
 ### Don't
 
-- Hand-edit `packages/graph/package.json` version, tags, or GitHub Releases — release-please owns them.
-- Squash/rebase the release PR.
-- Edit `.release-please-manifest.json` manually after initial setup.
+- Bump the version directly on `main`. Always do it on `dev` and PR.
+- Hand-create tags or GitHub Releases — the workflow owns them.
+- Squash or rebase the release PR (use merge commit so the bump commit stays an anchor in history).
 
 ## Docs (`apps/docs`)
 
