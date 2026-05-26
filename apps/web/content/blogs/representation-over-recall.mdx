@@ -14,7 +14,7 @@ Often the pattern in the current memory systems is that, people focus more on th
 
 That goal itself is correct, memory is both a recall and a reasoning problem.
 
-But more than a recall problem, it is also a representation problem.
+But more than a recall problem, It is also a representation problem.
 
 The representation can be of any type. Files, raw chunks, episodes, conversation turns.
 
@@ -26,33 +26,33 @@ That's the reason why **representation > recall**.
 
 Clean representation, provenance, signal, summary of the memory is more important than the actual recall, because no matter how accurate your retrieval is.
 
-**Real-world data is messy and no one is optimizing for it.**
+**Real-World data is messy and no one is optimizing for it.**
 
-It can be transcripts, PDFs, videos, texts, conversations, etc. And many memory systems often don't scale more than toy-projects or paper implementations.
+It can be transcripts, pdfs, videos, texts, conversations etc. And many memory systems often don't scale more than toy-projects or paper implementations.
 
-You need to have a proper view of how to preserve provenance across changes in real-world, how state-changes are stored to reason over, and how you actually convert it into meaningful recall.
+You need to have a proper view of how to preserve provenance across changes in real-world, how state-changes are stored to reason over and how you actually convert it into meaningful recall.
 
 That's probably the reason why you **shouldn't let the LLM reason about contradictions at the ingestion layer**.
 
-Why? Because understanding contradictions between memories and states at ingestion layer means you're basically trusting the LLM to be correct about it all the time.
+Why? Because understanding contradictions between memories and states at ingestion layer means you're basically trusting the LLM to be correct about all the time.
 
-Ingestion itself is done by an LLM or a domain-specific model.
+Ingestion itself is done by an LLM or a domain specific model.
 
 But why is that fine?
 
 Because the evidence of the extraction is there in the source itself. So there is no explicit reasoning needed except deciding what **not to ingest**.
 
-But reasoning about contradictions at the ingestion layer can cause **destructive updates**, **contamination of the knowledge graph**, or **wrong assumptions**.
+But reasoning about contradictions at ingestion layer can cause, **destructive updates**, **contamination of the knowledge graph or wrong assumptions**.
 
-The optimal approach is: reasoning and making decisions/conclusions based on the ingested memories and their states. This even in the worst case, if the model hallucinates, won't contaminate the ingested layer as that is the main evidence.
+The optimal approach is, reasoning and making decisions / conclusions based on the ingested memories and their states. This even in the worst case if the model hallucinates. Won't contaminate the ingested layer as that is the main evidence.
 
-At [Crosmos](https://x.com/crosmoslabs) we decided to have a similar approach. You can check out our [docs](https://docs.crosmos.dev/) to understand the approach we took after iterating over multiple architectures.
+At [@crosmoslabs](https://x.com/crosmoslabs) we decided to have a similar approach. you can checkout our docs [https://docs.crosmos.dev/](https://docs.crosmos.dev/) to understand the approach we took after iterating over multiple architectures.
 
-What we learned is, memory should be auditable, state-aware, and shouldn't lose its provenance.
+What we learned is, memory should be auditable, state-aware and shouldn't lose it's provenance.
 
 The bottom line is, at scale, and when it comes to making persistent, context-aware agents and handling the context of a company at scale.
 
-It's all about **tradeoffs**. But the tradeoffs you make decide if your architecture will scale or not.
+It's all about **tradeoffs** . But the tradeoffs you make decides if your architecture will scale or not.
 
 We benchmarked Crosmos, and we recorded a **Recall@5 of 0.98-1** almost always for the whole of Longmemeval-S dataset.
 

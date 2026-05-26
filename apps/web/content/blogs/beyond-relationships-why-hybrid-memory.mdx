@@ -22,25 +22,29 @@ Two nodes can be connected and still miss the bigger picture. The same fact can 
 
 Graphs are useful for representing structure. They are less complete at representing significance.
 
-Essentially, triplets aren't enough to understand the nuance of what the actual source meant:
+Essentially, (triplets) aren't enough to understand the nuance of what the actual source meant
 
-```
-(User) → likes → (Python)
-(User) → lives_in → (Bangalore)
-(User) → works_on → (Editor Project)
+```markdown
+**(User) → likes → (Python)**  
+**(User) → lives_in → (Bangalore)**  
+**(User) → works_on → (Editor Project)**
 ```
 
 This structure is useful. It makes memory searchable, composable, and easier to retrieve than raw conversation logs.
 
 But triplets alone do not capture nuance.
 
-`(User) → likes → (Python)` does not tell you:
+**(User) → likes → (Python)** does not tell you:
 
-- Do they use it daily or just admire it casually?
-- Do they still like it, or was that true a year ago?
-- Do they like Python for scripting, AI, or backend work?
-- Do they prefer it over Rust, or alongside it?
-- Was it a passing comment or a repeated pattern?
+Do they use it daily or just admire it casually?
+
+Do they still like it, or was that true a year ago?
+
+Do they like Python for scripting, AI, or backend work?
+
+Do they prefer it over Rust, or alongside it?
+
+Was it a passing comment or a repeated pattern?
 
 The edge exists, but the meaning around the edge is missing.
 
@@ -50,9 +54,11 @@ The same problem appears everywhere. A relationship can be factually correct whi
 
 Even when a memory system stores the right information, it can still fail because of how that information is represented.
 
+Triplets themselves aren't enough and force the **rich context** that the actual information has to be clamped into a triplet or restructured entirely.
+
 Triplets themselves are often not enough. They force rich, contextual information into a rigid subject-relation-object format, compressing nuance into a shape that may be easy to store but incomplete to understand.
 
-```
+```markdown
 Stored triplet:
 (User) → likes → (Rust)
 
@@ -80,7 +86,7 @@ Each format solves a different part of the memory problem. None solves all of it
 
 What is needed is a **hybrid memory architecture**, a system where multiple representations coexist and complement each other.
 
-**Latency bottleneck**: As memory grows, forcing everything into the same structure can increase traversal cost, retrieval complexity, and update overhead. That overhead matters. In interactive systems, even an extra **50-150 ms** per memory lookup compounds quickly across multi-step reasoning pipelines. A representation that is too rigid may not only lose nuance, it can also introduce avoidable latency at scale.
+**Latency bottleneck** - As memory grows, forcing everything into the same structure can increase traversal cost, retrieval complexity, and update overhead. That overhead matters. In interactive systems, even an extra **50-150 ms** per memory lookup compounds quickly across multi-step reasoning pipelines. A representation that is too rigid may not only lose nuance, it can also introduce avoidable latency at scale.
 
 ## The Source of Truth
 
@@ -88,7 +94,7 @@ The most reliable source of truth is usually the **episodic layer**: raw events,
 
 Why? Because episodes are closest to what actually happened.
 
-```
+```markdown
 2026-04-22 10:31
 User: I'm switching from Go to Rust for my next project.
 
@@ -103,7 +109,7 @@ These events are concrete. They preserve chronology, wording, and evidence.
 
 Everything else can be derived from them:
 
-```
+```markdown
 Derived beliefs:
 (User) → prefers → (Rust)
 (User) → switched_from → (Go)
@@ -121,7 +127,7 @@ Facts are compressed summaries. Episodes contain the evidence behind the summary
 
 A fact might say:
 
-```
+```markdown
 (User) → likes → (Rust)
 ```
 
@@ -141,18 +147,20 @@ Graphs are powerful because they enable associative retrieval.
 
 Humans rarely recall by exact keyword match. One thought triggers another:
 
+```markdown
 - Rust → systems programming
 - systems programming → performance
 - performance → past CLI project
 - CLI project → user's tooling preferences
+```
 
 A graph supports similar expansion:
 
-```
-Vacation
-├── destination → Beach
-├── requires → Sunscreen
-├── linked_to → Weekend Plans
+```markdown
+Vacation  
+├── destination → Beach  
+├── requires → Sunscreen  
+├── linked_to → Weekend Plans  
 └── related_to → Travel Budget
 ```
 
@@ -168,15 +176,15 @@ People describe the same thing in different ways.
 
 Different wording, same underlying task.
 
-**Full-text search** is strong when exact terms appear (flight, Delhi, tickets).
+**Full-text search** is strong when exact terms appear (flight, Delhi, tickets)
 
 **Vectors / Embeddings** are strong when wording differs but meaning is similar.
 
-**Structured graphs** are strong when explicit entities, intents, and relationships matter.
+**Structured graphs** are strong when explicit entities, intents, and relationships matter
 
 Structured memory helps by mapping these surface forms to shared concepts and intents:
 
-```
+```markdown
 Flight Booking   ← intent_of ← Book me a flight
 Flight Booking   ← intent_of ← Find tickets
 Travel to Delhi  ← destination → Delhi
@@ -185,7 +193,7 @@ Flight Booking   ← related_to ← Travel to Delhi
 
 Now retrieval does not depend only on exact phrasing.
 
-## What Memory Should Become
+## What Memory Should Become and Current State
 
 **Memory should be more than storage.**
 
@@ -199,3 +207,23 @@ It knows that some information should strengthen with repetition.
 - Some should be **forgotten entirely**.
 
 Many memory systems focus on retention, but forgetting is just as important as remembering. Old, low-signal, or irrelevant memories create noise, increase retrieval cost, and compete with what matters now.
+
+A strong memory system does not store everything forever. It learns what to let go.
+
+Good memory is not measured by how much it stores.
+
+It is measured by how well it understands what matters. Memory should not only know what is true. It should know what is changing.
+
+Not static memory. Living memory.
+
+Because the future of AI memory is not remembering everything.
+
+It is remembering intelligently.
+
+That is what we are trying to solve and building [@crosmoslabs](https://x.com/crosmoslabs) for it.
+
+References:
+
+[GraphRAG (Microsoft Research, 2024).](https://arxiv.org/abs/2404.16130)
+
+[Contextual Retrieval (Anthropic 2024)](https://www.anthropic.com/engineering/contextual-retrieval)
