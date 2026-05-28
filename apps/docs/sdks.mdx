@@ -1,0 +1,172 @@
+---
+title: "SDKs"
+sidebarTitle: "Overview"
+description: "Build Crosmos memory into your application with official SDKs."
+icon: "code"
+---
+
+Use the official SDKs when you want Crosmos memory inside an application, service, worker, or custom agent runtime. The SDKs are generated from the Crosmos OpenAPI specification and expose typed access to the Memory API.
+
+<Note>
+The TypeScript SDK is available today. Python examples will be added here when the Python SDK ships.
+</Note>
+
+Crosmos also maintains [Ironic](https://github.com/crosmos-labs/ironic), the toolkit we use for typed SDK generation.
+
+## Install
+
+<CodeGroup>
+```bash TypeScript
+npm install crosmos
+```
+</CodeGroup>
+
+## Authenticate
+
+Create an API key from **Settings -> API Keys** in the [Crosmos Console](https://console.crosmos.dev). Keys use the `csk_` prefix.
+
+<CodeGroup>
+```bash TypeScript
+export CROSMOS_API_KEY="csk_..."
+```
+</CodeGroup>
+
+## Create a client
+
+<CodeGroup>
+```ts TypeScript
+import Crosmos from "crosmos";
+
+const client = new Crosmos();
+```
+</CodeGroup>
+
+## Create a memory space
+
+Spaces isolate memories for a user, tenant, project, or agent.
+
+<CodeGroup>
+```ts TypeScript
+const space = await client.spaces.create({
+	name: "personal-agent",
+	description: "Memory for the user's personal agent",
+});
+
+console.log(space.id);
+```
+</CodeGroup>
+
+If you already know the space name, resolve it before making calls:
+
+<CodeGroup>
+```ts TypeScript
+const spaces = await client.spaces.list({ name: "personal-agent" });
+const space = spaces.spaces[0];
+```
+</CodeGroup>
+
+## Ingest content
+
+Use source ingestion for raw text, markdown, or other source payloads.
+
+<CodeGroup>
+```ts TypeScript
+const ingest = await client.sources.ingest({
+	space_id: space.id,
+	sources: [
+		{
+			content: "User prefers detailed technical explanations and uses Neovim.",
+			content_type: "text",
+			meta: {
+				source: "profile-import",
+			},
+		},
+	],
+});
+
+console.log(ingest.job_id);
+```
+</CodeGroup>
+
+Crosmos processes ingestion asynchronously. Poll the job when your app needs to wait for extraction to finish:
+
+<CodeGroup>
+```ts TypeScript
+const job = await client.jobs.getStatus(ingest.job_id);
+
+console.log(job.status);
+```
+</CodeGroup>
+
+## Ingest a conversation
+
+Use conversation ingestion for ordered chat history. Each message becomes a source with conversation provenance.
+
+<CodeGroup>
+```ts TypeScript
+const conversation = await client.conversations.ingest({
+	space_id: space.id,
+	session_id: "chat-001",
+	session_date: "2026-05-28T10:00:00Z",
+	messages: [
+		{
+			role: "user",
+			content: "I want my agent to remember that I prefer Bun for TypeScript projects.",
+		},
+		{
+			role: "assistant",
+			content: "Got it. I will keep that in mind for future setup.",
+		},
+	],
+	meta: {
+		app: "example-agent",
+	},
+});
+
+console.log(conversation.source_ids);
+```
+</CodeGroup>
+
+## Search memories
+
+Use hybrid search to retrieve relevant memories from a space.
+
+<CodeGroup>
+```ts TypeScript
+const search = await client.search.hybrid({
+	space_id: space.id,
+	query: "What does the user prefer for TypeScript projects?",
+	limit: 5,
+	include_source: true,
+});
+
+for (const candidate of search.candidates) {
+	console.log(candidate.content, candidate.score);
+}
+```
+</CodeGroup>
+
+## Resources
+
+| Resource | Use it for |
+|----------|------------|
+| `spaces` | Create, list, get, and delete spaces. |
+| `sources` | Ingest, list, get, and delete source documents. |
+| `conversations` | Ingest ordered message history. |
+| `jobs` | Poll ingestion jobs. |
+| `search` | Retrieve relevant memories. |
+| `memories` | List, get, or soft-delete memories. |
+| `entities` | List entities and inspect recent memories for an entity. |
+| `usage` | Read usage and plan limits. |
+| `health` | Check API connectivity. |
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Advanced SDK usage" icon="gear" href="/sdks/advanced">
+  Configure retries, timeouts, errors, logging, raw responses, and runtime options.
+</Card>
+<Card title="MCP" icon="puzzle-piece" href="/mcp">
+  Connect Crosmos to an AI client without writing application code.
+</Card>
+</CardGroup>

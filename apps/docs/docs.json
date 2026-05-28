@@ -30,8 +30,17 @@
 						]
 					},
 					{
-						"group": "Plugins",
-						"pages": ["plugins/mcp"]
+						"group": "MCP",
+						"pages": [
+							"mcp",
+							"mcp/tools",
+							"mcp/configuration",
+							"mcp/skills"
+						]
+					},
+					{
+						"group": "SDKs",
+						"pages": ["sdks", "sdks/advanced"]
 					}
 				]
 			},
@@ -141,5 +150,27 @@
 	},
 	"api": {
 		"openapi": "https://api.crosmos.dev/openapi.json"
-	}
+	},
+	"redirects": [
+		{
+			"source": "/plugins/mcp",
+			"destination": "/mcp"
+		},
+		{
+			"source": "/mcp/setup",
+			"destination": "/mcp"
+		},
+		{
+			"source": "/integrations/mcp",
+			"destination": "/mcp"
+		},
+		{
+			"source": "/integrations/typescript-sdk",
+			"destination": "/sdks"
+		},
+		{
+			"source": "/integrations/typescript-sdk/advanced",
+			"destination": "/sdks/advanced"
+		}
+	]
 }

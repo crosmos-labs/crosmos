@@ -4,14 +4,26 @@ description: "Get started with Crosmos"
 icon: "rocket"
 ---
 
-Get Crosmos into your AI agent in under a minute with the MCP server.
+Get Crosmos into an AI agent with MCP, or call the Memory API directly from your application. MCP is the fastest path for AI clients today; SDKs are the path for product integrations and backend services.
 
-### Prerequisites
+## Prerequisites
 
 - An API key from the [Crosmos Console](https://console.crosmos.dev) (starts with `csk_...`)
-- Node.js 18 or later
+- Node.js 18 or later for MCP
+- A JavaScript or TypeScript runtime if you use the SDK
 
-## Quick setup
+## Choose a path
+
+<CardGroup cols={2}>
+<Card title="Connect an AI client" icon="puzzle-piece" href="#mcp">
+  Use the MCP server with Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, opencode, Cline, Roo-Cline, or Zed.
+</Card>
+<Card title="Build with the API" icon="braces" href="#sdk">
+  Use the SDK when you want Crosmos memory inside an app, backend service, worker, or agent runtime.
+</Card>
+</CardGroup>
+
+## MCP
 
 Run the interactive setup to authenticate and install to your MCP clients in one command:
 
@@ -25,213 +37,65 @@ The setup walks you through:
 2. **Install to clients** — Detects installed MCP clients and writes the server config automatically
 3. **Install skill** — Installs the Crosmos skill into your AI editor for enhanced memory behavior
 
-That's it — your agent now has memory tools. Skip to [client configuration](#configure-your-client) if you need to customize, or see the [MCP reference](/plugins/mcp) for tool details.
+Your client now has memory tools. See [MCP](/mcp) for manual client configuration, or [MCP tools](/mcp/tools) for tool schemas and examples.
 
-## Install
+## SDK
 
-If you prefer not to use the interactive setup, install manually:
+Install the SDK and set your API key:
 
-<Tabs>
-<Tab title="npx (recommended)">
-
-```bash
-npx -y @crosmos/crosmos-mcp
+<CodeGroup>
+```bash npm
+npm install crosmos
+export CROSMOS_API_KEY="csk_..."
 ```
 
-No install step required. `npx` downloads and runs the server on demand.
+```bash bun
+bun add crosmos
+export CROSMOS_API_KEY="csk_..."
+```
+</CodeGroup>
 
-</Tab>
-<Tab title="Global install">
+Then create a space, ingest content, and search it:
 
-```bash
-npm install -g @crosmos/crosmos-mcp
+```ts
+import Crosmos from "crosmos";
+
+const client = new Crosmos();
+
+const space = await client.spaces.create({
+	name: "personal-agent",
+});
+
+const ingest = await client.sources.ingest({
+	space_id: space.id,
+	sources: [
+		{
+			content: "User prefers Bun for TypeScript projects.",
+			content_type: "text",
+		},
+	],
+});
+
+await client.jobs.getStatus(ingest.job_id);
+
+const search = await client.search.hybrid({
+	space_id: space.id,
+	query: "What does the user prefer for TypeScript projects?",
+});
+
+console.log(search.candidates);
 ```
 
-After global install, the `crosmos-mcp` binary is available directly.
-
-</Tab>
-<Tab title="From source">
-
-```bash
-git clone https://github.com/crosmos-labs/crosmos-mcp
-cd crosmos-mcp
-bun install
-bun run build
-```
-
-</Tab>
-</Tabs>
-
-## Authenticate
-
-The server resolves credentials in this order:
-
-1. `CROSMOS_API_KEY` environment variable
-2. `~/.crosmos/credentials.json` (created by `auth login`)
-3. Error — no key found
-
-### Login
-
-```bash
-npx @crosmos/crosmos-mcp auth login
-```
-
-Prompts for your API key, validates it, and saves it to `~/.crosmos/credentials.json` with restricted file permissions.
-
-To use a custom API base URL:
-
-```bash
-npx @crosmos/crosmos/crosmos-mcp auth login --base-url https://api.crosmos.dev
-```
-
-### Check status
-
-```bash
-npx @crosmos/crosmos-mcp auth status
-```
-
-### Logout
-
-```bash
-npx @crosmos/crosmos-mcp auth logout
-```
-
-<Note>
-If you used `setup`, authentication is already configured. You can also set `CROSMOS_API_KEY` as an environment variable in your client config instead.
-</Note>
-
-## Configure your client
-
-If you ran `setup`, your MCP clients are already configured. To add Crosmos manually, find your client below.
-
-### Claude Code
-
-```bash
-claude mcp add crosmos-memory -- npx -y @crosmos/crosmos-mcp
-```
-
-### Claude Desktop
-
-Add to your config file:
-
-<Tabs>
-<Tab title="macOS">
-
-`~/Library/Application Support/Claude/claude_desktop_config.json`
-
-</Tab>
-<Tab title="Linux">
-
-`~/.config/Claude/claude_desktop_config.json`
-
-</Tab>
-<Tab title="Windows">
-
-`%APPDATA%/Claude/claude_desktop_config.json`
-
-</Tab>
-</Tabs>
-
-```json
-{
-  "mcpServers": {
-    "crosmos-memory": {
-      "command": "npx",
-      "args": ["-y", "@crosmos/crosmos-mcp"]
-    }
-  }
-}
-```
-
-Restart Claude Desktop after saving.
-
-### Opencode
-
-Add to `~/.config/opencode/opencode.json`:
-
-```json
-{
-  "mcp": {
-    "crosmos-memory": {
-      "type": "local",
-      "command": ["npx", "-y", "@crosmos/crosmos-mcp"]
-    }
-  }
-}
-```
-
-### Cursor
-
-Add to `~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "crosmos-memory": {
-      "command": "npx",
-      "args": ["-y", "@crosmos/crosmos-mcp"]
-    }
-  }
-}
-```
-
-### VS Code
-
-Add to your MCP config:
-
-<Tabs>
-<Tab title="macOS">
-
-`~/Library/Application Support/Code/User/mcp.json`
-
-</Tab>
-<Tab title="Linux">
-
-`~/.config/Code/User/mcp.json`
-
-</Tab>
-<Tab title="Windows">
-
-`%APPDATA%/Code/User/mcp.json`
-
-</Tab>
-</Tabs>
-
-```json
-{
-  "servers": {
-    "crosmos-memory": {
-      "command": "npx",
-      "args": ["-y", "@crosmos/crosmos-mcp"]
-    }
-  }
-}
-```
-
-### Windsurf
-
-Add to `~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "crosmos-memory": {
-      "command": "npx",
-      "args": ["-y", "@crosmos/crosmos-mcp"]
-    }
-  }
-}
-```
-
-### Other MCP clients
-
-The server uses stdio transport and works with any MCP-compatible client. Point your client to `npx -y @crosmos/crosmos-mcp`. If you used `auth login`, no environment variables are needed — credentials are read from `~/.crosmos/credentials.json` automatically.
+See [SDKs](/sdks) for the full SDK loop and [advanced SDK usage](/sdks/advanced) for retries, timeouts, and errors.
 
 ## Next steps
 
 <CardGroup cols={2}>
-<Card title="MCP reference" icon="puzzle-piece" href="/plugins/mcp">
-  See all available tools, CLI commands, and configuration.
+<Card title="MCP" icon="puzzle-piece" href="/mcp">
+  Connect Crosmos to MCP-compatible clients.
+</Card>
+<Card title="SDKs" icon="braces" href="/sdks">
+  Build Crosmos memory into your application.
 </Card>
 <Card title="Memories" icon="brain" href="/memories">
   Learn how Crosmos structures and retrieves context.

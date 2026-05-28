@@ -1,0 +1,213 @@
+---
+title: "Advanced"
+description: "Configure SDK clients, retries, errors, logging, and raw responses."
+icon: "gear"
+---
+
+Use this page when you need to tune SDK behavior beyond the default authenticated setup.
+
+<Note>
+The options below describe the TypeScript SDK. Python-specific advanced options will be added when the Python SDK ships.
+</Note>
+
+## Client options
+
+```ts
+import Crosmos from "crosmos";
+
+const client = new Crosmos({
+	apiKey: process.env.CROSMOS_API_KEY,
+	baseURL: "https://api.crosmos.dev",
+	timeout: 60_000,
+	maxRetries: 2,
+});
+```
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `apiKey` | JWT access token or Crosmos API key. | `CROSMOS_API_KEY` |
+| `baseURL` | API base URL. | `CROSMOS_BASE_URL` or `https://api.crosmos.dev` |
+| `timeout` | Request timeout in milliseconds. | `60000` |
+| `maxRetries` | Retry attempts for transient failures. | `2` |
+| `fetch` | Custom `fetch` implementation. | global `fetch` |
+| `fetchOptions` | Runtime-specific `RequestInit` options passed to `fetch`. | none |
+| `defaultHeaders` | Headers sent with every request. | none |
+| `defaultQuery` | Query parameters sent with every request. | none |
+| `logLevel` | SDK log level. | `CROSMOS_LOG` or `warn` |
+| `logger` | Logger with `debug`, `info`, `warn`, and `error` methods. | `console` |
+
+## Environment variables
+
+| Variable | Description |
+|----------|-------------|
+| `CROSMOS_API_KEY` | API key used when `apiKey` is not passed directly. |
+| `CROSMOS_BASE_URL` | API base URL used when `baseURL` is not passed directly. |
+| `CROSMOS_LOG` | Log level: `debug`, `info`, `warn`, `error`, or `off`. |
+| `CROSMOS_CUSTOM_HEADERS` | Newline-separated custom headers in `Name: value` format. |
+
+<Note>
+The SDK uses `CROSMOS_BASE_URL`. The MCP server uses `CROSMOS_API_BASE_URL`.
+</Note>
+
+## Per-request options
+
+Most SDK methods accept request options as the final argument.
+
+```ts
+const search = await client.search.hybrid(
+	{
+		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		query: "What does the user prefer for TypeScript projects?",
+	},
+	{
+		timeout: 10_000,
+		maxRetries: 5,
+		headers: {
+			"X-Request-Source": "agent-worker",
+		},
+	},
+);
+```
+
+Use `AbortController` when you need to cancel a request:
+
+```ts
+const controller = new AbortController();
+
+const request = client.search.hybrid(
+	{
+		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		query: "What changed since yesterday?",
+	},
+	{
+		signal: controller.signal,
+	},
+);
+
+controller.abort();
+
+await request;
+```
+
+## Retries and timeouts
+
+The SDK retries transient failures twice by default with exponential backoff and jitter.
+
+Retries apply to connection errors, request timeouts, `408`, `409`, `429`, and `5xx` responses.
+
+Disable retries globally:
+
+```ts
+const client = new Crosmos({
+	maxRetries: 0,
+});
+```
+
+Tune retries for one request:
+
+```ts
+await client.search.hybrid(
+	{
+		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		query: "What does the user remember about Austin?",
+	},
+	{
+		maxRetries: 4,
+	},
+);
+```
+
+## Handling errors
+
+The SDK throws subclasses of `Crosmos.APIError` for API and connection failures.
+
+```ts
+try {
+	const search = await client.search.hybrid({
+		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		query: "What is the user's preferred editor?",
+	});
+
+	console.log(search.candidates);
+} catch (error) {
+	if (error instanceof Crosmos.APIError) {
+		console.log(error.status);
+		console.log(error.name);
+		console.log(error.headers);
+		console.log(error.error);
+		throw error;
+	}
+
+	throw error;
+}
+```
+
+| Status | Error class |
+|--------|-------------|
+| `400` | `BadRequestError` |
+| `401` | `AuthenticationError` |
+| `403` | `PermissionDeniedError` |
+| `404` | `NotFoundError` |
+| `409` | `ConflictError` |
+| `422` | `UnprocessableEntityError` |
+| `429` | `RateLimitError` |
+| `>=500` | `InternalServerError` |
+| no response | `APIConnectionError` or `APIConnectionTimeoutError` |
+
+## Raw responses
+
+Every resource method returns an `APIPromise`. Await it normally for parsed data, or use helper methods when you need the underlying `Response`.
+
+```ts
+const { data, response } = await client.search
+	.hybrid({
+		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		query: "What does the user prefer?",
+	})
+	.withResponse();
+
+console.log(data.candidates);
+console.log(response.headers);
+```
+
+Use `.asResponse()` when you only need the raw response:
+
+```ts
+const response = await client.search
+	.hybrid({
+		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		query: "What does the user prefer?",
+	})
+	.asResponse();
+
+console.log(response.status);
+```
+
+## Custom fetch
+
+Pass `fetch` when your runtime needs a custom implementation.
+
+```ts
+import Crosmos from "crosmos";
+import fetch from "my-fetch";
+
+const client = new Crosmos({
+	fetch,
+});
+```
+
+Use `fetchOptions` for runtime-specific transport settings:
+
+```ts
+const client = new Crosmos({
+	fetchOptions: {
+		// Runtime-specific RequestInit options go here.
+	},
+});
+```
+
+## Runtime support
+
+The TypeScript SDK uses the runtime's global `fetch` implementation by default. It supports modern browsers, Node.js 20 LTS or later, Bun 1.0 or later, Deno 1.28 or later, Cloudflare Workers, Vercel Edge Runtime, Jest with the `node` environment, and Nitro 2.6 or later.
+
+React Native is not supported.
