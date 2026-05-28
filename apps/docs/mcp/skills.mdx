@@ -1,0 +1,46 @@
+---
+title: "Skills"
+description: "Install the Crosmos skill so AI editors use memory tools automatically."
+icon: "sparkles"
+---
+
+The Crosmos skill teaches AI editors when to search memories and when to store new context. It is installed automatically during `setup` when you select a supported editor.
+
+## Install manually
+
+```bash
+npx @crosmos/crosmos-mcp skill install opencode
+```
+
+Supported skill targets:
+
+| Client | Skill location |
+|--------|---------------|
+| opencode | `~/.opencode/skills/crosmos/SKILL.md` |
+| Claude Code | `~/.claude/skills/crosmos/SKILL.md` |
+| Cursor | `~/.cursor/skills/crosmos/SKILL.md` |
+| Windsurf | `~/.windsurf/rules/SKILL.md` |
+| VS Code | `~/.vscode/skills/crosmos/SKILL.md` |
+
+## What the skill does
+
+The skill gives the agent a memory policy:
+
+| Intent | Tool |
+|--------|------|
+| User asks about past interactions, preferences, or personal context | `search_memories` |
+| User shares a fact, preference, correction, instruction, or experience | `add_memory` |
+| The agent needs a space ID | `list_spaces` |
+| The agent needs to verify connectivity | `health_check` |
+
+## Agent loop
+
+```txt
+1. Search memories when the user asks something that depends on past context.
+2. Answer using the returned memories as context.
+3. Store new facts or conversation context after the response when useful.
+```
+
+<Note>
+The skill is guidance for AI editors. It does not change API behavior or grant access by itself. Authentication still comes from `CROSMOS_API_KEY` or saved MCP credentials.
+</Note>

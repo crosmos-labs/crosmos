@@ -1,0 +1,133 @@
+---
+title: "Tools"
+description: "MCP tool schemas and examples for Crosmos memory."
+icon: "list-check"
+---
+
+The Crosmos MCP server exposes four tools. Memory tools accept an optional `space_id`; when omitted, the server resolves a default space from configuration or the authenticated account.
+
+## `search_memories`
+
+Search memories with hybrid retrieval.
+
+<ParamField query="string" required>
+The search query.
+</ParamField>
+
+<ParamField space_id="string">
+Memory space UUID. If omitted, the server resolves a default space.
+</ParamField>
+
+```json
+{
+  "query": "What editor does the user prefer?",
+  "space_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+The tool returns a ranked text response with score, memory type, optional event time, and memory content.
+
+## `add_memory`
+
+Store raw sources or a conversation. Provide exactly one of `sources` or `messages`.
+
+<ParamField space_id="string">
+Memory space UUID. If omitted, the server resolves a default space.
+</ParamField>
+
+<ParamField sources="array">
+Raw content sources to ingest.
+</ParamField>
+
+<ParamField messages="object">
+Conversation messages to ingest through the conversations endpoint.
+</ParamField>
+
+### Raw source
+
+```json
+{
+  "space_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "sources": [
+    {
+      "content": "User prefers detailed technical explanations and uses Neovim.",
+      "content_type": "text",
+      "meta": {
+        "source": "agent-session"
+      }
+    }
+  ]
+}
+```
+
+Source fields:
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `content` | string | required | Raw content text. |
+| `content_type` | string | `text` | Content type such as `text` or `markdown`. |
+| `role` | string | `null` | Speaker role for conversation-like content. |
+| `sequence` | number | `0` | Order within a batch. |
+| `meta` | object | `null` | Arbitrary metadata. |
+
+### Conversation
+
+```json
+{
+  "space_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "messages": {
+    "messages": [
+      { "role": "user", "content": "I moved my backend to Bun." },
+      { "role": "assistant", "content": "I'll remember that for future setup." }
+    ],
+    "session_id": "setup-chat-001",
+    "session_date": "2026-05-28T10:00:00Z",
+    "meta": {
+      "app": "agent"
+    }
+  }
+}
+```
+
+Conversation fields:
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `messages` | array | required | Ordered `{ role, content }` messages. |
+| `session_id` | string | `null` | Conversation identifier. |
+| `session_date` | string | `null` | ISO datetime for the session. |
+| `meta` | object | `null` | Metadata attached to created sources. |
+
+## `list_spaces`
+
+List spaces available to the authenticated user.
+
+```json
+{}
+```
+
+Agents should call this when they need to discover a space ID or when default space resolution fails.
+
+## `health_check`
+
+Check connectivity to the Crosmos Memory API.
+
+```json
+{}
+```
+
+The tool returns the API health status.
+
+## Agent usage pattern
+
+<Steps>
+<Step title="Search before answering">
+Use `search_memories` when the user asks about prior context, preferences, or history.
+</Step>
+<Step title="Answer with context">
+Use returned memories as grounded context, not as the final answer by themselves.
+</Step>
+<Step title="Store new context">
+Use `add_memory` when the user shares facts, preferences, corrections, or conversation context worth remembering.
+</Step>
+</Steps>

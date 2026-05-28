@@ -1,0 +1,89 @@
+---
+title: "Configuration"
+description: "Configure authentication, spaces, timeouts, and deployment for the Crosmos MCP server."
+icon: "sliders"
+---
+
+The MCP server reads credentials from environment variables first, then from the saved credentials file.
+
+## Environment variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CROSMOS_API_KEY` | API key for API requests. Overrides saved credentials. | — |
+| `CROSMOS_API_BASE_URL` | Crosmos API base URL. | `https://api.crosmos.dev` |
+| `CROSMOS_API_TIMEOUT` | API request timeout in milliseconds. | `30000` |
+| `DEFAULT_SPACE_ID` | Default space UUID for memory tools. | — |
+| `DEFAULT_SPACE_NAME` | Default space name to resolve through `/api/v1/spaces?name=`. Ignored when `DEFAULT_SPACE_ID` is set. | — |
+| `CROSMOS_CREDENTIALS_DIR` | Directory for `credentials.json`. | `~/.crosmos` |
+
+## Credential resolution
+
+The server resolves authentication in this order:
+
+1. `CROSMOS_API_KEY`
+2. `credentials.json` created by `auth login`
+3. Error if no key is available
+
+Saved credentials live at `~/.crosmos/credentials.json` unless `CROSMOS_CREDENTIALS_DIR` is set.
+
+## Space resolution
+
+`search_memories` and `add_memory` need a target memory space. The MCP server resolves it in this order:
+
+1. Explicit `space_id` passed to the tool
+2. `DEFAULT_SPACE_ID`
+3. `DEFAULT_SPACE_NAME`, resolved by exact name lookup
+4. First space returned by `list_spaces`
+5. Error if no spaces exist
+
+<Tip>
+Use `DEFAULT_SPACE_ID` for predictable agent behavior in production. Use explicit `space_id` when the agent should switch between spaces.
+</Tip>
+
+## Client config with environment variables
+
+```json
+{
+  "mcpServers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"],
+      "env": {
+        "CROSMOS_API_KEY": "csk_...",
+        "DEFAULT_SPACE_ID": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      }
+    }
+  }
+}
+```
+
+## Custom API URL
+
+Use `CROSMOS_API_BASE_URL` when targeting a non-default API environment:
+
+```json
+{
+  "mcpServers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"],
+      "env": {
+        "CROSMOS_API_KEY": "csk_...",
+        "CROSMOS_API_BASE_URL": "https://api.crosmos.dev"
+      }
+    }
+  }
+}
+```
+
+## HTTP server settings
+
+`crosmos-mcp-http` reads these server variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HOST` | Host for the HTTP server. | `0.0.0.0` |
+| `PORT` | Port for the HTTP server. | `3000` |
+
+The HTTP server supports CORS for `GET`, `POST`, and `OPTIONS`, and exposes `/sse`, `/message`, and `/health`.

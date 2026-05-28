@@ -10,74 +10,278 @@ imageWidth: 1319
 imageHeight: 528
 ---
 
-Most memory stacks behave like mutable caches: new facts overwrite old ones and the system keeps only a single view of reality. That design is convenient, but it destroys history - exactly the thing long-running agents need to answer questions like *"When did this change?"* or *"Why was this decision made?"*
+Most memory systems maintain a single mutable view of the world. When new information arrives, old facts are updated, merged, or overwritten to reflect the latest state.
 
-At Crosmos we treat memory as an audit log. Current state is *derived* from history, never written over it. That's the foundation of our **Monotonic Temporal Knowledge Graph (MTKG)**.
+That approach is convenient, but it discards one of the most important properties of memory: **history**
+
+In real systems, state evolves over time. People change jobs. Projects migrate technologies. Decisions are reversed. Tasks are completed. Preferences shift.
+
+A memory system that only stores the latest version of reality cannot answer fundamental questions.
+
+The agent now knows where the user works today, but it has lost the timeline of how that state evolved.
+
+What changed? When did it change? What was true before? Why was the decision made?
+
+For long-running agents, the historical context is essential.
+
+At Crosmos, we believe memory should preserve history. Current state should be derived from an append-only record of how knowledge evolves over time.
+
+This is the idea behind our Monotonic Temporal Knowledge Graph (MTKG).
+
+## MTKG (Monotonic Temporal Knowledge Graph)
 
 ![Diagram showing Crosmos MTKG layers](/blogs/memory-auditable-mtkg.jpg)
 
-## We never rewrite history
+At the core of Crosmos is something we call **MTKG. (get your own in our console)**
 
-Every interaction is converted into structured entities and relationships, then appended to the graph with timestamps and provenance. If a user switches jobs, the previous role remains. If a team reverts an architecture decision, both decisions coexist with their temporal context.
+The name sounds academic, but the idea is simple.
 
-Because the records are append-only, we always know:
+We never rewrite history.
 
-- *what* changed
-- *when* it changed
-- *why* it changed (the evidence sits in the originating memory)
+Every conversation, decision and state transition is transformed into structured entities and relationships and appended to a continuously evolving graph.
 
-## State is resolved at retrieval
+If a user changes jobs, the previous job is not deleted.
 
-Preserving history introduces a harder problem: deciding which fact is true **right now**. Agents often need to pick between multiple valid statements like:
+If a team reverses an architecture decision, the original decision remains part of the record.
 
-- User worked at OpenAI
-- User joined Anthropic
-- User advises a startup
+If a project migrates from one stack to another, both states continue to exist with their temporal context intact.
 
-Instead of mutating data at ingest, we resolve state at query time. When a request arrives, Crosmos fans out across four parallel signals:
+Each memory is also temporal. Facts and relationships carry timestamps that capture when an event occurred or when a state became true.
 
-1. semantic similarity
-2. keyword search
-3. graph traversal
-4. temporal reasoning
+And because the information is stored as a knowledge graph, entities are connected explicitly rather than buried inside isolated chunks of texts.
 
-Candidates from each signal are fused (Reciprocal Rank Fusion), rescored for recency and temporal proximity, and finally re-ranked with a cross-encoder. The answer is computed from history every time.
+The result is a memory system that behaves less like a cache and more like a historical record of how state evolves.
 
-## Graph is projection, not truth
+## Resolving State at Retrieval
 
-The graph is a powerful projection for traversal, but the *source of truth* is the underlying memory record - the episodic data, extracted facts, viewpoints, timestamps, and metadata captured exactly as they were observed. Every node/edge carries provenance back to those records, and each record links back to its original source (Slack thread, email, doc, call notes, etc.).
+Storing history is only half the problem.
 
+The harder problem is deciding what is true when an agent asks a question.
+
+Most memory systems avoid this by mutating facts at ingestion time. When new information arrives, they overwrite what was stored before and keep only the latest version.
+
+And this is where things get interesting.
+
+You might think that once all information is stored in a graph, the problem is solved.
+
+It isn't.
+
+In fact, this is where the harder problem begins.
+
+Crosmos preserves every fact and every relationship in the graph. Contradictions, updates, and state transitions are all retained as part of the historical record.
+
+When an agent asks:
+
+Where does the user work now?
+
+the graph may contain multiple valid facts:
+
+- User worked at OpenAI.
+- User joined Anthropic.
+- User started advising a startup.
+
+All of these are true in some context.
+
+The real challenge is determining which facts are relevant and temporally valid for the question being asked.
+
+This is why the Monotonic Temporal Knowledge Graph is only one half of the architecture.
+
+The other half is retrieval designed to resolve state from history.
+
+When a query arrives, Crosmos searches across four complementary signals in parallel:
+
+- semantic similarity
+- keyword search
+- graph traversal
+- temporal reasoning
+
+Each signal produces a different set of candidates.
+
+We then combine them using Reciprocal Rank Fusion, adjust scores using recency and temporal proximity, and run a cross-encoder re-ranker to produce the final ranking.
+
+The result is context that is not just similar to the query, but also structurally connected and valid for the relevant point in time.
+
+The current state is never stored as a mutable snapshot.
+
+It is computed from history every time the agent asks.
+
+## The Graph Is Not the ONLY Source of Truth.
+
+At this point, you might assume the knowledge graph is the memory.
+
+It isn't
+
+And this is one of the most important design decisions we made.
+
+The graph is a projection of memory, not the memory itself.
+
+Because agents or even humans can't find the whole nuance of the memory they saved just by:
+
+```markdown
+Subject - Predicate - Object.
 ```
+
+The true source of truth in Crosmos is the underlying memory record: the extracted facts, episodes and viewpoints stored exactly as they were observed, along with their metadata, timestamps, and provenance.
+
+The graph is built on top of that foundation.
+
+The distinction matters because graphs are abstractions.
+
+They are excellent for:
+
+- traversing relationships
+- discovering indirect connections
+- and enriching retrieval
+
+But they are inherently lossy.
+
+A relationship such as:
+
+```markdown
+(User)-[:WORKS_ON]->(Crosmos)
+```
+
+captures the structure of the fact, but not the full evidence behind it.
+
+- the exact wording
+- the surrounding context
+
+That is why every node and edge in the Monotonic Temporal Knowledge Graph carries provenance back to the memory records from which it was extracted.
+
+And each memory record carries provenance to its original source:
+
+- a conversation,
+- a document,
+- a Slack message,
+- an email,
+- or any other tool you use.
+
+This creates a complete chain of evidence:
+
+```markdown
 Source → Memory → Graph
 ```
 
-That chain gives agents explainability: follow any retrieved item back to the raw evidence.
+The graph helps us navigate.
 
-## Relationships evolve
+The memories provide the factual record.
 
-Relationships are temporal objects. Each edge stores:
+The source provides the original context.
 
-- provenance to the originating memory
-- extraction confidence
-- temporal metadata describing when it became valid
+True provenance preserved.
 
-Scoring during traversal favors higher-confidence, more recent edges without deleting older context. Historical queries can still surface prior states, while present-tense queries remain accurate.
+## Relationships Evolve Over Time
 
-## Memory as infrastructure
+In most context graphs, relationships are treated as static.
 
-Enterprise agents need more than convenience - they need auditable context. Crosmos delivers that by combining:
+In Crosmos, relationships are first-class temporal objects.
 
-- episodic memory (append-only log)
-- MTKG for structured reasoning
-- provenance tracking for every hop
-- state-aware retrieval with temporal weighting
+Every edge in the Monotonic Temporal Knowledge Graph carries:
 
-When an agent surfaces context, you can trace it end-to-end:
+- provenance back to the memory it was extracted from,
+- confidence scores from extraction,
+- and temporal metadata describing when the relationship became valid.
 
-```
+This means the graph does not just store that two entities are connected.
+
+It stores when that connection was true and how confidently it was inferred.
+
+During traversal, we use this metadata directly.
+
+Edges are scored based on:
+
+- confidence,
+- recency,
+- and temporal proximity to the query.
+
+More recent and higher-confidence relationships receive greater weight, while older relationships are gradually deprioritized.
+
+But they are never deleted.
+
+This is an important distinction.
+
+When a user changes jobs, the previous relationship remains part of the graph.
+
+It may no longer dominate current-state queries, but it is still available for historical and time-scoped questions.
+
+In Crosmos, relationships are not immutable truths.
+
+They are temporal assertions whose relevance changes as the world changes.
+
+## When Memory Becomes Infrastructure, Not Just Storage
+
+These design decisions are not academic.
+
+They directly address the requirements enterprises have when deploying agents across real workflows.
+
+Companies need more than retrieval.
+
+They need memory systems that are:
+
+- auditable
+- traceable
+- temporally accurate
+- state-aware
+- and historically complete
+
+In Crosmos, every piece of retrieved context can be traced:
+
+```markdown
 Source → Memory → Graph → Retrieval
 ```
 
-That makes memory trustworthy. Instead of hand-waving around stale caches, you get a system that records how knowledge evolves, maintains temporal awareness, and keeps every decision explainable.
+This provides a complete chain of evidence from the original source to the final context shown to the agent.
 
-Ready to build on top of MTKG? Grab an API key at [crosmos.dev](https://crosmos.dev/) and join the conversation on Discord.
+Because we preserve history instead of overwriting it, organizations can:
+
+- audit past decisions,
+- reconstruct how state evolved,
+- investigate contradictions,
+- and query historical snapshots of their knowledge.
+
+Because relationships carry temporal metadata and confidence, agents can prioritize the most relevant current state while retaining access to prior states when needed.
+
+This is especially important in enterprise environments where:
+
+- ownership changes
+- architectures evolve
+- policies are updated
+- and decisions must remain explainable.
+
+For consumer use cases, memory is often about **convenience.**
+
+For enterprise use cases, memory is about **trust.**
+
+That is why the architectural decisions behind Crosmos matter.
+
+## Bottom Line
+
+## Memory Should Preserve History
+
+Most systems treat memory as a mutable cache.
+
+We built Crosmos differently.
+
+By providing the building blocks for an auditable memory system that has:
+
+- episodic memory,
+- temporal knowledge graphs,
+- provenance tracking,
+- and state-aware retrieval,
+
+we give agents something they have historically lacked:
+
+- historical context,
+- temporal reasoning,
+- traceable evidence,
+- and auditable memory.
+
+The result is a memory system that does more than store facts.
+
+It preserves how knowledge evolves over time.
+
+Because in production, memory is not just about recall.
+
+It is about trust.
+
+Check out [https://crosmos.dev](https://crosmos.dev/) and join our Discord server if you want to know more about our principles :) [https://discord.gg/UA6y8EmAE](https://discord.gg/UA6y8EmAE)

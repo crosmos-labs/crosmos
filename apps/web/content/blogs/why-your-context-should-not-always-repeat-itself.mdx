@@ -10,72 +10,138 @@ imageWidth: 2048
 imageHeight: 819
 ---
 
-Recency is one of the strongest ranking signals in any memory system. When you're building recall for teams or agents, the latest interactions often *feel* like the safest bet because they're fresh, relevant, and likely closer to the user's current intent.
+**Why Your Context Should Not Always Repeat Itself**
 
-But recency can also create a subtle failure mode: if the last few interactions all orbit the same topic, the top of your recall stack becomes an echo chamber. Queries like "What dishes do I like to eat?" end up dominated by a single restaurant simply because those entries are both recent and similar. Technically correct, practically useless.
+When building memory for your team or agents, recency is often one of the strongest signals. This makes sense. In many cases, users want the most recent and relevant information.
 
-## When recency overwhelms representation
+But recency can introduce a subtle problem.
 
-Consider a food-preference query with a heavily skewed recent history. Without any diversification, the top results might look like this:
+If several recent memories are all about the same restaurant, project, or person, the top results can become overly concentrated around that single entity.
+
+For example, a query like "What dishes do I like to eat?" may return multiple memories about California Burrito simply because those memories are both recent and highly relevant.
+
+The retrieval is technically correct, but the result set is not very representative.
+
+Instead of seeing a broader view of preferences, the agent receives several variations of the same theme.
+
+We wanted recency to remain important without allowing one cluster of similar memories to dominate the top-k results.
+
+To solve this, we introduce **Diversify**.
+
+Diversify uses **Maximal Marginal Relevance (MMR)** as a diversification step after ranking.
+
+MMR balances relevance and similarity, helping retrieval preserve both freshness and coverage across memory.
+
+## A Real Example.
+
+Consider the following query:
+
+![without diversify](/blogs/context-diversify-before.png)
+
+Without Diversify, the top results were heavily concentrated around California Burrito:
+
+1. Ippudo / Thai Express / Chipotle preference summary
+2. Burritos from California Burrito
+3. Mexican Rice Bowl at California Burrito
+4. Meghana Biryani
+5. Cheese Quesadilla at California Burrito
+
+All of these results were relevant and recent, but three of the top five were about California Burrito.
+
+**With Diversify enabled:**
+
+![With Diversify enabled](/blogs/context-diversify-after.jpg)
+
+With Diversify enabled, the results covered a broader range of preferences that is not just recency aware but diverse as well:
 
 - Ippudo / Thai Express / Chipotle preference summary
-- Burritos from California Burrito
-- Mexican Rice Bowl at California Burrito
-- Meghana Biryani
 - Cheese Quesadilla at California Burrito
+- Indori Poha at Samosa Party Cafe
+- Meghana Biryani
+- Thai Express when craving something spicy
 
-![Stacked search results focused on California Burrito before Diversify](/blogs/context-diversify-before.png)
+The results remained relevant, but provided a more representative view of the user's food preferences.
 
-Three out of the first five memories point to the same restaurant. The agent learns that the user really loves California Burrito, but it loses broader coverage of the user's taste. The retrieval is accurate yet not representative.
+Instead of spending most of the context window on one restaurant, the agent receives a broader and more useful set of memories.
 
-## Diversify with Maximal Marginal Relevance
+## How Diversify Works
 
-To keep recency without sacrificing coverage, we introduce **Diversify**, a post-ranking step based on **Maximal Marginal Relevance (MMR)**. MMR balances two competing objectives for every memory we promote into the final result set:
+Diversify is applied after retrieval and reranking, just before the final top-k results are returned.
 
-1. How relevant the memory is to the query.
-2. How similar it is to memories that have already been selected.
+At this stage, we already have a set of highly relevant candidates. The goal is no longer to find relevant memories, but to avoid returning memories that are too similar to one another.
 
-A candidate that is highly relevant but nearly identical to something we've already kept gets down-weighted, creating room for a different - yet still relevant - memory to surface.
+To do this, we use **Maximal Marginal Relevance (MMR)**.
 
-With Diversify applied, the same query returns a spread that still includes California Burrito, but also highlights Indori Poha, Meghana Biryani, and Thai Express. Freshness remains intact; redundancy does not.
+At each step, Diversify selects the next memory by balancing two signals:
 
-![Representative search results after Diversify showing broader food preferences](/blogs/context-diversify-after.jpg)
+- Relevance to the query.
+- Similarity to memories that have already been selected.
 
-## Lightweight post-processing
+A memory receives a lower score if it is very similar to one that is already in the result set.
 
-Diversify slots in after retrieval and reranking, right before we commit to the final `top_k`. By this stage we already have high-quality candidates. The goal is no longer *finding* relevance, it's *allocating* it.
+This allows the strongest matches to remain, while making room for other relevant memories that add new information.
 
-- No additional LLM calls are required.
-- Memories remain untouched - Diversify only changes ordering, not content.
-- The step is deterministic and fast, so it scales alongside existing search pipelines.
+In practice, Diversify works as a lightweight post-processing step. It does not require additional LLM calls, and it preserves the original memories exactly as they were stored.
 
-## Using Diversify in the API
+The result is a more representative set of memories without sacrificing relevance.
+
+## Using Diversify
+
+Enabling Diversify is a single flag in the search API.
 
 ```typescript
 import Crosmos from "crosmos";
 
-const client = new Crosmos();
+const client = new Crosmos(); 
 
 const results = await client.search.hybrid({
-	query: "food preferences",
-	space_id: "019dc652-2724-76d6-ab4b-1b2d077019b5",
-	limit: 10,
-	rerank: true,
-	diversify: true, // MMR to reduce redundancy
-	graph: true, // include graph signal
+  query: "food preferences",
+  space_id: "019dc652-2724-76d6-ab4b-1b2d077019b5",
+  limit: 10,
+  rerank: true,       
+  diversify: true,    // MMR to reduce redundancy
+  graph: true,        // include graph signal
 });
 ```
 
-Setting `diversify: true` enables MMR. Everything else in your pipeline stays the same.
+Diversify is applied after retrieval and re-ranking, just before the final results are returned.
 
-## Where Diversify shines
+## When Diversify Helps
 
-- **Exploratory search**: Browse a memory space without seeing five versions of the same event.
-- **Summarization**: Provide agents with representative evidence instead of wasting tokens on duplicates.
-- **Pattern discovery**: Surface varied signals when spotting trends across preferences or workflows.
-- **Agent context**: Keep prompts balanced so downstream reasoning isn't biased toward one entity.
-- **Long-term memory**: As spaces grow, clusters form; Diversify keeps breadth without diluting relevance.
+Diversify is most useful when you want a representative view of memory rather than multiple variations of the same theme.
 
-## Final thoughts
+Common use cases include:
 
-Relevance alone is not enough. When multiple strong matches are basically mirror images, the agent learns less even though recall scores look perfect. Diversify keeps recency, protects coverage, and stops your context window from echoing itself. Your memory stack should highlight what matters *next*, not repeat what mattered *last*.
+**Exploratory Search**
+
+When users are browsing memories and want broad coverage across different topics.
+
+**Summarization**
+
+When preparing context for an agent, where redundant memories waste valuable tokens.
+
+**Pattern Discovery**
+
+When looking for trends across preferences, decisions, and experiences.
+
+**Agent Context**
+
+When agents need a balanced set of memories instead of repeated information about the same entity.
+
+**Long-Term Memory**
+
+As memory grows, clusters of similar memories become more common. Diversify helps maintain breadth without sacrificing relevance.
+
+## Final Thoughts
+
+Relevance alone is not always enough.
+
+When several highly relevant memories are closely related, returning all of them can narrow the context instead of expanding it.
+
+Diversify addresses this by balancing relevance and similarity, allowing Crosmos to return a broader and more representative view of memory.
+
+Your context should not **echo** itself.
+
+Crosmos helps you provide your company and the agents you use with self-improving context and memory infrastructure so that your team is always updated and ready to start the day!
+
+Get your API key at: [https://crosmos.dev](https://crosmos.dev/) console

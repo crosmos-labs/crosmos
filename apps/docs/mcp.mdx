@@ -1,0 +1,141 @@
+---
+title: "MCP"
+sidebarTitle: "Overview"
+description: "Connect Crosmos to AI clients with the Model Context Protocol."
+icon: "puzzle-piece"
+---
+
+Crosmos ships an MCP server for AI clients that support the [Model Context Protocol](https://modelcontextprotocol.io). The server gives agents tools to search memories, add new memories, list spaces, and check API health.
+
+Use MCP when you want Crosmos memory inside an AI client such as Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, opencode, Cline, Roo-Cline, or Zed. Use the [SDKs](/sdks) when you are building Crosmos directly into an application or backend service.
+
+## Interactive setup
+
+```bash
+npx @crosmos/crosmos-mcp setup
+```
+
+The setup command authenticates with your Crosmos API key, detects installed MCP clients, writes their config, and can install the Crosmos skill for supported AI editors.
+
+It detects Claude Desktop, Claude Code, opencode, Cursor, VS Code, Windsurf, Cline, Roo-Cline, and Zed when they are installed.
+
+## Authenticate manually
+
+Generate an API key from **Settings -> API Keys** in the [Crosmos Console](https://console.crosmos.dev). Keys use the `csk_` prefix.
+
+```bash
+npx @crosmos/crosmos-mcp auth login
+```
+
+The login command validates the key and saves credentials to `~/.crosmos/credentials.json` with restricted file permissions.
+
+<Note>
+`CROSMOS_API_KEY` overrides saved credentials. Use environment variables for CI, containers, or client config that should not read from `~/.crosmos`.
+</Note>
+
+## Configure a client manually
+
+If you do not use `setup`, point your MCP client at `npx -y @crosmos/crosmos-mcp`.
+
+<Tabs>
+<Tab title="Claude Code">
+
+```bash
+claude mcp add crosmos-memory -- npx -y @crosmos/crosmos-mcp
+```
+
+</Tab>
+<Tab title="Claude Desktop">
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `~/.config/Claude/claude_desktop_config.json` on Linux, or `%APPDATA%/Claude/claude_desktop_config.json` on Windows.
+
+```json
+{
+  "mcpServers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+</Tab>
+<Tab title="Cursor">
+
+Add to `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+</Tab>
+<Tab title="opencode">
+
+Add to `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "mcp": {
+    "crosmos-memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+</Tab>
+<Tab title="VS Code">
+
+Add to `~/Library/Application Support/Code/User/mcp.json` on macOS, `~/.config/Code/User/mcp.json` on Linux, or `%APPDATA%/Code/User/mcp.json` on Windows.
+
+```json
+{
+  "servers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+</Tab>
+<Tab title="Windsurf">
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "crosmos-memory": {
+      "command": "npx",
+      "args": ["-y", "@crosmos/crosmos-mcp"]
+    }
+  }
+}
+```
+
+</Tab>
+</Tabs>
+
+Restart the client after changing its MCP config.
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="Tools" icon="list-check" href="/mcp/tools">
+  See tool inputs, behavior, and examples.
+</Card>
+<Card title="Configuration" icon="sliders" href="/mcp/configuration">
+  Configure credentials, default spaces, timeouts, and deployment settings.
+</Card>
+</CardGroup>
