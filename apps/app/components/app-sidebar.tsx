@@ -56,6 +56,12 @@ import { clearCache } from "@/hooks/use-clear-cache";
 import type { AuthUser } from "@/lib/types/auth";
 import type { OrgDetailResponse } from "@/lib/types/org";
 
+function isNavItemActive(pathname: string, href: string) {
+	// Home matches only its exact path; every other item also matches its
+	if (href === "/") return pathname === "/";
+	return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 function getInitials(name: string) {
 	return name
 		.split(" ")
@@ -97,7 +103,7 @@ export function AppSidebar({
 							<SidebarMenuItem>
 								<SidebarMenuButton
 									asChild
-									isActive={pathname === homeItem.href}
+									isActive={isNavItemActive(pathname, homeItem.href)}
 									tooltip={homeItem.label}
 									className="pl-4"
 								>
@@ -120,7 +126,7 @@ export function AppSidebar({
 									<SidebarMenuItem key={item.href}>
 										<SidebarMenuButton
 											asChild={!item.disabled}
-											isActive={pathname === item.href}
+											isActive={isNavItemActive(pathname, item.href)}
 											disabled={item.disabled}
 											tooltip={item.disabled ? "Coming soon" : item.label}
 											className={cn(
@@ -175,9 +181,7 @@ export function AppSidebar({
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton
 									size="lg"
-									tooltip={
-										state === "collapsed" && !isMobile ? undefined : user.name
-									}
+									tooltip={user.name}
 									className="group data-[state=open]:pointer-events-auto data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 								>
 									<Avatar className="size-8">
