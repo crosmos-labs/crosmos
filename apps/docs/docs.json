@@ -31,12 +31,7 @@
 					},
 					{
 						"group": "MCP",
-						"pages": [
-							"mcp",
-							"mcp/tools",
-							"mcp/configuration",
-							"mcp/skills"
-						]
+						"pages": ["mcp/overview", "mcp/tools", "mcp/configuration", "mcp/skills"]
 					},
 					{
 						"group": "SDKs",
@@ -154,15 +149,19 @@
 	"redirects": [
 		{
 			"source": "/plugins/mcp",
-			"destination": "/mcp"
+			"destination": "/mcp/overview"
+		},
+		{
+			"source": "/mcp",
+			"destination": "/mcp/overview"
 		},
 		{
 			"source": "/mcp/setup",
-			"destination": "/mcp"
+			"destination": "/mcp/overview"
 		},
 		{
 			"source": "/integrations/mcp",
-			"destination": "/mcp"
+			"destination": "/mcp/overview"
 		},
 		{
 			"source": "/integrations/typescript-sdk",
