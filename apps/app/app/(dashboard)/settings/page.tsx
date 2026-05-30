@@ -53,7 +53,12 @@ export default function SettingsPage() {
 	const ownerCount = members?.filter((m) => m.role === "owner").length ?? 0;
 
 	// Invites are owner/admin-only on the backend — only fetch when we can manage.
-	const { data: invites } = useInvites(orgId, canManage);
+	const { data: invites, isLoading: invitesLoading } = useInvites(
+		orgId,
+		canManage,
+	);
+	// True once the invite list is confirmed (loaded or not yet requested).
+	const invitesReady = !canManage || !invitesLoading || invites !== undefined;
 
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -93,6 +98,8 @@ export default function SettingsPage() {
 	}
 
 	function handleInvite(email: string, role: CreateInviteRequest["role"]) {
+		// Guard: invites must be loaded before we can reliably check for duplicates.
+		if (!invitesReady || !orgId) return;
 		const exists = allRows.some(
 			(r) =>
 				r.status !== "expired" && r.email.toLowerCase() === email.toLowerCase(),
@@ -101,7 +108,6 @@ export default function SettingsPage() {
 			toast.error("That email is already a member or has a pending invite.");
 			return;
 		}
-		if (!orgId) return;
 		// Optimistically insert a faded placeholder invite, then replace it with
 		// the server's response (or roll back on error).
 		const tempInvite: InviteResponse = {
@@ -172,7 +178,7 @@ export default function SettingsPage() {
 							</SelectContent>
 						</Select>
 						<div className="ml-auto">
-							{canManage ? (
+							{canManage && invitesReady ? (
 								<Button onClick={() => setInviteOpen(true)}>Invite</Button>
 							) : (
 								<Tooltip>
@@ -182,7 +188,9 @@ export default function SettingsPage() {
 										</span>
 									</TooltipTrigger>
 									<TooltipContent>
-										Only owners and admins can invite members.
+										{canManage
+											? "Loading invite list…"
+											: "Only owners and admins can invite members."}
 									</TooltipContent>
 								</Tooltip>
 							)}
