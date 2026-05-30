@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
 	Popover,
@@ -137,14 +138,10 @@ function TriggerButton({
 	activeCount: number;
 }) {
 	return (
-		<Button variant="outline" size="sm" className="gap-1.5 rounded-full">
+		<Button variant="outline" size="sm" className="gap-1.5">
 			<IconFilter className="size-3.5" />
 			Filters
-			{hasFilters && (
-				<span className="flex size-4 items-center justify-center rounded-full bg-foreground text-[0.6rem] font-medium text-background">
-					{activeCount}
-				</span>
-			)}
+			{hasFilters && <Badge variant="secondary">{activeCount}</Badge>}
 		</Button>
 	);
 }
@@ -238,7 +235,7 @@ export function SourceFilters({
 							/>
 						</div>
 					</SheetTrigger>
-					<SheetContent side="bottom" className="rounded-t-xl">
+					<SheetContent side="bottom">
 						<SheetHeader>
 							<SheetTitle>Filter sources</SheetTitle>
 						</SheetHeader>
