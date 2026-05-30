@@ -536,13 +536,14 @@ export function MembersTable({
 																	<DropdownMenuSubContent>
 																		<DropdownMenuRadioGroup
 																			value={row.role}
-																			onValueChange={(v) =>
+																			onValueChange={(v) => {
+																				if (!row.userId) return;
 																				handleChangeRole(
-																					row.userId ?? "",
+																					row.userId,
 																					row.role,
 																					v as "admin" | "member",
-																				)
-																			}
+																				);
+																			}}
 																		>
 																			<DropdownMenuRadioItem value="admin">
 																				Admin
@@ -560,13 +561,14 @@ export function MembersTable({
 																<DropdownMenuItem
 																	variant="destructive"
 																	disabled={busy}
-																	onClick={() =>
+																	onClick={() => {
+																		if (!row.userId) return;
 																		setRemoveTarget({
-																			userId: row.userId ?? "",
+																			userId: row.userId,
 																			name: row.name,
 																			role: row.role,
-																		})
-																	}
+																		});
+																	}}
 																>
 																	<IconTrash />
 																	Remove
@@ -590,13 +592,14 @@ export function MembersTable({
 																<DropdownMenuItem
 																	variant="destructive"
 																	disabled={busy}
-																	onClick={() =>
+																	onClick={() => {
+																		if (!row.userId) return;
 																		setRemoveTarget({
-																			userId: row.userId ?? "",
+																			userId: row.userId,
 																			name: row.name,
 																			role: row.role,
-																		})
-																	}
+																		});
+																	}}
 																>
 																	<IconLogout />
 																	Leave organization
@@ -624,13 +627,14 @@ export function MembersTable({
 															<DropdownMenuItem
 																variant="destructive"
 																disabled={busy}
-																onClick={() =>
+																onClick={() => {
+																	if (!row.userId) return;
 																	setRemoveTarget({
-																		userId: row.userId ?? "",
+																		userId: row.userId,
 																		name: row.name,
 																		role: row.role,
-																	})
-																}
+																	});
+																}}
 															>
 																<IconLogout />
 																Leave organization
