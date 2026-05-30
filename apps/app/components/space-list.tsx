@@ -26,14 +26,21 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
+import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconBox, IconDotsVertical, IconPlus } from "@tabler/icons-react";
+import {
+	IconBox,
+	IconCornerDownLeft,
+	IconDotsVertical,
+} from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
 import { EmptyState } from "@/components/empty-state";
+import { HotkeyKbd } from "@/components/hotkey-kbd";
 import {
 	useActionLoader,
 	useActionLoaderState,
@@ -95,16 +102,14 @@ function CreateSpaceDialog({
 					className="flex min-h-15 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-input focus-visible:ring-0 resize-none"
 				/>
 				<DialogFooter>
-					<Button variant="outline" onClick={handleClose}>
-						Cancel
+					<Button variant="ghost" onClick={handleClose}>
+						Cancel <Kbd>Esc</Kbd>
 					</Button>
-					<Button
-						variant="secondary"
-						onClick={handleCreate}
-						size="lg"
-						disabled={!name.trim()}
-					>
-						Create
+					<Button onClick={handleCreate} disabled={!name.trim()}>
+						Create{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -127,8 +132,8 @@ function SpaceCountRow({
 				{count} space{count !== 1 ? "s" : ""}
 			</span>
 			<Button onClick={onCreateClick} disabled={disabled}>
-				<IconPlus data-icon="inline-start" />
 				Create
+				<HotkeyKbd />
 			</Button>
 		</div>
 	);
@@ -140,6 +145,8 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
+
+	useHotkey("k", () => setDialogOpen((open) => !open));
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
@@ -256,7 +263,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 							key={space.id}
 							variant="outline"
 							className={cn(
-								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
+								"group hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
 								isOptimistic && "opacity-50",
 							)}
 						>
@@ -288,7 +295,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 											variant="ghost"
 											size="icon-sm"
 											aria-label="Open space actions"
-											className="focus:ring-0 focus-visible:ring-0"
+											className="opacity-0 transition-opacity duration-100 group-hover:opacity-100 group-hover:transition-none focus-visible:opacity-100 data-[state=open]:opacity-100 focus:ring-0 focus-visible:ring-0"
 										>
 											<IconDotsVertical />
 										</Button>
@@ -402,15 +409,18 @@ function DeleteSpaceDialog({
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
 				<DialogFooter>
-					<Button variant="outline" onClick={handleClose}>
-						Cancel
+					<Button variant="ghost" onClick={handleClose}>
+						Cancel <Kbd>Esc</Kbd>
 					</Button>
 					<Button
 						variant="destructive"
 						onClick={handleDelete}
 						disabled={!canDelete}
 					>
-						Delete Space
+						Delete{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

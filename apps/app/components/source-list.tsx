@@ -27,6 +27,7 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Pagination,
 	PaginationContent,
@@ -38,6 +39,7 @@ import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconBraces,
 	IconCode,
+	IconCornerDownLeft,
 	IconDotsVertical,
 	IconFileText,
 	IconFileTypePdf,
@@ -154,7 +156,9 @@ function DeleteSourceDialog({
 					</div>
 				)}
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">
+						Cancel <Kbd>Esc</Kbd>
+					</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
@@ -164,7 +168,10 @@ function DeleteSourceDialog({
 							}
 						}}
 					>
-						Delete
+						Delete{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
@@ -292,7 +299,7 @@ export function SourceList({
 						<Item
 							key={source.id}
 							variant="outline"
-							className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
+							className="group hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
 						>
 							<ItemContent>
 								<ItemTitle className="flex items-center gap-2 text-base">
@@ -366,7 +373,7 @@ export function SourceList({
 											variant="ghost"
 											size="icon-sm"
 											aria-label="Open source actions"
-											className="focus:ring-0 focus-visible:ring-0"
+											className="opacity-0 transition-opacity duration-100 group-hover:opacity-100 group-hover:transition-none focus-visible:opacity-100 data-[state=open]:opacity-100 focus:ring-0 focus-visible:ring-0"
 										>
 											<IconDotsVertical />
 										</Button>

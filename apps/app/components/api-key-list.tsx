@@ -38,6 +38,7 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Select,
 	SelectContent,
@@ -45,13 +46,20 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
+import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconDotsVertical, IconKey, IconPlus } from "@tabler/icons-react";
+import {
+	IconCornerDownLeft,
+	IconDotsVertical,
+	IconKey,
+	IconPlus,
+} from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
 import { EmptyState } from "@/components/empty-state";
+import { HotkeyKbd } from "@/components/hotkey-kbd";
 import {
 	useActionLoader,
 	useActionLoaderState,
@@ -149,11 +157,14 @@ function CreateKeyDialog({
 					</Select>
 				</div>
 				<DialogFooter>
-					<Button variant="outline" onClick={handleClose}>
-						Cancel
+					<Button variant="ghost" onClick={handleClose}>
+						Cancel <Kbd>Esc</Kbd>
 					</Button>
-					<Button onClick={handleCreate} size="lg" disabled={!name.trim()}>
-						Create
+					<Button onClick={handleCreate} disabled={!name.trim()}>
+						Create{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -176,8 +187,8 @@ function KeyCountRow({
 				{count} key{count !== 1 ? "s" : ""}
 			</span>
 			<Button onClick={onCreateClick} disabled={disabled}>
-				<IconPlus data-icon="inline-start" />
 				Create
+				<HotkeyKbd />
 			</Button>
 		</div>
 	);
@@ -192,6 +203,8 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
+
+	useHotkey("k", () => setDialogOpen((open) => !open));
 
 	const handleRevoke = useCallback(
 		(keyId: number) => {
@@ -476,7 +489,9 @@ function RevokeAlertDialog({
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">
+						Cancel <Kbd>Esc</Kbd>
+					</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
@@ -486,7 +501,10 @@ function RevokeAlertDialog({
 							}
 						}}
 					>
-						Revoke
+						Revoke{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

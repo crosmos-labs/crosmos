@@ -28,6 +28,7 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Pagination,
 	PaginationContent,
@@ -36,7 +37,12 @@ import {
 	PaginationPrevious,
 } from "@crosmos/ui/components/pagination";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconBrain, IconDotsVertical, IconTrash } from "@tabler/icons-react";
+import {
+	IconBrain,
+	IconCornerDownLeft,
+	IconDotsVertical,
+	IconTrash,
+} from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
@@ -105,7 +111,9 @@ function ForgetMemoryDialog({
 					</div>
 				)}
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">
+						Cancel <Kbd>Esc</Kbd>
+					</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
@@ -115,7 +123,10 @@ function ForgetMemoryDialog({
 							}
 						}}
 					>
-						Forget
+						Forget{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
@@ -225,7 +236,7 @@ export function MemoryList({
 							key={memory.id}
 							variant="outline"
 							className={cn(
-								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
+								"group hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
 								isOptimistic && "opacity-50",
 							)}
 						>
@@ -272,7 +283,7 @@ export function MemoryList({
 											variant="ghost"
 											size="icon-sm"
 											aria-label="Open memory actions"
-											className="focus:ring-0 focus-visible:ring-0"
+											className="opacity-0 transition-opacity duration-100 group-hover:opacity-100 group-hover:transition-none focus-visible:opacity-100 data-[state=open]:opacity-100 focus:ring-0 focus-visible:ring-0"
 										>
 											<IconDotsVertical />
 										</Button>
