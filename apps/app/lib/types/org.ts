@@ -2,7 +2,7 @@ export interface OrgResponse {
 	id: string;
 	slug: string;
 	name: string;
-	plan: "free" | "starter" | "pro" | "enterprise";
+	plan: "free" | "developer" | "pro" | "enterprise";
 	billing_email: string | null;
 	created_at: string;
 	updated_at: string;
@@ -71,13 +71,13 @@ export interface AcceptInviteRequest {
 }
 
 export interface AcceptInviteResponse {
-	org: OrgDetailResponse;
+	org: OrgResponse;
 	role: "admin" | "member";
 }
 
 export interface InvitePreviewResponse {
 	org_name: string;
-	inviter_name: string;
+	inviter_name: string | null;
 	role: "admin" | "member";
 	email: string;
 	expires_at: string;
