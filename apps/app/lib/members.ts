@@ -99,14 +99,6 @@ export function compareRows(
 	}
 }
 
-export function sortRows(
-	rows: MemberRow[],
-	column: SortColumn,
-	direction: SortDirection,
-): MemberRow[] {
-	return [...rows].sort((a, b) => compareRows(a, b, column, direction));
-}
-
 /** Up to two initials from a display name, falling back to the email. */
 export function getInitials(seed: string): string {
 	const trimmed = seed.trim();

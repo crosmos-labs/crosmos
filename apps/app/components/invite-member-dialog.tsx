@@ -46,7 +46,6 @@ export function InviteMemberDialog({
 
 	function handleInvite() {
 		const value = email.trim();
-		if (!EMAIL_RE.test(value)) return;
 		setEmail("");
 		setRole("member");
 		onOpenChange(false);

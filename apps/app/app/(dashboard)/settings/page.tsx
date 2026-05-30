@@ -19,23 +19,26 @@ import {
 	TooltipTrigger,
 } from "@crosmos/ui/components/tooltip";
 import { IconSearch } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { createInvite } from "@/actions/members";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { InviteMemberDialog } from "@/components/invite-member-dialog";
-import { MembersTable, type SortState } from "@/components/members-table";
+import {
+	MembersTable,
+	type MembersTableProps,
+	type SortState,
+} from "@/components/members-table";
 import { MembersTableSkeleton } from "@/components/members-table-skeleton";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { invitesKey, useInvites } from "@/hooks/use-invites";
 import { membersKey, useMembers } from "@/hooks/use-members";
-import { sortRows, toMemberRows } from "@/lib/members";
 import { optimisticInsert } from "@/lib/optimistic";
 import type { CreateInviteRequest, InviteResponse } from "@/lib/types/org";
 
-type StatusFilter = "all" | "active" | "pending" | "expired";
+type StatusFilter = MembersTableProps["statusFilter"];
 
 export default function SettingsPage() {
 	const { data: user } = useCurrentUser();
@@ -52,13 +55,13 @@ export default function SettingsPage() {
 	const canManage = me?.role === "owner" || me?.role === "admin";
 	const ownerCount = members?.filter((m) => m.role === "owner").length ?? 0;
 
-	// Invites are owner/admin-only on the backend — only fetch when we can manage.
+	// Invites are owner/admin-only — only fetch when the caller can manage.
 	const { data: invites, isLoading: invitesLoading } = useInvites(
 		orgId,
 		canManage,
 	);
-	// True once the invite list is confirmed (loaded or not yet requested).
-	const invitesReady = !canManage || !invitesLoading || invites !== undefined;
+	// Gate the Invite button until the invite list is confirmed loaded.
+	const invitesReady = !invitesLoading || invites !== undefined;
 
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -71,26 +74,9 @@ export default function SettingsPage() {
 	});
 	const [inviteOpen, setInviteOpen] = useState(false);
 
-	const allRows = useMemo(
-		() => toMemberRows(members ?? [], invites ?? []),
-		[members, invites],
-	);
-
-	const visibleRows = useMemo(() => {
-		const q = search.trim().toLowerCase();
-		const filtered = allRows.filter((row) => {
-			if (statusFilter !== "all" && row.status !== statusFilter) return false;
-			if (!q) return true;
-			return (
-				row.name.toLowerCase().includes(q) ||
-				row.email.toLowerCase().includes(q)
-			);
-		});
-		return sortRows(filtered, sort.column, sort.direction);
-	}, [allRows, search, statusFilter, sort]);
-
-	const hasFilters = search.trim() !== "" || statusFilter !== "all";
 	const initialLoading = !user || (membersLoading && !members);
+	const hasFilters =
+		search.trim() !== "" || (canManage && statusFilter !== "all");
 
 	function clearFilters() {
 		setSearch("");
@@ -98,18 +84,20 @@ export default function SettingsPage() {
 	}
 
 	function handleInvite(email: string, role: CreateInviteRequest["role"]) {
-		// Guard: invites must be loaded before we can reliably check for duplicates.
+		// Guard: invites must be loaded so the duplicate check is reliable.
 		if (!invitesReady || !orgId) return;
-		const exists = allRows.some(
-			(r) =>
-				r.status !== "expired" && r.email.toLowerCase() === email.toLowerCase(),
-		);
-		if (exists) {
+
+		const blockedEmails = new Set([
+			...(members ?? []).map((m) => m.email.toLowerCase()),
+			...(invites ?? [])
+				.filter((i) => i.status !== "expired")
+				.map((i) => i.email.toLowerCase()),
+		]);
+		if (blockedEmails.has(email.toLowerCase())) {
 			toast.error("That email is already a member or has a pending invite.");
 			return;
 		}
-		// Optimistically insert a faded placeholder invite, then replace it with
-		// the server's response (or roll back on error).
+
 		const tempInvite: InviteResponse = {
 			id: `optimistic-${Date.now()}`,
 			email,
@@ -163,37 +151,39 @@ export default function SettingsPage() {
 								onChange={(e) => setSearch(e.target.value)}
 							/>
 						</InputGroup>
-						<Select
-							value={statusFilter}
-							onValueChange={(v) => setStatusFilter(v as StatusFilter)}
-						>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">All</SelectItem>
-								<SelectItem value="active">Active</SelectItem>
-								<SelectItem value="pending">Pending</SelectItem>
-								<SelectItem value="expired">Expired</SelectItem>
-							</SelectContent>
-						</Select>
+
+						{/* Status filter — admin view only (invites give it meaning) */}
+						{canManage && (
+							<Select
+								value={statusFilter}
+								onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All</SelectItem>
+									<SelectItem value="active">Active</SelectItem>
+									<SelectItem value="pending">Pending</SelectItem>
+									<SelectItem value="expired">Expired</SelectItem>
+								</SelectContent>
+							</Select>
+						)}
+
+						{/* Invite button — admin view only */}
 						<div className="ml-auto">
 							{canManage && invitesReady ? (
 								<Button onClick={() => setInviteOpen(true)}>Invite</Button>
-							) : (
+							) : canManage ? (
 								<Tooltip>
 									<TooltipTrigger asChild>
 										<span>
 											<Button disabled>Invite</Button>
 										</span>
 									</TooltipTrigger>
-									<TooltipContent>
-										{canManage
-											? "Loading invite list…"
-											: "Only owners and admins can invite members."}
-									</TooltipContent>
+									<TooltipContent>Loading invite list…</TooltipContent>
 								</Tooltip>
-							)}
+							) : null}
 						</div>
 					</div>
 
@@ -203,11 +193,14 @@ export default function SettingsPage() {
 						<MembersTable
 							orgId={orgId ?? ""}
 							currentUserId={currentUserId}
-							canManage={canManage}
-							rows={visibleRows}
+							isAdminView={canManage}
+							members={members ?? []}
+							invites={canManage ? invites : undefined}
 							ownerCount={ownerCount}
 							sort={sort}
 							onSortChange={setSort}
+							search={search}
+							statusFilter={statusFilter}
 							hasFilters={hasFilters}
 							onClearFilters={clearFilters}
 						/>
@@ -215,11 +208,13 @@ export default function SettingsPage() {
 				</div>
 			)}
 
-			<InviteMemberDialog
-				open={inviteOpen}
-				onOpenChange={setInviteOpen}
-				onInvite={handleInvite}
-			/>
+			{canManage && (
+				<InviteMemberDialog
+					open={inviteOpen}
+					onOpenChange={setInviteOpen}
+					onInvite={handleInvite}
+				/>
+			)}
 		</div>
 	);
 }

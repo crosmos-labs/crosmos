@@ -51,7 +51,7 @@ import {
 	IconTrash,
 	IconUserCog,
 } from "@tabler/icons-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import {
@@ -67,11 +67,12 @@ import { invitesKey } from "@/hooks/use-invites";
 import { membersKey } from "@/hooks/use-members";
 import {
 	avatarColor,
+	compareRows,
 	getInitials,
 	type MemberRow,
-	type RowStatus,
 	type SortColumn,
 	type SortDirection,
+	toMemberRows,
 } from "@/lib/members";
 import { optimisticRemove, optimisticUpdate } from "@/lib/optimistic";
 import type { InviteResponse, MemberResponse, OrgRole } from "@/lib/types/org";
@@ -89,19 +90,6 @@ const ROLE_LABEL: Record<OrgRole, string> = {
 	owner: "Owner",
 	admin: "Admin",
 	member: "Member",
-};
-
-const STATUS_BADGE: Record<RowStatus, "secondary" | "outline" | "destructive"> =
-	{
-		active: "secondary",
-		pending: "outline",
-		expired: "destructive",
-	};
-
-const STATUS_LABEL: Record<RowStatus, string> = {
-	active: "Active",
-	pending: "Pending",
-	expired: "Expired",
 };
 
 function formatDate(iso: string): string {
@@ -166,15 +154,20 @@ function SortableHead({
 	);
 }
 
-function StatusCell({ row }: { row: MemberRow }) {
+// Admin-only: shows Pending/Expired for invite rows; "—" for member rows.
+function AdminStatusCell({ row }: { row: MemberRow }) {
+	if (row.kind === "member")
+		return <span className="text-muted-foreground">—</span>;
+	const isPending = row.status === "pending";
 	const badge = (
-		<Badge variant={STATUS_BADGE[row.status]}>{STATUS_LABEL[row.status]}</Badge>
+		<Badge variant={isPending ? "outline" : "destructive"}>
+			{isPending ? "Pending" : "Expired"}
+		</Badge>
 	);
-	if (row.kind === "invite" && row.expiresAt) {
-		const label =
-			row.status === "expired"
-				? `Expired ${formatDate(row.expiresAt)}`
-				: `Expires ${formatDate(row.expiresAt)}`;
+	if (row.expiresAt) {
+		const label = isPending
+			? `Expires ${formatDate(row.expiresAt)}`
+			: `Expired ${formatDate(row.expiresAt)}`;
 		return (
 			<Tooltip>
 				<TooltipTrigger asChild>
@@ -193,14 +186,21 @@ function StatusCell({ row }: { row: MemberRow }) {
 	return badge;
 }
 
-interface MembersTableProps {
+export interface MembersTableProps {
 	orgId: string;
 	currentUserId: string | null;
-	canManage: boolean;
-	rows: MemberRow[];
+	/** true = owner/admin: shows Status column, invites, full actions */
+	isAdminView: boolean;
+	members: MemberResponse[];
+	/** Only provided when isAdminView is true */
+	invites?: InviteResponse[];
 	ownerCount: number;
 	sort: SortState;
 	onSortChange: (sort: SortState) => void;
+	/** Search query — filtering is applied inside the component */
+	search: string;
+	/** Status filter — only used in admin view */
+	statusFilter: "all" | "active" | "pending" | "expired";
 	hasFilters: boolean;
 	onClearFilters: () => void;
 }
@@ -208,43 +208,82 @@ interface MembersTableProps {
 export function MembersTable({
 	orgId,
 	currentUserId,
-	canManage,
-	rows,
+	isAdminView,
+	members,
+	invites,
 	ownerCount,
 	sort,
 	onSortChange,
+	search,
+	statusFilter,
 	hasFilters,
 	onClearFilters,
 }: MembersTableProps) {
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
-	const [removeTarget, setRemoveTarget] = useState<MemberRow | null>(null);
+
+	// Admin view uses the unified MemberRow model (members + invites merged).
+	// Member view uses MemberResponse[] mapped to the same shape for uniform rendering.
+	const rows: MemberRow[] = useMemo(() => {
+		const merged = isAdminView
+			? toMemberRows(members, invites ?? [])
+			: members.map((m) => ({
+					kind: "member" as const,
+					id: m.user_id,
+					userId: m.user_id,
+					name: m.name || m.email,
+					email: m.email,
+					role: m.role,
+					status: "active" as const,
+					joinedAt: m.joined_at,
+					expiresAt: null,
+				}));
+
+		const q = search.trim().toLowerCase();
+		const filtered = merged.filter((row) => {
+			if (isAdminView && statusFilter !== "all" && row.status !== statusFilter)
+				return false;
+			if (!q) return true;
+			return (
+				row.name.toLowerCase().includes(q) ||
+				row.email.toLowerCase().includes(q)
+			);
+		});
+
+		return [...filtered].sort((a, b) =>
+			compareRows(a, b, sort.column, sort.direction),
+		);
+	}, [isAdminView, members, invites, search, statusFilter, sort]);
+
+	// Use a local remove-target keyed by userId for member-view (members only).
+	type RemoveTarget = { userId: string; name: string; role: OrgRole };
+	const [removeTarget, setRemoveTarget] = useState<RemoveTarget | null>(null);
 
 	const busy = activeCount > 0;
 
 	const handleSort = useCallback(
 		(column: SortColumn) => {
-			if (sort.column === column) {
-				onSortChange({
-					column,
-					direction: sort.direction === "asc" ? "desc" : "asc",
-				});
-			} else {
-				onSortChange({ column, direction: "asc" });
-			}
+			onSortChange({
+				column,
+				direction:
+					sort.column === column
+						? sort.direction === "asc"
+							? "desc"
+							: "asc"
+						: "asc",
+			});
 		},
 		[sort, onSortChange],
 	);
 
 	const handleChangeRole = useCallback(
-		(row: MemberRow, newRole: "admin" | "member") => {
-			if (!row.userId || row.role === newRole) return;
-			if (row.role === "owner" && ownerCount <= 1) {
+		(userId: string, currentRole: OrgRole, newRole: "admin" | "member") => {
+			if (currentRole === newRole) return;
+			if (currentRole === "owner" && ownerCount <= 1) {
 				toast.error(LAST_OWNER_MSG);
 				return;
 			}
-			const userId = row.userId;
 			runAction(
 				() =>
 					optimisticUpdate<MemberResponse>(
@@ -260,9 +299,7 @@ export function MembersTable({
 	);
 
 	const handleRemoveMember = useCallback(
-		(row: MemberRow) => {
-			if (!row.userId) return;
-			const userId = row.userId;
+		(userId: string) => {
 			runAction(
 				() =>
 					optimisticRemove<MemberResponse>(
@@ -283,9 +320,7 @@ export function MembersTable({
 	);
 
 	const handleLeave = useCallback(
-		(row: MemberRow) => {
-			if (!row.userId) return;
-			const userId = row.userId;
+		(userId: string) => {
 			runAction(
 				async () => {
 					await removeMember(orgId, userId);
@@ -293,7 +328,6 @@ export function MembersTable({
 				{ toast: { success: "You left the organization" } },
 			)
 				.then(() => {
-					// We no longer belong to an org — let the dashboard layout re-route.
 					window.location.href = "/";
 				})
 				.catch(() => {
@@ -304,8 +338,7 @@ export function MembersTable({
 	);
 
 	const handleRevokeInvite = useCallback(
-		(row: MemberRow) => {
-			const inviteId = row.id;
+		(inviteId: string) => {
 			runAction(
 				() =>
 					optimisticRemove<InviteResponse>(
@@ -327,6 +360,8 @@ export function MembersTable({
 
 	const removeIsSelf = removeTarget?.userId === currentUserId;
 	const removeIsLastOwner = removeTarget?.role === "owner" && ownerCount <= 1;
+	// Total column count differs between views (Status only in admin view).
+	const colSpan = isAdminView ? 6 : 5;
 
 	return (
 		<>
@@ -351,12 +386,14 @@ export function MembersTable({
 							sort={sort}
 							onSort={handleSort}
 						/>
-						<SortableHead
-							column="status"
-							label="Status"
-							sort={sort}
-							onSort={handleSort}
-						/>
+						{isAdminView && (
+							<SortableHead
+								column="status"
+								label="Status"
+								sort={sort}
+								onSort={handleSort}
+							/>
+						)}
 						<SortableHead
 							column="joined"
 							label="Joined"
@@ -370,7 +407,7 @@ export function MembersTable({
 					{rows.length === 0 && (
 						<TableRow className="hover:bg-transparent">
 							<TableCell
-								colSpan={6}
+								colSpan={colSpan}
 								className="h-28 text-center text-muted-foreground"
 							>
 								<div className="flex flex-col items-center gap-2">
@@ -393,21 +430,14 @@ export function MembersTable({
 						</TableRow>
 					)}
 					{rows.map((row) => {
-						const isSelf =
-							row.kind === "member" && row.userId === currentUserId;
+						const isSelf = row.userId === currentUserId;
 						const isLastOwner = row.role === "owner" && ownerCount <= 1;
 						const colors = avatarColor(row.email);
-						// In-flight invite still being created (see settings handleInvite).
+						// In-flight invite placeholder (admin view only).
 						const isOptimistic =
-							row.kind === "invite" && row.id.startsWith("optimistic-");
-
-						// Which actions are available for this row?
-						const canLeave = isSelf;
-						const canManageOther =
-							!isSelf && canManage && row.kind === "member";
-						const canRevoke = canManage && row.kind === "invite";
-						const hasActions =
-							!isOptimistic && (canLeave || canManageOther || canRevoke);
+							isAdminView &&
+							row.kind === "invite" &&
+							row.id.startsWith("optimistic-");
 
 						return (
 							<TableRow
@@ -417,6 +447,7 @@ export function MembersTable({
 									isOptimistic && "opacity-50",
 								)}
 							>
+								{/* Name cell */}
 								<TableCell>
 									<div className="flex items-center gap-3">
 										{isOptimistic ? (
@@ -432,7 +463,7 @@ export function MembersTable({
 												<AvatarFallback
 													style={row.kind === "member" ? colors : undefined}
 												>
-													{row.kind === "invite" ? (
+													{isAdminView && row.kind === "invite" ? (
 														<IconMail className="size-4" />
 													) : (
 														getInitials(row.name)
@@ -450,97 +481,164 @@ export function MembersTable({
 										</span>
 									</div>
 								</TableCell>
+
+								{/* Email */}
 								<TableCell className="text-muted-foreground">
 									{row.email}
 								</TableCell>
+
+								{/* Role */}
 								<TableCell>
 									<Badge variant={ROLE_BADGE[row.role]}>
 										{ROLE_LABEL[row.role]}
 									</Badge>
 								</TableCell>
-								<TableCell>
-									<StatusCell row={row} />
-								</TableCell>
+
+								{/* Status — admin view only */}
+								{isAdminView && (
+									<TableCell>
+										<AdminStatusCell row={row} />
+									</TableCell>
+								)}
+
+								{/* Joined */}
 								<TableCell className="text-muted-foreground">
 									{row.joinedAt ? formatDate(row.joinedAt) : "—"}
 								</TableCell>
+
+								{/* Actions */}
 								<TableCell className="text-right">
-									{hasActions && (
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button
-													variant="ghost"
-													size="icon-sm"
-													aria-label="Open member actions"
-													className="focus:ring-0 focus-visible:ring-0"
-												>
-													<IconDotsVertical />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end">
-												<DropdownMenuGroup>
-													{canManageOther && (
-														<DropdownMenuSub>
-															<DropdownMenuSubTrigger
-																disabled={busy || isLastOwner}
-															>
-																<IconUserCog />
-																Change role
-															</DropdownMenuSubTrigger>
-															<DropdownMenuSubContent>
-																<DropdownMenuRadioGroup
-																	value={row.role}
-																	onValueChange={(v) =>
-																		handleChangeRole(
-																			row,
-																			v as "admin" | "member",
-																		)
+									{isAdminView
+										? // Admin view: full actions per row
+											!isOptimistic && (
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button
+															variant="ghost"
+															size="icon-sm"
+															aria-label="Open member actions"
+															className="focus:ring-0 focus-visible:ring-0"
+														>
+															<IconDotsVertical />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuGroup>
+															{/* Change role — other member rows */}
+															{!isSelf && row.kind === "member" && (
+																<DropdownMenuSub>
+																	<DropdownMenuSubTrigger
+																		disabled={busy || isLastOwner}
+																	>
+																		<IconUserCog />
+																		Change role
+																	</DropdownMenuSubTrigger>
+																	<DropdownMenuSubContent>
+																		<DropdownMenuRadioGroup
+																			value={row.role}
+																			onValueChange={(v) =>
+																				handleChangeRole(
+																					row.userId ?? "",
+																					row.role,
+																					v as "admin" | "member",
+																				)
+																			}
+																		>
+																			<DropdownMenuRadioItem value="admin">
+																				Admin
+																			</DropdownMenuRadioItem>
+																			<DropdownMenuRadioItem value="member">
+																				Member
+																			</DropdownMenuRadioItem>
+																		</DropdownMenuRadioGroup>
+																	</DropdownMenuSubContent>
+																</DropdownMenuSub>
+															)}
+
+															{/* Remove — other member rows */}
+															{!isSelf && row.kind === "member" && (
+																<DropdownMenuItem
+																	variant="destructive"
+																	disabled={busy}
+																	onClick={() =>
+																		setRemoveTarget({
+																			userId: row.userId ?? "",
+																			name: row.name,
+																			role: row.role,
+																		})
 																	}
 																>
-																	<DropdownMenuRadioItem value="admin">
-																		Admin
-																	</DropdownMenuRadioItem>
-																	<DropdownMenuRadioItem value="member">
-																		Member
-																	</DropdownMenuRadioItem>
-																</DropdownMenuRadioGroup>
-															</DropdownMenuSubContent>
-														</DropdownMenuSub>
-													)}
-													{canManageOther && (
-														<DropdownMenuItem
-															variant="destructive"
-															disabled={busy}
-															onClick={() => setRemoveTarget(row)}
+																	<IconTrash />
+																	Remove
+																</DropdownMenuItem>
+															)}
+
+															{/* Revoke — invite rows */}
+															{row.kind === "invite" && (
+																<DropdownMenuItem
+																	variant="destructive"
+																	disabled={busy}
+																	onClick={() => handleRevokeInvite(row.id)}
+																>
+																	<IconTrash />
+																	Revoke invite
+																</DropdownMenuItem>
+															)}
+
+															{/* Leave — self row */}
+															{isSelf && (
+																<DropdownMenuItem
+																	variant="destructive"
+																	disabled={busy}
+																	onClick={() =>
+																		setRemoveTarget({
+																			userId: row.userId ?? "",
+																			name: row.name,
+																			role: row.role,
+																		})
+																	}
+																>
+																	<IconLogout />
+																	Leave organization
+																</DropdownMenuItem>
+															)}
+														</DropdownMenuGroup>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											)
+										: // Member view: only "Leave organization" on self row
+											isSelf && (
+												<DropdownMenu>
+													<DropdownMenuTrigger asChild>
+														<Button
+															variant="ghost"
+															size="icon-sm"
+															aria-label="Open member actions"
+															className="focus:ring-0 focus-visible:ring-0"
 														>
-															<IconTrash />
-															Remove
-														</DropdownMenuItem>
-													)}
-													{canRevoke && (
-														<DropdownMenuItem
-															variant="destructive"
-															disabled={busy}
-															onClick={() => handleRevokeInvite(row)}
-														>
-															<IconTrash />
-															Revoke invite
-														</DropdownMenuItem>
-													)}
-													{canLeave && (
-														<DropdownMenuItem
-															variant="destructive"
-															disabled={busy}
-															onClick={() => setRemoveTarget(row)}
-														>
-															<IconLogout />
-															Leave organization
-														</DropdownMenuItem>
-													)}
-												</DropdownMenuGroup>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									)}
+															<IconDotsVertical />
+														</Button>
+													</DropdownMenuTrigger>
+													<DropdownMenuContent align="end">
+														<DropdownMenuGroup>
+															<DropdownMenuItem
+																variant="destructive"
+																disabled={busy}
+																onClick={() =>
+																	setRemoveTarget({
+																		userId: row.userId ?? "",
+																		name: row.name,
+																		role: row.role,
+																	})
+																}
+															>
+																<IconLogout />
+																Leave organization
+															</DropdownMenuItem>
+														</DropdownMenuGroup>
+													</DropdownMenuContent>
+												</DropdownMenu>
+											)}
 								</TableCell>
 							</TableRow>
 						);
@@ -577,9 +675,9 @@ export function MembersTable({
 							onClick={() => {
 								if (!removeTarget || removeIsLastOwner) return;
 								if (removeIsSelf) {
-									handleLeave(removeTarget);
+									handleLeave(removeTarget.userId);
 								} else {
-									handleRemoveMember(removeTarget);
+									handleRemoveMember(removeTarget.userId);
 								}
 								setRemoveTarget(null);
 							}}

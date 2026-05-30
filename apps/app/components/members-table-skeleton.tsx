@@ -33,6 +33,7 @@ function SkeletonRow() {
 			<TableCell>
 				<Skeleton className="h-4 w-16" />
 			</TableCell>
+			<TableCell className="w-10" />
 		</TableRow>
 	);
 }
