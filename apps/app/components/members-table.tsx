@@ -10,6 +10,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Avatar, AvatarFallback } from "@crosmos/ui/components/avatar";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
@@ -423,29 +424,49 @@ export function MembersTable({
 							row.kind === "member" && row.userId === currentUserId;
 						const isLastOwner = row.role === "owner" && ownerCount <= 1;
 						const colors = avatarColor(row.email);
+						// In-flight invite still being created (see settings handleInvite).
+						const isOptimistic =
+							row.kind === "invite" && row.id.startsWith("optimistic-");
 
 						// Which actions are available for this row?
 						const canLeave = isSelf;
 						const canManageOther =
 							!isSelf && canManage && row.kind === "member";
 						const canRevoke = canManage && row.kind === "invite";
-						const hasActions = canLeave || canManageOther || canRevoke;
+						const hasActions =
+							!isOptimistic && (canLeave || canManageOther || canRevoke);
 
 						return (
-							<TableRow key={`${row.kind}:${row.id}`}>
+							<TableRow
+								key={`${row.kind}:${row.id}`}
+								className={cn(
+									"hover:transition-none",
+									isOptimistic && "opacity-50",
+								)}
+							>
 								<TableCell>
 									<div className="flex items-center gap-3">
-										<Avatar>
-											<AvatarFallback
-												style={row.kind === "member" ? colors : undefined}
-											>
-												{row.kind === "invite" ? (
-													<IconMail className="size-4" />
-												) : (
-													getInitials(row.name)
-												)}
-											</AvatarFallback>
-										</Avatar>
+										{isOptimistic ? (
+											<span className="flex size-8 items-center justify-center">
+												<AnimatedSpinner
+													name="braille"
+													size="1.1em"
+													speed={0.8}
+												/>
+											</span>
+										) : (
+											<Avatar>
+												<AvatarFallback
+													style={row.kind === "member" ? colors : undefined}
+												>
+													{row.kind === "invite" ? (
+														<IconMail className="size-4" />
+													) : (
+														getInitials(row.name)
+													)}
+												</AvatarFallback>
+											</Avatar>
+										)}
 										<span className="font-medium text-foreground">
 											{row.name}
 											{isSelf && (

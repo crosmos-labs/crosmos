@@ -129,25 +129,29 @@ export default function SettingsPage() {
 			toast.error("That email is already a member or has a pending invite.");
 			return;
 		}
+		const expiresAt = new Date(
+			Date.now() + 7 * 24 * 60 * 60 * 1000,
+		).toISOString();
+
 		// TEMP: without a real org id we append to the local mock invite list.
-		// Optimistically add the row, then run a delayed action so the loading
-		// state is visible (and rolled back if the simulated request "fails").
+		// The row is added with an "optimistic-" id (rendered faded + spinner),
+		// then after a simulated delay swapped to a stable id (un-fades), or
+		// removed on a simulated failure.
 		if (USE_MOCK_DATA && !orgId) {
+			const tempId = `optimistic-${Date.now()}`;
 			const optimisticInvite: InviteResponse = {
-				id: `mock-invite-${Date.now()}`,
+				id: tempId,
 				email,
 				role,
 				invited_by: currentUserId ?? "mock-self",
-				expires_at: new Date(
-					Date.now() + 7 * 24 * 60 * 60 * 1000,
-				).toISOString(),
+				expires_at: expiresAt,
 				status: "pending",
 			};
 			setMockInvites((prev) => [optimisticInvite, ...prev]);
 			runAction(
 				async () => {
-					// Simulate network latency so the optimistic update + loader show.
-					await new Promise((resolve) => setTimeout(resolve, 1200));
+					// Simulate network latency so the optimistic UI + loader show.
+					await new Promise((resolve) => setTimeout(resolve, 4000));
 				},
 				{
 					toast: {
@@ -155,15 +159,33 @@ export default function SettingsPage() {
 						error: "Failed to send invitation",
 					},
 				},
-			).catch(() => {
-				// Roll back the optimistic row on a simulated failure.
-				setMockInvites((prev) =>
-					prev.filter((i) => i.id !== optimisticInvite.id),
-				);
-			});
+			)
+				.then(() => {
+					// Confirm: drop the optimistic marker so the row un-fades.
+					setMockInvites((prev) =>
+						prev.map((i) =>
+							i.id === tempId
+								? { ...i, id: tempId.replace("optimistic-", "mock-invite-") }
+								: i,
+						),
+					);
+				})
+				.catch(() => {
+					setMockInvites((prev) => prev.filter((i) => i.id !== tempId));
+				});
 			return;
 		}
 		if (!orgId) return;
+		// Optimistically insert a faded placeholder invite, then replace it with
+		// the server's response (or roll back on error).
+		const tempInvite: InviteResponse = {
+			id: `optimistic-${Date.now()}`,
+			email,
+			role,
+			invited_by: currentUserId ?? "",
+			expires_at: expiresAt,
+			status: "pending",
+		};
 		runAction(
 			async () => {
 				await mutate(
@@ -172,7 +194,14 @@ export default function SettingsPage() {
 						const invite = await createInvite(orgId, email, role);
 						return [invite, ...(current ?? [])];
 					},
-					{ revalidate: false },
+					{
+						optimisticData: (current: InviteResponse[] | undefined) => [
+							tempInvite,
+							...(current ?? []),
+						],
+						rollbackOnError: true,
+						revalidate: false,
+					},
 				);
 			},
 			{
