@@ -93,7 +93,7 @@ const STEPS = [
 
 export function GetStarted() {
 	return (
-		<Card className="rounded">
+		<Card>
 			<CardHeader>
 				<CardTitle>Get Started</CardTitle>
 				<CardDescription>

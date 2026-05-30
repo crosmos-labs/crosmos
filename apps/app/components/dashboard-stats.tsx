@@ -43,7 +43,7 @@ function StatCard({
 }) {
 	return (
 		<Link href={href} className="group">
-			<Card className="rounded gap-0 transition-colors hover:bg-muted/50 h-full">
+			<Card className="gap-0 transition-colors h-full">
 				<CardHeader className="pb-2">
 					<CardTitle className="flex items-center justify-between text-sm font-medium text-muted-foreground">
 						{title}
@@ -74,7 +74,7 @@ function StatCard({
 
 function StatCardSkeleton() {
 	return (
-		<Card className="rounded gap-0">
+		<Card className="gap-0">
 			<CardHeader className="pb-2">
 				<Skeleton className="h-4 w-20" />
 			</CardHeader>
