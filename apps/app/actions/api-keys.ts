@@ -27,7 +27,7 @@ export async function createApiKey(name: string, expiresInDays?: number) {
 	return res;
 }
 
-export async function revokeApiKey(keyId: number) {
+export async function revokeApiKey(keyId: string) {
 	await apiFetch(`/auth/keys/${keyId}`, {
 		method: "DELETE",
 	});

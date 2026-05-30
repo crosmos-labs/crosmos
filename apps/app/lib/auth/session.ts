@@ -4,6 +4,7 @@ import type { AuthUser, TokenResponse } from "@/lib/types/auth";
 import {
 	clearAuthCookies,
 	getAccessToken,
+	getActiveOrgId,
 	getRefreshToken,
 	setAuthCookies,
 } from "./cookies";
@@ -58,6 +59,22 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 	const accessToken = await getAccessToken();
 	if (!accessToken || !API_URL) return null;
 
+	// Read active_org_id once — GET /auth/me doesn't return it, so we pull
+	// it from the cookie set during the OAuth callback.
+	const activeOrgId = await getActiveOrgId();
+
+	// GET /auth/me returns { id, email, name } — map to AuthUser shape.
+	const toAuthUser = (raw: {
+		id: string;
+		email: string;
+		name: string;
+	}): AuthUser => ({
+		user_id: raw.id,
+		email: raw.email,
+		name: raw.name,
+		active_org_id: activeOrgId,
+	});
+
 	try {
 		const res = await fetch(`${API_URL}/auth/me`, {
 			headers: { Authorization: `Bearer ${accessToken}` },
@@ -65,7 +82,7 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 		});
 
 		if (res.ok) {
-			return (await res.json()) as AuthUser;
+			return toAuthUser(await res.json());
 		}
 
 		if (res.status === 401) {
@@ -78,7 +95,7 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 			});
 
 			if (retryRes.ok) {
-				return (await retryRes.json()) as AuthUser;
+				return toAuthUser(await retryRes.json());
 			}
 		}
 
