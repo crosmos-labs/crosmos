@@ -31,7 +31,12 @@
 					},
 					{
 						"group": "MCP",
-						"pages": ["mcp/overview", "mcp/tools", "mcp/configuration", "mcp/skills"]
+						"pages": [
+							"mcp/overview",
+							"mcp/tools",
+							"mcp/configuration",
+							"mcp/skills"
+						]
 					},
 					{
 						"group": "SDKs",

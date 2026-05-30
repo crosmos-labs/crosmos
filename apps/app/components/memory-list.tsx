@@ -60,8 +60,8 @@ const MEMORY_TYPE_BADGE_VARIANT: Record<
 	"secondary" | "outline" | "ghost"
 > = {
 	viewpoint: "secondary",
-	semantic: "outline",
-	episode: "ghost",
+	semantic: "secondary",
+	episode: "secondary",
 };
 
 function ForgetMemoryDialog({
