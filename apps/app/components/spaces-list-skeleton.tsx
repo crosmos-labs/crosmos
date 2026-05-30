@@ -16,8 +16,8 @@ function SkeletonRow() {
 				<ItemTitle className="text-base">
 					<Skeleton className="h-4 w-24" />
 				</ItemTitle>
-				<ItemDescription>
-					<span className="inline-block animate-pulse rounded-md bg-muted h-3.5 w-2/3" />
+				<ItemDescription as="div">
+					<Skeleton className="h-3.5 w-2/3" />
 				</ItemDescription>
 			</ItemContent>
 			<ItemActions>
