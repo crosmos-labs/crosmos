@@ -7,6 +7,7 @@ export function useHotkey(key: string, callback: () => void) {
 
 	React.useEffect(() => {
 		function onKeyDown(event: KeyboardEvent) {
+			if (event.repeat || event.defaultPrevented) return;
 			if (
 				(event.metaKey || event.ctrlKey) &&
 				event.key.toLowerCase() === key.toLowerCase()

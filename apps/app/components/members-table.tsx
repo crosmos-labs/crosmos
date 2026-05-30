@@ -130,13 +130,23 @@ function SortableHead({
 }) {
 	const active = sort.column === column;
 	return (
-		<TableHead className={cn("font-normal", className)}>
-			<button
-				type="button"
+		<TableHead
+			aria-sort={
+				active
+					? sort.direction === "asc"
+						? "ascending"
+						: "descending"
+					: "none"
+			}
+			className={cn("font-normal", className)}
+		>
+			<Button
+				variant="ghost"
+				size="sm"
 				onClick={() => onSort(column)}
 				className={cn(
-					"inline-flex items-center gap-1 text-sm transition-colors hover:text-foreground focus:outline-none",
-					active ? "text-foreground" : "text-muted-foreground",
+					"-ml-2 h-7 gap-1 px-2 font-normal text-muted-foreground hover:text-foreground",
+					active && "text-foreground",
 				)}
 			>
 				{label}
@@ -149,7 +159,7 @@ function SortableHead({
 				) : (
 					<span className="size-3.5" />
 				)}
-			</button>
+			</Button>
 		</TableHead>
 	);
 }
@@ -166,7 +176,13 @@ function StatusCell({ row }: { row: MemberRow }) {
 		return (
 			<Tooltip>
 				<TooltipTrigger asChild>
-					<span className="inline-flex">{badge}</span>
+					<button
+						type="button"
+						aria-label={label}
+						className="inline-flex cursor-default"
+					>
+						{badge}
+					</button>
 				</TooltipTrigger>
 				<TooltipContent>{label}</TooltipContent>
 			</Tooltip>
@@ -416,10 +432,7 @@ export function MembersTable({
 						const hasActions = canLeave || canManageOther || canRevoke;
 
 						return (
-							<TableRow
-								key={`${row.kind}:${row.id}`}
-								className="group hover:transition-none"
-							>
+							<TableRow key={`${row.kind}:${row.id}`}>
 								<TableCell>
 									<div className="flex items-center gap-3">
 										<Avatar>
@@ -465,7 +478,7 @@ export function MembersTable({
 													variant="ghost"
 													size="icon-sm"
 													aria-label="Open member actions"
-													className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 focus:ring-0 focus-visible:ring-0"
+													className="focus:ring-0 focus-visible:ring-0"
 												>
 													<IconDotsVertical />
 												</Button>

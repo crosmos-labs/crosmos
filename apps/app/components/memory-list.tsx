@@ -236,7 +236,7 @@ export function MemoryList({
 							key={memory.id}
 							variant="outline"
 							className={cn(
-								"group hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
+								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
 								isOptimistic && "opacity-50",
 							)}
 						>
@@ -283,7 +283,7 @@ export function MemoryList({
 											variant="ghost"
 											size="icon-sm"
 											aria-label="Open memory actions"
-											className="opacity-0 transition-opacity duration-100 group-hover:opacity-100 group-hover:transition-none focus-visible:opacity-100 data-[state=open]:opacity-100 focus:ring-0 focus-visible:ring-0"
+											className="focus:ring-0 focus-visible:ring-0"
 										>
 											<IconDotsVertical />
 										</Button>

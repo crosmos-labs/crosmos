@@ -146,7 +146,10 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
-	useHotkey("k", () => setDialogOpen((open) => !open));
+	useHotkey("k", () => {
+		if (activeCount > 0) return;
+		setDialogOpen(true);
+	});
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
@@ -263,7 +266,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 							key={space.id}
 							variant="outline"
 							className={cn(
-								"group hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
+								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
 								isOptimistic && "opacity-50",
 							)}
 						>
@@ -295,7 +298,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 											variant="ghost"
 											size="icon-sm"
 											aria-label="Open space actions"
-											className="opacity-0 transition-opacity duration-100 group-hover:opacity-100 group-hover:transition-none focus-visible:opacity-100 data-[state=open]:opacity-100 focus:ring-0 focus-visible:ring-0"
+											className="focus:ring-0 focus-visible:ring-0"
 										>
 											<IconDotsVertical />
 										</Button>

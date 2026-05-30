@@ -122,28 +122,45 @@ export default function SettingsPage() {
 
 	function handleInvite(email: string, role: CreateInviteRequest["role"]) {
 		const exists = allRows.some(
-			(r) => r.email.toLowerCase() === email.toLowerCase(),
+			(r) =>
+				r.status !== "expired" && r.email.toLowerCase() === email.toLowerCase(),
 		);
 		if (exists) {
 			toast.error("That email is already a member or has a pending invite.");
 			return;
 		}
 		// TEMP: without a real org id we append to the local mock invite list.
+		// Optimistically add the row, then run a delayed action so the loading
+		// state is visible (and rolled back if the simulated request "fails").
 		if (USE_MOCK_DATA && !orgId) {
-			setMockInvites((prev) => [
-				{
-					id: `mock-invite-${Date.now()}`,
-					email,
-					role,
-					invited_by: currentUserId ?? "mock-self",
-					expires_at: new Date(
-						Date.now() + 7 * 24 * 60 * 60 * 1000,
-					).toISOString(),
-					status: "pending",
+			const optimisticInvite: InviteResponse = {
+				id: `mock-invite-${Date.now()}`,
+				email,
+				role,
+				invited_by: currentUserId ?? "mock-self",
+				expires_at: new Date(
+					Date.now() + 7 * 24 * 60 * 60 * 1000,
+				).toISOString(),
+				status: "pending",
+			};
+			setMockInvites((prev) => [optimisticInvite, ...prev]);
+			runAction(
+				async () => {
+					// Simulate network latency so the optimistic update + loader show.
+					await new Promise((resolve) => setTimeout(resolve, 1200));
 				},
-				...prev,
-			]);
-			toast.success("Invitation sent");
+				{
+					toast: {
+						success: "Invitation sent",
+						error: "Failed to send invitation",
+					},
+				},
+			).catch(() => {
+				// Roll back the optimistic row on a simulated failure.
+				setMockInvites((prev) =>
+					prev.filter((i) => i.id !== optimisticInvite.id),
+				);
+			});
 			return;
 		}
 		if (!orgId) return;

@@ -52,7 +52,6 @@ import {
 	IconCornerDownLeft,
 	IconDotsVertical,
 	IconKey,
-	IconPlus,
 } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
@@ -204,7 +203,10 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
-	useHotkey("k", () => setDialogOpen((open) => !open));
+	useHotkey("k", () => {
+		if (activeCount > 0) return;
+		setDialogOpen(true);
+	});
 
 	const handleRevoke = useCallback(
 		(keyId: number) => {
