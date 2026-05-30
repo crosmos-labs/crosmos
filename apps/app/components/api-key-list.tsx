@@ -199,7 +199,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [revokeKey, setRevokeKey] = useState<ApiKey | null>(null);
 	const [recentCreates, setRecentCreates] = useState<
-		Map<number, CreateApiKeyResponse>
+		Map<string, CreateApiKeyResponse>
 	>(new Map());
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -211,7 +211,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	});
 
 	const handleRevoke = useCallback(
-		(keyId: number) => {
+		(keyId: string) => {
 			runAction(
 				() =>
 					optimisticRemove<ApiKey>(
@@ -232,7 +232,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 		(name: string, expiresInDays?: number) => {
 			const now = new Date().toISOString();
 			const tempKey: ApiKey = {
-				key_id: -Date.now(), // negative id marks an optimistic placeholder
+				key_id: `optimistic-${Date.now()}`,
 				name,
 				key_prefix: "",
 				is_active: true,
@@ -302,8 +302,8 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				{keys.map((key) => {
 					const recent = recentCreates.get(key.key_id);
 					const isRecent = !!recent;
-					// Optimistic placeholders use a negative key_id (numeric PK can't carry a string prefix).
-					const isOptimistic = key.key_id < 0;
+					// Optimistic placeholders carry an "optimistic-" id prefix (see handleCreateKey).
+					const isOptimistic = key.key_id.startsWith("optimistic-");
 
 					return (
 						<Item
@@ -347,11 +347,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
 									{isOptimistic ? (
-										<AnimatedSpinner
-											name="braille"
-											size="1.1em"
-											speed={0.8}
-										/>
+										<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
 									) : (
 										formatDistanceToNow(new Date(key.created_at), {
 											addSuffix: true,
@@ -412,7 +408,7 @@ function RevokeAlertDialog({
 	onOpenChange,
 }: {
 	revokeKey: ApiKey | null;
-	onRevoke: (keyId: number) => void;
+	onRevoke: (keyId: string) => void;
 	onOpenChange: (open: boolean) => void;
 }) {
 	return (

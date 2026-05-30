@@ -58,6 +58,7 @@ const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
 	viewpoint: "Viewpoint",
 	semantic: "Semantic",
 	episode: "Episode",
+	inference: "Inference",
 };
 
 const MEMORY_TYPE_BADGE_VARIANT: Record<
@@ -67,6 +68,7 @@ const MEMORY_TYPE_BADGE_VARIANT: Record<
 	viewpoint: "secondary",
 	semantic: "secondary",
 	episode: "secondary",
+	inference: "outline",
 };
 
 function ForgetMemoryDialog({
