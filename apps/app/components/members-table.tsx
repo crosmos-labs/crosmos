@@ -73,6 +73,7 @@ import {
 	type SortColumn,
 	type SortDirection,
 } from "@/lib/members";
+import { optimisticRemove, optimisticUpdate } from "@/lib/optimistic";
 import type { InviteResponse, MemberResponse, OrgRole } from "@/lib/types/org";
 
 const LAST_OWNER_MSG =
@@ -245,25 +246,13 @@ export function MembersTable({
 			}
 			const userId = row.userId;
 			runAction(
-				async () => {
-					await mutate(
+				() =>
+					optimisticUpdate<MemberResponse>(
+						mutate,
 						membersKey(orgId),
-						async (current: MemberResponse[] | undefined) => {
-							await changeMemberRole(orgId, userId, newRole);
-							return (current ?? []).map((m) =>
-								m.user_id === userId ? { ...m, role: newRole } : m,
-							);
-						},
-						{
-							optimisticData: (current: MemberResponse[] | undefined) =>
-								(current ?? []).map((m) =>
-									m.user_id === userId ? { ...m, role: newRole } : m,
-								),
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+						(m) => (m.user_id === userId ? { ...m, role: newRole } : m),
+						() => changeMemberRole(orgId, userId, newRole),
+					),
 				{ toast: { success: "Role updated", error: "Failed to update role" } },
 			);
 		},
@@ -275,21 +264,13 @@ export function MembersTable({
 			if (!row.userId) return;
 			const userId = row.userId;
 			runAction(
-				async () => {
-					await mutate(
+				() =>
+					optimisticRemove<MemberResponse>(
+						mutate,
 						membersKey(orgId),
-						async (current: MemberResponse[] | undefined) => {
-							await removeMember(orgId, userId);
-							return (current ?? []).filter((m) => m.user_id !== userId);
-						},
-						{
-							optimisticData: (current: MemberResponse[] | undefined) =>
-								(current ?? []).filter((m) => m.user_id !== userId),
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+						(m) => m.user_id === userId,
+						() => removeMember(orgId, userId),
+					),
 				{
 					toast: {
 						success: "Member removed",
@@ -326,21 +307,13 @@ export function MembersTable({
 		(row: MemberRow) => {
 			const inviteId = row.id;
 			runAction(
-				async () => {
-					await mutate(
+				() =>
+					optimisticRemove<InviteResponse>(
+						mutate,
 						invitesKey(orgId),
-						async (current: InviteResponse[] | undefined) => {
-							await revokeInvite(orgId, inviteId);
-							return (current ?? []).filter((i) => i.id !== inviteId);
-						},
-						{
-							optimisticData: (current: InviteResponse[] | undefined) =>
-								(current ?? []).filter((i) => i.id !== inviteId),
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+						(i) => i.id === inviteId,
+						() => revokeInvite(orgId, inviteId),
+					),
 				{
 					toast: {
 						success: "Invite revoked",

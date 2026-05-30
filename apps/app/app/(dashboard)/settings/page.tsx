@@ -32,14 +32,10 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { invitesKey, useInvites } from "@/hooks/use-invites";
 import { membersKey, useMembers } from "@/hooks/use-members";
 import { sortRows, toMemberRows } from "@/lib/members";
-import { MOCK_INVITES, mockMembers } from "@/lib/mock-members";
+import { optimisticInsert } from "@/lib/optimistic";
 import type { CreateInviteRequest, InviteResponse } from "@/lib/types/org";
 
 type StatusFilter = "all" | "active" | "pending" | "expired";
-
-// TEMP: serve mock data when the backend returns nothing. Remove this flag and
-// the related fallbacks (and lib/mock-members.ts) once the API is live.
-const USE_MOCK_DATA = true;
 
 export default function SettingsPage() {
 	const { data: user } = useCurrentUser();
@@ -47,41 +43,17 @@ export default function SettingsPage() {
 	const currentUserId = user?.user_id ?? null;
 
 	const {
-		data: fetchedMembers,
+		data: members,
 		isLoading: membersLoading,
 		error: membersError,
 	} = useMembers(orgId);
 
-	// TEMP: fall back to mock data until the members API is live.
-	const mockedMembers = useMemo(
-		() =>
-			mockMembers({
-				userId: currentUserId,
-				email: user?.email,
-				name: user?.name,
-			}),
-		[currentUserId, user?.email, user?.name],
-	);
-	const members = fetchedMembers ?? (USE_MOCK_DATA ? mockedMembers : undefined);
-
-	// TEMP: treat the viewer as a manager while running on mock data.
-	const usingMockMembers = USE_MOCK_DATA && !fetchedMembers;
-	const selfUserId = currentUserId ?? (usingMockMembers ? "mock-self" : null);
-	const me = members?.find((m) => m.user_id === selfUserId);
-	const canManage =
-		me?.role === "owner" || me?.role === "admin" || usingMockMembers;
+	const me = members?.find((m) => m.user_id === currentUserId);
+	const canManage = me?.role === "owner" || me?.role === "admin";
 	const ownerCount = members?.filter((m) => m.role === "owner").length ?? 0;
 
 	// Invites are owner/admin-only on the backend — only fetch when we can manage.
-	const { data: fetchedInvites } = useInvites(orgId, canManage);
-	// TEMP: locally-added invites while running on mock data.
-	const [mockInvites, setMockInvites] = useState<InviteResponse[]>([]);
-	const invites =
-		fetchedInvites ??
-		(USE_MOCK_DATA ? [...mockInvites, ...MOCK_INVITES] : undefined);
-
-	// TEMP: keep the table mounted under mock data even without a real org id.
-	const effectiveOrgId = orgId ?? (USE_MOCK_DATA ? "mock-org" : null);
+	const { data: invites } = useInvites(orgId, canManage);
 
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -129,52 +101,6 @@ export default function SettingsPage() {
 			toast.error("That email is already a member or has a pending invite.");
 			return;
 		}
-		const expiresAt = new Date(
-			Date.now() + 7 * 24 * 60 * 60 * 1000,
-		).toISOString();
-
-		// TEMP: without a real org id we append to the local mock invite list.
-		// The row is added with an "optimistic-" id (rendered faded + spinner),
-		// then after a simulated delay swapped to a stable id (un-fades), or
-		// removed on a simulated failure.
-		if (USE_MOCK_DATA && !orgId) {
-			const tempId = `optimistic-${Date.now()}`;
-			const optimisticInvite: InviteResponse = {
-				id: tempId,
-				email,
-				role,
-				invited_by: currentUserId ?? "mock-self",
-				expires_at: expiresAt,
-				status: "pending",
-			};
-			setMockInvites((prev) => [optimisticInvite, ...prev]);
-			runAction(
-				async () => {
-					// Simulate network latency so the optimistic UI + loader show.
-					await new Promise((resolve) => setTimeout(resolve, 4000));
-				},
-				{
-					toast: {
-						success: "Invitation sent",
-						error: "Failed to send invitation",
-					},
-				},
-			)
-				.then(() => {
-					// Confirm: drop the optimistic marker so the row un-fades.
-					setMockInvites((prev) =>
-						prev.map((i) =>
-							i.id === tempId
-								? { ...i, id: tempId.replace("optimistic-", "mock-invite-") }
-								: i,
-						),
-					);
-				})
-				.catch(() => {
-					setMockInvites((prev) => prev.filter((i) => i.id !== tempId));
-				});
-			return;
-		}
 		if (!orgId) return;
 		// Optimistically insert a faded placeholder invite, then replace it with
 		// the server's response (or roll back on error).
@@ -183,27 +109,14 @@ export default function SettingsPage() {
 			email,
 			role,
 			invited_by: currentUserId ?? "",
-			expires_at: expiresAt,
+			expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
 			status: "pending",
 		};
 		runAction(
-			async () => {
-				await mutate(
-					invitesKey(orgId),
-					async (current: InviteResponse[] | undefined) => {
-						const invite = await createInvite(orgId, email, role);
-						return [invite, ...(current ?? [])];
-					},
-					{
-						optimisticData: (current: InviteResponse[] | undefined) => [
-							tempInvite,
-							...(current ?? []),
-						],
-						rollbackOnError: true,
-						revalidate: false,
-					},
-				);
-			},
+			() =>
+				optimisticInsert(mutate, invitesKey(orgId), tempInvite, () =>
+					createInvite(orgId, email, role),
+				),
 			{
 				toast: {
 					success: "Invitation sent",
@@ -222,7 +135,7 @@ export default function SettingsPage() {
 				</p>
 			</div>
 
-			{membersError && !USE_MOCK_DATA ? (
+			{membersError ? (
 				<DataFetchError
 					message={membersError.message}
 					onRetry={() =>
@@ -278,10 +191,10 @@ export default function SettingsPage() {
 
 					{initialLoading ? (
 						<MembersTableSkeleton />
-					) : effectiveOrgId ? (
+					) : (
 						<MembersTable
-							orgId={effectiveOrgId}
-							currentUserId={selfUserId}
+							orgId={orgId ?? ""}
+							currentUserId={currentUserId}
 							canManage={canManage}
 							rows={visibleRows}
 							ownerCount={ownerCount}
@@ -290,7 +203,7 @@ export default function SettingsPage() {
 							hasFilters={hasFilters}
 							onClearFilters={clearFilters}
 						/>
-					) : null}
+					)}
 				</div>
 			)}
 

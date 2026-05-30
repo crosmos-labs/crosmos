@@ -45,6 +45,8 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { spacesKey } from "@/hooks/use-spaces";
+import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { Space } from "@/lib/types/space";
 
 function CreateSpaceDialog({
@@ -153,10 +155,9 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
-			const tempId = `optimistic-${Date.now()}`;
 			const now = new Date().toISOString();
 			const tempSpace: Space = {
-				id: tempId,
+				id: `optimistic-${Date.now()}`,
 				org_id: "",
 				name,
 				description: description || null,
@@ -165,23 +166,10 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				updated_at: now,
 			};
 			runAction(
-				async () => {
-					await mutate(
-						"/spaces",
-						async (current: Space[] | undefined) => {
-							const space = await createSpace(name, description);
-							return [space, ...(current ?? [])];
-						},
-						{
-							optimisticData: (current: Space[] | undefined) => [
-								tempSpace,
-								...(current ?? []),
-							],
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+				() =>
+					optimisticInsert(mutate, spacesKey, tempSpace, () =>
+						createSpace(name, description),
+					),
 				{
 					toast: {
 						success: "Space created",
@@ -196,21 +184,13 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 	const handleDeleteSpace = useCallback(
 		(spaceId: string) => {
 			runAction(
-				async () => {
-					await mutate(
-						"/spaces",
-						async (current: Space[] | undefined) => {
-							await deleteSpace(spaceId);
-							return current?.filter((s) => s.id !== spaceId) ?? [];
-						},
-						{
-							optimisticData: (current: Space[] | undefined) =>
-								current?.filter((s) => s.id !== spaceId) ?? [],
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+				() =>
+					optimisticRemove<Space>(
+						mutate,
+						spacesKey,
+						(s) => s.id === spaceId,
+						() => deleteSpace(spaceId),
+					),
 				{
 					toast: {
 						success: "Space deleted",
@@ -260,6 +240,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 			/>
 			<ItemGroup>
 				{spaces.map((space) => {
+					// Optimistic placeholders carry an "optimistic-" id prefix (see handleCreateSpace).
 					const isOptimistic = space.id.startsWith("optimistic-");
 					return (
 						<Item
@@ -282,7 +263,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
 									{isOptimistic ? (
 										<AnimatedSpinner
-											name="diagswipe"
+											name="braille"
 											size="1.1em"
 											speed={0.8}
 										/>

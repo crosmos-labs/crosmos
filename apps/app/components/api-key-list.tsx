@@ -63,6 +63,8 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { apiKeysKey } from "@/hooks/use-api-keys";
+import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
 function maskKey(prefix: string) {
@@ -211,21 +213,13 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	const handleRevoke = useCallback(
 		(keyId: number) => {
 			runAction(
-				async () => {
-					await mutate(
-						"/api-keys",
-						async (current: ApiKey[] | undefined) => {
-							await revokeApiKey(keyId);
-							return current?.filter((k) => k.key_id !== keyId) ?? [];
-						},
-						{
-							optimisticData: (current: ApiKey[] | undefined) =>
-								current?.filter((k) => k.key_id !== keyId) ?? [],
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+				() =>
+					optimisticRemove<ApiKey>(
+						mutate,
+						apiKeysKey,
+						(k) => k.key_id === keyId,
+						() => revokeApiKey(keyId),
+					),
 				{
 					toast: { success: "API key revoked", error: "Failed to revoke key" },
 				},
@@ -236,10 +230,9 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 
 	const handleCreateKey = useCallback(
 		(name: string, expiresInDays?: number) => {
-			const tempKeyId = -Date.now();
 			const now = new Date().toISOString();
 			const tempKey: ApiKey = {
-				key_id: tempKeyId,
+				key_id: -Date.now(), // negative id marks an optimistic placeholder
 				name,
 				key_prefix: "",
 				is_active: true,
@@ -250,30 +243,17 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				created_at: now,
 			};
 			runAction(
-				async () => {
-					await mutate(
-						"/api-keys",
-						async (current: ApiKey[] | undefined) => {
-							const res = await createApiKey(name, expiresInDays);
-							setRecentCreates((prev) => new Map(prev).set(res.key_id, res));
-							const apiKey: ApiKey = {
-								...res,
-								is_active: true,
-								last_used_at: null,
-								created_at: new Date().toISOString(),
-							};
-							return [apiKey, ...(current ?? [])];
-						},
-						{
-							optimisticData: (current: ApiKey[] | undefined) => [
-								tempKey,
-								...(current ?? []),
-							],
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+				() =>
+					optimisticInsert(mutate, apiKeysKey, tempKey, async () => {
+						const res = await createApiKey(name, expiresInDays);
+						setRecentCreates((prev) => new Map(prev).set(res.key_id, res));
+						return {
+							...res,
+							is_active: true,
+							last_used_at: null,
+							created_at: new Date().toISOString(),
+						};
+					}),
 				{
 					toast: { success: "API key created", error: "Failed to create key" },
 				},
@@ -322,6 +302,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				{keys.map((key) => {
 					const recent = recentCreates.get(key.key_id);
 					const isRecent = !!recent;
+					// Optimistic placeholders use a negative key_id (numeric PK can't carry a string prefix).
 					const isOptimistic = key.key_id < 0;
 
 					return (
@@ -367,7 +348,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
 									{isOptimistic ? (
 										<AnimatedSpinner
-											name="diagswipe"
+											name="braille"
 											size="1.1em"
 											speed={0.8}
 										/>

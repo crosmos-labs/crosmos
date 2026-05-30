@@ -10,7 +10,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -52,7 +51,7 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
-import type { MemoriesResponse } from "@/hooks/use-memories";
+import { type MemoriesResponse, memoriesKey } from "@/hooks/use-memories";
 import type { Memory, MemoryType } from "@/lib/types/memory";
 
 const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
@@ -155,7 +154,7 @@ export function MemoryList({
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
-	const swrKey = `/memories?space_uuid=${spaceUuid}&page=${page}`;
+	const swrKey = memoriesKey(spaceUuid, page);
 
 	const handleForget = useCallback(
 		(memoryUuid: string) => {
@@ -228,17 +227,13 @@ export function MemoryList({
 		<div className="flex flex-col gap-4">
 			<ItemGroup>
 				{memories.map((memory) => {
-					const isOptimistic = memory.id.startsWith("optimistic-");
 					const isExpanded = expandedIds.has(memory.id);
 
 					return (
 						<Item
 							key={memory.id}
 							variant="outline"
-							className={cn(
-								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
-								isOptimistic && "opacity-50",
-							)}
+							className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
 						>
 							<ItemContent>
 								<ItemTitle className="flex items-center gap-2 text-base">
@@ -265,17 +260,9 @@ export function MemoryList({
 							</ItemContent>
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
-									{isOptimistic ? (
-										<AnimatedSpinner
-											name="diagswipe"
-											size="1.1em"
-											speed={0.8}
-										/>
-									) : (
-										formatDistanceToNow(new Date(memory.created_at), {
-											addSuffix: true,
-										})
-									)}
+									{formatDistanceToNow(new Date(memory.created_at), {
+										addSuffix: true,
+									})}
 								</span>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
