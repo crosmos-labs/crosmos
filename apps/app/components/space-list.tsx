@@ -98,7 +98,12 @@ function CreateSpaceDialog({
 					<Button variant="outline" onClick={handleClose}>
 						Cancel
 					</Button>
-					<Button onClick={handleCreate} size="lg" disabled={!name.trim()}>
+					<Button
+						variant="secondary"
+						onClick={handleCreate}
+						size="lg"
+						disabled={!name.trim()}
+					>
 						Create
 					</Button>
 				</DialogFooter>

@@ -35,8 +35,8 @@ export function BillingSkeleton() {
 						<Skeleton className="h-4 w-20" />
 						<Skeleton className="h-5 w-12 rounded-full" />
 					</ItemTitle>
-					<ItemDescription>
-						<span className="inline-block animate-pulse rounded-md bg-muted h-3.5 w-4/5" />
+					<ItemDescription as="div">
+						<Skeleton className="h-3.5 w-4/5" />
 					</ItemDescription>
 				</ItemContent>
 				<ItemActions>

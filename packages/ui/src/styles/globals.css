@@ -192,7 +192,7 @@
 	--sidebar-accent-foreground: oklch(0.95 0 0);
 	--sidebar-border: oklch(0.28 0 0);
 	--sidebar-ring: oklch(0.5544 0.1146 158.24);
-	--radius: 4px;
+	--radius: 0.3rem;
 	--shadow-x: 0px;
 	--shadow-y: 4px;
 	--shadow-blur: 10px;
@@ -252,10 +252,13 @@
 	--font-mono: var(--font-mono);
 	--font-serif: var(--font-serif);
 
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
+	--radius-sm: calc(var(--radius) * 0.6);
+	--radius-md: calc(var(--radius) * 0.8);
 	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+	--radius-xl: calc(var(--radius) * 1.4);
+	--radius-2xl: calc(var(--radius) * 1.8);
+	--radius-3xl: calc(var(--radius) * 2.2);
+	--radius-4xl: calc(var(--radius) * 2.6);
 
 	--shadow-2xs: var(--shadow-2xs);
 	--shadow-xs: var(--shadow-xs);
@@ -265,6 +268,13 @@
 	--shadow-lg: var(--shadow-lg);
 	--shadow-xl: var(--shadow-xl);
 	--shadow-2xl: var(--shadow-2xl);
+
+	--animate-skeleton: skeleton 2s -1s infinite linear;
+	@keyframes skeleton {
+		to {
+			background-position: -200% 0;
+		}
+	}
 
 	--tracking-tighter: calc(var(--tracking-normal) - 0.05em);
 	--tracking-tight: calc(var(--tracking-normal) - 0.025em);

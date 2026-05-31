@@ -40,7 +40,7 @@ export function Hero() {
 
 					<div className="space-y-8">
 						<p className="text-lg text-foreground/80 leading-relaxed">
-							Persistent memory for enterprise AI. Connect your data sources,
+							Persistent context for enterprise AI. Connect your data sources,
 							build a living knowledge graph, and give every agent your
 							organization's full context.
 						</p>

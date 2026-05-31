@@ -5,11 +5,7 @@ description: "Build Crosmos memory into your application with official SDKs."
 icon: "puzzle-piece"
 ---
 
-Use the official SDKs when you want Crosmos memory inside an application, service, worker, or custom agent runtime. The SDKs are generated from the Crosmos OpenAPI specification and expose typed access to the Memory API.
-
-<Note>
-The TypeScript SDK is available today. Python examples will be added here when the Python SDK ships.
-</Note>
+Use the official SDKs when you want Crosmos memory inside an application, service, worker, or custom agent runtime. The TypeScript and Python SDKs are generated from the Crosmos OpenAPI specification and expose typed access to the Memory API.
 
 Crosmos also maintains [Ironic](https://github.com/crosmos-labs/ironic), the toolkit we use for typed SDK generation.
 
@@ -18,6 +14,9 @@ Crosmos also maintains [Ironic](https://github.com/crosmos-labs/ironic), the too
 <CodeGroup>
 ```bash TypeScript
 npm install crosmos
+```
+```bash Python
+pip install crosmos
 ```
 </CodeGroup>
 
@@ -29,6 +28,9 @@ Create an API key from **Settings -> API Keys** in the [Crosmos Console](https:/
 ```bash TypeScript
 export CROSMOS_API_KEY="csk_..."
 ```
+```bash Python
+export CROSMOS_API_KEY="csk_..."
+```
 </CodeGroup>
 
 ## Create a client
@@ -38,6 +40,16 @@ export CROSMOS_API_KEY="csk_..."
 import Crosmos from "crosmos";
 
 const client = new Crosmos();
+```
+```python Python (Sync)
+from crosmos import Crosmos
+
+client = Crosmos()
+```
+```python Python (Async)
+from crosmos import AsyncCrosmos
+
+client = AsyncCrosmos()
 ```
 </CodeGroup>
 
@@ -54,6 +66,22 @@ const space = await client.spaces.create({
 
 console.log(space.id);
 ```
+```python Python (Sync)
+space = client.spaces.create(
+    name="personal-agent",
+    description="Memory for the user's personal agent",
+)
+
+print(space.id)
+```
+```python Python (Async)
+space = await client.spaces.create(
+    name="personal-agent",
+    description="Memory for the user's personal agent",
+)
+
+print(space.id)
+```
 </CodeGroup>
 
 If you already know the space name, resolve it before making calls:
@@ -62,6 +90,14 @@ If you already know the space name, resolve it before making calls:
 ```ts TypeScript
 const spaces = await client.spaces.list({ name: "personal-agent" });
 const space = spaces.spaces[0];
+```
+```python Python (Sync)
+spaces = client.spaces.list(name="personal-agent")
+space = spaces.spaces[0]
+```
+```python Python (Async)
+spaces = await client.spaces.list(name="personal-agent")
+space = spaces.spaces[0]
 ```
 </CodeGroup>
 
@@ -86,6 +122,34 @@ const ingest = await client.sources.ingest({
 
 console.log(ingest.job_id);
 ```
+```python Python (Sync)
+ingest = client.sources.ingest(
+    space_id=space.id,
+    sources=[
+        {
+            "content": "User prefers detailed technical explanations and uses Neovim.",
+            "content_type": "text",
+            "meta": {"source": "profile-import"},
+        }
+    ],
+)
+
+print(ingest.job_id)
+```
+```python Python (Async)
+ingest = await client.sources.ingest(
+    space_id=space.id,
+    sources=[
+        {
+            "content": "User prefers detailed technical explanations and uses Neovim.",
+            "content_type": "text",
+            "meta": {"source": "profile-import"},
+        }
+    ],
+)
+
+print(ingest.job_id)
+```
 </CodeGroup>
 
 Crosmos processes ingestion asynchronously. Poll the job when your app needs to wait for extraction to finish:
@@ -95,6 +159,16 @@ Crosmos processes ingestion asynchronously. Poll the job when your app needs to 
 const job = await client.jobs.getStatus(ingest.job_id);
 
 console.log(job.status);
+```
+```python Python (Sync)
+job = client.jobs.get_status(ingest.job_id)
+
+print(job.status)
+```
+```python Python (Async)
+job = await client.jobs.get_status(ingest.job_id)
+
+print(job.status)
 ```
 </CodeGroup>
 
@@ -125,6 +199,46 @@ const conversation = await client.conversations.ingest({
 
 console.log(conversation.source_ids);
 ```
+```python Python (Sync)
+conversation = client.conversations.ingest(
+    space_id=space.id,
+    session_id="chat-001",
+    session_date="2026-05-28T10:00:00Z",
+    messages=[
+        {
+            "role": "user",
+            "content": "I want my agent to remember that I prefer Bun for TypeScript projects.",
+        },
+        {
+            "role": "assistant",
+            "content": "Got it. I will keep that in mind for future setup.",
+        },
+    ],
+    meta={"app": "example-agent"},
+)
+
+print(conversation.source_ids)
+```
+```python Python (Async)
+conversation = await client.conversations.ingest(
+    space_id=space.id,
+    session_id="chat-001",
+    session_date="2026-05-28T10:00:00Z",
+    messages=[
+        {
+            "role": "user",
+            "content": "I want my agent to remember that I prefer Bun for TypeScript projects.",
+        },
+        {
+            "role": "assistant",
+            "content": "Got it. I will keep that in mind for future setup.",
+        },
+    ],
+    meta={"app": "example-agent"},
+)
+
+print(conversation.source_ids)
+```
 </CodeGroup>
 
 ## Search memories
@@ -143,6 +257,28 @@ const search = await client.search.hybrid({
 for (const candidate of search.candidates) {
 	console.log(candidate.content, candidate.score);
 }
+```
+```python Python (Sync)
+search = client.search.hybrid(
+    space_id=space.id,
+    query="What does the user prefer for TypeScript projects?",
+    limit=5,
+    include_source=True,
+)
+
+for candidate in search.candidates:
+    print(candidate.content, candidate.score)
+```
+```python Python (Async)
+search = await client.search.hybrid(
+    space_id=space.id,
+    query="What does the user prefer for TypeScript projects?",
+    limit=5,
+    include_source=True,
+)
+
+for candidate in search.candidates:
+    print(candidate.content, candidate.score)
 ```
 </CodeGroup>
 
