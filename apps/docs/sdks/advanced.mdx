@@ -4,15 +4,12 @@ description: "Configure SDK clients, retries, errors, logging, and raw responses
 icon: "gear"
 ---
 
-Use this page when you need to tune SDK behavior beyond the default authenticated setup.
-
-<Note>
-The options below describe the TypeScript SDK. Python-specific advanced options will be added when the Python SDK ships.
-</Note>
+Use this page when you need to tune SDK behavior beyond the default authenticated setup. Options apply to both the TypeScript and Python SDKs; where they differ, both are shown.
 
 ## Client options
 
-```ts
+<CodeGroup>
+```ts TypeScript
 import Crosmos from "crosmos";
 
 const client = new Crosmos({
@@ -22,26 +19,38 @@ const client = new Crosmos({
 	maxRetries: 2,
 });
 ```
+```python Python
+from crosmos import Crosmos
+
+client = Crosmos(
+    api_key="csk_...",
+    base_url="https://api.crosmos.dev",
+    timeout=60.0,  # seconds, not milliseconds
+    max_retries=2,
+)
+```
+</CodeGroup>
+
+Python uses snake_case equivalents: `apiKey` → `api_key`, `baseURL` → `base_url`, `maxRetries` → `max_retries`.
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `apiKey` | JWT access token or Crosmos API key. | `CROSMOS_API_KEY` |
-| `baseURL` | API base URL. | `CROSMOS_BASE_URL` or `https://api.crosmos.dev` |
-| `timeout` | Request timeout in milliseconds. | `60000` |
-| `maxRetries` | Retry attempts for transient failures. | `2` |
-| `fetch` | Custom `fetch` implementation. | global `fetch` |
-| `fetchOptions` | Runtime-specific `RequestInit` options passed to `fetch`. | none |
-| `defaultHeaders` | Headers sent with every request. | none |
-| `defaultQuery` | Query parameters sent with every request. | none |
-| `logLevel` | SDK log level. | `CROSMOS_LOG` or `warn` |
-| `logger` | Logger with `debug`, `info`, `warn`, and `error` methods. | `console` |
+| `apiKey` / `api_key` | JWT access token or Crosmos API key. | `CROSMOS_API_KEY` |
+| `baseURL` / `base_url` | API base URL. | `CROSMOS_BASE_URL` or `https://api.crosmos.dev` |
+| `timeout` | Request timeout. TypeScript: milliseconds. Python: seconds. | `60000` / `60.0` |
+| `maxRetries` / `max_retries` | Retry attempts for transient failures. | `2` |
+| `fetch` / `http_client` | Custom HTTP client. TypeScript: fetch. Python: `httpx.Client`. | global `fetch` / `httpx.Client` |
+| `defaultHeaders` / `default_headers` | Headers sent with every request. | none |
+| `defaultQuery` / `default_query` | Query parameters sent with every request. | none |
+| `logLevel` | SDK log level (TypeScript only). | `CROSMOS_LOG` or `warn` |
+| `logger` | Logger instance (TypeScript only). | `console` |
 
 ## Environment variables
 
 | Variable | Description |
 |----------|-------------|
-| `CROSMOS_API_KEY` | API key used when `apiKey` is not passed directly. |
-| `CROSMOS_BASE_URL` | API base URL used when `baseURL` is not passed directly. |
+| `CROSMOS_API_KEY` | API key used when `apiKey` / `api_key` is not passed directly. |
+| `CROSMOS_BASE_URL` | API base URL used when `baseURL` / `base_url` is not passed directly. |
 | `CROSMOS_LOG` | Log level: `debug`, `info`, `warn`, `error`, or `off`. |
 | `CROSMOS_CUSTOM_HEADERS` | Newline-separated custom headers in `Name: value` format. |
 
@@ -51,9 +60,10 @@ The SDK uses `CROSMOS_BASE_URL`. The MCP server uses `CROSMOS_API_BASE_URL`.
 
 ## Per-request options
 
-Most SDK methods accept request options as the final argument.
+Most SDK methods accept per-request overrides.
 
-```ts
+<CodeGroup>
+```ts TypeScript
 const search = await client.search.hybrid(
 	{
 		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -68,10 +78,21 @@ const search = await client.search.hybrid(
 	},
 );
 ```
+```python Python
+search = client.search.hybrid(
+    space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    query="What does the user prefer for TypeScript projects?",
+    timeout=10.0,
+    max_retries=5,
+    extra_headers={"X-Request-Source": "agent-worker"},
+)
+```
+</CodeGroup>
 
-Use `AbortController` when you need to cancel a request:
+Use `AbortController` (TypeScript) or `client.with_options()` (Python) when you need to cancel a request or create a scoped client copy:
 
-```ts
+<CodeGroup>
+```ts TypeScript
 const controller = new AbortController();
 
 const request = client.search.hybrid(
@@ -88,6 +109,15 @@ controller.abort();
 
 await request;
 ```
+```python Python
+scoped = client.with_options(max_retries=5, timeout=10.0)
+
+search = scoped.search.hybrid(
+    space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    query="What changed since yesterday?",
+)
+```
+</CodeGroup>
 
 ## Retries and timeouts
 
@@ -97,15 +127,21 @@ Retries apply to connection errors, request timeouts, `408`, `409`, `429`, and `
 
 Disable retries globally:
 
-```ts
+<CodeGroup>
+```ts TypeScript
 const client = new Crosmos({
 	maxRetries: 0,
 });
 ```
+```python Python
+client = Crosmos(max_retries=0)
+```
+</CodeGroup>
 
 Tune retries for one request:
 
-```ts
+<CodeGroup>
+```ts TypeScript
 await client.search.hybrid(
 	{
 		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -116,12 +152,19 @@ await client.search.hybrid(
 	},
 );
 ```
+```python Python
+client.search.hybrid(
+    space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    query="What does the user remember about Austin?",
+    max_retries=4,
+)
+```
+</CodeGroup>
 
 ## Handling errors
 
-The SDK throws subclasses of `Crosmos.APIError` for API and connection failures.
-
-```ts
+<CodeGroup>
+```ts TypeScript
 try {
 	const search = await client.search.hybrid({
 		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -141,6 +184,22 @@ try {
 	throw error;
 }
 ```
+```python Python
+from crosmos import APIError
+
+try:
+    search = client.search.hybrid(
+        space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        query="What is the user's preferred editor?",
+    )
+
+    print(search.candidates)
+except APIError as e:
+    print(e.status_code)
+    print(e.message)
+    raise
+```
+</CodeGroup>
 
 | Status | Error class |
 |--------|-------------|
@@ -156,9 +215,10 @@ try {
 
 ## Raw responses
 
-Every resource method returns an `APIPromise`. Await it normally for parsed data, or use helper methods when you need the underlying `Response`.
+Every resource method returns a typed response. Use helper methods when you need the underlying HTTP response.
 
-```ts
+<CodeGroup>
+```ts TypeScript
 const { data, response } = await client.search
 	.hybrid({
 		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -169,10 +229,22 @@ const { data, response } = await client.search
 console.log(data.candidates);
 console.log(response.headers);
 ```
+```python Python
+response = client.search.with_raw_response.hybrid(
+    space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    query="What does the user prefer?",
+)
 
-Use `.asResponse()` when you only need the raw response:
+print(response.headers.get("X-Request-Id"))
+search = response.parse()  # returns typed Search object
+print(search.candidates)
+```
+</CodeGroup>
 
-```ts
+Use `.asResponse()` (TypeScript) or `.with_streaming_response` (Python) when you only need the raw response without parsing:
+
+<CodeGroup>
+```ts TypeScript
 const response = await client.search
 	.hybrid({
 		space_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -182,12 +254,35 @@ const response = await client.search
 
 console.log(response.status);
 ```
+```python Python
+with client.search.with_streaming_response.hybrid(
+    space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    query="What does the user prefer?",
+) as response:
+    print(response.status_code)
+    for line in response.iter_lines():
+        print(line)
+```
+</CodeGroup>
 
-## Custom fetch
+## Pydantic responses
 
-Pass `fetch` when your runtime needs a custom implementation.
+Python response objects are Pydantic models. Use `.to_dict()` and `.to_json()` to serialize them.
 
-```ts
+```python
+search = client.search.hybrid(
+    space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    query="What does the user prefer?",
+)
+
+data = search.to_dict()    # dict
+json_str = search.to_json()  # JSON string
+```
+
+## Custom HTTP client
+
+<CodeGroup>
+```ts TypeScript
 import Crosmos from "crosmos";
 import fetch from "my-fetch";
 
@@ -195,8 +290,20 @@ const client = new Crosmos({
 	fetch,
 });
 ```
+```python Python
+import httpx
+from crosmos import Crosmos, DefaultHttpxClient
 
-Use `fetchOptions` for runtime-specific transport settings:
+client = Crosmos(
+    http_client=DefaultHttpxClient(
+        proxy="http://my.proxy:8080",
+        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
+    ),
+)
+```
+</CodeGroup>
+
+Use `fetchOptions` (TypeScript) for runtime-specific transport settings:
 
 ```ts
 const client = new Crosmos({
@@ -208,6 +315,16 @@ const client = new Crosmos({
 
 ## Runtime support
 
-The TypeScript SDK uses the runtime's global `fetch` implementation by default. It supports modern browsers, Node.js 20 LTS or later, Bun 1.0 or later, Deno 1.28 or later, Cloudflare Workers, Vercel Edge Runtime, Jest with the `node` environment, and Nitro 2.6 or later.
+**TypeScript:** Uses the runtime's global `fetch` implementation by default. Supports modern browsers, Node.js 20 LTS or later, Bun 1.0 or later, Deno 1.28 or later, Cloudflare Workers, Vercel Edge Runtime, Jest with the `node` environment, and Nitro 2.6 or later. React Native is not supported.
 
-React Native is not supported.
+**Python:** Supports Python 3.8 and later. Uses `httpx` for HTTP transport and `pydantic` for response validation. The `AsyncCrosmos` client uses `anyio` and is compatible with `asyncio` and `trio`. An optional `aiohttp` backend is available for projects already using `aiohttp`:
+
+```python
+from crosmos import AsyncCrosmos, DefaultAioHttpClient
+
+async with AsyncCrosmos(http_client=DefaultAioHttpClient()) as client:
+    search = await client.search.hybrid(
+        space_id="a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        query="What does the user prefer?",
+    )
+```
