@@ -315,7 +315,7 @@
 		scrollbar-color: gray transparent;
 	}
 	body {
-		@apply bg-background text-foreground tracking-normal selection:bg-accent selection:text-accent-foreground;
+		@apply bg-background text-foreground tracking-normal selection:bg-accent/80 dark:selection:bg-accent/60 selection:text-accent-foreground;
 	}
 	button {
 		@apply cursor-pointer focus:outline-none focus:ring-0;
