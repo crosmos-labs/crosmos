@@ -42,7 +42,7 @@ export default function RootLayout({
 			<body className="flex flex-col h-dvh">
 				<NuqsAdapter>
 					<SkipToContent />
-					<StagingBanner />
+					{/*<StagingBanner />*/}
 					<TooltipProvider>{children}</TooltipProvider>
 					<Toaster />
 					<Analytics />
