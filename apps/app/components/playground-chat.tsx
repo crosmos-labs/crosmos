@@ -1,5 +1,6 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -11,53 +12,37 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
+import { Spinner } from "@crosmos/ui/components/spinner";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconArrowUp, IconMicrophone, IconPlus } from "@tabler/icons-react";
+import {
+	IconArrowDown,
+	IconArrowUp,
+	IconMicrophone,
+	IconPlus,
+} from "@tabler/icons-react";
+import { DefaultChatTransport } from "ai";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { ChatResponse } from "@/components/chat-response";
 import { PlaygroundArrow } from "@/components/playground-arrow";
 import { ClaudeAI, Gemini, OpenAI } from "@/components/provider-logos";
+import { ShimmeringText } from "@/components/shimmering-text";
+import { useSpaces } from "@/hooks/use-spaces";
+import {
+	DEFAULT_MODEL_ID,
+	MODELS,
+	PROVIDER_LABELS,
+	PROVIDER_ORDER,
+	type ProviderId,
+} from "@/lib/ai/models";
+import { MetalButton } from "./metal-button";
 
-interface MockModel {
-	id: string;
-	label: string;
-	provider: "anthropic" | "openai" | "google";
-}
-
-const MOCK_MODELS: MockModel[] = [
-	{ id: "claude-opus-4-8", label: "Claude Opus 4.8", provider: "anthropic" },
-	{
-		id: "claude-sonnet-4-6",
-		label: "Claude Sonnet 4.6",
-		provider: "anthropic",
-	},
-	{ id: "claude-haiku-4-5", label: "Claude Haiku 4.5", provider: "anthropic" },
-	{ id: "gpt-4o", label: "GPT-4o", provider: "openai" },
-	{ id: "gpt-4-turbo", label: "GPT-4 Turbo", provider: "openai" },
-	{ id: "gpt-3.5-turbo", label: "GPT-3.5 Turbo", provider: "openai" },
-	{ id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", provider: "google" },
-	{ id: "gemini-2.0-flash", label: "Gemini 2.0 Flash", provider: "google" },
-	{ id: "gemini-1.5-pro", label: "Gemini 1.5 Pro", provider: "google" },
-];
-
-const PROVIDER_LABELS: Record<MockModel["provider"], string> = {
-	anthropic: "Anthropic",
-	openai: "OpenAI",
-	google: "Google",
-};
-
-const PROVIDER_LOGOS: Record<MockModel["provider"], typeof ClaudeAI> = {
+const PROVIDER_LOGOS: Record<ProviderId, typeof ClaudeAI> = {
 	anthropic: ClaudeAI,
 	openai: OpenAI,
 	google: Gemini,
 };
-
-const MOCK_SPACES = [
-	{ id: "sp-1", name: "coolspace" },
-	{ id: "sp-2", name: "work-notes" },
-	{ id: "sp-3", name: "research" },
-];
 
 // Shared spring so position, height, and the button reflow all morph in unison.
 const SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
@@ -67,31 +52,85 @@ type Phase = "idle" | "active";
 export function PlaygroundChat() {
 	const [phase, setPhase] = useState<Phase>("idle");
 	const [value, setValue] = useState("");
-	const [isSending, setIsSending] = useState(false);
-	const [selectedModel, setSelectedModel] = useState(MOCK_MODELS[0]?.id);
-	const [selectedSpace, setSelectedSpace] = useState(MOCK_SPACES[0]?.id);
+	const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL_ID);
+	const [selectedSpace, setSelectedSpace] = useState<string | undefined>(
+		undefined,
+	);
+	const [atBottom, setAtBottom] = useState(true);
+
+	const { data: spaces } = useSpaces();
+	const { messages, sendMessage, status, stop, error } = useChat({
+		transport: new DefaultChatTransport({ api: "/api/chat" }),
+		// Batch high-frequency streaming updates so rendering stays smooth.
+		experimental_throttle: 50,
+	});
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
-	const sendingTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-	const isActive = phase === "active";
-	const canSend = value.trim().length > 0 && !isSending;
+	const isActive = phase === "active" || messages.length > 0;
+	const isBusy = status === "submitted" || status === "streaming";
+	const canSend = value.trim().length > 0 && !isBusy && !!selectedSpace;
 
-	// Auto-focus on mount; clean up the sending timer on unmount.
+	const lastMessage = messages[messages.length - 1];
+	// "Thinking" shows once a turn is in flight but before the assistant has
+	// produced anything to render (no message yet, or a message with no parts).
+	const showThinking =
+		isBusy &&
+		!(lastMessage?.role === "assistant" && lastMessage.parts.length > 0);
+
+	// Default the space selection to the first available space once loaded.
+	useEffect(() => {
+		const first = spaces?.[0];
+		if (!selectedSpace && first) {
+			setSelectedSpace(first.id);
+		}
+	}, [spaces, selectedSpace]);
+
+	// Auto-focus on mount.
 	useEffect(() => {
 		textareaRef.current?.focus();
-		return () => {
-			if (sendingTimeout.current) clearTimeout(sendingTimeout.current);
-		};
 	}, []);
 
+	// Track the dashboard scroll container so we only auto-stick when the user is
+	// already near the bottom (otherwise scrolling up to read gets yanked back).
+	useEffect(() => {
+		if (!isActive) return;
+		const scroller = document.getElementById("main-content")?.parentElement;
+		if (!scroller) return;
+		const onScroll = () => {
+			const dist =
+				scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
+			setAtBottom(dist < 80);
+		};
+		onScroll();
+		scroller.addEventListener("scroll", onScroll, { passive: true });
+		return () => scroller.removeEventListener("scroll", onScroll);
+	}, [isActive]);
+
+	// Stick to the bottom as content streams in — but only while the user is at
+	// the bottom. The dashboard's #main-content scroll container is the scrollbar.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: re-run on every streamed update
+	useEffect(() => {
+		if (!atBottom) return;
+		const scroller = document.getElementById("main-content")?.parentElement;
+		if (scroller) scroller.scrollTop = scroller.scrollHeight;
+	}, [messages, showThinking, atBottom]);
+
+	const scrollToBottom = () => {
+		const scroller = document.getElementById("main-content")?.parentElement;
+		if (scroller) scroller.scrollTop = scroller.scrollHeight;
+		setAtBottom(true);
+	};
+
 	const handleSubmit = () => {
-		if (!canSend) return;
+		if (!canSend || !selectedSpace) return;
+		const text = value;
 		setPhase("active");
 		setValue("");
-		setIsSending(true);
-		if (sendingTimeout.current) clearTimeout(sendingTimeout.current);
-		sendingTimeout.current = setTimeout(() => setIsSending(false), 900);
+		sendMessage(
+			{ text },
+			{ body: { model: selectedModel, spaceId: selectedSpace } },
+		);
 		requestAnimationFrame(() => textareaRef.current?.focus());
 	};
 
@@ -105,11 +144,37 @@ export function PlaygroundChat() {
 	return (
 		<MotionConfig transition={SPRING} reducedMotion="user">
 			<div className="flex min-h-[calc(100svh-6.5rem)] w-full flex-col items-center">
-				{/* Top flexible area: optical-centered when idle, fills to push the composer down when active. */}
-				<div
-					className={cn("basis-0", isActive ? "grow" : "grow-[2]")}
-					aria-hidden
-				/>
+				{/* Top area: message thread when active, centering spacer when idle.
+				    The thread is in normal flow so the dashboard page scrollbar scrolls
+				    it; the composer below sticks to the viewport bottom as it grows. */}
+				{isActive ? (
+					<div className="w-full max-w-3xl flex-1 space-y-5 py-6">
+						{messages.map((message) => (
+							<MessageBubble
+								key={message.id}
+								message={message}
+								isStreaming={
+									status === "streaming" && message.id === lastMessage?.id
+								}
+							/>
+						))}
+						{showThinking && (
+							<ShimmeringText
+								text="Thinking"
+								className="px-1 text-base"
+								startOnView={false}
+							/>
+						)}
+						{error && (
+							<p className="px-1 text-sm text-destructive">
+								Something went wrong. Check that the model provider is
+								configured, then try again.
+							</p>
+						)}
+					</div>
+				) : (
+					<div className="basis-0 grow-[2]" aria-hidden />
+				)}
 
 				<AnimatePresence mode="popLayout">
 					{!isActive && (
@@ -135,18 +200,48 @@ export function PlaygroundChat() {
 					)}
 				</AnimatePresence>
 
-				{/* Composer — morphs from centered to bottom-pinned. The + button sits
-				    flush against the textarea in the active state (gap removed via -ml-1),
-				    so its slot is just size-8 = 32px. Widening the centered composer by
-				    2 × 32 = 64px shifts its left edge out by exactly 32px — keeping the
-				    textarea's left edge fixed (no x-axis movement). */}
+				{/* Composer — morphs from centered (idle) to bottom-pinned (active). */}
 				<motion.div
 					layout
 					className={cn(
 						"w-full shrink-0",
-						isActive ? "max-w-[46rem]" : "max-w-2xl",
+						// Active: pinned to the viewport bottom. `bottom-6` matches the
+						// dashboard #main-content's p-6, so the resting and stuck positions
+						// are identical (no jump on scroll). The 4rem-wider active box
+						// compensates for the + button so the textarea's left edge doesn't
+						// shift during the morph.
+						isActive
+							? "sticky bottom-6 max-w-3xl bg-background"
+							: "max-w-[44rem]",
 					)}
 				>
+					{/* Top fade so the scrolling thread dissolves into the composer. */}
+					{isActive && (
+						<div className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-background to-transparent" />
+					)}
+
+					{/* Bottom cover: masks the thread bleeding through the gap below the
+					    composer while scrolled up. Only rendered when scrolled away from the
+					    bottom — otherwise this absolute strip extends past the content and
+					    creates a spurious page scrollbar on short chats. */}
+					{isActive && !atBottom && (
+						<div className="pointer-events-none absolute inset-x-0 top-full h-8 bg-background" />
+					)}
+
+					{/* Scroll-to-bottom button — only when the user has scrolled up. */}
+					{isActive && !atBottom && (
+						<Button
+							type="button"
+							variant="outline"
+							size="icon"
+							onClick={scrollToBottom}
+							className="-top-12 -translate-x-1/2 absolute left-1/2 size-9 rounded-full border-border bg-card shadow-md"
+							aria-label="Scroll to bottom"
+						>
+							<IconArrowDown />
+						</Button>
+					)}
+
 					<div className="flex flex-col gap-1.5 rounded-2xl border border-border bg-card p-1.5">
 						{/* Input box — reflows from textarea-over-buttons to a single inline row. */}
 						<motion.div
@@ -162,6 +257,7 @@ export function PlaygroundChat() {
 									type="button"
 									variant="ghost"
 									size="icon"
+									disabled
 									className="text-muted-foreground"
 									aria-label="Add attachment"
 								>
@@ -185,7 +281,7 @@ export function PlaygroundChat() {
 									placeholder="Ask anything..."
 									rows={isActive ? 1 : 4}
 									className={cn(
-										"field-sizing-content w-full resize-none bg-transparent px-2.5 text-lg text-foreground outline-none placeholder:text-muted-foreground/60",
+										"field-sizing-content w-full resize-none bg-transparent px-2.5 text-base text-foreground outline-none placeholder:text-muted-foreground/60",
 										isActive
 											? "max-h-40 min-h-0 py-1.5"
 											: "max-h-72 min-h-28 pt-2",
@@ -205,6 +301,7 @@ export function PlaygroundChat() {
 									type="button"
 									variant="ghost"
 									size="icon"
+									disabled
 									className="text-muted-foreground"
 									aria-label="Voice input"
 								>
@@ -220,17 +317,13 @@ export function PlaygroundChat() {
 								<Button
 									type="button"
 									size="icon"
-									onClick={handleSubmit}
-									disabled={!canSend}
+									onClick={isBusy ? () => stop() : handleSubmit}
+									disabled={!isBusy && !canSend}
 									className="rounded-full bg-foreground text-background hover:bg-foreground/85 disabled:opacity-40"
-									aria-label="Send message"
+									aria-label={isBusy ? "Stop generating" : "Send message"}
 								>
-									{isSending ? (
-										<AnimatedSpinner
-											name="pulse"
-											size="1.1em"
-											color="var(--background)"
-										/>
+									{isBusy ? (
+										<Spinner className="size-4 text-background" />
 									) : (
 										<IconArrowUp />
 									)}
@@ -238,7 +331,7 @@ export function PlaygroundChat() {
 							</motion.div>
 						</motion.div>
 
-						{/* Model + space selectors — unchanged, stays under the input box. */}
+						{/* Model + space selectors — stays under the input box. */}
 						<div className="flex items-center gap-2 px-1 py-0.5">
 							<Select value={selectedModel} onValueChange={setSelectedModel}>
 								<SelectTrigger
@@ -249,37 +342,47 @@ export function PlaygroundChat() {
 									<SelectValue placeholder="Select model" />
 								</SelectTrigger>
 								<SelectContent>
-									{(["anthropic", "openai", "google"] as const).map(
-										(provider) => {
-											const ProviderLogo = PROVIDER_LOGOS[provider];
-											return (
-												<SelectGroup key={provider}>
-													<SelectLabel>{PROVIDER_LABELS[provider]}</SelectLabel>
-													{MOCK_MODELS.filter(
-														(m) => m.provider === provider,
-													).map((model) => (
-														<SelectItem key={model.id} value={model.id}>
-															<ProviderLogo className="size-4 shrink-0" />
-															{model.label}
-														</SelectItem>
-													))}
-												</SelectGroup>
-											);
-										},
-									)}
+									{PROVIDER_ORDER.map((provider) => {
+										const providerModels = MODELS.filter(
+											(m) => m.provider === provider,
+										);
+										if (providerModels.length === 0) return null;
+										const ProviderLogo = PROVIDER_LOGOS[provider];
+										return (
+											<SelectGroup key={provider}>
+												<SelectLabel>{PROVIDER_LABELS[provider]}</SelectLabel>
+												{providerModels.map((model) => (
+													<SelectItem key={model.id} value={model.id}>
+														<ProviderLogo className="size-4 shrink-0" />
+														{model.label}
+													</SelectItem>
+												))}
+											</SelectGroup>
+										);
+									})}
 								</SelectContent>
 							</Select>
 
-							<Select value={selectedSpace} onValueChange={setSelectedSpace}>
+							<Select
+								value={selectedSpace}
+								onValueChange={setSelectedSpace}
+								disabled={!spaces || spaces.length === 0}
+							>
 								<SelectTrigger
 									size="sm"
 									className="h-7 rounded-full border-transparent bg-transparent px-3 text-sm hover:bg-muted/60 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent dark:hover:bg-muted/60"
 									aria-label="Select space"
 								>
-									<SelectValue placeholder="Select space" />
+									<SelectValue
+										placeholder={
+											spaces && spaces.length === 0
+												? "No spaces"
+												: "Select space"
+										}
+									/>
 								</SelectTrigger>
 								<SelectContent>
-									{MOCK_SPACES.map((space) => (
+									{(spaces ?? []).map((space) => (
 										<SelectItem key={space.id} value={space.id}>
 											{space.name}
 										</SelectItem>
@@ -294,4 +397,100 @@ export function PlaygroundChat() {
 			</div>
 		</MotionConfig>
 	);
+}
+
+type ChatMessage = ReturnType<typeof useChat>["messages"][number];
+
+/**
+ * Renders a turn: user text as a capped right-aligned bubble, assistant text as
+ * full-column streaming Markdown (ChatResponse/Streamdown), plus memory/search
+ * tool activity chips. Copy/retry/regenerate are a later UI phase.
+ */
+function MessageBubble({
+	message,
+	isStreaming,
+}: {
+	message: ChatMessage;
+	isStreaming: boolean;
+}) {
+	const isUser = message.role === "user";
+	return (
+		<div className={cn("flex flex-col gap-1.5", isUser && "items-end")}>
+			{message.parts.map((part, i) => {
+				if (part.type === "text") {
+					if (isUser) {
+						return (
+							<div
+								// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
+								key={i}
+								className="max-w-[80%] [overflow-wrap:anywhere] whitespace-pre-wrap rounded-2xl bg-muted px-3.5 py-2 text-base text-foreground"
+							>
+								{part.text}
+							</div>
+						);
+					}
+					return (
+						// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
+						<div key={i} className="w-full text-foreground">
+							<ChatResponse text={part.text} isStreaming={isStreaming} />
+						</div>
+					);
+				}
+				if (part.type === "tool-search_memory") {
+					return (
+						// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
+						<ToolChip key={i}>
+							{searchChipLabel(part.state, part.output)}
+							{isToolPending(part.state) && (
+								<AnimatedSpinner name="pulse" size="0.9em" />
+							)}
+						</ToolChip>
+					);
+				}
+				if (part.type === "tool-save_memory") {
+					return (
+						// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
+						<ToolChip key={i}>
+							{saveChipLabel(part.state, part.output)}
+							{isToolPending(part.state) && (
+								<AnimatedSpinner name="pulse" size="0.9em" />
+							)}
+						</ToolChip>
+					);
+				}
+				return null;
+			})}
+		</div>
+	);
+}
+
+function ToolChip({ children }: { children: React.ReactNode }) {
+	return (
+		<span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground">
+			{children}
+		</span>
+	);
+}
+
+function isToolPending(state: string): boolean {
+	return state === "input-streaming" || state === "input-available";
+}
+
+function searchChipLabel(state: string, output: unknown): string {
+	if (isToolPending(state)) return "Searching memory…";
+	if (state === "output-error") return "Memory search failed";
+	const out = output as { count?: number; error?: string } | undefined;
+	if (out?.error) return "Memory search unavailable";
+	const count = out?.count ?? 0;
+	return count === 0
+		? "Searched memory · no matches"
+		: `Searched memory · ${count} result${count === 1 ? "" : "s"}`;
+}
+
+function saveChipLabel(state: string, output: unknown): string {
+	if (isToolPending(state)) return "Saving to memory…";
+	if (state === "output-error") return "Couldn't save to memory";
+	const out = output as { error?: string } | undefined;
+	if (out?.error) return "Couldn't save to memory";
+	return "Saved to memory";
 }
