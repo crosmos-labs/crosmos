@@ -56,6 +56,12 @@ const LINK_HIT_LINE_WIDTH = 0.5 + 4;
 // visible node can briefly drift off the stale shadow and trigger a false
 // hover-out. Holding the hover-out for ~80ms swallows that flicker.
 const HOVER_OUT_DEBOUNCE_MS = 80;
+const MIN_ZOOM = 0.1;
+const MAX_ZOOM = 5;
+
+function clampZoom(scale: number): number {
+	return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale));
+}
 
 function defaultNodeLabel<TNode extends BaseNode>(n: TNode): string {
 	const candidate = n as unknown as { label?: unknown; name?: unknown };
@@ -273,7 +279,7 @@ export function ForceGraph<
 	useImperativeHandle(
 		ref,
 		(): ForceGraphHandle => ({
-			zoom: (scale, ms) => void fgRef.current?.zoom(scale, ms),
+			zoom: (scale, ms) => void fgRef.current?.zoom(clampZoom(scale), ms),
 			zoomToFit: (ms, padding) => void fgRef.current?.zoomToFit(ms, padding),
 			centerAt: (x, y, ms) => void fgRef.current?.centerAt(x, y, ms),
 			pauseAnimation: () => void fgRef.current?.pauseAnimation(),
@@ -303,7 +309,10 @@ export function ForceGraph<
 					node.y ?? 0,
 					theme.click.centerAnimationDuration,
 				);
-				fg.zoom(theme.click.targetZoom, theme.click.centerAnimationDuration);
+				fg.zoom(
+					clampZoom(theme.click.targetZoom),
+					theme.click.centerAnimationDuration,
+				);
 			}
 			onNodeClick?.(original);
 		},
@@ -336,7 +345,10 @@ export function ForceGraph<
 					(sy + ty) / 2,
 					theme.edgeClick.animationDuration,
 				);
-				fg.zoom(theme.edgeClick.targetZoom, theme.edgeClick.animationDuration);
+				fg.zoom(
+					clampZoom(theme.edgeClick.targetZoom),
+					theme.edgeClick.animationDuration,
+				);
 			}
 			onEdgeClick?.(original);
 		},
@@ -513,6 +525,8 @@ export function ForceGraph<
 				graphData={graphData}
 				width={dimensions.width}
 				height={dimensions.height}
+				minZoom={MIN_ZOOM}
+				maxZoom={MAX_ZOOM}
 				onZoom={showZoomLevel ? handleZoom : undefined}
 				nodeLabel=""
 				linkLabel=""
