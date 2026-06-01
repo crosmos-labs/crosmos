@@ -8,6 +8,7 @@
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
 @source "../../../packages/graph/**/*.{ts,tsx}";
+@source "../../../../node_modules/streamdown/dist/*.js";
 
 :root {
 	--background: oklch(0.93 0.0106 99.4974);
