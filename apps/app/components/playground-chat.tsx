@@ -363,7 +363,10 @@ export function PlaygroundChat() {
 
 							<Select
 								value={selectedSpace}
-								onValueChange={setSelectedSpace}
+								onValueChange={(v) => {
+									setSelectedSpace(v);
+									setMessages([]);
+								}}
 								disabled={!spaces || spaces.length === 0}
 							>
 								<SelectTrigger

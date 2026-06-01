@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@crosmos/ui/components/badge";
 import { ShimmeringText } from "@crosmos/ui/components/shimmering-text";
 import {
 	IconBrain,
@@ -66,8 +65,8 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 		);
 	}
 
-	const count = out?.count ?? 0;
-	const results = out?.results ?? [];
+	const results = (out?.results ?? []).slice(0, 5);
+	const count = results.length;
 
 	if (count === 0) {
 		return (
@@ -105,20 +104,15 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 					</AccordionPrimitive.Trigger>
 				</AccordionPrimitive.Header>
 
-				<AccordionPrimitive.Content className="overflow-hidden data-open:animate-accordion-down data-closed:animate-accordion-up">
+				<AccordionPrimitive.Content className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
 					<div className="mt-2 space-y-2 rounded-lg bg-muted/40 px-3 py-2.5">
 						{results.map((result) => (
-							<div
+							<p
 								key={result.id}
-								className="grid grid-cols-[5.5rem_1fr] items-start gap-2 text-xs"
+								className="line-clamp-2 text-xs text-muted-foreground"
 							>
-								<Badge variant="outline" className="capitalize">
-									{result.type}
-								</Badge>
-								<span className="line-clamp-2 text-muted-foreground">
-									{result.content}
-								</span>
-							</div>
+								{result.content}
+							</p>
 						))}
 					</div>
 				</AccordionPrimitive.Content>

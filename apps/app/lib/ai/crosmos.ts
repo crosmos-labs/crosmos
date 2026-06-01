@@ -49,9 +49,8 @@ function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
 }
 
-// Crosmos search worker hard-limits at 30s; give it 32s then abort ourselves.
 const SEARCH_TIMEOUT_MS = 25_000;
-// Save is a fast 202 enqueue — 10s is generous.
+// Save is a fast 202 enqueue — 15s is generous.
 const SAVE_TIMEOUT_MS = 15_000;
 
 /**
@@ -97,16 +96,23 @@ export async function saveMemory(args: {
 	spaceId: string;
 }): Promise<{ jobId: string; tookMs: number }> {
 	const startedAt = performance.now();
-	const data = await apiFetch<IngestResponse>("/sources", {
-		method: "POST",
-		signal: AbortSignal.timeout(SAVE_TIMEOUT_MS),
-		body: JSON.stringify({
-			space_id: args.spaceId,
-			sources: [{ content: args.content, content_type: "text" }],
-		}),
-	});
-	return {
-		jobId: data.job_id,
-		tookMs: data.took_ms ?? performance.now() - startedAt,
-	};
+	try {
+		const data = await apiFetch<IngestResponse>("/sources", {
+			method: "POST",
+			signal: AbortSignal.timeout(SAVE_TIMEOUT_MS),
+			body: JSON.stringify({
+				space_id: args.spaceId,
+				sources: [{ content: args.content, content_type: "text" }],
+			}),
+		});
+		return {
+			jobId: data.job_id,
+			tookMs: data.took_ms ?? performance.now() - startedAt,
+		};
+	} catch (err) {
+		if (err instanceof DOMException && err.name === "TimeoutError") {
+			throw new CrosmosRetryableError(504, "Memory save timed out.");
+		}
+		rethrowRetryable(err);
+	}
 }
