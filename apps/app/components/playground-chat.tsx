@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { Chat, useChat } from "@ai-sdk/react";
 import { Button } from "@crosmos/ui/components/button";
 import {
 	Select,
@@ -19,6 +19,7 @@ import {
 	IconArrowUp,
 	IconMicrophone,
 	IconPlus,
+	IconRefresh,
 } from "@tabler/icons-react";
 import { DefaultChatTransport } from "ai";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
@@ -46,10 +47,13 @@ const PROVIDER_LOGOS: Record<ProviderId, typeof ClaudeAI> = {
 // Shared spring so position, height, and the button reflow all morph in unison.
 const SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
 
-type Phase = "idle" | "active";
+// Module-level Chat instance — lives outside the React tree so messages survive
+// client-side navigation. Gone on page refresh (session-only, by design).
+const playgroundChat = new Chat({
+	transport: new DefaultChatTransport({ api: "/api/chat" }),
+});
 
 export function PlaygroundChat() {
-	const [phase, setPhase] = useState<Phase>("idle");
 	const [value, setValue] = useState("");
 	const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL_ID);
 	const [selectedSpace, setSelectedSpace] = useState<string | undefined>(
@@ -58,15 +62,15 @@ export function PlaygroundChat() {
 	const [atBottom, setAtBottom] = useState(true);
 
 	const { data: spaces } = useSpaces();
-	const { messages, sendMessage, status, stop, error } = useChat({
-		transport: new DefaultChatTransport({ api: "/api/chat" }),
+	const { messages, sendMessage, status, stop, error, setMessages } = useChat({
+		chat: playgroundChat,
 		// Batch high-frequency streaming updates so rendering stays smooth.
 		experimental_throttle: 50,
 	});
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-	const isActive = phase === "active" || messages.length > 0;
+	const isActive = messages.length > 0;
 	const isBusy = status === "submitted" || status === "streaming";
 	const canSend = value.trim().length > 0 && !isBusy && !!selectedSpace;
 
@@ -126,7 +130,6 @@ export function PlaygroundChat() {
 	const handleSubmit = () => {
 		if (!canSend || !selectedSpace) return;
 		const text = value;
-		setPhase("active");
 		setValue("");
 		sendMessage(
 			{ text },
@@ -384,6 +387,22 @@ export function PlaygroundChat() {
 									))}
 								</SelectContent>
 							</Select>
+
+							{isActive && (
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									onClick={() => {
+										setMessages([]);
+										requestAnimationFrame(() => textareaRef.current?.focus());
+									}}
+									className="ml-auto h-7 border-transparent bg-transparent px-3 text-sm text-muted-foreground hover:bg-muted/60 dark:bg-transparent dark:hover:bg-muted/60"
+								>
+									<IconRefresh className="size-3.5" />
+									Reset
+								</Button>
+							)}
 						</div>
 					</div>
 				</motion.div>
