@@ -22,10 +22,10 @@ export interface ModelMeta {
 // One model per provider. Google's Gemini API has a free tier (AI Studio),
 // so it's the default for zero-cost testing; Anthropic and OpenAI are paid.
 export const MODELS: readonly ModelMeta[] = [
-	{ id: "gpt-5-mini", label: "GPT-5 mini", provider: "openai" },
+	{ id: "claude-sonnet-4-6", label: "Sonnet 4.6", provider: "anthropic" },
 ];
 
-export const DEFAULT_MODEL_ID = "gpt-5-mini";
+export const DEFAULT_MODEL_ID = "claude-sonnet-4-6";
 
 export const PROVIDER_LABELS: Record<ProviderId, string> = {
 	anthropic: "Anthropic",

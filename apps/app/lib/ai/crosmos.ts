@@ -23,6 +23,7 @@ interface IngestResponse {
 	job_id: string;
 	source_ids?: string[];
 	status?: string;
+	took_ms?: number;
 }
 
 /** Error thrown when Crosmos is transiently unavailable (429/503/504). */
@@ -48,6 +49,11 @@ function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
 }
 
+// Crosmos search worker hard-limits at 30s; give it 32s then abort ourselves.
+const SEARCH_TIMEOUT_MS = 25_000;
+// Save is a fast 202 enqueue — 10s is generous.
+const SAVE_TIMEOUT_MS = 15_000;
+
 /**
  * Hybrid search over the user's memory in a space. Blocks on the Crosmos
  * worker result (≤30s; typically 200–800ms). The space is bound by the caller,
@@ -57,10 +63,11 @@ export async function searchMemory(args: {
 	query: string;
 	spaceId: string;
 	limit?: number;
-}): Promise<SearchCandidate[]> {
+}): Promise<{ candidates: SearchCandidate[]; tookMs: number }> {
 	try {
 		const data = await apiFetch<SearchResponse>("/search", {
 			method: "POST",
+			signal: AbortSignal.timeout(SEARCH_TIMEOUT_MS),
 			body: JSON.stringify({
 				query: args.query,
 				space_id: args.spaceId,
@@ -70,8 +77,12 @@ export async function searchMemory(args: {
 				include_source: true,
 			}),
 		});
-		return data.candidates;
+		return { candidates: data.candidates, tookMs: data.took_ms };
 	} catch (err) {
+		// Surface timeout as retryable so the model can communicate it clearly.
+		if (err instanceof DOMException && err.name === "TimeoutError") {
+			throw new CrosmosRetryableError(504, "Memory search timed out.");
+		}
 		rethrowRetryable(err);
 	}
 }
@@ -84,13 +95,18 @@ export async function searchMemory(args: {
 export async function saveMemory(args: {
 	content: string;
 	spaceId: string;
-}): Promise<{ jobId: string }> {
+}): Promise<{ jobId: string; tookMs: number }> {
+	const startedAt = performance.now();
 	const data = await apiFetch<IngestResponse>("/sources", {
 		method: "POST",
+		signal: AbortSignal.timeout(SAVE_TIMEOUT_MS),
 		body: JSON.stringify({
 			space_id: args.spaceId,
 			sources: [{ content: args.content, content_type: "text" }],
 		}),
 	});
-	return { jobId: data.job_id };
+	return {
+		jobId: data.job_id,
+		tookMs: data.took_ms ?? performance.now() - startedAt,
+	};
 }

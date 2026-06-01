@@ -14,6 +14,7 @@ import {
 	searchMemory,
 } from "@/lib/ai/crosmos";
 import { isValidModelId } from "@/lib/ai/models";
+import { PLAYGROUND_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { resolveModel } from "@/lib/ai/resolve-model";
 
 // Search can block up to 30s on the Crosmos worker before the model generates.
@@ -60,20 +61,13 @@ export async function POST(req: Request) {
 		return new Response("Invalid space", { status: 403 });
 	}
 
-	const system =
-		`You are Crosmos, a memory-augmented assistant for the user's space "${space.name}". ` +
-		"When a question may depend on the user's stored context, preferences, or prior facts, " +
-		"call the search_memory tool FIRST to ground your answer, then synthesize a concise reply " +
-		"citing what you found. If search returns nothing relevant, say so briefly and answer from " +
-		"general knowledge. Call save_memory ONLY when the user states a durable fact or preference " +
-		"worth remembering, passing a single concise statement in the user's voice — never save " +
-		"questions, small talk, or your own advice/explanations. Keep answers concise.";
+	const system = PLAYGROUND_SYSTEM_PROMPT;
 
 	const result = streamText({
 		model: resolveModel(model),
 		system,
 		messages: await convertToModelMessages(messages),
-		stopWhen: stepCountIs(5),
+		stopWhen: stepCountIs(3),
 		// Smooth the token cadence into steady word-by-word output (typing feel).
 		experimental_transform: smoothStream({ delayInMs: 15, chunking: "word" }),
 		tools: {
@@ -93,11 +87,18 @@ export async function POST(req: Request) {
 				}),
 				// spaceId is captured here — the model cannot target another space.
 				execute: async ({ query, limit }) => {
+					const startedAt = performance.now();
 					try {
-						const candidates = await searchMemory({ query, spaceId, limit });
+						const { candidates, tookMs } = await searchMemory({
+							query,
+							spaceId,
+							limit,
+						});
 						return {
 							count: candidates.length,
+							tookMs: Math.round(tookMs),
 							results: candidates.map((c) => ({
+								id: c.memory_id,
 								content: c.content.slice(0, MAX_CONTENT_CHARS),
 								type: c.memory_type,
 								score: Number(c.score.toFixed(3)),
@@ -108,9 +109,14 @@ export async function POST(req: Request) {
 							return {
 								error: "Memory search is temporarily unavailable.",
 								retryable: true,
+								tookMs: Math.round(performance.now() - startedAt),
 							};
 						}
-						return { error: "Memory search failed.", retryable: false };
+						return {
+							error: "Memory search failed.",
+							retryable: false,
+							tookMs: Math.round(performance.now() - startedAt),
+						};
 					}
 				},
 			}),
@@ -126,11 +132,26 @@ export async function POST(req: Request) {
 				}),
 				// spaceId captured — model cannot ingest into another space.
 				execute: async ({ content }) => {
+					const startedAt = performance.now();
 					try {
-						const { jobId } = await saveMemory({ content, spaceId });
-						return { status: "queued" as const, jobId };
-					} catch {
-						return { error: "Failed to save to memory." };
+						const { jobId, tookMs } = await saveMemory({ content, spaceId });
+						return {
+							status: "queued" as const,
+							jobId,
+							tookMs: Math.round(tookMs),
+						};
+					} catch (err) {
+						const isTimeout =
+							err instanceof DOMException && err.name === "TimeoutError";
+						const isRetryable =
+							isTimeout || err instanceof CrosmosRetryableError;
+						return {
+							error: isTimeout
+								? "Save timed out."
+								: "Failed to save to memory.",
+							retryable: isRetryable,
+							tookMs: Math.round(performance.now() - startedAt),
+						};
 					}
 				},
 			}),
