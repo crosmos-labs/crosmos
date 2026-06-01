@@ -1,7 +1,6 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Button } from "@crosmos/ui/components/button";
 import {
 	Select,
@@ -12,6 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
+import { ShimmeringText } from "@crosmos/ui/components/shimmering-text";
 import { Spinner } from "@crosmos/ui/components/spinner";
 import { cn } from "@crosmos/ui/lib/utils";
 import {
@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChatResponse } from "@/components/chat-response";
 import { PlaygroundArrow } from "@/components/playground-arrow";
 import { ClaudeAI, Gemini, OpenAI } from "@/components/provider-logos";
-import { ShimmeringText } from "@/components/shimmering-text";
+import { MemorySaveChip, MemorySearchCard } from "@/components/tool-cards";
 import { useSpaces } from "@/hooks/use-spaces";
 import {
 	DEFAULT_MODEL_ID,
@@ -36,7 +36,6 @@ import {
 	PROVIDER_ORDER,
 	type ProviderId,
 } from "@/lib/ai/models";
-import { MetalButton } from "./metal-button";
 
 const PROVIDER_LOGOS: Record<ProviderId, typeof ClaudeAI> = {
 	anthropic: ClaudeAI,
@@ -72,11 +71,13 @@ export function PlaygroundChat() {
 	const canSend = value.trim().length > 0 && !isBusy && !!selectedSpace;
 
 	const lastMessage = messages[messages.length - 1];
-	// "Thinking" shows once a turn is in flight but before the assistant has
-	// produced anything to render (no message yet, or a message with no parts).
-	const showThinking =
-		isBusy &&
-		!(lastMessage?.role === "assistant" && lastMessage.parts.length > 0);
+	// Show "Thinking" while busy and either: no assistant message yet, or the
+	// assistant message exists but has no text part yet (covers the gap between
+	// a tool call completing and the model starting to stream its reply).
+	const lastAssistantHasText =
+		lastMessage?.role === "assistant" &&
+		lastMessage.parts.some((p) => p.type === "text");
+	const showThinking = isBusy && !lastAssistantHasText;
 
 	// Default the space selection to the first available space once loaded.
 	useEffect(() => {
@@ -150,13 +151,7 @@ export function PlaygroundChat() {
 				{isActive ? (
 					<div className="w-full max-w-3xl flex-1 space-y-5 py-6">
 						{messages.map((message) => (
-							<MessageBubble
-								key={message.id}
-								message={message}
-								isStreaming={
-									status === "streaming" && message.id === lastMessage?.id
-								}
-							/>
+							<MessageBubble key={message.id} message={message} />
 						))}
 						{showThinking && (
 							<ShimmeringText
@@ -284,7 +279,7 @@ export function PlaygroundChat() {
 										"field-sizing-content w-full resize-none bg-transparent px-2.5 text-base text-foreground outline-none placeholder:text-muted-foreground/60",
 										isActive
 											? "max-h-40 min-h-0 py-1.5"
-											: "max-h-72 min-h-28 pt-2",
+											: "max-h-48 min-h-24 pt-2",
 									)}
 								/>
 							</motion.div>
@@ -406,13 +401,7 @@ type ChatMessage = ReturnType<typeof useChat>["messages"][number];
  * full-column streaming Markdown (ChatResponse/Streamdown), plus memory/search
  * tool activity chips. Copy/retry/regenerate are a later UI phase.
  */
-function MessageBubble({
-	message,
-	isStreaming,
-}: {
-	message: ChatMessage;
-	isStreaming: boolean;
-}) {
+function MessageBubble({ message }: { message: ChatMessage }) {
 	const isUser = message.role === "user";
 	return (
 		<div className={cn("flex flex-col gap-1.5", isUser && "items-end")}>
@@ -432,65 +421,20 @@ function MessageBubble({
 					return (
 						// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
 						<div key={i} className="w-full text-foreground">
-							<ChatResponse text={part.text} isStreaming={isStreaming} />
+							<ChatResponse text={part.text} />
 						</div>
 					);
 				}
 				if (part.type === "tool-search_memory") {
-					return (
-						// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
-						<ToolChip key={i}>
-							{searchChipLabel(part.state, part.output)}
-							{isToolPending(part.state) && (
-								<AnimatedSpinner name="pulse" size="0.9em" />
-							)}
-						</ToolChip>
-					);
+					// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
+					return <MemorySearchCard key={i} part={part} />;
 				}
 				if (part.type === "tool-save_memory") {
-					return (
-						// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
-						<ToolChip key={i}>
-							{saveChipLabel(part.state, part.output)}
-							{isToolPending(part.state) && (
-								<AnimatedSpinner name="pulse" size="0.9em" />
-							)}
-						</ToolChip>
-					);
+					// biome-ignore lint/suspicious/noArrayIndexKey: parts are stable within a streamed message
+					return <MemorySaveChip key={i} part={part} />;
 				}
 				return null;
 			})}
 		</div>
 	);
-}
-
-function ToolChip({ children }: { children: React.ReactNode }) {
-	return (
-		<span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground">
-			{children}
-		</span>
-	);
-}
-
-function isToolPending(state: string): boolean {
-	return state === "input-streaming" || state === "input-available";
-}
-
-function searchChipLabel(state: string, output: unknown): string {
-	if (isToolPending(state)) return "Searching memory…";
-	if (state === "output-error") return "Memory search failed";
-	const out = output as { count?: number; error?: string } | undefined;
-	if (out?.error) return "Memory search unavailable";
-	const count = out?.count ?? 0;
-	return count === 0
-		? "Searched memory · no matches"
-		: `Searched memory · ${count} result${count === 1 ? "" : "s"}`;
-}
-
-function saveChipLabel(state: string, output: unknown): string {
-	if (isToolPending(state)) return "Saving to memory…";
-	if (state === "output-error") return "Couldn't save to memory";
-	const out = output as { error?: string } | undefined;
-	if (out?.error) return "Couldn't save to memory";
-	return "Saved to memory";
 }
