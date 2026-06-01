@@ -27,7 +27,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ChatResponse } from "@/components/chat-response";
 import { PlaygroundArrow } from "@/components/playground-arrow";
-import { ClaudeAI, Gemini, OpenAI } from "@/components/provider-logos";
+import { ClaudeAI } from "@/components/provider-logos";
 import { MemorySaveChip, MemorySearchCard } from "@/components/tool-cards";
 import { useSpaces } from "@/hooks/use-spaces";
 import {
@@ -40,8 +40,6 @@ import {
 
 const PROVIDER_LOGOS: Record<ProviderId, typeof ClaudeAI> = {
 	anthropic: ClaudeAI,
-	openai: OpenAI,
-	google: Gemini,
 };
 
 // Shared spring so position, height, and the button reflow all morph in unison.
