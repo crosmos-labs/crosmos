@@ -1,8 +1,6 @@
 import "server-only";
 
 import { anthropic } from "@ai-sdk/anthropic";
-import { google } from "@ai-sdk/google";
-import { openai } from "@ai-sdk/openai";
 import type { LanguageModel } from "ai";
 import { MODELS } from "./models";
 
@@ -21,9 +19,5 @@ export function resolveModel(id: string): LanguageModel {
 	switch (meta.provider) {
 		case "anthropic":
 			return anthropic(meta.id);
-		case "openai":
-			return openai(meta.id);
-		case "google":
-			return google(meta.id);
 	}
 }

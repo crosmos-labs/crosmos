@@ -10,7 +10,7 @@
  * catalog when rotating models; a stale id only fails at first real send.
  */
 
-export type ProviderId = "anthropic" | "openai" | "google";
+export type ProviderId = "anthropic";
 
 export interface ModelMeta {
 	/** Provider model id — also the allowlist key sent from the client. */
@@ -19,8 +19,6 @@ export interface ModelMeta {
 	provider: ProviderId;
 }
 
-// One model per provider. Google's Gemini API has a free tier (AI Studio),
-// so it's the default for zero-cost testing; Anthropic and OpenAI are paid.
 export const MODELS: readonly ModelMeta[] = [
 	{ id: "claude-sonnet-4-6", label: "Sonnet 4.6", provider: "anthropic" },
 ];
@@ -29,16 +27,9 @@ export const DEFAULT_MODEL_ID = "claude-sonnet-4-6";
 
 export const PROVIDER_LABELS: Record<ProviderId, string> = {
 	anthropic: "Anthropic",
-	openai: "OpenAI",
-	google: "Google",
 };
 
-/** Order providers appear in the selector. */
-export const PROVIDER_ORDER: readonly ProviderId[] = [
-	"anthropic",
-	"openai",
-	"google",
-];
+export const PROVIDER_ORDER: readonly ProviderId[] = ["anthropic"];
 
 export function isValidModelId(id: string): boolean {
 	return MODELS.some((m) => m.id === id);
