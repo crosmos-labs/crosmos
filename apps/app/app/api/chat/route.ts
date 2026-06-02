@@ -29,6 +29,10 @@ interface ChatRequestBody {
 const MAX_CONTENT_CHARS = 600;
 
 export async function POST(req: Request) {
+	if (process.env.PLAYGROUND_DISABLED === "true") {
+		return new Response("Not Found", { status: 404 });
+	}
+
 	let body: ChatRequestBody;
 	try {
 		body = (await req.json()) as ChatRequestBody;
@@ -105,17 +109,18 @@ export async function POST(req: Request) {
 							})),
 						};
 					} catch (err) {
+						const totalMs = Math.round(performance.now() - startedAt);
 						if (err instanceof CrosmosRetryableError) {
 							return {
 								error: "Memory search is temporarily unavailable.",
 								retryable: true,
-								tookMs: Math.round(performance.now() - startedAt),
+								tookMs: totalMs,
 							};
 						}
 						return {
 							error: "Memory search failed.",
 							retryable: false,
-							tookMs: Math.round(performance.now() - startedAt),
+							tookMs: totalMs,
 						};
 					}
 				},

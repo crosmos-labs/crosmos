@@ -61,7 +61,7 @@ export const navGroups: NavGroup[] = [
 	{
 		label: "DEVELOPER",
 		items: [
-			{ label: "Playground", href: "/playground", icon: IconSparkles },
+			{ label: "Playground", href: "/playground", icon: IconSparkles, disabled: true },
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
 		],
 	},
