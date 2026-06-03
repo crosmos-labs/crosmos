@@ -11,7 +11,6 @@ export function useOrg(orgId: string | null | undefined) {
 		orgId ? orgKey(orgId) : null,
 		() => getOrg(orgId as string),
 		{
-			keepPreviousData: true,
 			revalidateOnFocus: true,
 		},
 	);

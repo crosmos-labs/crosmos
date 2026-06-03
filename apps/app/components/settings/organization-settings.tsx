@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Button } from "@crosmos/ui/components/button";
 import { Input } from "@crosmos/ui/components/input";
 import { Label } from "@crosmos/ui/components/label";
@@ -11,6 +10,10 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateOrg } from "@/actions/orgs";
 import { DataFetchError } from "@/components/data-fetch-error";
+import {
+	useActionLoader,
+	useActionLoaderState,
+} from "@/components/providers/action-loader-provider";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { orgKey, useOrg } from "@/hooks/use-org";
 
@@ -22,6 +25,8 @@ export function OrganizationSettings() {
 	const { data: org, error, isLoading } = useOrg(orgId);
 	const { mutate } = useSWRConfig();
 	const router = useRouter();
+	const { runAction } = useActionLoader();
+	const { activeCount } = useActionLoaderState();
 
 	const canManage = org?.your_role === "owner" || org?.your_role === "admin";
 
@@ -29,7 +34,6 @@ export function OrganizationSettings() {
 	const [slug, setSlug] = useState("");
 	const [billingEmail, setBillingEmail] = useState("");
 	const [slugError, setSlugError] = useState<string | null>(null);
-	const [saving, setSaving] = useState(false);
 
 	// Re-seed when the org first loads or after a save changes it (updated_at).
 	useEffect(() => {
@@ -72,12 +76,12 @@ export function OrganizationSettings() {
 		trimmedName !== org.name ||
 		trimmedSlug !== org.slug ||
 		trimmedEmail !== (org.billing_email ?? "");
+	const actionBusy = activeCount > 0;
 	const canSave =
-		canManage && dirty && trimmedName !== "" && slugValid && !saving;
+		canManage && dirty && trimmedName !== "" && slugValid && !actionBusy;
 
 	async function handleSave() {
 		if (!orgId || !canSave || !org) return;
-		setSaving(true);
 		setSlugError(null);
 
 		const patch: {
@@ -90,22 +94,31 @@ export function OrganizationSettings() {
 		if (trimmedEmail !== (org.billing_email ?? ""))
 			patch.billing_email = trimmedEmail === "" ? null : trimmedEmail;
 
-		const result = await updateOrg(orgId, patch);
-		setSaving(false);
-
-		if (!result.ok) {
-			if (result.code === "slug_taken") {
-				setSlugError("That slug is already taken.");
-			} else {
-				toast.error(result.message || "Couldn't update organization");
+		runAction(
+			async () => {
+				const result = await updateOrg(orgId, patch);
+				if (!result.ok) {
+					if (result.code === "slug_taken") {
+						setSlugError("That slug is already taken.");
+					}
+					throw Object.assign(new Error(result.message), {
+						code: result.code,
+					});
+				}
+				await mutate(orgKey(orgId));
+				// Refresh the server-rendered sidebar (org name/avatar).
+				router.refresh();
+			},
+			{ toast: { success: "Organization updated" } },
+		).catch((err: unknown) => {
+			const code =
+				err && typeof err === "object" && "code" in err
+					? (err as { code: unknown }).code
+					: null;
+			if (code !== "slug_taken") {
+				toast.error("Couldn't update organization");
 			}
-			return;
-		}
-
-		toast.success("Organization updated");
-		await mutate(orgKey(orgId));
-		// Refresh the server-rendered sidebar (org name/avatar).
-		router.refresh();
+		});
 	}
 
 	return (
@@ -122,7 +135,7 @@ export function OrganizationSettings() {
 					id="org-name"
 					value={name}
 					onChange={(e) => setName(e.target.value)}
-					disabled={!canManage}
+					disabled={!canManage || actionBusy}
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
 			</div>
@@ -136,7 +149,7 @@ export function OrganizationSettings() {
 						setSlug(e.target.value);
 						setSlugError(null);
 					}}
-					disabled={!canManage}
+					disabled={!canManage || actionBusy}
 					aria-invalid={
 						slugError !== null || (trimmedSlug !== "" && !slugValid)
 					}
@@ -159,7 +172,7 @@ export function OrganizationSettings() {
 					type="email"
 					value={billingEmail}
 					onChange={(e) => setBillingEmail(e.target.value)}
-					disabled={!canManage}
+					disabled={!canManage || actionBusy}
 					placeholder="billing@example.com"
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
@@ -168,11 +181,7 @@ export function OrganizationSettings() {
 			{canManage && (
 				<div>
 					<Button onClick={handleSave} disabled={!canSave}>
-						{saving ? (
-							<AnimatedSpinner name="pulse" color="currentColor" />
-						) : (
-							"Save changes"
-						)}
+						Save changes
 					</Button>
 				</div>
 			)}

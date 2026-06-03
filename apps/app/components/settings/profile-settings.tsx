@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Button } from "@crosmos/ui/components/button";
 import { Input } from "@crosmos/ui/components/input";
 import { Label } from "@crosmos/ui/components/label";
@@ -10,15 +9,20 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateProfile } from "@/actions/auth";
+import {
+	useActionLoader,
+	useActionLoaderState,
+} from "@/components/providers/action-loader-provider";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 export function ProfileSettings() {
 	const { data: user, isLoading } = useCurrentUser();
 	const { mutate } = useSWRConfig();
 	const router = useRouter();
+	const { runAction } = useActionLoader();
+	const { activeCount } = useActionLoaderState();
 
 	const [name, setName] = useState("");
-	const [saving, setSaving] = useState(false);
 
 	useEffect(() => {
 		if (user) setName(user.name);
@@ -41,22 +45,22 @@ export function ProfileSettings() {
 
 	const trimmedName = name.trim();
 	const dirty = trimmedName !== user.name;
-	const canSave = dirty && trimmedName !== "" && !saving;
+	const actionBusy = activeCount > 0;
+	const canSave = dirty && trimmedName !== "" && !actionBusy;
 
 	async function handleSave() {
 		if (!canSave) return;
-		setSaving(true);
-		try {
-			await updateProfile(trimmedName);
-			toast.success("Profile updated");
-			await mutate("/auth/me");
-			// Refresh the server-rendered sidebar/greeting.
-			router.refresh();
-		} catch {
+		runAction(
+			async () => {
+				await updateProfile(trimmedName);
+				await mutate("/auth/me");
+				// Refresh the server-rendered sidebar/greeting.
+				router.refresh();
+			},
+			{ toast: { success: "Profile updated" } },
+		).catch(() => {
 			toast.error("Couldn't update profile");
-		} finally {
-			setSaving(false);
-		}
+		});
 	}
 
 	return (
@@ -67,6 +71,7 @@ export function ProfileSettings() {
 					id="profile-name"
 					value={name}
 					onChange={(e) => setName(e.target.value)}
+					disabled={actionBusy}
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
 			</div>
@@ -81,11 +86,7 @@ export function ProfileSettings() {
 
 			<div>
 				<Button onClick={handleSave} disabled={!canSave}>
-					{saving ? (
-						<AnimatedSpinner name="pulse" color="currentColor" />
-					) : (
-						"Save changes"
-					)}
+					Save changes
 				</Button>
 			</div>
 		</div>

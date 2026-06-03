@@ -11,7 +11,6 @@ export function useInvites(orgId: string | null | undefined, enabled = true) {
 		orgId && enabled ? invitesKey(orgId) : null,
 		() => listInvites(orgId as string),
 		{
-			keepPreviousData: true,
 			revalidateIfStale: false,
 			revalidateOnFocus: true,
 		},

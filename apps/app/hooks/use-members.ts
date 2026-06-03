@@ -11,7 +11,6 @@ export function useMembers(orgId: string | null | undefined) {
 		orgId ? membersKey(orgId) : null,
 		() => listMembers(orgId as string),
 		{
-			keepPreviousData: true,
 			revalidateIfStale: false,
 			// Refetch on tab focus so an admin sees invite acceptances / departures
 			// without a manual reload.
