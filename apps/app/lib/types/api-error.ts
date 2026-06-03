@@ -15,6 +15,11 @@ export type OrgErrorCode =
 	| "invite_email_mismatch"
 	| "insufficient_role"
 	| "api_key_org_mismatch"
+	// Visibility graph (see docs/rbac-kt.md §6 / map in app/api/visibility)
+	| "duplicate_grant"
+	| "self_grant"
+	| "grant_cycle"
+	| "user_not_in_org"
 	| "organization_error";
 
 export interface ApiErrorResponse {
