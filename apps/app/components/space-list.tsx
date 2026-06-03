@@ -262,11 +262,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
 									{isOptimistic ? (
-										<AnimatedSpinner
-											name="braille"
-											size="1.1em"
-											speed={0.8}
-										/>
+										<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
 									) : (
 										formatDistanceToNow(new Date(space.created_at), {
 											addSuffix: true,
