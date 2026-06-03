@@ -6,6 +6,7 @@ import {
 	getAccessToken,
 	getActiveOrgId,
 	getRefreshToken,
+	setActiveOrgCookie,
 	setAuthCookies,
 } from "./cookies";
 
@@ -26,11 +27,18 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 		const refreshToken = await getRefreshToken();
 		if (!refreshToken || !API_URL) return null;
 
+		// Refresh tokens are org-agnostic; without this hint the backend resets
+		// context to the user's default org, dropping a switched active org.
+		const activeOrgId = await getActiveOrgId();
+
 		try {
 			const res = await fetch(`${API_URL}/auth/refresh`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ refresh_token: refreshToken }),
+				body: JSON.stringify({
+					refresh_token: refreshToken,
+					active_org_id: activeOrgId ?? undefined,
+				}),
 				cache: "no-store",
 			});
 
@@ -41,6 +49,11 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 
 			const data = (await res.json()) as TokenResponse;
 			await setAuthCookies(data.access_token, data.refresh_token);
+			// Keep the cookie aligned with the re-minted token's claim (the hint
+			// is ignored if the user is no longer a member of that org).
+			if (data.active_org_id != null) {
+				await setActiveOrgCookie(data.active_org_id);
+			}
 			return data;
 		} catch {
 			return null;

@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import {
 	DropdownMenu,
@@ -15,7 +16,10 @@ import {
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
 import { IconCheck, IconChevronDown, IconPlus } from "@tabler/icons-react";
+import { useState } from "react";
+import { setActiveOrg } from "@/actions/auth";
 import { OrgAvatar } from "@/components/org-avatar";
+import { useActionLoader } from "@/components/providers/action-loader-provider";
 import type { OrgDetailResponse } from "@/lib/types/org";
 
 export function OrgSwitcher({
@@ -27,6 +31,21 @@ export function OrgSwitcher({
 }) {
 	const { isMobile, state } = useSidebar();
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "bottom";
+	const { runAction } = useActionLoader();
+	const [switchingId, setSwitchingId] = useState<string | null>(null);
+
+	function handleSwitch(orgId: string) {
+		if (orgId === activeOrg.id || switchingId) return;
+		setSwitchingId(orgId);
+		runAction(() => setActiveOrg(orgId), {
+			toast: { error: "Couldn't switch organization" },
+		})
+			.then(() => {
+				// Org data is scoped to the JWT's active org, so reload for a clean slate.
+				window.location.href = "/";
+			})
+			.catch(() => setSwitchingId(null));
+	}
 
 	return (
 		<SidebarMenuItem>
@@ -53,32 +72,46 @@ export function OrgSwitcher({
 					className="min-w-[16rem]"
 				>
 					<DropdownMenuGroup>
-						{orgs.map((org) => (
-							<DropdownMenuItem
-								key={org.id}
-								disabled
-								className="gap-4 py-2.5 px-3"
-							>
-								<OrgAvatar slug={org.slug} size={20} />
-								<div className="flex-1 min-w-0 space-y-0.75">
-									<span className="block text-sm font-medium truncate">
-										{org.name}
-									</span>
-									<span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-										{org.slug}
-										<Badge
-											variant="outline"
-											className="text-[10px] px-1 py-0 h-4"
-										>
-											{org.plan}
-										</Badge>
-									</span>
-								</div>
-								{org.id === activeOrg.id && (
-									<IconCheck className="size-4 shrink-0" />
-								)}
-							</DropdownMenuItem>
-						))}
+						{orgs.map((org) => {
+							const isActive = org.id === activeOrg.id;
+							const isSwitching = switchingId === org.id;
+							return (
+								<DropdownMenuItem
+									key={org.id}
+									disabled={switchingId !== null && !isSwitching}
+									onSelect={(e) => {
+										e.preventDefault();
+										handleSwitch(org.id);
+									}}
+									className="gap-4 py-2.5 px-3"
+								>
+									<OrgAvatar slug={org.slug} size={20} />
+									<div className="flex-1 min-w-0 space-y-0.75">
+										<span className="block text-sm font-medium truncate">
+											{org.name}
+										</span>
+										<span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+											{org.slug}
+											<Badge
+												variant="outline"
+												className="text-[10px] px-1 py-0 h-4"
+											>
+												{org.plan}
+											</Badge>
+										</span>
+									</div>
+									{isSwitching ? (
+										<AnimatedSpinner
+											name="braille"
+											size="1em"
+											color="currentColor"
+										/>
+									) : (
+										isActive && <IconCheck className="size-4 shrink-0" />
+									)}
+								</DropdownMenuItem>
+							);
+						})}
 					</DropdownMenuGroup>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem disabled className="gap-2.5 py-2.5 px-3">

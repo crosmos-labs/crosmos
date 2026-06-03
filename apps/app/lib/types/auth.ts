@@ -34,3 +34,9 @@ export interface OAuthCallbackResponse extends TokenResponse {
 	is_new_user: boolean;
 	default_space_id: string | null;
 }
+
+// POST /auth/active-org re-mints the access token only; refresh is untouched.
+export interface SetActiveOrgResponse {
+	access_token: string;
+	active_org_id: string;
+}

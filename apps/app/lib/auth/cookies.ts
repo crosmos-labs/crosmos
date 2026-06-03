@@ -33,6 +33,16 @@ export async function setAuthCookies(
 	});
 }
 
+// Swaps only the access token, leaving the refresh token untouched — used by
+// the org switcher, where POST /auth/active-org re-mints the access token only.
+export async function setAccessTokenCookie(accessToken: string) {
+	const cookieStore = await cookies();
+	cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
+		...COOKIE_OPTIONS,
+		maxAge: ACCESS_TOKEN_MAX_AGE,
+	});
+}
+
 export async function getAccessToken(): Promise<string | undefined> {
 	const cookieStore = await cookies();
 	return cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
