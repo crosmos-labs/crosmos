@@ -1,5 +1,6 @@
 "use server";
 
+import { setActiveOrg } from "@/actions/auth";
 import { type ActionResult, toActionError } from "@/lib/action-result";
 import { apiFetch } from "@/lib/api";
 import type {
@@ -29,6 +30,11 @@ export async function acceptInvite(
 			method: "POST",
 			body: JSON.stringify({ token } satisfies AcceptInviteRequest),
 		});
+		// Switch the session to the just-joined org (best-effort — the user has
+		// joined regardless; the accept page reloads into "/" afterwards).
+		try {
+			await setActiveOrg(data.org.id);
+		} catch {}
 		return { ok: true, data };
 	} catch (err) {
 		return toActionError(err);
