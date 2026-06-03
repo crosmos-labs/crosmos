@@ -13,7 +13,9 @@ export function useMembers(orgId: string | null | undefined) {
 		{
 			keepPreviousData: true,
 			revalidateIfStale: false,
-			revalidateOnFocus: false,
+			// Refetch on tab focus so an admin sees invite acceptances / departures
+			// without a manual reload.
+			revalidateOnFocus: true,
 		},
 	);
 }

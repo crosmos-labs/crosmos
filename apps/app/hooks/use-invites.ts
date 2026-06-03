@@ -13,7 +13,7 @@ export function useInvites(orgId: string | null | undefined, enabled = true) {
 		{
 			keepPreviousData: true,
 			revalidateIfStale: false,
-			revalidateOnFocus: false,
+			revalidateOnFocus: true,
 		},
 	);
 }
