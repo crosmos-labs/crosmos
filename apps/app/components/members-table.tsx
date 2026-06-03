@@ -51,7 +51,7 @@ import {
 	IconTrash,
 	IconUserCog,
 } from "@tabler/icons-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import {
@@ -78,7 +78,7 @@ import { optimisticRemove, optimisticUpdate } from "@/lib/optimistic";
 import type { InviteResponse, MemberResponse, OrgRole } from "@/lib/types/org";
 
 const LAST_OWNER_MSG =
-	"This is the last owner. Transfer ownership to someone else first.";
+	"An organization must always have an owner, so the last owner can't be removed or demoted.";
 
 const ROLE_BADGE: Record<OrgRole, "default" | "secondary" | "outline"> = {
 	owner: "default",
@@ -186,6 +186,19 @@ function AdminStatusCell({ row }: { row: MemberRow }) {
 	return badge;
 }
 
+// Wraps a disabled menu item so the last-owner reason shows on hover (the item
+// has pointer-events: none, so the span behind it receives the hover).
+function LastOwnerGuard({ children }: { children: React.ReactNode }) {
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<span className="block">{children}</span>
+			</TooltipTrigger>
+			<TooltipContent>{LAST_OWNER_MSG}</TooltipContent>
+		</Tooltip>
+	);
+}
+
 export interface MembersTableProps {
 	orgId: string;
 	currentUserId: string | null;
@@ -259,6 +272,10 @@ export function MembersTable({
 	// Use a local remove-target keyed by userId for member-view (members only).
 	type RemoveTarget = { userId: string; name: string; role: OrgRole };
 	const [removeTarget, setRemoveTarget] = useState<RemoveTarget | null>(null);
+	// Preserve the last value so the dialog content doesn't flicker during the close animation.
+	const lastRemoveTargetRef = useRef<RemoveTarget | null>(null);
+	if (removeTarget !== null) lastRemoveTargetRef.current = removeTarget;
+	const displayTarget = removeTarget ?? lastRemoveTargetRef.current;
 
 	const busy = activeCount > 0;
 
@@ -358,8 +375,8 @@ export function MembersTable({
 		[orgId, runAction, mutate],
 	);
 
-	const removeIsSelf = removeTarget?.userId === currentUserId;
-	const removeIsLastOwner = removeTarget?.role === "owner" && ownerCount <= 1;
+	const removeIsSelf = displayTarget?.userId === currentUserId;
+	const removeIsLastOwner = displayTarget?.role === "owner" && ownerCount <= 1;
 	// Total column count differs between views (Status only in admin view).
 	const colSpan = isAdminView ? 6 : 5;
 
@@ -545,6 +562,14 @@ export function MembersTable({
 																				);
 																			}}
 																		>
+																			{row.role === "owner" && (
+																				<DropdownMenuRadioItem
+																					value="owner"
+																					disabled
+																				>
+																					Owner
+																				</DropdownMenuRadioItem>
+																			)}
 																			<DropdownMenuRadioItem value="admin">
 																				Admin
 																			</DropdownMenuRadioItem>
@@ -557,23 +582,35 @@ export function MembersTable({
 															)}
 
 															{/* Remove — other member rows */}
-															{!isSelf && row.kind === "member" && (
-																<DropdownMenuItem
-																	variant="destructive"
-																	disabled={busy}
-																	onClick={() => {
-																		if (!row.userId) return;
-																		setRemoveTarget({
-																			userId: row.userId,
-																			name: row.name,
-																			role: row.role,
-																		});
-																	}}
-																>
-																	<IconTrash />
-																	Remove
-																</DropdownMenuItem>
-															)}
+															{!isSelf &&
+																row.kind === "member" &&
+																(isLastOwner ? (
+																	<LastOwnerGuard>
+																		<DropdownMenuItem
+																			variant="destructive"
+																			disabled
+																		>
+																			<IconTrash />
+																			Remove
+																		</DropdownMenuItem>
+																	</LastOwnerGuard>
+																) : (
+																	<DropdownMenuItem
+																		variant="destructive"
+																		disabled={busy}
+																		onClick={() => {
+																			if (!row.userId) return;
+																			setRemoveTarget({
+																				userId: row.userId,
+																				name: row.name,
+																				role: row.role,
+																			});
+																		}}
+																	>
+																		<IconTrash />
+																		Remove
+																	</DropdownMenuItem>
+																))}
 
 															{/* Revoke — invite rows */}
 															{row.kind === "invite" && (
@@ -588,23 +625,34 @@ export function MembersTable({
 															)}
 
 															{/* Leave — self row */}
-															{isSelf && (
-																<DropdownMenuItem
-																	variant="destructive"
-																	disabled={busy}
-																	onClick={() => {
-																		if (!row.userId) return;
-																		setRemoveTarget({
-																			userId: row.userId,
-																			name: row.name,
-																			role: row.role,
-																		});
-																	}}
-																>
-																	<IconLogout />
-																	Leave organization
-																</DropdownMenuItem>
-															)}
+															{isSelf &&
+																(isLastOwner ? (
+																	<LastOwnerGuard>
+																		<DropdownMenuItem
+																			variant="destructive"
+																			disabled
+																		>
+																			<IconLogout />
+																			Leave organization
+																		</DropdownMenuItem>
+																	</LastOwnerGuard>
+																) : (
+																	<DropdownMenuItem
+																		variant="destructive"
+																		disabled={busy}
+																		onClick={() => {
+																			if (!row.userId) return;
+																			setRemoveTarget({
+																				userId: row.userId,
+																				name: row.name,
+																				role: row.role,
+																			});
+																		}}
+																	>
+																		<IconLogout />
+																		Leave organization
+																	</DropdownMenuItem>
+																))}
 														</DropdownMenuGroup>
 													</DropdownMenuContent>
 												</DropdownMenu>
@@ -666,7 +714,7 @@ export function MembersTable({
 								? LAST_OWNER_MSG
 								: removeIsSelf
 									? "You'll lose access to this organization and its memory. You can rejoin later only via a new invitation."
-									: `${removeTarget?.name ?? "This member"} will lose access to this organization. This can't be undone.`}
+									: `${displayTarget?.name ?? "This member"} will lose access to this organization. This can't be undone.`}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

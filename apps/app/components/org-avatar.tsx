@@ -1,10 +1,10 @@
 "use client";
 
+import { Avatar } from "@crosmos/ui/components/avatar";
 import { cn } from "@crosmos/ui/lib/utils";
 import { Hashvatar } from "hashvatar/react";
+import type { CSSProperties } from "react";
 
-// Hashvatar sets borderRadius: "50%" as an inline style by default.
-// The style prop is spread last in the component, so this overrides it.
 export function OrgAvatar({
 	slug,
 	size = 20,
@@ -14,19 +14,31 @@ export function OrgAvatar({
 	size?: number;
 	className?: string;
 }) {
+	// Radius scales with size (sidebar's 20px → 4px) so the rounding looks
+	// identical at any size.
+	const radius = Math.round(size * 0.2);
 	return (
-		<div
-			className={cn("shrink-0", className)}
-			style={{ width: size, height: size }}
-			role="img"
+		<Avatar
+			className={cn(
+				"shrink-0 after:[border-radius:var(--org-avatar-radius)]",
+				className,
+			)}
+			style={
+				{
+					width: size,
+					height: size,
+					borderRadius: radius,
+					"--org-avatar-radius": `${radius}px`,
+				} as CSSProperties
+			}
 			aria-label={`${slug} avatar`}
 		>
 			<Hashvatar
 				hash={slug}
 				size={size}
 				mode="dither"
-				style={{ borderRadius: "4px" }}
+				style={{ borderRadius: radius }}
 			/>
-		</div>
+		</Avatar>
 	);
 }

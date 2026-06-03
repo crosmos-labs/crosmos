@@ -14,7 +14,7 @@ const COLUMNS = ["Name", "Email", "Role", "Status", "Joined"];
 
 function SkeletonRow() {
 	return (
-		<TableRow>
+		<TableRow className="hover:bg-transparent">
 			<TableCell>
 				<div className="flex items-center gap-3">
 					<Skeleton className="size-8 rounded-full" />

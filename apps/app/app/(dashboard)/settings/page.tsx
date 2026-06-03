@@ -56,12 +56,10 @@ export default function SettingsPage() {
 	const ownerCount = members?.filter((m) => m.role === "owner").length ?? 0;
 
 	// Invites are owner/admin-only — only fetch when the caller can manage.
-	const { data: invites, isLoading: invitesLoading } = useInvites(
-		orgId,
-		canManage,
-	);
-	// Gate the Invite button until the invite list is confirmed loaded.
-	const invitesReady = !invitesLoading || invites !== undefined;
+	const { data: invites, error: invitesError } = useInvites(orgId, canManage);
+	// Hold the table until invites resolve too, so members + invites render together.
+	const invitesPending = canManage && invites === undefined && !invitesError;
+	const invitesReady = !invitesPending;
 
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -74,7 +72,8 @@ export default function SettingsPage() {
 	});
 	const [inviteOpen, setInviteOpen] = useState(false);
 
-	const initialLoading = !user || (membersLoading && !members);
+	const initialLoading =
+		!user || (membersLoading && !members) || invitesPending;
 	const hasFilters =
 		search.trim() !== "" || (canManage && statusFilter !== "all");
 
