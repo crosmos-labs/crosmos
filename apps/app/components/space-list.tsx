@@ -37,6 +37,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
 import { EmptyState } from "@/components/empty-state";
@@ -167,16 +168,32 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 			};
 			runAction(
 				() =>
-					optimisticInsert(mutate, spacesKey, tempSpace, () =>
-						createSpace(name, description),
-					),
-				{
-					toast: {
-						success: "Space created",
-						error: "Failed to create space",
-					},
-				},
-			);
+					optimisticInsert(mutate, spacesKey, tempSpace, async () => {
+						const result = await createSpace(name, description);
+						if (!result.ok) {
+							// Throw so the optimistic row rolls back; carry the slug for the toast.
+							throw Object.assign(new Error(result.message), {
+								code: result.code,
+							});
+						}
+						return result.data;
+					}),
+				{ toast: { success: "Space created" } },
+			).catch((err: unknown) => {
+				const code =
+					err && typeof err === "object" && "code" in err
+						? (err as { code: unknown }).code
+						: null;
+				if (code === "quota_exceeded") {
+					toast.error(
+						err instanceof Error && err.message
+							? err.message
+							: "You've reached your plan's memory space limit.",
+					);
+				} else {
+					toast.error("Failed to create space");
+				}
+			});
 		},
 		[runAction, mutate],
 	);
