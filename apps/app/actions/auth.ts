@@ -2,12 +2,18 @@
 
 import { apiFetch } from "@/lib/api";
 import { clearAuthCookies, getRefreshToken } from "@/lib/auth/cookies";
-import type { AuthUser } from "@/lib/types/auth";
+import type { AuthUser, MeResponse } from "@/lib/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getCurrentUser(): Promise<AuthUser> {
-	return apiFetch<AuthUser>("/auth/me");
+	const me = await apiFetch<MeResponse>("/auth/me");
+	return {
+		user_id: me.user_id,
+		email: me.email,
+		name: me.name,
+		active_org_id: me.org?.id ?? null,
+	};
 }
 
 export async function logout() {

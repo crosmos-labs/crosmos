@@ -29,8 +29,8 @@ export function AuthCallbackHandler() {
 		}
 
 		void handleOAuthCallback(code, state)
-			.then(() => {
-				router.replace("/");
+			.then((redirectTo) => {
+				router.replace(redirectTo);
 			})
 			.catch(() => {
 				router.replace("/signup?error=1");

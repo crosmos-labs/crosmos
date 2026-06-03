@@ -59,17 +59,14 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 	const accessToken = await getAccessToken();
 	if (!accessToken || !API_URL) return null;
 
-	// Read active_org_id once — GET /auth/me doesn't return it, so we pull
-	// it from the cookie set during the OAuth callback.
 	const activeOrgId = await getActiveOrgId();
 
-	// GET /auth/me returns { id, email, name } — map to AuthUser shape.
 	const toAuthUser = (raw: {
-		id: string;
+		user_id: string;
 		email: string;
 		name: string;
 	}): AuthUser => ({
-		user_id: raw.id,
+		user_id: raw.user_id,
 		email: raw.email,
 		name: raw.name,
 		active_org_id: activeOrgId,

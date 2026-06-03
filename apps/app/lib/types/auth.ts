@@ -1,8 +1,23 @@
+import type { OrgRole } from "@/lib/types/org";
+
 export interface AuthUser {
 	user_id: string;
 	email: string;
 	name: string;
 	active_org_id?: string | null;
+}
+
+// Backend `GET /auth/me` shape; mapped to AuthUser in `getCurrentUser`.
+export interface MeResponse {
+	user_id: string;
+	email: string;
+	name: string;
+	org: {
+		id: string;
+		slug: string;
+		name: string;
+		role: OrgRole;
+	} | null;
 }
 
 export interface TokenResponse {

@@ -20,6 +20,10 @@ function SignupForm() {
 		() => searchParams.get("error") !== null,
 		[searchParams],
 	);
+	const inviteToken = useMemo(
+		() => searchParams.get("invite") ?? undefined,
+		[searchParams],
+	);
 
 	useEffect(() => {
 		if (hasError) {
@@ -30,7 +34,7 @@ function SignupForm() {
 	async function handleGoogleLogin() {
 		setLoading(true);
 		try {
-			await loginWithGoogle();
+			await loginWithGoogle(inviteToken);
 		} catch (e) {
 			// Next.js redirect() works by throwing a special error with a digest
 			// prefixed with "NEXT_REDIRECT". Re-throw it so the router handles
