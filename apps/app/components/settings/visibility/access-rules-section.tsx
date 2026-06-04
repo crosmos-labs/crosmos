@@ -85,14 +85,16 @@ export function AccessRulesSection({
 				<h2 className="text-base font-semibold">Access rules</h2>
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button
-							size="sm"
-							onClick={() => setAddOpen(true)}
-							disabled={effectiveDisabled || (groups?.length ?? 0) < 2}
-						>
-							<IconPlus className="size-4" />
-							Add rule
-						</Button>
+						<div>
+							<Button
+								size="sm"
+								onClick={() => setAddOpen(true)}
+								disabled={effectiveDisabled || (groups?.length ?? 0) < 2}
+							>
+								<IconPlus className="size-4" />
+								Add rule
+							</Button>
+						</div>
 					</TooltipTrigger>
 					{(groups?.length ?? 0) < 2 && (
 						<TooltipContent>
