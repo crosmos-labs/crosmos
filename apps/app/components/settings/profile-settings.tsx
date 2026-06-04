@@ -5,7 +5,7 @@ import { Input } from "@crosmos/ui/components/input";
 import { Label } from "@crosmos/ui/components/label";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateProfile } from "@/actions/auth";
@@ -23,9 +23,13 @@ export function ProfileSettings() {
 	const { activeCount } = useActionLoaderState();
 
 	const [name, setName] = useState("");
+	const prevUserIdRef = useRef<string | null>(null);
 
 	useEffect(() => {
-		if (user) setName(user.name);
+		if (user && prevUserIdRef.current !== user.user_id) {
+			prevUserIdRef.current = user.user_id;
+			setName(user.name);
+		}
 	}, [user]);
 
 	if (isLoading && !user) {
