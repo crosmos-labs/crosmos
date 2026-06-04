@@ -73,7 +73,7 @@ export function useGroupMembers(
 	return useSWR<GroupMember[]>(
 		orgId && groupId ? visibilityGroupMembersKey(orgId, groupId) : null,
 		() => listGroupMembers(orgId as string, groupId as string),
-		{ keepPreviousData: true, revalidateOnFocus: false },
+		{ revalidateOnFocus: false },
 	);
 }
 
