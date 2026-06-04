@@ -122,33 +122,38 @@ export function AppSidebar({
 						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
 						<SidebarGroupContent>
 							<SidebarMenu>
-								{group.items.map((item) => (
-									<SidebarMenuItem key={item.href}>
-										<SidebarMenuButton
-											asChild={!item.disabled}
-											isActive={isNavItemActive(pathname, item.href)}
-											disabled={item.disabled}
-											tooltip={item.disabled ? "Coming soon" : item.label}
-											className={cn(
-												"pl-4 hover:transition-none",
-												item.disabled &&
-													"text-muted-foreground hover:bg-transparent hover:text-muted-foreground active:bg-transparent active:text-muted-foreground data-active:bg-transparent data-active:text-muted-foreground",
-											)}
-										>
-											{item.disabled ? (
-												<>
-													<item.icon />
-													<span>{item.label}</span>
-												</>
-											) : (
-												<Link href={item.href}>
-													<item.icon />
-													<span>{item.label}</span>
-												</Link>
-											)}
-										</SidebarMenuButton>
-									</SidebarMenuItem>
-								))}
+								{group.items
+									.filter(
+										(item) =>
+											!item.roles || item.roles.includes(activeOrg.your_role),
+									)
+									.map((item) => (
+										<SidebarMenuItem key={item.href}>
+											<SidebarMenuButton
+												asChild={!item.disabled}
+												isActive={isNavItemActive(pathname, item.href)}
+												disabled={item.disabled}
+												tooltip={item.disabled ? "Coming soon" : item.label}
+												className={cn(
+													"pl-4 hover:transition-none",
+													item.disabled &&
+														"text-muted-foreground hover:bg-transparent hover:text-muted-foreground active:bg-transparent active:text-muted-foreground data-active:bg-transparent data-active:text-muted-foreground",
+												)}
+											>
+												{item.disabled ? (
+													<>
+														<item.icon />
+														<span>{item.label}</span>
+													</>
+												) : (
+													<Link href={item.href}>
+														<item.icon />
+														<span>{item.label}</span>
+													</Link>
+												)}
+											</SidebarMenuButton>
+										</SidebarMenuItem>
+									))}
 							</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>

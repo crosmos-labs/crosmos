@@ -38,6 +38,7 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Select,
 	SelectContent,
@@ -45,17 +46,25 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
+import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconDotsVertical, IconKey, IconPlus } from "@tabler/icons-react";
+import {
+	IconCornerDownLeft,
+	IconDotsVertical,
+	IconKey,
+} from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
 import { EmptyState } from "@/components/empty-state";
+import { HotkeyKbd } from "@/components/hotkey-kbd";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { apiKeysKey } from "@/hooks/use-api-keys";
+import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
 function maskKey(prefix: string) {
@@ -149,11 +158,14 @@ function CreateKeyDialog({
 					</Select>
 				</div>
 				<DialogFooter>
-					<Button variant="outline" onClick={handleClose}>
-						Cancel
+					<Button variant="ghost" onClick={handleClose}>
+						Cancel <Kbd>Esc</Kbd>
 					</Button>
-					<Button onClick={handleCreate} size="lg" disabled={!name.trim()}>
-						Create
+					<Button onClick={handleCreate} disabled={!name.trim()}>
+						Create{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -176,8 +188,8 @@ function KeyCountRow({
 				{count} key{count !== 1 ? "s" : ""}
 			</span>
 			<Button onClick={onCreateClick} disabled={disabled}>
-				<IconPlus data-icon="inline-start" />
 				Create
+				<HotkeyKbd />
 			</Button>
 		</div>
 	);
@@ -187,30 +199,27 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [revokeKey, setRevokeKey] = useState<ApiKey | null>(null);
 	const [recentCreates, setRecentCreates] = useState<
-		Map<number, CreateApiKeyResponse>
+		Map<string, CreateApiKeyResponse>
 	>(new Map());
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
+	useHotkey("k", () => {
+		if (activeCount > 0) return;
+		setDialogOpen(true);
+	});
+
 	const handleRevoke = useCallback(
-		(keyId: number) => {
+		(keyId: string) => {
 			runAction(
-				async () => {
-					await mutate(
-						"/api-keys",
-						async (current: ApiKey[] | undefined) => {
-							await revokeApiKey(keyId);
-							return current?.filter((k) => k.key_id !== keyId) ?? [];
-						},
-						{
-							optimisticData: (current: ApiKey[] | undefined) =>
-								current?.filter((k) => k.key_id !== keyId) ?? [],
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+				() =>
+					optimisticRemove<ApiKey>(
+						mutate,
+						apiKeysKey,
+						(k) => k.key_id === keyId,
+						() => revokeApiKey(keyId),
+					),
 				{
 					toast: { success: "API key revoked", error: "Failed to revoke key" },
 				},
@@ -221,10 +230,9 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 
 	const handleCreateKey = useCallback(
 		(name: string, expiresInDays?: number) => {
-			const tempKeyId = -Date.now();
 			const now = new Date().toISOString();
 			const tempKey: ApiKey = {
-				key_id: tempKeyId,
+				key_id: `optimistic-${Date.now()}`,
 				name,
 				key_prefix: "",
 				is_active: true,
@@ -235,30 +243,17 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				created_at: now,
 			};
 			runAction(
-				async () => {
-					await mutate(
-						"/api-keys",
-						async (current: ApiKey[] | undefined) => {
-							const res = await createApiKey(name, expiresInDays);
-							setRecentCreates((prev) => new Map(prev).set(res.key_id, res));
-							const apiKey: ApiKey = {
-								...res,
-								is_active: true,
-								last_used_at: null,
-								created_at: new Date().toISOString(),
-							};
-							return [apiKey, ...(current ?? [])];
-						},
-						{
-							optimisticData: (current: ApiKey[] | undefined) => [
-								tempKey,
-								...(current ?? []),
-							],
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+				() =>
+					optimisticInsert(mutate, apiKeysKey, tempKey, async () => {
+						const res = await createApiKey(name, expiresInDays);
+						setRecentCreates((prev) => new Map(prev).set(res.key_id, res));
+						return {
+							...res,
+							is_active: true,
+							last_used_at: null,
+							created_at: new Date().toISOString(),
+						};
+					}),
 				{
 					toast: { success: "API key created", error: "Failed to create key" },
 				},
@@ -307,7 +302,8 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				{keys.map((key) => {
 					const recent = recentCreates.get(key.key_id);
 					const isRecent = !!recent;
-					const isOptimistic = key.key_id < 0;
+					// Optimistic placeholders carry an "optimistic-" id prefix (see handleCreateKey).
+					const isOptimistic = key.key_id.startsWith("optimistic-");
 
 					return (
 						<Item
@@ -351,11 +347,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
 									{isOptimistic ? (
-										<AnimatedSpinner
-											name="diagswipe"
-											size="1.1em"
-											speed={0.8}
-										/>
+										<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
 									) : (
 										formatDistanceToNow(new Date(key.created_at), {
 											addSuffix: true,
@@ -416,7 +408,7 @@ function RevokeAlertDialog({
 	onOpenChange,
 }: {
 	revokeKey: ApiKey | null;
-	onRevoke: (keyId: number) => void;
+	onRevoke: (keyId: string) => void;
 	onOpenChange: (open: boolean) => void;
 }) {
 	return (
@@ -476,7 +468,9 @@ function RevokeAlertDialog({
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">
+						Cancel <Kbd>Esc</Kbd>
+					</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
@@ -486,7 +480,10 @@ function RevokeAlertDialog({
 							}
 						}}
 					>
-						Revoke
+						Revoke{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

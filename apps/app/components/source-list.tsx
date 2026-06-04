@@ -27,6 +27,7 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Pagination,
 	PaginationContent,
@@ -38,6 +39,7 @@ import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconBraces,
 	IconCode,
+	IconCornerDownLeft,
 	IconDotsVertical,
 	IconFileText,
 	IconFileTypePdf,
@@ -154,7 +156,9 @@ function DeleteSourceDialog({
 					</div>
 				)}
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">
+						Cancel <Kbd>Esc</Kbd>
+					</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
@@ -164,7 +168,10 @@ function DeleteSourceDialog({
 							}
 						}}
 					>
-						Delete
+						Delete{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

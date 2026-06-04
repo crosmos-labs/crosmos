@@ -1,7 +1,9 @@
 "use server";
 
 import {
+	clearInviteToken,
 	clearOAuthState,
+	getInviteToken,
 	getOAuthState,
 	setActiveOrgCookie,
 	setAuthCookies,
@@ -11,7 +13,11 @@ import type { OAuthCallbackResponse } from "@/lib/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export async function handleOAuthCallback(code: string, state: string) {
+// Returns where the client should navigate next.
+export async function handleOAuthCallback(
+	code: string,
+	state: string,
+): Promise<string> {
 	if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
 
 	const savedState = await getOAuthState();
@@ -42,4 +48,11 @@ export async function handleOAuthCallback(code: string, state: string) {
 	if (data.active_org_id != null) {
 		await setActiveOrgCookie(data.active_org_id);
 	}
+
+	const inviteToken = await getInviteToken();
+	if (inviteToken) {
+		await clearInviteToken();
+		return `/invites/accept?token=${encodeURIComponent(inviteToken)}`;
+	}
+	return "/";
 }

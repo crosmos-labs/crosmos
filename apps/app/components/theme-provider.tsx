@@ -3,6 +3,19 @@
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import * as React from "react";
 
+function isTypingTarget(target: EventTarget | null) {
+	if (!(target instanceof HTMLElement)) {
+		return false;
+	}
+
+	return (
+		target.isContentEditable ||
+		target.tagName === "INPUT" ||
+		target.tagName === "TEXTAREA" ||
+		target.tagName === "SELECT"
+	);
+}
+
 function ThemeProvider({
 	children,
 	...props
@@ -18,19 +31,6 @@ function ThemeProvider({
 			<ThemeHotkey />
 			{children}
 		</NextThemesProvider>
-	);
-}
-
-function isTypingTarget(target: EventTarget | null) {
-	if (!(target instanceof HTMLElement)) {
-		return false;
-	}
-
-	return (
-		target.isContentEditable ||
-		target.tagName === "INPUT" ||
-		target.tagName === "TEXTAREA" ||
-		target.tagName === "SELECT"
 	);
 }
 

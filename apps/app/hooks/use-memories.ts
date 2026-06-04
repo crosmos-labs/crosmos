@@ -8,10 +8,14 @@ export interface MemoriesResponse {
 	hasMore: boolean;
 }
 
+export function memoriesKey(spaceUuid: string, page: number): string {
+	return `/memories?space_uuid=${spaceUuid}&page=${page}`;
+}
+
 export function useMemories(spaceUuid: string, page: number = 1) {
 	const offset = (page - 1) * MEMORIES_PER_PAGE;
 	return useSWR<MemoriesResponse>(
-		spaceUuid ? `/memories?space_uuid=${spaceUuid}&page=${page}` : null,
+		spaceUuid ? memoriesKey(spaceUuid, page) : null,
 		() => listMemories(spaceUuid, { limit: MEMORIES_PER_PAGE, offset }),
 		{
 			keepPreviousData: true,
