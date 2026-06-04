@@ -13,7 +13,13 @@ import {
 import { Kbd } from "@crosmos/ui/components/kbd";
 import { Switch } from "@crosmos/ui/components/switch";
 import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@crosmos/ui/components/tooltip";
+import {
 	IconCornerDownLeft,
+	IconInfoCircle,
 	IconShieldOff,
 	IconUsers,
 } from "@tabler/icons-react";
@@ -91,7 +97,20 @@ export function EnforcementSwitch({
 	return (
 		<div className="flex items-center justify-between gap-4 rounded-lg border p-4">
 			<div className="flex flex-col gap-1">
-				<span className="text-sm font-medium">Visibility enforcement</span>
+				<span className="flex items-center gap-1.5 text-sm font-medium">
+					Visibility enforcement
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<button type="button" aria-label="About visibility enforcement" className="inline-flex items-center text-muted-foreground hover:text-foreground">
+								<IconInfoCircle className="size-3.5" />
+							</button>
+						</TooltipTrigger>
+						<TooltipContent className="max-w-64 flex flex-col gap-1" side="right" align="start">
+							<span><span className="font-medium text-foreground">On</span> — members only see memories from groups they have access to.</span>
+							<span><span className="font-medium text-foreground">Off</span> — everyone can read all private memories in the org.</span>
+						</TooltipContent>
+					</Tooltip>
+				</span>
 				<span className="text-sm text-muted-foreground">
 					Apply access rules to control who can read private memories.
 				</span>
