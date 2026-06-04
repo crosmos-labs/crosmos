@@ -17,7 +17,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@crosmos/ui/components/dropdown-menu";
-import { Input } from "@crosmos/ui/components/input";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import {
 	Table,
@@ -28,12 +28,18 @@ import {
 	TableRow,
 } from "@crosmos/ui/components/table";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconDotsVertical, IconPlus } from "@tabler/icons-react";
+import {
+	IconCornerDownLeft,
+	IconDotsVertical,
+	IconPlus,
+} from "@tabler/icons-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useSWRConfig } from "swr";
-import { deleteGroup, updateGroup } from "@/actions/visibility";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
+import { deleteGroup } from "@/actions/visibility";
+import {
+	useActionLoader,
+	useActionLoaderState,
+} from "@/components/providers/action-loader-provider";
 import {
 	useGroups,
 	visibilityGrantsKey,
@@ -58,6 +64,7 @@ export function GroupsSection({
 	const { data: groups, isLoading } = useGroups(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
+	const { activeCount } = useActionLoaderState();
 
 	const [createOpen, setCreateOpen] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<VisibilityGroup | null>(
@@ -66,39 +73,13 @@ export function GroupsSection({
 	const [membersTarget, setMembersTarget] = useState<VisibilityGroup | null>(
 		null,
 	);
-	const [editingId, setEditingId] = useState<string | null>(null);
-	const [draft, setDraft] = useState("");
 
 	const groupsKey = visibilityGroupsKey(orgId);
-
-	function startRename(group: VisibilityGroup) {
-		if (disabled) return;
-		setEditingId(group.id);
-		setDraft(group.name);
-	}
-
-	async function commitRename(group: VisibilityGroup) {
-		if (disabled) return;
-		const next = draft.trim();
-		setEditingId(null);
-		if (next === "" || next === group.name) return;
-		await mutate(
-			groupsKey,
-			(cur?: VisibilityGroup[]) =>
-				(cur ?? []).map((g) => (g.id === group.id ? { ...g, name: next } : g)),
-			{ revalidate: false },
-		);
-		const result = await updateGroup(orgId, group.id, { name: next });
-		if (!result.ok) {
-			await mutate(groupsKey);
-			toast.error(result.message || "Couldn't rename group");
-			return;
-		}
-		await mutate(groupsKey);
-	}
+	const actionBusy = activeCount > 0;
+	const effectiveDisabled = disabled || actionBusy;
 
 	function handleDelete(group: VisibilityGroup) {
-		if (disabled) return;
+		if (effectiveDisabled) return;
 		runAction(
 			() =>
 				optimisticRemove<VisibilityGroup>(
@@ -119,7 +100,7 @@ export function GroupsSection({
 				<Button
 					size="sm"
 					onClick={() => setCreateOpen(true)}
-					disabled={disabled}
+					disabled={effectiveDisabled}
 				>
 					<IconPlus className="size-4" />
 					New group
@@ -146,17 +127,15 @@ export function GroupsSection({
 						["a", "b", "c"].map((k) => (
 							<TableRow key={k}>
 								<TableCell>
-									<Skeleton className="h-8 w-36" />
+									<Skeleton className="h-4 w-32" />
 								</TableCell>
 								<TableCell>
-									<Skeleton className="h-5 w-28" />
+									<Skeleton className="h-4 w-28" />
 								</TableCell>
 								<TableCell>
-									<Skeleton className="h-5 w-12" />
+									<Skeleton className="h-4 w-16" />
 								</TableCell>
-								<TableCell className="w-10">
-									<Skeleton className="size-8" />
-								</TableCell>
+								<TableCell className="w-10" />
 							</TableRow>
 						))
 					) : !groups || groups.length === 0 ? (
@@ -180,29 +159,7 @@ export function GroupsSection({
 									)}
 								>
 									<TableCell className="font-medium">
-										{isOptimistic ? (
-											group.name
-										) : editingId === group.id ? (
-											<Input
-												autoFocus
-												value={draft}
-												onChange={(e) => setDraft(e.target.value)}
-												onBlur={() => commitRename(group)}
-												onKeyDown={(e) => {
-													if (e.key === "Enter") commitRename(group);
-													if (e.key === "Escape") setEditingId(null);
-												}}
-												className="h-8 focus-visible:border-input focus-visible:ring-0"
-											/>
-										) : (
-											<button
-												type="button"
-												className="rounded px-1 py-0.5 text-left hover:bg-muted"
-												onClick={() => startRename(group)}
-											>
-												{group.name}
-											</button>
-										)}
+										{group.name}
 									</TableCell>
 									<TableCell className="text-muted-foreground">
 										{group.slug}
@@ -216,21 +173,21 @@ export function GroupsSection({
 														variant="ghost"
 														size="icon-sm"
 														aria-label={`Actions for ${group.name}`}
-														disabled={disabled}
+														disabled={effectiveDisabled}
 													>
 														<IconDotsVertical />
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="end">
 													<DropdownMenuItem
-														disabled={disabled}
+														disabled={effectiveDisabled}
 														onClick={() => setMembersTarget(group)}
 													>
 														Manage members
 													</DropdownMenuItem>
 													<DropdownMenuItem
 														variant="destructive"
-														disabled={disabled}
+														disabled={effectiveDisabled}
 														onClick={() => setDeleteTarget(group)}
 													>
 														Delete
@@ -250,13 +207,13 @@ export function GroupsSection({
 				orgId={orgId}
 				open={createOpen}
 				onOpenChange={setCreateOpen}
-				disabled={disabled}
+				disabled={effectiveDisabled}
 			/>
 
 			<GroupMembersSheet
 				orgId={orgId}
 				group={membersTarget}
-				disabled={disabled}
+				disabled={effectiveDisabled}
 				onOpenChange={(open) => {
 					if (!open) setMembersTarget(null);
 				}}
@@ -278,16 +235,21 @@ export function GroupsSection({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel variant="ghost">Cancel</AlertDialogCancel>
+						<AlertDialogCancel variant="ghost">
+							Cancel <Kbd>Esc</Kbd>
+						</AlertDialogCancel>
 						<AlertDialogAction
 							variant="destructive"
-							disabled={disabled}
+							disabled={effectiveDisabled}
 							onClick={() => {
 								if (deleteTarget) handleDelete(deleteTarget);
 								setDeleteTarget(null);
 							}}
 						>
-							Delete
+							Delete{" "}
+							<Kbd>
+								<IconCornerDownLeft />
+							</Kbd>
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
