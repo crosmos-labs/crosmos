@@ -6,27 +6,12 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "@crosmos/ui/components/tabs";
-import {
-	IconBuilding,
-	IconEye,
-	IconUserCircle,
-	IconUsers,
-} from "@tabler/icons-react";
+import { IconBuilding, IconUserCircle, IconUsers } from "@tabler/icons-react";
 import { MembersSettings } from "@/components/settings/members-settings";
 import { OrganizationSettings } from "@/components/settings/organization-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
-import { VisibilitySettings } from "@/components/settings/visibility/visibility-settings";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useOrg } from "@/hooks/use-org";
 
 export default function SettingsPage() {
-	const { data: user } = useCurrentUser();
-	const { data: org } = useOrg(user?.active_org_id ?? null);
-	// Visibility is owner/admin-only — append the tab once the role resolves
-	// (fail closed: hidden until we know, hidden for plain members).
-	const canManageVisibility =
-		org?.your_role === "owner" || org?.your_role === "admin";
-
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-1">
@@ -50,12 +35,6 @@ export default function SettingsPage() {
 						<IconUserCircle />
 						Profile
 					</TabsTrigger>
-					{canManageVisibility && (
-						<TabsTrigger value="visibility">
-							<IconEye />
-							Visibility
-						</TabsTrigger>
-					)}
 				</TabsList>
 				<TabsContent value="members">
 					<MembersSettings />
@@ -66,11 +45,6 @@ export default function SettingsPage() {
 				<TabsContent value="profile">
 					<ProfileSettings />
 				</TabsContent>
-				{canManageVisibility && (
-					<TabsContent value="visibility">
-						<VisibilitySettings />
-					</TabsContent>
-				)}
 			</Tabs>
 		</div>
 	);

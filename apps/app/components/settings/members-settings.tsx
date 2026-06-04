@@ -59,7 +59,9 @@ export function MembersSettings() {
 	const { data: invites, error: invitesError } = useInvites(orgId, canManage);
 	// Hold the table until invites resolve too, so members + invites render together.
 	const invitesPending = canManage && invites === undefined && !invitesError;
-	const invitesReady = !invitesPending;
+	const invitesReady = canManage
+		? invites !== undefined && !invitesError
+		: true;
 
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -84,7 +86,7 @@ export function MembersSettings() {
 
 	function handleInvite(email: string, role: CreateInviteRequest["role"]) {
 		// Guard: invites must be loaded so the duplicate check is reliable.
-		if (!invitesReady || !orgId) return;
+		if (!invitesReady || !orgId || !invites) return;
 
 		const blockedEmails = new Set([
 			...(members ?? []).map((m) => m.email.toLowerCase()),
@@ -121,12 +123,20 @@ export function MembersSettings() {
 
 	return (
 		<div className="flex flex-col gap-6">
-			{membersError ? (
+			{membersError || invitesError ? (
 				<DataFetchError
-					message={membersError.message}
-					onRetry={() =>
-						orgId ? mutate(membersKey(orgId)) : Promise.resolve()
+					message={
+						membersError?.message ??
+						invitesError?.message ??
+						"Couldn't load members."
 					}
+					onRetry={() => {
+						if (!orgId) return Promise.resolve();
+						return Promise.all([
+							mutate(membersKey(orgId)),
+							mutate(invitesKey(orgId)),
+						]).then(() => undefined);
+					}}
 				/>
 			) : (
 				<div className="flex flex-col gap-6">
