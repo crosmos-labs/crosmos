@@ -23,7 +23,7 @@ import {
 	SheetTrigger,
 } from "@crosmos/ui/components/sheet";
 import { IconChevronDown, IconEye } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMembers } from "@/hooks/use-members";
 import { useVisibilityPreview } from "@/hooks/use-visibility";
 import { avatarColor, getInitials } from "@/lib/members";
@@ -39,10 +39,18 @@ export function PreviewSheet({
 	const [pickerOpen, setPickerOpen] = useState(false);
 	const [userId, setUserId] = useState<string | null>(null);
 
-	const { data: orgMembers } = useMembers(orgId);
+	const { data: orgMembers, isLoading: membersLoading } = useMembers(orgId);
 	const { data: preview, isLoading } = useVisibilityPreview(orgId, userId);
 
 	const selected = orgMembers?.find((m) => m.user_id === userId) ?? null;
+	const pickerDisabled = disabled || membersLoading || orgMembers === undefined;
+
+	useEffect(() => {
+		if (!userId || orgMembers === undefined) return;
+		if (orgMembers.some((member) => member.user_id === userId)) return;
+		setUserId(null);
+		setPickerOpen(false);
+	}, [orgMembers, userId]);
 
 	return (
 		<Sheet open={open} onOpenChange={setOpen}>
@@ -62,12 +70,18 @@ export function PreviewSheet({
 				</SheetHeader>
 
 				<div className="flex flex-col gap-4 px-4 pb-4">
-					<Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+					<Popover
+						open={pickerOpen}
+						onOpenChange={(nextOpen) => {
+							if (pickerDisabled) return;
+							setPickerOpen(nextOpen);
+						}}
+					>
 						<PopoverTrigger asChild>
 							<Button
 								variant="outline"
 								className="justify-between"
-								disabled={disabled}
+								disabled={pickerDisabled}
 							>
 								<span className="truncate">
 									{selected
@@ -86,9 +100,9 @@ export function PreviewSheet({
 										<CommandItem
 											key={m.user_id}
 											value={`${m.name} ${m.email}`}
-											disabled={disabled}
+											disabled={pickerDisabled}
 											onSelect={() => {
-												if (disabled) return;
+												if (pickerDisabled) return;
 												setUserId(m.user_id);
 												setPickerOpen(false);
 											}}

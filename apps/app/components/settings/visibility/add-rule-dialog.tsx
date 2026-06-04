@@ -9,6 +9,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Select,
 	SelectContent,
@@ -16,6 +17,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
+import { IconCornerDownLeft } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
@@ -181,13 +183,16 @@ export function AddRuleDialog({
 				</div>
 				<DialogFooter>
 					<Button variant="ghost" onClick={handleClose} disabled={actionBusy}>
-						Cancel
+						Cancel <Kbd>Esc</Kbd>
 					</Button>
 					<Button
 						onClick={handleCreate}
 						disabled={!viewerId || !subjectId || disabled || actionBusy}
 					>
-						Add rule
+						Add rule{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

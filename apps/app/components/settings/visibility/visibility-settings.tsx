@@ -14,6 +14,7 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";
+import { useActionLoaderState } from "@/components/providers/action-loader-provider";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useGroups } from "@/hooks/use-visibility";
 import { isOrgScopeMismatch } from "@/lib/org-mismatch";
@@ -27,6 +28,9 @@ export function VisibilitySettings() {
 	const orgId = user?.active_org_id ?? null;
 	const currentUserId = user?.user_id ?? null;
 	const [enforcementPending, setEnforcementPending] = useState(false);
+	const { activeCount } = useActionLoaderState();
+	const actionBusy = activeCount > 0;
+	const disabled = enforcementPending || actionBusy;
 
 	// Observe one org-scoped read to detect a stale active org (SWR shares the
 	// cache with GroupsSection, so this doesn't double-fetch).
@@ -64,23 +68,23 @@ export function VisibilitySettings() {
 			<Tabs defaultValue="groups" className="gap-6">
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<TabsList variant="line">
-						<TabsTrigger value="groups" disabled={enforcementPending}>
+						<TabsTrigger value="groups" disabled={disabled}>
 							<IconUsersGroup />
 							Groups
 						</TabsTrigger>
-						<TabsTrigger value="access-rules" disabled={enforcementPending}>
+						<TabsTrigger value="access-rules" disabled={disabled}>
 							<IconShieldLock />
 							Access rules
 						</TabsTrigger>
 					</TabsList>
-					<PreviewSheet orgId={orgId} disabled={enforcementPending} />
+					<PreviewSheet key={orgId} orgId={orgId} disabled={disabled} />
 				</div>
 
 				<TabsContent value="groups">
-					<GroupsSection orgId={orgId} disabled={enforcementPending} />
+					<GroupsSection orgId={orgId} disabled={disabled} />
 				</TabsContent>
 				<TabsContent value="access-rules">
-					<AccessRulesSection orgId={orgId} disabled={enforcementPending} />
+					<AccessRulesSection orgId={orgId} disabled={disabled} />
 				</TabsContent>
 			</Tabs>
 		</div>

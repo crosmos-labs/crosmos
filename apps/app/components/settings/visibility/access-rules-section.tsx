@@ -25,7 +25,10 @@ import {
 import { useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import { deleteGrant } from "@/actions/visibility";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
+import {
+	useActionLoader,
+	useActionLoaderState,
+} from "@/components/providers/action-loader-provider";
 import {
 	useGrants,
 	useGroups,
@@ -50,7 +53,10 @@ export function AccessRulesSection({
 	const { data: groups } = useGroups(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
+	const { activeCount } = useActionLoaderState();
 	const [addOpen, setAddOpen] = useState(false);
+	const actionBusy = activeCount > 0;
+	const effectiveDisabled = disabled || actionBusy;
 
 	// Prefer group names over slugs for the sentence; fall back to the slug.
 	const nameById = useMemo(() => {
@@ -60,7 +66,7 @@ export function AccessRulesSection({
 	}, [groups]);
 
 	function handleDelete(grant: VisibilityGrant) {
-		if (disabled) return;
+		if (effectiveDisabled) return;
 		runAction(
 			() =>
 				optimisticRemove<VisibilityGrant>(
@@ -80,7 +86,7 @@ export function AccessRulesSection({
 				<Button
 					size="sm"
 					onClick={() => setAddOpen(true)}
-					disabled={disabled || (groups?.length ?? 0) < 2}
+					disabled={effectiveDisabled || (groups?.length ?? 0) < 2}
 				>
 					<IconPlus className="size-4" />
 					Add rule
@@ -107,17 +113,15 @@ export function AccessRulesSection({
 						["a", "b"].map((k) => (
 							<TableRow key={k}>
 								<TableCell>
-									<Skeleton className="h-5 w-32" />
+									<Skeleton className="h-4 w-32" />
 								</TableCell>
 								<TableCell>
-									<Skeleton className="h-5 w-32" />
+									<Skeleton className="h-4 w-32" />
 								</TableCell>
 								<TableCell>
-									<Skeleton className="h-5 w-28" />
+									<Skeleton className="h-4 w-28" />
 								</TableCell>
-								<TableCell className="w-10">
-									<Skeleton className="size-8" />
-								</TableCell>
+								<TableCell className="w-10" />
 							</TableRow>
 						))
 					) : !grants || grants.length === 0 ? (
@@ -181,7 +185,7 @@ export function AccessRulesSection({
 												variant="ghost"
 												size="icon-sm"
 												aria-label="Remove rule"
-												disabled={disabled}
+												disabled={effectiveDisabled}
 												onClick={() => handleDelete(grant)}
 											>
 												<IconTrash />
@@ -201,7 +205,7 @@ export function AccessRulesSection({
 				grants={grants ?? []}
 				open={addOpen}
 				onOpenChange={setAddOpen}
-				disabled={disabled}
+				disabled={effectiveDisabled}
 			/>
 		</section>
 	);

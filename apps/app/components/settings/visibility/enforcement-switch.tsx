@@ -17,7 +17,7 @@ import {
 	IconShieldOff,
 	IconUsers,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateVisibilitySettings } from "@/actions/visibility";
@@ -43,6 +43,11 @@ export function EnforcementSwitch({
 	const loading = data === undefined;
 	const enabled = data?.visibility_enabled ?? false;
 	const key = visibilitySettingsKey(orgId);
+	const pending = loading || busy;
+
+	useEffect(() => {
+		onPendingChange?.(pending);
+	}, [onPendingChange, pending]);
 
 	function setPending(next: boolean) {
 		setBusy(next);
@@ -51,31 +56,36 @@ export function EnforcementSwitch({
 
 	async function applyToggle(next: boolean) {
 		setPending(true);
-		await mutate(key, { visibility_enabled: next }, { revalidate: false });
-		const result = await updateVisibilitySettings(orgId, next);
-		if (!result.ok) {
-			await mutate(key, { visibility_enabled: !next }, { revalidate: false });
-			toast.error(result.message || "Couldn't update enforcement");
+		try {
+			await mutate(key, { visibility_enabled: next }, { revalidate: false });
+			const result = await updateVisibilitySettings(orgId, next);
+			if (!result.ok) {
+				await mutate(key);
+				toast.error(result.message || "Couldn't update enforcement");
+				return;
+			}
+			await mutate(
+				key,
+				{ visibility_enabled: result.data.visibility_enabled },
+				{ revalidate: false },
+			);
+			// Visible scope changes with enforcement — refresh any open preview reads.
+			await mutate(
+				(k) =>
+					typeof k === "string" &&
+					k.startsWith(`/orgs/${orgId}/visibility/preview`),
+			);
+			toast.success(
+				next
+					? "Visibility enforcement enabled"
+					: "Visibility enforcement disabled",
+			);
+		} catch {
+			await mutate(key).catch(() => {});
+			toast.error("Couldn't update enforcement");
+		} finally {
 			setPending(false);
-			return;
 		}
-		await mutate(
-			key,
-			{ visibility_enabled: result.data.visibility_enabled },
-			{ revalidate: false },
-		);
-		// Visible scope changes with enforcement — refresh any open preview reads.
-		await mutate(
-			(k) =>
-				typeof k === "string" &&
-				k.startsWith(`/orgs/${orgId}/visibility/preview`),
-		);
-		toast.success(
-			next
-				? "Visibility enforcement enabled"
-				: "Visibility enforcement disabled",
-		);
-		setPending(false);
 	}
 
 	return (
@@ -83,19 +93,15 @@ export function EnforcementSwitch({
 			<div className="flex flex-col gap-1">
 				<span className="text-sm font-medium">Visibility enforcement</span>
 				<span className="text-sm text-muted-foreground">
-					{loading
-						? "Loading…"
-						: enabled
-							? "Members only see their own memories plus what access rules grant."
-							: "Access rules are saved but not applied."}
+					Apply access rules to control who can read private memories.
 				</span>
 			</div>
 			<Switch
 				checked={enabled}
-				disabled={loading || busy}
+				disabled={pending}
 				aria-label="Visibility enforcement"
 				onCheckedChange={(checked) => {
-					if (busy) return;
+					if (pending) return;
 					if (checked) applyToggle(true);
 					else setConfirmOpen(true);
 				}}
