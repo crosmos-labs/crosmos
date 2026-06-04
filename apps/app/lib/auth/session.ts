@@ -74,11 +74,14 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 
 	const activeOrgId = await getActiveOrgId();
 
-	const toAuthUser = (raw: {
-		user_id: string;
-		email: string;
-		name: string;
-	}): AuthUser => ({
+	const toAuthUser = (
+		raw: {
+			user_id: string;
+			email: string;
+			name: string;
+		},
+		activeOrgId: string | null,
+	): AuthUser => ({
 		user_id: raw.user_id,
 		email: raw.email,
 		name: raw.name,
@@ -92,7 +95,7 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 		});
 
 		if (res.ok) {
-			return toAuthUser(await res.json());
+			return toAuthUser(await res.json(), activeOrgId);
 		}
 
 		if (res.status === 401) {
@@ -105,7 +108,7 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 			});
 
 			if (retryRes.ok) {
-				return toAuthUser(await retryRes.json());
+				return toAuthUser(await retryRes.json(), await getActiveOrgId());
 			}
 		}
 
