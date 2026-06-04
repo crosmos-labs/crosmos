@@ -36,6 +36,7 @@ import {
 	visibilityGroupsKey,
 } from "@/hooks/use-visibility";
 import { avatarColor, getInitials } from "@/lib/members";
+import type { GroupMember, VisibilityGroup } from "@/lib/types/visibility";
 
 export function GroupMembersSheet({
 	orgId,
@@ -92,7 +93,7 @@ export function GroupMembersSheet({
 	}
 
 	function toggleMember(userId: string, checked: boolean) {
-		if (disabled || busy) return;
+		if (disabled || busy || loading) return;
 		setSelectedIds((current) => {
 			const next = new Set(current);
 			if (checked) next.add(userId);
@@ -102,29 +103,67 @@ export function GroupMembersSheet({
 	}
 
 	function handleSave() {
-		if (!groupId || disabled || busy || !hasChanges) return;
+		if (
+			!groupId ||
+			disabled ||
+			busy ||
+			loading ||
+			!hasChanges ||
+			!members ||
+			!orgMembers
+		) {
+			return;
+		}
 		const idsToAdd = [...selectedIds].filter((id) => !memberIds.has(id));
 		const idsToRemove = [...memberIds].filter((id) => !selectedIds.has(id));
+		const selectedSnapshot = new Set(selectedIds);
+		const nextMembers = orgMembers
+			.filter((member) => selectedSnapshot.has(member.user_id))
+			.map<GroupMember>((member) => ({
+				user_id: member.user_id,
+				email: member.email,
+				name: member.name,
+			}));
+		const membersKey = visibilityGroupMembersKey(orgId, groupId);
+		const groupsKey = visibilityGroupsKey(orgId);
 
 		onOpenChange(false);
 		runAction(
 			async () => {
 				await Promise.all([
-					...idsToAdd.map((userId) => addGroupMember(orgId, groupId, userId)),
-					...idsToRemove.map((userId) =>
-						removeGroupMember(orgId, groupId, userId),
+					mutate<GroupMember[]>(membersKey, nextMembers, {
+						revalidate: false,
+					}),
+					mutate<VisibilityGroup[]>(
+						groupsKey,
+						(current) =>
+							(current ?? []).map((visibilityGroup) =>
+								visibilityGroup.id === groupId
+									? { ...visibilityGroup, member_count: selectedSnapshot.size }
+									: visibilityGroup,
+							),
+						{ revalidate: false },
 					),
 				]);
-				await Promise.all([
-					mutate(visibilityGroupMembersKey(orgId, groupId)),
-					mutate(visibilityGroupsKey(orgId)),
-				]);
+
+				try {
+					await Promise.all([
+						...idsToAdd.map((userId) => addGroupMember(orgId, groupId, userId)),
+						...idsToRemove.map((userId) =>
+							removeGroupMember(orgId, groupId, userId),
+						),
+					]);
+				} finally {
+					await Promise.all([mutate(membersKey), mutate(groupsKey)]);
+				}
 			},
-			{ toast: { success: "Group members updated" } },
-		).catch(() => {
-			mutate(visibilityGroupMembersKey(orgId, groupId));
-			mutate(visibilityGroupsKey(orgId));
-		});
+			{
+				toast: {
+					success: "Group members updated",
+					error: "Failed to update group members",
+				},
+			},
+		).catch(() => {});
 	}
 
 	return (
@@ -140,12 +179,18 @@ export function GroupMembersSheet({
 				<div className="flex min-h-0 flex-1 flex-col gap-3 px-4 pb-4">
 					<InputGroup>
 						<InputGroupAddon align="inline-start">
-							<IconSearch />
+							<IconSearch className="size-4" />
 						</InputGroupAddon>
 						<InputGroupInput
+							placeholder="Search by name or email"
 							value={query}
 							onChange={(event) => setQuery(event.target.value)}
-							placeholder="Search members..."
+							onKeyDown={(event) => {
+								if (event.key === "Enter" && hasChanges) {
+									event.preventDefault();
+									handleSave();
+								}
+							}}
 							disabled={disabled || busy || loading}
 						/>
 					</InputGroup>
@@ -169,7 +214,7 @@ export function GroupMembersSheet({
 									<Checkbox
 										id={`group-member-${member.user_id}`}
 										checked={selectedIds.has(member.user_id)}
-										disabled={disabled || busy}
+										disabled={disabled || busy || loading}
 										onCheckedChange={(checked) =>
 											toggleMember(member.user_id, checked === true)
 										}
@@ -215,7 +260,7 @@ export function GroupMembersSheet({
 							</Button>
 							<Button
 								onClick={handleSave}
-								disabled={disabled || busy || !hasChanges}
+								disabled={disabled || busy || loading || !hasChanges}
 							>
 								Save changes{" "}
 								<Kbd>
