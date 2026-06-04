@@ -83,14 +83,23 @@ export function AccessRulesSection({
 		<section className="flex flex-col gap-3">
 			<div className="flex items-center justify-between">
 				<h2 className="text-base font-semibold">Access rules</h2>
-				<Button
-					size="sm"
-					onClick={() => setAddOpen(true)}
-					disabled={effectiveDisabled || (groups?.length ?? 0) < 2}
-				>
-					<IconPlus className="size-4" />
-					Add rule
-				</Button>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							size="sm"
+							onClick={() => setAddOpen(true)}
+							disabled={effectiveDisabled || (groups?.length ?? 0) < 2}
+						>
+							<IconPlus className="size-4" />
+							Add rule
+						</Button>
+					</TooltipTrigger>
+					{(groups?.length ?? 0) < 2 && (
+						<TooltipContent>
+							Create at least 2 groups to add access rules
+						</TooltipContent>
+					)}
+				</Tooltip>
 			</div>
 
 			<Table>
