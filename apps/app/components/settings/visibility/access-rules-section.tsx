@@ -10,11 +10,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@crosmos/ui/components/table";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@crosmos/ui/components/tooltip";
 import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconInfoCircle,
@@ -83,25 +78,14 @@ export function AccessRulesSection({
 		<section className="flex flex-col gap-3">
 			<div className="flex items-center justify-between">
 				<h2 className="text-base font-semibold">Access rules</h2>
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<div>
-							<Button
-								size="sm"
-								onClick={() => setAddOpen(true)}
-								disabled={effectiveDisabled || (groups?.length ?? 0) < 2}
-							>
-								<IconPlus className="size-4" />
-								Add rule
-							</Button>
-						</div>
-					</TooltipTrigger>
-					{(groups?.length ?? 0) < 2 && (
-						<TooltipContent>
-							Create at least 2 groups to add access rules
-						</TooltipContent>
-					)}
-				</Tooltip>
+				<Button
+					size="sm"
+					onClick={() => setAddOpen(true)}
+					disabled={effectiveDisabled || (groups?.length ?? 0) < 2}
+				>
+					<IconPlus className="size-4" />
+					Add rule
+				</Button>
 			</div>
 
 			<Table>
