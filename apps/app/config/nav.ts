@@ -4,6 +4,7 @@ import {
 	IconChartBar,
 	IconCreditCard,
 	IconDatabase,
+	IconEye,
 	IconFileImport,
 	IconGalaxy,
 	IconKey,
@@ -11,6 +12,7 @@ import {
 	IconTopologyComplex,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
+import type { OrgRole } from "@/lib/types/org";
 
 export interface NavItem {
 	label: string;
@@ -18,6 +20,7 @@ export interface NavItem {
 	icon: ComponentType<{ className?: string }>;
 	disabled?: boolean;
 	external?: boolean;
+	roles?: OrgRole[];
 }
 
 export interface NavGroup {
@@ -38,6 +41,12 @@ export const navGroups: NavGroup[] = [
 			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
 			{ label: "Sources", href: "/sources", icon: IconFileImport },
 			{ label: "Graph", href: "/graph", icon: IconTopologyComplex },
+			{
+				label: "Visibility",
+				href: "/visibility",
+				icon: IconEye,
+				roles: ["owner", "admin"],
+			},
 		],
 	},
 	{
@@ -83,6 +92,7 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/spaces": "Spaces",
 	"/sources": "Sources",
 	"/graph": "Graph",
+	"/visibility": "Visibility",
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",

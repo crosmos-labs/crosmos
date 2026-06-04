@@ -38,6 +38,7 @@ export default async function DashboardLayout({
 
 	const swrFallback: Record<string, unknown> = {
 		"/auth/me": user,
+		[`/orgs/${activeOrg.id}`]: activeOrg,
 	};
 
 	return (
