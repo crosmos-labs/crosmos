@@ -235,13 +235,9 @@ export function GroupsSection({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel variant="ghost">
-							Cancel <Kbd>Esc</Kbd>
-						</AlertDialogCancel>
 						<AlertDialogAction
 							variant="destructive"
 							disabled={effectiveDisabled}
-							autoFocus
 							onClick={() => {
 								if (deleteTarget) handleDelete(deleteTarget);
 								setDeleteTarget(null);
@@ -252,6 +248,9 @@ export function GroupsSection({
 								<IconCornerDownLeft />
 							</Kbd>
 						</AlertDialogAction>
+						<AlertDialogCancel variant="ghost">
+							Cancel <Kbd>Esc</Kbd>
+						</AlertDialogCancel>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
