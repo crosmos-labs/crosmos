@@ -241,6 +241,7 @@ export function GroupsSection({
 						<AlertDialogAction
 							variant="destructive"
 							disabled={effectiveDisabled}
+							autoFocus
 							onClick={() => {
 								if (deleteTarget) handleDelete(deleteTarget);
 								setDeleteTarget(null);
