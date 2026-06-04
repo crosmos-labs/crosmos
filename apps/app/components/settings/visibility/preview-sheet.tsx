@@ -39,11 +39,11 @@ export function PreviewSheet({
 	const [pickerOpen, setPickerOpen] = useState(false);
 	const [userId, setUserId] = useState<string | null>(null);
 
-	const { data: orgMembers, isLoading: membersLoading } = useMembers(orgId);
-	const { data: preview, isLoading } = useVisibilityPreview(orgId, userId);
+	const { data: orgMembers, isLoading: membersLoading, error: membersError } = useMembers(orgId);
+	const { data: preview, isLoading, error: previewError } = useVisibilityPreview(orgId, userId);
 
 	const selected = orgMembers?.find((m) => m.user_id === userId) ?? null;
-	const pickerDisabled = disabled || membersLoading || orgMembers === undefined;
+	const pickerDisabled = disabled || membersLoading || membersError || orgMembers === undefined;
 
 	useEffect(() => {
 		if (!userId || orgMembers === undefined) return;
@@ -122,9 +122,17 @@ export function PreviewSheet({
 						</PopoverContent>
 					</Popover>
 
-					{userId === null ? (
+					{membersError ? (
+						<p className="py-8 text-center text-sm text-muted-foreground">
+							Failed to load members. Refresh to try again.
+						</p>
+					) : userId === null ? (
 						<p className="py-8 text-center text-sm text-muted-foreground">
 							Pick a member to see their visible scope.
+						</p>
+					) : previewError ? (
+						<p className="py-8 text-center text-sm text-muted-foreground">
+							Failed to load preview. Refresh to try again.
 						</p>
 					) : isLoading && !preview ? (
 						<p className="py-8 text-center text-sm text-muted-foreground">

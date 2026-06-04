@@ -49,7 +49,7 @@ export function AccessRulesSection({
 	orgId: string;
 	disabled?: boolean;
 }) {
-	const { data: grants, isLoading } = useGrants(orgId);
+	const { data: grants, isLoading, error } = useGrants(orgId);
 	const { data: groups } = useGroups(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -124,6 +124,15 @@ export function AccessRulesSection({
 								<TableCell className="w-10" />
 							</TableRow>
 						))
+					) : error ? (
+						<TableRow className="hover:bg-transparent">
+							<TableCell
+								colSpan={4}
+								className="h-24 text-center text-muted-foreground"
+							>
+								Failed to load access rules. Refresh to try again.
+							</TableCell>
+						</TableRow>
 					) : !grants || grants.length === 0 ? (
 						<TableRow className="hover:bg-transparent">
 							<TableCell

@@ -61,7 +61,7 @@ export function GroupsSection({
 	orgId: string;
 	disabled?: boolean;
 }) {
-	const { data: groups, isLoading } = useGroups(orgId);
+	const { data: groups, isLoading, error } = useGroups(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
@@ -138,6 +138,15 @@ export function GroupsSection({
 								<TableCell className="w-10" />
 							</TableRow>
 						))
+					) : error ? (
+						<TableRow className="hover:bg-transparent">
+							<TableCell
+								colSpan={4}
+								className="h-24 text-center text-muted-foreground"
+							>
+								Failed to load groups. Refresh to try again.
+							</TableCell>
+						</TableRow>
 					) : !groups || groups.length === 0 ? (
 						<TableRow className="hover:bg-transparent">
 							<TableCell
