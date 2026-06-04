@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { setActiveOrg } from "@/actions/auth";
 import { OrgAvatar } from "@/components/org-avatar";
+import { getOrgSwitchFallbackPath } from "@/lib/org-switch-routes";
 import type { OrgDetailResponse } from "@/lib/types/org";
 
 export function OrgSwitcher({
@@ -51,33 +52,28 @@ export function OrgSwitcher({
 	async function handleSwitch(orgId: string) {
 		if (orgId === activeOrg.id || switchingId) return;
 		setOpen(false);
-		// The muted opacity is the single loading indicator — it spans from here
-		// until the new activeOrg lands (cleared by the render-time guard above).
-		// No global action loader, so it can't finish early and desync.
 		setSwitchingId(orgId);
 		try {
 			await setActiveOrg(orgId);
+			// Drop stale org-scoped client caches without revalidating them.
+			await mutate(
+				(key) => typeof key === "string" && key !== "/auth/me",
+				undefined,
+				{
+					revalidate: false,
+				},
+			);
+			// Refresh the client-side auth cache under the newly minted token.
+			await mutate("/auth/me");
+			const fallbackPath = getOrgSwitchFallbackPath(pathname);
+			if (fallbackPath) {
+				router.replace(fallbackPath);
+			} else {
+				router.refresh();
+			}
 		} catch {
 			setSwitchingId(null);
 			toast.error("Couldn't switch organization");
-			return;
-		}
-		// Drop stale org-scoped client caches without revalidating them. Revalidating
-		// old keys after the token has switched makes requests like
-		// /orgs/{previous}/members fail because the active-org claim is now different.
-		await mutate(
-			(key) => typeof key === "string" && key !== "/auth/me",
-			undefined,
-			{
-				revalidate: false,
-			},
-		);
-		// Refresh the client-side auth cache under the newly minted token.
-		await mutate("/auth/me");
-		// Stay on org-agnostic routes; a space-detail entity won't exist post-switch.
-		if (/^\/spaces\/[^/]+$/.test(pathname)) {
-			router.replace("/spaces");
-		} else {
 			router.refresh();
 		}
 	}
