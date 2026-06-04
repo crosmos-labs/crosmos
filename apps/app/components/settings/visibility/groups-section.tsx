@@ -235,6 +235,9 @@ export function GroupsSection({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
+						<AlertDialogCancel variant="ghost">
+							Cancel <Kbd>Esc</Kbd>
+						</AlertDialogCancel>
 						<AlertDialogAction
 							variant="destructive"
 							disabled={effectiveDisabled}
@@ -248,9 +251,6 @@ export function GroupsSection({
 								<IconCornerDownLeft />
 							</Kbd>
 						</AlertDialogAction>
-						<AlertDialogCancel variant="ghost">
-							Cancel <Kbd>Esc</Kbd>
-						</AlertDialogCancel>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
