@@ -120,6 +120,12 @@ export default function VisibilityPage() {
 					message={error.message}
 					onRetry={() => (orgId ? mutate(orgKey(orgId)) : Promise.resolve())}
 				/>
+			) : user && orgId === null ? (
+				<EmptyState
+					icon={IconEyeOff}
+					title="No organization selected"
+					description="Select or create an organization to manage visibility settings."
+				/>
 			) : isLoading || !org ? (
 				<VisibilityPageSkeleton />
 			) : canManageVisibility ? (

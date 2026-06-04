@@ -10,6 +10,11 @@ import {
 	TableHeader,
 	TableRow,
 } from "@crosmos/ui/components/table";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@crosmos/ui/components/tooltip";
 import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconInfoCircle,
@@ -31,7 +36,7 @@ import {
 } from "@/hooks/use-visibility";
 import { optimisticRemove } from "@/lib/optimistic";
 import type { VisibilityGrant } from "@/lib/types/visibility";
-import { AddRuleDialog } from "./add-rule-dialog";
+import { AddRuleDialog } from "@/components/settings/visibility/add-rule-dialog";
 
 function isOptimisticGrant(grant: VisibilityGrant) {
 	return grant.id.startsWith("optimistic-");

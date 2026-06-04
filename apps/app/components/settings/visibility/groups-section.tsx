@@ -47,8 +47,8 @@ import {
 } from "@/hooks/use-visibility";
 import { optimisticRemove } from "@/lib/optimistic";
 import type { VisibilityGroup } from "@/lib/types/visibility";
-import { CreateGroupDialog } from "./create-group-dialog";
-import { GroupMembersSheet } from "./group-members-sheet";
+import { CreateGroupDialog } from "@/components/settings/visibility/create-group-dialog";
+import { GroupMembersSheet } from "@/components/settings/visibility/group-members-sheet";
 
 function isOptimisticGroup(group: VisibilityGroup) {
 	return group.id.startsWith("optimistic-");
@@ -158,9 +158,7 @@ export function GroupsSection({
 										isOptimistic && "opacity-50",
 									)}
 								>
-									<TableCell className="font-medium">
-										{group.name}
-									</TableCell>
+									<TableCell className="font-medium">{group.name}</TableCell>
 									<TableCell className="text-muted-foreground">
 										{group.slug}
 									</TableCell>

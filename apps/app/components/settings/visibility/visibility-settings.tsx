@@ -18,10 +18,10 @@ import { useActionLoaderState } from "@/components/providers/action-loader-provi
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useGroups } from "@/hooks/use-visibility";
 import { isOrgScopeMismatch } from "@/lib/org-mismatch";
-import { AccessRulesSection } from "./access-rules-section";
-import { EnforcementSwitch } from "./enforcement-switch";
-import { GroupsSection } from "./groups-section";
-import { PreviewSheet } from "./preview-sheet";
+import { AccessRulesSection } from "@/components/settings/visibility/access-rules-section";
+import { EnforcementSwitch } from "@/components/settings/visibility/enforcement-switch";
+import { GroupsSection } from "@/components/settings/visibility/groups-section";
+import { PreviewSheet } from "@/components/settings/visibility/preview-sheet";
 
 export function VisibilitySettings() {
 	const { data: user } = useCurrentUser();

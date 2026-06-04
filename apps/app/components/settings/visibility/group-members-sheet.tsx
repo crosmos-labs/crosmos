@@ -127,7 +127,7 @@ export function GroupMembersSheet({
 		const membersKey = visibilityGroupMembersKey(orgId, groupId);
 		const groupsKey = visibilityGroupsKey(orgId);
 
-		onOpenChange(false);
+		handleOpenChange(false);
 		runAction(
 			async () => {
 				await Promise.all([
