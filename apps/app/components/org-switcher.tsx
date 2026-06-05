@@ -17,7 +17,7 @@ import {
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconCheck, IconChevronDown, IconPlus } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { setActiveOrg } from "@/actions/auth";
@@ -39,6 +39,8 @@ export function OrgSwitcher({
 	const { mutate } = useSWRConfig();
 	const [open, setOpen] = useState(false);
 	const [switchingId, setSwitchingId] = useState<string | null>(null);
+	const triggerRef = useRef<HTMLButtonElement | null>(null);
+	const pointerSelectionRef = useRef(false);
 
 	// The switch completes once the server re-renders with the new active org.
 	// Clear the in-progress state when that new activeOrg prop arrives (adjusting
@@ -55,15 +57,8 @@ export function OrgSwitcher({
 		setSwitchingId(orgId);
 		try {
 			await setActiveOrg(orgId);
-			// Drop stale org-scoped client caches without revalidating them.
-			await mutate(
-				(key) => typeof key === "string" && key !== "/auth/me",
-				undefined,
-				{
-					revalidate: false,
-				},
-			);
 			// Refresh the client-side auth cache under the newly minted token.
+			// Org-scoped data keys include active_org_id, so they update when this lands.
 			await mutate("/auth/me");
 			const fallbackPath = getOrgSwitchFallbackPath(pathname);
 			if (fallbackPath) {
@@ -90,6 +85,7 @@ export function OrgSwitcher({
 			<DropdownMenu open={open} onOpenChange={setOpen}>
 				<DropdownMenuTrigger asChild>
 					<SidebarMenuButton
+						ref={triggerRef}
 						size="lg"
 						className="group hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:pointer-events-auto data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
@@ -118,6 +114,15 @@ export function OrgSwitcher({
 					side={dropdownSide}
 					align="start"
 					className="min-w-[16rem]"
+					onCloseAutoFocus={(event) => {
+						if (!pointerSelectionRef.current) return;
+
+						event.preventDefault();
+						pointerSelectionRef.current = false;
+						requestAnimationFrame(() => {
+							triggerRef.current?.blur();
+						});
+					}}
 				>
 					<DropdownMenuGroup>
 						{orgs.map((org) => {
@@ -128,11 +133,14 @@ export function OrgSwitcher({
 								<DropdownMenuItem
 									key={org.id}
 									disabled={switching}
+									onPointerDown={() => {
+										pointerSelectionRef.current = true;
+									}}
 									onSelect={() => {
 										handleSwitch(org.id);
 									}}
 									className={cn(
-										"gap-4 py-2.5 px-3",
+										"gap-4 py-2.5 px-3 cursor-pointer transition-colors hover:transition-none",
 										isSwitching && "opacity-50",
 									)}
 								>
@@ -157,7 +165,10 @@ export function OrgSwitcher({
 						})}
 					</DropdownMenuGroup>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem disabled className="gap-2.5 py-2.5 px-3">
+					<DropdownMenuItem
+						disabled
+						className="gap-2.5 py-2.5 px-3 cursor-pointer"
+					>
 						<IconPlus className="size-4 shrink-0" />
 						<span>Create Organization</span>
 					</DropdownMenuItem>

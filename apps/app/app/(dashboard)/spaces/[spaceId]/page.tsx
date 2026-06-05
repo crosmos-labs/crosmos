@@ -7,8 +7,9 @@ import { DataFetchError } from "@/components/data-fetch-error";
 import { MemoryList } from "@/components/memory-list";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
 import { SpaceDetailSkeleton } from "@/components/space-detail-skeleton";
-import { useMemories } from "@/hooks/use-memories";
-import { useSpaces } from "@/hooks/use-spaces";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
+import { memoriesKey, useMemories } from "@/hooks/use-memories";
+import { spacesKey, useSpaces } from "@/hooks/use-spaces";
 import { paginationParsers } from "@/lib/params/pagination";
 
 export default function SpaceDetailPage({
@@ -17,6 +18,7 @@ export default function SpaceDetailPage({
 	params: Promise<{ spaceId: string }>;
 }) {
 	const { spaceId } = use(params);
+	const orgId = useActiveOrgId();
 	const {
 		data: spaces,
 		isLoading: spacesLoading,
@@ -24,15 +26,17 @@ export default function SpaceDetailPage({
 	} = useSpaces();
 	const [queryParams, setQueryParams] = useQueryStates(paginationParsers);
 	const page = queryParams.page;
+	const space = spaces?.find((s) => s.id === spaceId);
 	const {
 		data: memoriesData,
 		isLoading: memoriesLoading,
 		error: memoriesError,
-	} = useMemories(spaceId, page);
+	} = useMemories(space ? spaceId : "", page);
 
-	const space = spaces?.find((s) => s.id === spaceId);
 	const { setBreadcrumb } = useBreadcrumb();
 	const { mutate } = useSWRConfig();
+	const spacesSwrKey = orgId ? spacesKey(orgId) : null;
+	const memoriesSwrKey = orgId ? memoriesKey(orgId, spaceId, page) : null;
 
 	useEffect(() => {
 		if (space) {
@@ -61,13 +65,19 @@ export default function SpaceDetailPage({
 				</div>
 				<DataFetchError
 					message={spacesError.message}
-					onRetry={() => mutate("/spaces")}
+					onRetry={() =>
+						spacesSwrKey ? mutate(spacesSwrKey) : Promise.resolve()
+					}
 				/>
 			</div>
 		);
 	}
 
-	if (!spacesLoading && !space) {
+	if (!orgId || isInitialLoading) {
+		return <SpaceDetailSkeleton />;
+	}
+
+	if (!space) {
 		return (
 			<div className="flex flex-col gap-6">
 				<div className="flex flex-col gap-1">
@@ -80,14 +90,12 @@ export default function SpaceDetailPage({
 				</div>
 				<DataFetchError
 					message="Space not found"
-					onRetry={() => mutate("/spaces")}
+					onRetry={() =>
+						spacesSwrKey ? mutate(spacesSwrKey) : Promise.resolve()
+					}
 				/>
 			</div>
 		);
-	}
-
-	if (isInitialLoading) {
-		return <SpaceDetailSkeleton />;
 	}
 
 	if (memoriesError) {
@@ -103,7 +111,9 @@ export default function SpaceDetailPage({
 				</div>
 				<DataFetchError
 					message={memoriesError.message}
-					onRetry={() => mutate(`/memories?space_uuid=${spaceId}`)}
+					onRetry={() =>
+						memoriesSwrKey ? mutate(memoriesSwrKey) : Promise.resolve()
+					}
 				/>
 			</div>
 		);
@@ -126,6 +136,7 @@ export default function SpaceDetailPage({
 					spaceUuid={spaceId}
 					page={page}
 					hasMore={hasMore}
+					swrKey={memoriesSwrKey ?? ""}
 					onPageChange={(newPage) => setQueryParams({ page: newPage })}
 				/>
 			</div>

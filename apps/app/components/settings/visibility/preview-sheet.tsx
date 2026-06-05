@@ -39,11 +39,20 @@ export function PreviewSheet({
 	const [pickerOpen, setPickerOpen] = useState(false);
 	const [userId, setUserId] = useState<string | null>(null);
 
-	const { data: orgMembers, isLoading: membersLoading, error: membersError } = useMembers(orgId);
-	const { data: preview, isLoading, error: previewError } = useVisibilityPreview(orgId, userId);
+	const {
+		data: orgMembers,
+		isLoading: membersLoading,
+		error: membersError,
+	} = useMembers(orgId);
+	const {
+		data: preview,
+		isLoading,
+		error: previewError,
+	} = useVisibilityPreview(orgId, userId);
 
 	const selected = orgMembers?.find((m) => m.user_id === userId) ?? null;
-	const pickerDisabled = disabled || membersLoading || membersError || orgMembers === undefined;
+	const pickerDisabled =
+		disabled || membersLoading || membersError || orgMembers === undefined;
 
 	useEffect(() => {
 		if (!userId || orgMembers === undefined) return;

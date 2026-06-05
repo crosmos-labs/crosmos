@@ -15,13 +15,13 @@ import {
 import { useState } from "react";
 import { EmptyState } from "@/components/empty-state";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useGroups } from "@/hooks/use-visibility";
-import { isOrgScopeMismatch } from "@/lib/org-mismatch";
 import { AccessRulesSection } from "@/components/settings/visibility/access-rules-section";
 import { EnforcementSwitch } from "@/components/settings/visibility/enforcement-switch";
 import { GroupsSection } from "@/components/settings/visibility/groups-section";
 import { PreviewSheet } from "@/components/settings/visibility/preview-sheet";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useGroups } from "@/hooks/use-visibility";
+import { isOrgScopeMismatch } from "@/lib/org-mismatch";
 
 export function VisibilitySettings() {
 	const { data: user } = useCurrentUser();

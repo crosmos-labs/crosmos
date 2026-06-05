@@ -20,7 +20,6 @@ type ToolState =
 
 interface SearchOutput {
 	count?: number;
-	tookMs?: number;
 	results?: Array<{ id: string; content: string; type: string; score: number }>;
 	error?: string;
 	retryable?: boolean;
@@ -53,7 +52,6 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 	}
 
 	const out = part.output as SearchOutput | undefined;
-	const tookMs = out?.tookMs;
 
 	if (out?.error) {
 		return (
@@ -72,7 +70,6 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 		return (
 			<ToolStatusLine
 				icon="brain"
-				tookMs={tookMs}
 				details={
 					<span className="text-sm text-muted-foreground">· no matches</span>
 				}
@@ -94,7 +91,6 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 						<IconBrain className="size-3.5 shrink-0 text-muted-foreground" />
 						<span className="inline-flex items-baseline gap-1.5 text-sm text-muted-foreground">
 							Searched memory
-							<ToolTiming tookMs={tookMs} />
 						</span>
 						<IconChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform duration-200 group-aria-expanded/trigger:rotate-180" />
 						<span className="text-sm text-muted-foreground">
@@ -126,7 +122,6 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 interface SaveOutput {
 	status?: string;
 	jobId?: string;
-	tookMs?: number;
 	error?: string;
 	retryable?: boolean;
 }
@@ -162,7 +157,6 @@ export function MemorySaveChip({ part }: MemorySaveChipProps) {
 	const out = part.output as SaveOutput | undefined;
 	const inp = part.input as { content?: string } | undefined;
 	const savedContent = inp?.content;
-	const tookMs = out?.tookMs;
 
 	if (out?.error) {
 		return (
@@ -181,7 +175,6 @@ export function MemorySaveChip({ part }: MemorySaveChipProps) {
 		>
 			<IconCheck className="size-3.5 shrink-0 text-primary" />
 			Saved to memory
-			<ToolTiming tookMs={tookMs} />
 		</span>
 	);
 }
@@ -190,12 +183,10 @@ export function MemorySaveChip({ part }: MemorySaveChipProps) {
 
 function ToolStatusLine({
 	icon,
-	tookMs,
 	details,
 	children,
 }: {
 	icon: "brain" | "error";
-	tookMs?: number;
 	details?: React.ReactNode;
 	children: React.ReactNode;
 }) {
@@ -207,16 +198,7 @@ function ToolStatusLine({
 				<IconX className="size-3.5 shrink-0 text-destructive" />
 			)}
 			{children}
-			<ToolTiming tookMs={tookMs} />
 			{details}
 		</span>
 	);
-}
-
-function ToolTiming({ tookMs }: { tookMs?: number }) {
-	if (tookMs === undefined) {
-		return null;
-	}
-
-	return <span className="text-xs">in {(tookMs / 1000).toFixed(1)}s</span>;
 }

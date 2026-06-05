@@ -4,10 +4,13 @@ import { mutate } from "swr";
 import { ApiKeyList } from "@/components/api-key-list";
 import { ApiKeyListSkeleton } from "@/components/api-key-list-skeleton";
 import { DataFetchError } from "@/components/data-fetch-error";
-import { useApiKeys } from "@/hooks/use-api-keys";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
+import { apiKeysKey, useApiKeys } from "@/hooks/use-api-keys";
 
 export default function ApiKeyPage() {
+	const orgId = useActiveOrgId();
 	const { data: keys, isLoading, error } = useApiKeys();
+	const swrKey = orgId ? apiKeysKey(orgId) : null;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -20,12 +23,14 @@ export default function ApiKeyPage() {
 			{error ? (
 				<DataFetchError
 					message={error.message}
-					onRetry={() => mutate("/api-keys")}
+					onRetry={() => (swrKey ? mutate(swrKey) : Promise.resolve())}
 				/>
-			) : isLoading && !keys ? (
+			) : !orgId || (isLoading && !keys) ? (
 				<ApiKeyListSkeleton />
+			) : swrKey ? (
+				<ApiKeyList keys={keys ?? []} swrKey={swrKey} />
 			) : (
-				<ApiKeyList keys={keys ?? []} />
+				<ApiKeyListSkeleton />
 			)}
 		</div>
 	);

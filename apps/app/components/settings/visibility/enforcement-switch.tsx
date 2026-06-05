@@ -101,13 +101,27 @@ export function EnforcementSwitch({
 					Visibility enforcement
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<button type="button" aria-label="About visibility enforcement" className="inline-flex items-center text-muted-foreground hover:text-foreground">
+							<button
+								type="button"
+								aria-label="About visibility enforcement"
+								className="inline-flex items-center text-muted-foreground hover:text-foreground"
+							>
 								<IconInfoCircle className="size-3.5" />
 							</button>
 						</TooltipTrigger>
-						<TooltipContent className="max-w-64 flex flex-col gap-1" side="right" align="start">
-							<span><span className="font-medium text-foreground">On</span> — members only see memories from groups they have access to.</span>
-							<span><span className="font-medium text-foreground">Off</span> — everyone can read all private memories in the org.</span>
+						<TooltipContent
+							className="max-w-64 flex flex-col gap-1"
+							side="right"
+							align="start"
+						>
+							<span>
+								<span className="font-medium text-foreground">On</span> —
+								members only see memories from groups they have access to.
+							</span>
+							<span>
+								<span className="font-medium text-foreground">Off</span> —
+								everyone can read all private memories in the org.
+							</span>
 						</TooltipContent>
 					</Tooltip>
 				</span>

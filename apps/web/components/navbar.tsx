@@ -1,5 +1,6 @@
 "use client";
 
+import { getCalApi } from "@calcom/embed-react";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
@@ -17,6 +18,13 @@ export function Navbar() {
 		onScroll();
 		window.addEventListener("scroll", onScroll, { passive: true });
 		return () => window.removeEventListener("scroll", onScroll);
+	}, []);
+
+	useEffect(() => {
+		(async () => {
+			const cal = await getCalApi({ namespace: "15min" });
+			cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+		})();
 	}, []);
 
 	return (
@@ -79,6 +87,15 @@ export function Navbar() {
 					>
 						<IconBrandGithubFilled size={16} />
 					</Link>
+					<button
+						type="button"
+						className="border border-foreground/20 hover:border-foreground/40 px-6 py-2 rounded font-semibold text-sm transition-colors select-none"
+						data-cal-namespace="15min"
+						data-cal-link="crosmos/15min"
+						data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+					>
+						Schedule Call
+					</button>
 					<Link
 						href={LINKS.product.console}
 						target="_blank"

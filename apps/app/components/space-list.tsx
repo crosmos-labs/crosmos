@@ -46,7 +46,6 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
-import { spacesKey } from "@/hooks/use-spaces";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { Space } from "@/lib/types/space";
 
@@ -142,7 +141,15 @@ function SpaceCountRow({
 	);
 }
 
-export function SpaceList({ spaces }: { spaces: Space[] }) {
+export function SpaceList({
+	spaces,
+	orgId,
+	swrKey,
+}: {
+	spaces: Space[];
+	orgId: string;
+	swrKey: string;
+}) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<Space | null>(null);
 	const { mutate } = useSWRConfig();
@@ -159,7 +166,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 			const now = new Date().toISOString();
 			const tempSpace: Space = {
 				id: `optimistic-${Date.now()}`,
-				org_id: "",
+				org_id: orgId,
 				name,
 				description: description || null,
 				meta: null,
@@ -168,7 +175,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 			};
 			runAction(
 				() =>
-					optimisticInsert(mutate, spacesKey, tempSpace, async () => {
+					optimisticInsert(mutate, swrKey, tempSpace, async () => {
 						const result = await createSpace(name, description);
 						if (!result.ok) {
 							// Throw so the optimistic row rolls back; carry the slug for the toast.
@@ -195,7 +202,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				}
 			});
 		},
-		[runAction, mutate],
+		[runAction, mutate, orgId, swrKey],
 	);
 
 	const handleDeleteSpace = useCallback(
@@ -204,7 +211,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				() =>
 					optimisticRemove<Space>(
 						mutate,
-						spacesKey,
+						swrKey,
 						(s) => s.id === spaceId,
 						() => deleteSpace(spaceId),
 					),
@@ -216,7 +223,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				},
 			);
 		},
-		[runAction, mutate],
+		[runAction, mutate, swrKey],
 	);
 
 	if (spaces.length === 0) {

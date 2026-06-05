@@ -145,12 +145,12 @@ export function PlaygroundChat() {
 
 	return (
 		<MotionConfig transition={SPRING} reducedMotion="user">
-			<div className="flex min-h-[calc(100svh-6.5rem)] w-full flex-col items-center">
+			<div className="flex min-h-[calc(100svh-6.5rem)] w-full flex-col items-stretch">
 				{/* Top area: message thread when active, centering spacer when idle.
 				    The thread is in normal flow so the dashboard page scrollbar scrolls
 				    it; the composer below sticks to the viewport bottom as it grows. */}
 				{isActive ? (
-					<div className="w-full max-w-3xl flex-1 space-y-5 py-6">
+					<div className="w-full flex-1 space-y-5 py-6">
 						{messages.map((message) => (
 							<MessageBubble key={message.id} message={message} />
 						))}
@@ -207,8 +207,8 @@ export function PlaygroundChat() {
 						// compensates for the + button so the textarea's left edge doesn't
 						// shift during the morph.
 						isActive
-							? "sticky bottom-6 max-w-3xl bg-background"
-							: "max-w-[44rem]",
+							? "sticky bottom-6 bg-background"
+							: "self-center max-w-[44rem]",
 					)}
 				>
 					{/* Top fade so the scrolling thread dissolves into the composer. */}

@@ -51,7 +51,7 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
-import { type MemoriesResponse, memoriesKey } from "@/hooks/use-memories";
+import type { MemoriesResponse } from "@/hooks/use-memories";
 import type { Memory, MemoryType } from "@/lib/types/memory";
 
 const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
@@ -140,6 +140,7 @@ interface MemoryListProps {
 	spaceUuid: string;
 	page: number;
 	hasMore: boolean;
+	swrKey: string;
 	onPageChange: (page: number) => void;
 }
 
@@ -148,6 +149,7 @@ export function MemoryList({
 	spaceUuid,
 	page,
 	hasMore,
+	swrKey,
 	onPageChange,
 }: MemoryListProps) {
 	const [forgetTarget, setForgetTarget] = useState<Memory | null>(null);
@@ -155,8 +157,6 @@ export function MemoryList({
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
-
-	const swrKey = memoriesKey(spaceUuid, page);
 
 	const handleForget = useCallback(
 		(memoryUuid: string) => {

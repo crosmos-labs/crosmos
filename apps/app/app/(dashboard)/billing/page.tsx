@@ -14,7 +14,8 @@ import { Progress } from "@crosmos/ui/components/progress";
 import { useSWRConfig } from "swr";
 import { BillingSkeleton } from "@/components/billing-skeleton";
 import { DataFetchError } from "@/components/data-fetch-error";
-import { useUsage } from "@/hooks/use-usage";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
+import { usageKey, useUsage } from "@/hooks/use-usage";
 
 function formatNumber(n: number): string {
 	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -72,7 +73,9 @@ function UsageRow({
 
 export default function BillingPage() {
 	const { mutate } = useSWRConfig();
+	const orgId = useActiveOrgId();
 	const { data, isLoading, error } = useUsage();
+	const swrKey = orgId ? usageKey(orgId) : null;
 
 	const plan = data?.plan ?? "free";
 	const periodStart = data?.period_start;
@@ -93,9 +96,9 @@ export default function BillingPage() {
 			{error ? (
 				<DataFetchError
 					message={error.message}
-					onRetry={() => mutate("/usage")}
+					onRetry={() => (swrKey ? mutate(swrKey) : Promise.resolve())}
 				/>
-			) : isLoading && !data ? (
+			) : !orgId || (isLoading && !data) ? (
 				<BillingSkeleton />
 			) : (
 				<>

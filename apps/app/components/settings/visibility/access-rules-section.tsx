@@ -29,6 +29,7 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { AddRuleDialog } from "@/components/settings/visibility/add-rule-dialog";
 import {
 	useGrants,
 	useGroups,
@@ -36,7 +37,6 @@ import {
 } from "@/hooks/use-visibility";
 import { optimisticRemove } from "@/lib/optimistic";
 import type { VisibilityGrant } from "@/lib/types/visibility";
-import { AddRuleDialog } from "@/components/settings/visibility/add-rule-dialog";
 
 function isOptimisticGrant(grant: VisibilityGrant) {
 	return grant.id.startsWith("optimistic-");

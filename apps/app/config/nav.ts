@@ -70,7 +70,12 @@ export const navGroups: NavGroup[] = [
 	{
 		label: "DEVELOPER",
 		items: [
-			{ label: "Playground", href: "/playground", icon: IconSparkles, disabled: true },
+			{
+				label: "Playground",
+				href: "/playground",
+				icon: IconSparkles,
+				disabled: false,
+			},
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
 		],
 	},

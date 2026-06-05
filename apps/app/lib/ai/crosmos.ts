@@ -16,14 +16,12 @@ interface SearchResponse {
 	query: string;
 	candidates: SearchCandidate[];
 	total: number;
-	took_ms: number;
 }
 
 interface IngestResponse {
 	job_id: string;
 	source_ids?: string[];
 	status?: string;
-	took_ms?: number;
 }
 
 /** Error thrown when Crosmos is transiently unavailable (429/503/504). */
@@ -62,7 +60,7 @@ export async function searchMemory(args: {
 	query: string;
 	spaceId: string;
 	limit?: number;
-}): Promise<{ candidates: SearchCandidate[]; tookMs: number }> {
+}): Promise<{ candidates: SearchCandidate[] }> {
 	try {
 		const data = await apiFetch<SearchResponse>("/search", {
 			method: "POST",
@@ -76,7 +74,7 @@ export async function searchMemory(args: {
 				include_source: true,
 			}),
 		});
-		return { candidates: data.candidates, tookMs: data.took_ms };
+		return { candidates: data.candidates };
 	} catch (err) {
 		// Surface timeout as retryable so the model can communicate it clearly.
 		if (err instanceof DOMException && err.name === "TimeoutError") {
@@ -94,8 +92,7 @@ export async function searchMemory(args: {
 export async function saveMemory(args: {
 	content: string;
 	spaceId: string;
-}): Promise<{ jobId: string; tookMs: number }> {
-	const startedAt = performance.now();
+}): Promise<{ jobId: string }> {
 	try {
 		const data = await apiFetch<IngestResponse>("/sources", {
 			method: "POST",
@@ -105,10 +102,7 @@ export async function saveMemory(args: {
 				sources: [{ content: args.content, content_type: "text" }],
 			}),
 		});
-		return {
-			jobId: data.job_id,
-			tookMs: data.took_ms ?? performance.now() - startedAt,
-		};
+		return { jobId: data.job_id };
 	} catch (err) {
 		if (err instanceof DOMException && err.name === "TimeoutError") {
 			throw new CrosmosRetryableError(504, "Memory save timed out.");

@@ -91,16 +91,14 @@ export async function POST(req: Request) {
 				}),
 				// spaceId is captured here — the model cannot target another space.
 				execute: async ({ query, limit }) => {
-					const startedAt = performance.now();
 					try {
-						const { candidates, tookMs } = await searchMemory({
+						const { candidates } = await searchMemory({
 							query,
 							spaceId,
 							limit,
 						});
 						return {
 							count: candidates.length,
-							tookMs: Math.round(tookMs),
 							results: candidates.map((c) => ({
 								id: c.memory_id,
 								content: c.content.slice(0, MAX_CONTENT_CHARS),
@@ -109,18 +107,15 @@ export async function POST(req: Request) {
 							})),
 						};
 					} catch (err) {
-						const totalMs = Math.round(performance.now() - startedAt);
 						if (err instanceof CrosmosRetryableError) {
 							return {
 								error: "Memory search is temporarily unavailable.",
 								retryable: true,
-								tookMs: totalMs,
 							};
 						}
 						return {
 							error: "Memory search failed.",
 							retryable: false,
-							tookMs: totalMs,
 						};
 					}
 				},
@@ -137,13 +132,11 @@ export async function POST(req: Request) {
 				}),
 				// spaceId captured — model cannot ingest into another space.
 				execute: async ({ content }) => {
-					const startedAt = performance.now();
 					try {
-						const { jobId, tookMs } = await saveMemory({ content, spaceId });
+						const { jobId } = await saveMemory({ content, spaceId });
 						return {
 							status: "queued" as const,
 							jobId,
-							tookMs: Math.round(tookMs),
 						};
 					} catch (err) {
 						const isTimeout =
@@ -155,7 +148,6 @@ export async function POST(req: Request) {
 								? "Save timed out."
 								: "Failed to save to memory.",
 							retryable: isRetryable,
-							tookMs: Math.round(performance.now() - startedAt),
 						};
 					}
 				},

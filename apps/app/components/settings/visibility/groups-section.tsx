@@ -40,6 +40,8 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { CreateGroupDialog } from "@/components/settings/visibility/create-group-dialog";
+import { GroupMembersSheet } from "@/components/settings/visibility/group-members-sheet";
 import {
 	useGroups,
 	visibilityGrantsKey,
@@ -47,8 +49,6 @@ import {
 } from "@/hooks/use-visibility";
 import { optimisticRemove } from "@/lib/optimistic";
 import type { VisibilityGroup } from "@/lib/types/visibility";
-import { CreateGroupDialog } from "@/components/settings/visibility/create-group-dialog";
-import { GroupMembersSheet } from "@/components/settings/visibility/group-members-sheet";
 
 function isOptimisticGroup(group: VisibilityGroup) {
 	return group.id.startsWith("optimistic-");

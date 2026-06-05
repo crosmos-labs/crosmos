@@ -63,7 +63,6 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
-import { apiKeysKey } from "@/hooks/use-api-keys";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
@@ -195,7 +194,13 @@ function KeyCountRow({
 	);
 }
 
-export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
+export function ApiKeyList({
+	keys,
+	swrKey,
+}: {
+	keys: ApiKey[];
+	swrKey: string;
+}) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [revokeKey, setRevokeKey] = useState<ApiKey | null>(null);
 	const [recentCreates, setRecentCreates] = useState<
@@ -216,7 +221,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				() =>
 					optimisticRemove<ApiKey>(
 						mutate,
-						apiKeysKey,
+						swrKey,
 						(k) => k.key_id === keyId,
 						() => revokeApiKey(keyId),
 					),
@@ -225,7 +230,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				},
 			);
 		},
-		[runAction, mutate],
+		[runAction, mutate, swrKey],
 	);
 
 	const handleCreateKey = useCallback(
@@ -244,7 +249,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 			};
 			runAction(
 				() =>
-					optimisticInsert(mutate, apiKeysKey, tempKey, async () => {
+					optimisticInsert(mutate, swrKey, tempKey, async () => {
 						const res = await createApiKey(name, expiresInDays);
 						setRecentCreates((prev) => new Map(prev).set(res.key_id, res));
 						return {
@@ -259,7 +264,7 @@ export function ApiKeyList({ keys }: { keys: ApiKey[] }) {
 				},
 			);
 		},
-		[runAction, mutate],
+		[runAction, mutate, swrKey],
 	);
 
 	if (keys.length === 0) {

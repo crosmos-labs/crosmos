@@ -53,7 +53,7 @@ export function useGroups(orgId: string | null | undefined) {
 			}
 			return result.data;
 		},
-		{ keepPreviousData: true, revalidateOnFocus: true },
+		{ revalidateOnFocus: true },
 	);
 }
 
@@ -61,7 +61,7 @@ export function useGrants(orgId: string | null | undefined) {
 	return useSWR<VisibilityGrant[]>(
 		orgId ? visibilityGrantsKey(orgId) : null,
 		() => listGrants(orgId as string),
-		{ keepPreviousData: true, revalidateOnFocus: true },
+		{ revalidateOnFocus: true },
 	);
 }
 
@@ -91,7 +91,7 @@ export function useVisibilitySettings(
 			);
 			return { visibility_enabled: preview.visibility_enabled };
 		},
-		{ keepPreviousData: true, revalidateOnFocus: false },
+		{ revalidateOnFocus: false },
 	);
 }
 
@@ -103,6 +103,6 @@ export function useVisibilityPreview(
 	return useSWR<VisibilityPreview>(
 		orgId && userId ? visibilityPreviewKey(orgId, userId) : null,
 		() => getVisibilityPreview(orgId as string, userId as string),
-		{ keepPreviousData: true, revalidateOnFocus: false },
+		{ revalidateOnFocus: false },
 	);
 }

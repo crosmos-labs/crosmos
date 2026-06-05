@@ -15,8 +15,9 @@ import { DataFetchError } from "@/components/data-fetch-error";
 import { EdgePopover } from "@/components/graph/edge-popover";
 import { NodePopover } from "@/components/graph/node-popover";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
-import { useGraph } from "@/hooks/use-graph";
-import { useSpaces } from "@/hooks/use-spaces";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
+import { graphKey, useGraph } from "@/hooks/use-graph";
+import { spacesKey, useSpaces } from "@/hooks/use-spaces";
 import {
 	edgeFromWire,
 	type GraphEdge,
@@ -24,18 +25,28 @@ import {
 	nodeFromWire,
 } from "@/lib/graph/mappers";
 
+type GraphSelection =
+	| { type: "node"; scope: string; node: GraphNode }
+	| { type: "edge"; scope: string; edge: GraphEdge }
+	| null;
+
 export default function GraphPage() {
+	const orgId = useActiveOrgId();
 	const {
 		data: spaces,
 		isLoading: spacesLoading,
 		error: spacesError,
 	} = useSpaces();
-	const [selectedSpaceId, setSelectedSpaceId] = useState<string>("");
+	const [requestedSpaceId, setRequestedSpaceId] = useState<string>("");
+	const requestedSpace = spaces?.find((space) => space.id === requestedSpaceId);
+	const effectiveSpaceId = requestedSpace?.id ?? spaces?.[0]?.id ?? "";
+	const graphScope =
+		orgId && effectiveSpaceId ? `${orgId}:${effectiveSpaceId}` : "";
 	const {
 		data: graphData,
 		isLoading: graphLoading,
 		error: graphError,
-	} = useGraph(selectedSpaceId || null);
+	} = useGraph(effectiveSpaceId || null);
 
 	const nodes = useMemo<GraphNode[]>(
 		() => graphData?.nodes.map(nodeFromWire) ?? [],
@@ -46,8 +57,9 @@ export default function GraphPage() {
 		[graphData],
 	);
 
-	const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-	const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
+	const [graphSelection, setGraphSelection] = useState<GraphSelection>(null);
+	const visibleSelection =
+		graphSelection?.scope === graphScope ? graphSelection : null;
 
 	const nodeMap = useMemo(() => {
 		const map = new Map<string, GraphNode>();
@@ -57,37 +69,36 @@ export default function GraphPage() {
 
 	const { setBreadcrumb } = useBreadcrumb();
 	const { mutate } = useSWRConfig();
+	const spacesSwrKey = orgId ? spacesKey(orgId) : null;
+	const graphSwrKey =
+		orgId && effectiveSpaceId ? graphKey(orgId, effectiveSpaceId) : null;
 
 	useEffect(() => {
 		setBreadcrumb({ label: "Graph" });
 		return () => setBreadcrumb(null);
 	}, [setBreadcrumb]);
 
-	useEffect(() => {
-		if (spaces && spaces.length > 0 && !selectedSpaceId) {
-			const firstSpace = spaces[0];
-			if (firstSpace) setSelectedSpaceId(firstSpace.id);
-		}
-	}, [spaces, selectedSpaceId]);
-
-	useEffect(() => {
-		setSelectedNode(null);
-		setSelectedEdge(null);
+	const handleSpaceChange = useCallback((spaceId: string) => {
+		setRequestedSpaceId(spaceId);
+		setGraphSelection(null);
 	}, []);
 
-	const handleNodeClick = useCallback((node: GraphNode) => {
-		setSelectedNode(node);
-		setSelectedEdge(null);
-	}, []);
+	const handleNodeClick = useCallback(
+		(node: GraphNode) => {
+			setGraphSelection({ type: "node", scope: graphScope, node });
+		},
+		[graphScope],
+	);
 
-	const handleEdgeClick = useCallback((edge: GraphEdge) => {
-		setSelectedEdge(edge);
-		setSelectedNode(null);
-	}, []);
+	const handleEdgeClick = useCallback(
+		(edge: GraphEdge) => {
+			setGraphSelection({ type: "edge", scope: graphScope, edge });
+		},
+		[graphScope],
+	);
 
 	const handleBackgroundClick = useCallback(() => {
-		setSelectedNode(null);
-		setSelectedEdge(null);
+		setGraphSelection(null);
 	}, []);
 
 	if (spacesError) {
@@ -101,21 +112,23 @@ export default function GraphPage() {
 				</div>
 				<DataFetchError
 					message={spacesError.message}
-					onRetry={() => mutate("/spaces")}
+					onRetry={() =>
+						spacesSwrKey ? mutate(spacesSwrKey) : Promise.resolve()
+					}
 				/>
 			</div>
 		);
 	}
 
 	const isInitialLoading =
-		(spacesLoading && !spaces) || (graphLoading && !graphData);
+		!orgId || (spacesLoading && !spaces) || (graphLoading && !graphData);
 
 	return (
 		<div className="flex h-[calc(100dvh-8rem)] flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h1 className="text-2xl font-semibold tracking-tight">Graph</h1>
 				{spaces && spaces.length > 0 && (
-					<Select value={selectedSpaceId} onValueChange={setSelectedSpaceId}>
+					<Select value={effectiveSpaceId} onValueChange={handleSpaceChange}>
 						<SelectTrigger aria-label="Select space" className="w-[240px]">
 							<SelectValue placeholder="Select a space" />
 						</SelectTrigger>
@@ -136,10 +149,12 @@ export default function GraphPage() {
 				</p>
 			)}
 
-			{graphError && selectedSpaceId && (
+			{graphError && effectiveSpaceId && (
 				<DataFetchError
 					message={graphError.message}
-					onRetry={() => mutate(`/graph?space_uuid=${selectedSpaceId}`)}
+					onRetry={() =>
+						graphSwrKey ? mutate(graphSwrKey) : Promise.resolve()
+					}
 				/>
 			)}
 
@@ -148,7 +163,7 @@ export default function GraphPage() {
 			{!isInitialLoading && graphData && (
 				<div className="flex-1 min-h-0 rounded-md border relative">
 					<ForceGraph<GraphNode, GraphEdge>
-						key={selectedSpaceId}
+						key={effectiveSpaceId}
 						nodes={nodes}
 						edges={edges}
 						onNodeClick={handleNodeClick}
@@ -162,17 +177,17 @@ export default function GraphPage() {
 							<Skeleton className="h-8 w-8 rounded-full" />
 						</div>
 					)}
-					{selectedNode && (
+					{visibleSelection?.type === "node" && (
 						<NodePopover
-							node={selectedNode}
-							onClose={() => setSelectedNode(null)}
+							node={visibleSelection.node}
+							onClose={() => setGraphSelection(null)}
 						/>
 					)}
-					{selectedEdge && (
+					{visibleSelection?.type === "edge" && (
 						<EdgePopover
-							edge={selectedEdge}
+							edge={visibleSelection.edge}
 							nodeMap={nodeMap}
-							onClose={() => setSelectedEdge(null)}
+							onClose={() => setGraphSelection(null)}
 						/>
 					)}
 				</div>
