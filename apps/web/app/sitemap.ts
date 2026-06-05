@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllBlogs } from "@/lib/blog";
 import { getLegalDoc } from "@/lib/legal";
-
-const BASE_URL = "https://crosmos.dev";
+import { SITE_URL as BASE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
 	const now = new Date();

@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { SmoothScroll } from "@/components/smooth-scroll";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -23,15 +24,12 @@ const jetbrainsMono = JetBrains_Mono({
 	display: "swap",
 });
 
-const SITE_URL = "https://crosmos.dev";
-const SITE_NAME = "Crosmos";
-const SITE_TITLE = "Crosmos - Persistent Context for Company AI";
-const SITE_DESCRIPTION =
-	"Persistent context for enterprise AI. Connect your data sources, build a living knowledge graph, and give every agent your organization's full context.";
-
 export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
-	title: SITE_TITLE,
+	title: {
+		default: SITE_TITLE,
+		template: "%s | Crosmos",
+	},
 	description: SITE_DESCRIPTION,
 	applicationName: SITE_NAME,
 	keywords: [
@@ -48,9 +46,6 @@ export const metadata: Metadata = {
 	authors: [{ name: "Crosmos Labs" }],
 	creator: "Crosmos Labs",
 	publisher: "Crosmos Labs",
-	alternates: {
-		canonical: "/",
-	},
 	openGraph: {
 		type: "website",
 		url: SITE_URL,

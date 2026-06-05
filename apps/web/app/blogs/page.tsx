@@ -1,5 +1,23 @@
+import type { Metadata } from "next";
 import { BlogCard } from "@/components/blog-card";
 import { getAllBlogs } from "@/lib/blog";
+
+const DESCRIPTION =
+	"Deep dives on memory systems, context engineering, and building with Crosmos.";
+
+export const metadata: Metadata = {
+	title: "Blog",
+	description: DESCRIPTION,
+	alternates: {
+		canonical: "/blogs",
+	},
+	openGraph: {
+		title: "Crosmos Blog",
+		description: DESCRIPTION,
+		type: "website",
+		url: "/blogs",
+	},
+};
 
 export default function BlogsPage() {
 	const blogs = getAllBlogs()

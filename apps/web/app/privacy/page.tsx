@@ -8,6 +8,9 @@ const DESCRIPTION =
 export const metadata: Metadata = {
 	title: "Privacy Policy",
 	description: DESCRIPTION,
+	alternates: {
+		canonical: "/privacy",
+	},
 	openGraph: {
 		title: "Crosmos — Privacy Policy",
 		description: DESCRIPTION,
