@@ -1,6 +1,5 @@
 "use client";
 
-import { getCalApi } from "@calcom/embed-react";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
@@ -8,23 +7,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MobileNavButton, MobileNavSheet } from "@/components/mobile-nav";
 import { LINKS } from "@/config/links";
+import { useCalApi } from "@/hooks/use-cal-api";
 
 export function Navbar() {
 	const [scrolled, setScrolled] = useState(false);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const initCal = useCalApi();
 
 	useEffect(() => {
 		const onScroll = () => setScrolled(window.scrollY > 0);
 		onScroll();
 		window.addEventListener("scroll", onScroll, { passive: true });
 		return () => window.removeEventListener("scroll", onScroll);
-	}, []);
-
-	useEffect(() => {
-		(async () => {
-			const cal = await getCalApi({ namespace: "15min" });
-			cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
-		})();
 	}, []);
 
 	return (
@@ -93,6 +87,8 @@ export function Navbar() {
 						data-cal-namespace="15min"
 						data-cal-link="crosmos/15min"
 						data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+						onPointerEnter={initCal}
+						onFocus={initCal}
 					>
 						Schedule Call
 					</button>

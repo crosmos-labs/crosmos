@@ -7,7 +7,6 @@ import "./landing.css";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { SmoothScroll } from "@/components/smooth-scroll";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 
 const satoshi = localFont({
@@ -146,10 +145,8 @@ export default function RootLayout({
 				/>
 				<Analytics />
 				<main id="main-content" className="flex flex-col relative">
-					<SmoothScroll>
-						<Navbar />
-						{children}
-					</SmoothScroll>
+					<Navbar />
+					{children}
 				</main>
 				<Footer />
 			</body>

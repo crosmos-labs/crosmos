@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* Smooth scrolling for in-page anchor links (replaces Lenis). Native, no JS,
+   no per-frame layout reads. Disabled when the user prefers reduced motion. */
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
 /* Blog article prose styling */
 .prose pre {
 	background: var(--color-muted);

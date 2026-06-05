@@ -1,18 +1,12 @@
 "use client";
 
-import { getCalApi } from "@calcom/embed-react";
 import { Button } from "@crosmos/ui/components/button";
 import { IconCalendar, IconMail } from "@tabler/icons-react";
-import { useEffect } from "react";
+import { useCalApi } from "@/hooks/use-cal-api";
 import { CornerPlus } from "./ui/corner-plus";
 
 export function Contact() {
-	useEffect(() => {
-		(async () => {
-			const cal = await getCalApi({ namespace: "15min" });
-			cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
-		})();
-	}, []);
+	const initCal = useCalApi();
 
 	return (
 		<section
@@ -38,6 +32,8 @@ export function Contact() {
 							data-cal-namespace="15min"
 							data-cal-link="crosmos/15min"
 							data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+							onPointerEnter={initCal}
+							onFocus={initCal}
 						>
 							<IconCalendar size={18} strokeWidth={1.5} />
 							Schedule a Meet

@@ -3,6 +3,9 @@ const nextConfig = {
 	images: {
 		formats: ["image/avif", "image/webp"],
 	},
+	experimental: {
+		optimizePackageImports: ["@tabler/icons-react", "motion"],
+	},
 	poweredByHeader: false,
 	async headers() {
 		const extensions = [

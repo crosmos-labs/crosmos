@@ -162,27 +162,28 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 					plan.id === "enterprise" && "py-1 md:py-1.5",
 				)}
 			>
-				<Button
-					disabled={plan.id !== "basic"}
-					size="lg"
-					className={cn(
-						"bg-accent rounded hover:bg-accent/90 w-full",
-						plan.id === "enterprise" && "lg:w-1/3",
-					)}
-				>
-					{plan.id === "basic" ? (
-						<a
-							href={plan.link}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="w-full"
-						>
+				{plan.id === "basic" ? (
+					<Button
+						asChild
+						size="lg"
+						className="bg-accent rounded hover:bg-accent/90 w-full"
+					>
+						<a href={plan.link} target="_blank" rel="noopener noreferrer">
 							{plan.buttonText}
 						</a>
-					) : (
-						"Coming Soon"
-					)}
-				</Button>
+					</Button>
+				) : (
+					<Button
+						disabled
+						size="lg"
+						className={cn(
+							"bg-accent rounded hover:bg-accent/90 w-full",
+							plan.id === "enterprise" && "lg:w-1/3",
+						)}
+					>
+						Coming Soon
+					</Button>
+				)}
 				{plan.monthlyPrice !== -1 && (
 					<div className="h-8 overflow-hidden w-full mx-auto">
 						<span className="text-sm text-center text-muted-foreground mt-3 mx-auto block">
