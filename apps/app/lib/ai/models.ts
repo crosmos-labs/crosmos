@@ -25,6 +25,10 @@ export const MODELS: readonly ModelMeta[] = [
 
 export const DEFAULT_MODEL_ID = "claude-sonnet-4-6";
 
+// Max characters in a single user message; enforced server-side, shown as a
+// live counter client-side.
+export const MAX_INPUT_CHARS = 8000;
+
 export const PROVIDER_LABELS: Record<ProviderId, string> = {
 	anthropic: "Anthropic",
 };

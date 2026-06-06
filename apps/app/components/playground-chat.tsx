@@ -32,6 +32,7 @@ import { MemorySaveChip, MemorySearchCard } from "@/components/tool-cards";
 import { useSpaces } from "@/hooks/use-spaces";
 import {
 	DEFAULT_MODEL_ID,
+	MAX_INPUT_CHARS,
 	MODELS,
 	PROVIDER_LABELS,
 	PROVIDER_ORDER,
@@ -45,10 +46,37 @@ const PROVIDER_LOGOS: Record<ProviderId, typeof ClaudeAI> = {
 // Shared spring so position, height, and the button reflow all morph in unison.
 const SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
 
+function formatResetIn(resetMs: number): string {
+	const mins = Math.max(0, Math.round((resetMs - Date.now()) / 60000));
+	const h = Math.floor(mins / 60);
+	const m = mins % 60;
+	return h > 0
+		? `${h} hour${h === 1 ? "" : "s"} ${m} min${m === 1 ? "" : "s"}`
+		: `${m} min${m === 1 ? "" : "s"}`;
+}
+
 // Module-level Chat instance — lives outside the React tree so messages survive
 // client-side navigation. Gone on page refresh (session-only, by design).
 const playgroundChat = new Chat({
-	transport: new DefaultChatTransport({ api: "/api/chat" }),
+	transport: new DefaultChatTransport({
+		api: "/api/chat",
+		// Surface the server's error message (rate limit, too long, etc.) to onError.
+		fetch: async (input, init) => {
+			const res = await globalThis.fetch(input, init);
+			if (!res.ok) {
+				const body = (await res
+					.clone()
+					.json()
+					.catch(() => ({}))) as { error?: string; reset?: number };
+				let message = body.error ?? "Something went wrong. Try again.";
+				if (typeof body.reset === "number") {
+					message += ` Resets in ${formatResetIn(body.reset)}.`;
+				}
+				throw new Error(message);
+			}
+			return res;
+		},
+	}),
 });
 
 export function PlaygroundChat() {
@@ -70,7 +98,10 @@ export function PlaygroundChat() {
 
 	const isActive = messages.length > 0;
 	const isBusy = status === "submitted" || status === "streaming";
-	const canSend = value.trim().length > 0 && !isBusy && !!selectedSpace;
+	const inputWarn = value.length > MAX_INPUT_CHARS * 0.75;
+	const inputOver = value.length >= MAX_INPUT_CHARS;
+	const canSend =
+		value.trim().length > 0 && !isBusy && !!selectedSpace && !inputOver;
 
 	const lastMessage = messages[messages.length - 1];
 	// Show "Thinking" while busy and either: no assistant message yet, or the
@@ -163,8 +194,7 @@ export function PlaygroundChat() {
 						)}
 						{error && (
 							<p className="px-1 text-sm text-destructive">
-								Something went wrong. Check that the model provider is
-								configured, then try again.
+								{error.message || "Something went wrong. Try again."}
 							</p>
 						)}
 					</div>
@@ -389,21 +419,33 @@ export function PlaygroundChat() {
 								</SelectContent>
 							</Select>
 
-							{isActive && (
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									onClick={() => {
-										setMessages([]);
-										requestAnimationFrame(() => textareaRef.current?.focus());
-									}}
-									className="ml-auto h-7 border-transparent bg-transparent px-3 text-sm text-muted-foreground hover:bg-muted/60 dark:bg-transparent dark:hover:bg-muted/60"
-								>
-									<IconRefresh className="size-3.5" />
-									Reset
-								</Button>
-							)}
+							<div className="ml-auto flex items-center gap-2">
+								{isActive && (
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={() => {
+											setMessages([]);
+											requestAnimationFrame(() => textareaRef.current?.focus());
+										}}
+										className="h-7 border-transparent bg-transparent px-3 text-sm text-muted-foreground hover:bg-muted/60 dark:bg-transparent dark:hover:bg-muted/60"
+									>
+										<IconRefresh className="size-3.5" />
+										Reset
+									</Button>
+								)}
+								{inputWarn && (
+									<span
+										className={cn(
+											"shrink-0 px-1 text-xs tabular-nums",
+											inputOver ? "text-destructive" : "text-amber-500",
+										)}
+									>
+										{value.length.toLocaleString()}
+									</span>
+								)}
+							</div>
 						</div>
 					</div>
 				</motion.div>
