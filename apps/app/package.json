@@ -17,6 +17,8 @@
 		"@crosmos/graph": "workspace:*",
 		"@crosmos/ui": "workspace:*",
 		"@tabler/icons-react": "^3.41.1",
+		"@upstash/ratelimit": "^2.0.8",
+		"@upstash/redis": "^1.38.0",
 		"@vercel/analytics": "^2.0.1",
 		"ai": "^6.0.193",
 		"date-fns": "^4.1.0",
