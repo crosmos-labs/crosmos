@@ -74,7 +74,7 @@ export const navGroups: NavGroup[] = [
 				label: "Playground",
 				href: "/playground",
 				icon: IconSparkles,
-				disabled: false,
+				disabled: process.env.NEXT_PUBLIC_PLAYGROUND_DISABLED === "true",
 			},
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
 		],

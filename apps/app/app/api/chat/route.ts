@@ -13,9 +13,11 @@ import {
 	saveMemory,
 	searchMemory,
 } from "@/lib/ai/crosmos";
-import { isValidModelId } from "@/lib/ai/models";
+import { isValidModelId, MAX_INPUT_CHARS } from "@/lib/ai/models";
 import { PLAYGROUND_SYSTEM_PROMPT } from "@/lib/ai/prompts";
+import { checkPlaygroundLimit, DAILY_MESSAGE_LIMIT } from "@/lib/ai/rate-limit";
 import { resolveModel } from "@/lib/ai/resolve-model";
+import { verifyAuth } from "@/lib/auth/session";
 
 // Search can block up to 30s on the Crosmos worker before the model generates.
 export const maxDuration = 60;
@@ -27,9 +29,10 @@ interface ChatRequestBody {
 }
 
 const MAX_CONTENT_CHARS = 600;
+const MAX_OUTPUT_TOKENS = 1024;
 
 export async function POST(req: Request) {
-	if (process.env.PLAYGROUND_DISABLED === "true") {
+	if (process.env.NEXT_PUBLIC_PLAYGROUND_DISABLED === "true") {
 		return new Response("Not Found", { status: 404 });
 	}
 
@@ -52,17 +55,67 @@ export async function POST(req: Request) {
 		return new Response("Unknown model", { status: 400 });
 	}
 
-	// Bind the space to the authenticated user's own spaces. listSpaces() uses
-	// the httpOnly cookie token; a failure means the request is unauthenticated.
+	// verifyAuth() yields a server-verified user_id for the rate-limit key;
+	// listSpaces() scopes the space. Both read the httpOnly cookie token.
+	let user: Awaited<ReturnType<typeof verifyAuth>>;
 	let space: { id: string; name: string } | undefined;
+	try {
+		const authedUser = await verifyAuth();
+		user = authedUser;
+	} catch {
+		return new Response("Unauthorized", { status: 401 });
+	}
+	if (!user) {
+		return new Response("Unauthorized", { status: 401 });
+	}
 	try {
 		const spaces = await listSpaces();
 		space = spaces.find((s) => s.id === spaceId);
 	} catch {
-		return new Response("Unauthorized", { status: 401 });
+		return new Response("Unable to load spaces", { status: 500 });
 	}
 	if (!space) {
-		return new Response("Invalid space", { status: 403 });
+		return new Response("Unable to load space", { status: 500 });
+	}
+
+	// Text-only playground: reject file/image parts whose token cost is decoupled
+	// from the char cap below (a short URL can pull in a huge image or PDF).
+	if (messages.some((m) => m.parts?.some((p) => p.type === "file"))) {
+		return new Response("Unsupported message content", { status: 400 });
+	}
+
+	// Reject an over-length user message before consuming a daily credit.
+	const lastUser = messages.filter((m) => m.role === "user").at(-1);
+	const userChars =
+		lastUser?.parts?.reduce(
+			(n, p) => n + (p.type === "text" ? p.text.length : 0),
+			0,
+		) ?? 0;
+	if (userChars > MAX_INPUT_CHARS) {
+		return Response.json(
+			{ error: "Message is too long. Please shorten it." },
+			{ status: 413 },
+		);
+	}
+
+	// Fail closed: any Redis error means we do not call the model.
+	let limit: Awaited<ReturnType<typeof checkPlaygroundLimit>>;
+	try {
+		limit = await checkPlaygroundLimit(user.user_id);
+	} catch {
+		return Response.json(
+			{ error: "Service temporarily unavailable. Please try again shortly." },
+			{ status: 503 },
+		);
+	}
+	if (!limit.success) {
+		return Response.json(
+			{
+				error: `Daily message limit reached of ${DAILY_MESSAGE_LIMIT}/day.`,
+				reset: limit.reset,
+			},
+			{ status: 429 },
+		);
 	}
 
 	const system = PLAYGROUND_SYSTEM_PROMPT;
@@ -71,6 +124,7 @@ export async function POST(req: Request) {
 		model: resolveModel(model),
 		system,
 		messages: await convertToModelMessages(messages),
+		maxOutputTokens: MAX_OUTPUT_TOKENS,
 		stopWhen: stepCountIs(3),
 		// Smooth the token cadence into steady word-by-word output (typing feel).
 		experimental_transform: smoothStream({ delayInMs: 15, chunking: "word" }),
