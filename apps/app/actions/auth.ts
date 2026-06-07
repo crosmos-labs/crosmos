@@ -7,6 +7,7 @@ import {
 	setAccessTokenCookie,
 	setActiveOrgCookie,
 } from "@/lib/auth/cookies";
+import { assertFeatureEnabled, isSettingsDisabled } from "@/lib/features";
 import type {
 	AuthUser,
 	MeResponse,
@@ -35,6 +36,8 @@ export async function setActiveOrg(orgId: string): Promise<void> {
 }
 
 export async function updateProfile(name: string): Promise<MeResponse> {
+	assertFeatureEnabled(isSettingsDisabled, "Settings");
+
 	return apiFetch<MeResponse>("/auth/me", {
 		method: "PATCH",
 		body: JSON.stringify({ name }),

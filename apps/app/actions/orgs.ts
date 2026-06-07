@@ -2,6 +2,7 @@
 
 import { type ActionResult, toActionError } from "@/lib/action-result";
 import { apiFetch } from "@/lib/api";
+import { disabledFeatureResult, isSettingsDisabled } from "@/lib/features";
 import type { OrgDetailResponse, OrgResponse } from "@/lib/types/org";
 
 interface OrgListResponse {
@@ -22,6 +23,8 @@ export async function updateOrg(
 	orgId: string,
 	patch: { name?: string; slug?: string; billing_email?: string | null },
 ): Promise<ActionResult<OrgResponse>> {
+	if (isSettingsDisabled) return disabledFeatureResult("Settings");
+
 	try {
 		const data = await apiFetch<OrgResponse>(`/orgs/${orgId}`, {
 			method: "PATCH",

@@ -13,6 +13,7 @@ import {
 	IconTopologyComplex,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
+import { isSettingsDisabled, isVisibilityDisabled } from "@/lib/features";
 import type { OrgRole } from "@/lib/types/org";
 
 export interface NavItem {
@@ -21,6 +22,7 @@ export interface NavItem {
 	icon: ComponentType<{ className?: string }>;
 	disabled?: boolean;
 	external?: boolean;
+	hidden?: boolean;
 	roles?: OrgRole[];
 }
 
@@ -46,6 +48,7 @@ export const navGroups: NavGroup[] = [
 				label: "Visibility",
 				href: "/visibility",
 				icon: IconEye,
+				hidden: isVisibilityDisabled,
 				roles: ["owner", "admin"],
 			},
 		],
@@ -74,7 +77,6 @@ export const navGroups: NavGroup[] = [
 				label: "Playground",
 				href: "/playground",
 				icon: IconSparkles,
-				disabled: process.env.NEXT_PUBLIC_PLAYGROUND_DISABLED === "true",
 			},
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
 		],
@@ -91,6 +93,7 @@ export const navGroups: NavGroup[] = [
 				label: "Settings",
 				href: "/settings",
 				icon: IconSettings,
+				hidden: isSettingsDisabled,
 			},
 		],
 	},

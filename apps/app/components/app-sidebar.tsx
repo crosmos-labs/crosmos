@@ -125,7 +125,8 @@ export function AppSidebar({
 								{group.items
 									.filter(
 										(item) =>
-											!item.roles || item.roles.includes(activeOrg.your_role),
+											!item.hidden &&
+											(!item.roles || item.roles.includes(activeOrg.your_role)),
 									)
 									.map((item) => (
 										<SidebarMenuItem key={item.href}>

@@ -32,10 +32,6 @@ const MAX_CONTENT_CHARS = 600;
 const MAX_OUTPUT_TOKENS = 1024;
 
 export async function POST(req: Request) {
-	if (process.env.NEXT_PUBLIC_PLAYGROUND_DISABLED === "true") {
-		return new Response("Not Found", { status: 404 });
-	}
-
 	let body: ChatRequestBody;
 	try {
 		body = (await req.json()) as ChatRequestBody;

@@ -2,6 +2,11 @@
 
 import { type ActionResult, toActionError } from "@/lib/action-result";
 import { apiFetch } from "@/lib/api";
+import {
+	assertFeatureEnabled,
+	disabledFeatureResult,
+	isVisibilityDisabled,
+} from "@/lib/features";
 import type {
 	GroupMember,
 	VisibilityGrant,
@@ -19,6 +24,8 @@ const base = (orgId: string) => `/orgs/${orgId}/visibility`;
 export async function listGroups(
 	orgId: string,
 ): Promise<ActionResult<VisibilityGroup[]>> {
+	if (isVisibilityDisabled) return disabledFeatureResult("Visibility");
+
 	try {
 		const data = await apiFetch<{ groups: VisibilityGroup[] }>(
 			`${base(orgId)}/groups`,
@@ -34,6 +41,8 @@ export async function createGroup(
 	name: string,
 	slug?: string,
 ): Promise<ActionResult<VisibilityGroup>> {
+	if (isVisibilityDisabled) return disabledFeatureResult("Visibility");
+
 	try {
 		const data = await apiFetch<VisibilityGroup>(`${base(orgId)}/groups`, {
 			method: "POST",
@@ -50,6 +59,8 @@ export async function updateGroup(
 	groupId: string,
 	patch: { name?: string; slug?: string },
 ): Promise<ActionResult<VisibilityGroup>> {
+	if (isVisibilityDisabled) return disabledFeatureResult("Visibility");
+
 	try {
 		const data = await apiFetch<VisibilityGroup>(
 			`${base(orgId)}/groups/${groupId}`,
@@ -65,6 +76,8 @@ export async function deleteGroup(
 	orgId: string,
 	groupId: string,
 ): Promise<void> {
+	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
+
 	await apiFetch(`${base(orgId)}/groups/${groupId}`, { method: "DELETE" });
 }
 
@@ -74,6 +87,8 @@ export async function listGroupMembers(
 	orgId: string,
 	groupId: string,
 ): Promise<GroupMember[]> {
+	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
+
 	const data = await apiFetch<{ members: GroupMember[] }>(
 		`${base(orgId)}/groups/${groupId}/members`,
 	);
@@ -85,6 +100,8 @@ export async function addGroupMember(
 	groupId: string,
 	userId: string,
 ): Promise<void> {
+	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
+
 	await apiFetch(`${base(orgId)}/groups/${groupId}/members/${userId}`, {
 		method: "POST",
 	});
@@ -95,6 +112,8 @@ export async function removeGroupMember(
 	groupId: string,
 	userId: string,
 ): Promise<void> {
+	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
+
 	await apiFetch(`${base(orgId)}/groups/${groupId}/members/${userId}`, {
 		method: "DELETE",
 	});
@@ -103,6 +122,8 @@ export async function removeGroupMember(
 // --- Grants (access rules) ---
 
 export async function listGrants(orgId: string): Promise<VisibilityGrant[]> {
+	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
+
 	const data = await apiFetch<{ grants: VisibilityGrant[] }>(
 		`${base(orgId)}/grants`,
 	);
@@ -114,6 +135,8 @@ export async function createGrant(
 	viewerGroupId: string,
 	subjectGroupId: string,
 ): Promise<ActionResult<VisibilityGrant>> {
+	if (isVisibilityDisabled) return disabledFeatureResult("Visibility");
+
 	try {
 		const data = await apiFetch<VisibilityGrant>(`${base(orgId)}/grants`, {
 			method: "POST",
@@ -132,6 +155,8 @@ export async function deleteGrant(
 	orgId: string,
 	grantId: string,
 ): Promise<void> {
+	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
+
 	await apiFetch(`${base(orgId)}/grants/${grantId}`, { method: "DELETE" });
 }
 
@@ -141,6 +166,8 @@ export async function getVisibilityPreview(
 	orgId: string,
 	userId: string,
 ): Promise<VisibilityPreview> {
+	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
+
 	return apiFetch<VisibilityPreview>(
 		`${base(orgId)}/preview?user_id=${encodeURIComponent(userId)}`,
 	);
@@ -150,6 +177,8 @@ export async function updateVisibilitySettings(
 	orgId: string,
 	enabled: boolean,
 ): Promise<ActionResult<VisibilitySettings>> {
+	if (isVisibilityDisabled) return disabledFeatureResult("Visibility");
+
 	try {
 		const data = await apiFetch<VisibilitySettings>(`${base(orgId)}/settings`, {
 			method: "PATCH",
