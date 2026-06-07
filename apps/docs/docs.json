@@ -1,7 +1,7 @@
 {
 	"$schema": "https://mintlify.com/docs.json",
 	"theme": "maple",
-	"name": "Crosmos",
+	"name": "Documentation",
 	"colors": {
 		"primary": "#298559",
 		"light": "#298559",
@@ -121,16 +121,16 @@
 			"viewport": "width=device-width, initial-scale=1",
 			"robots": "index, follow",
 
-			"application-name": "Crosmos Documentation",
+			"application-name": "Documentation",
 			"color-scheme": "light dark",
 
-			"description": "Crosmos documentation for memory layer, API, SDKs, MCPs and other tools.",
+			"description": "Crosmos documentation for memory, SDKs, MCP, API reference, and graph tooling.",
 
-			"og:title": "Crosmos Documentation",
+			"og:title": "Documentation",
 			"og:type": "website",
 			"og:url": "https://docs.crosmos.dev",
-			"og:description": "Build apps with our Memory API which supports most modern toolkits",
-			"og:site_name": "Crosmos Docs",
+			"og:description": "Crosmos documentation for memory, SDKs, MCP, API reference, and graph tooling.",
+			"og:site_name": "Documentation",
 			"og:locale": "en_US"
 		},
 		"indexing": "all"
