@@ -24,8 +24,32 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://console.crosmos.dev"),
-	title: "Crosmos - Console",
-	description: "Manage and monitor your Crosmos memory spaces and agents.",
+	title: "Console — Crosmos",
+	description:
+		"Manage Crosmos memory spaces, API keys, sources, and organization settings.",
+	openGraph: {
+		type: "website",
+		url: "https://console.crosmos.dev",
+		siteName: "Crosmos Console",
+		title: "Console — Crosmos",
+		description:
+			"Manage Crosmos memory spaces, API keys, sources, and organization settings.",
+		images: [
+			{
+				url: "/opengraph-image.png",
+				width: 2400,
+				height: 1200,
+				alt: "Console — Crosmos",
+			},
+		],
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "Console — Crosmos",
+		description:
+			"Manage Crosmos memory spaces, API keys, sources, and organization settings.",
+		images: ["/opengraph-image.png"],
+	},
 };
 
 export default function RootLayout({
