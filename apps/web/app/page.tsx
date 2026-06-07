@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { BlogSection } from "@/components/blog-section";
 import { Contact } from "@/components/contact";
 import { Faq } from "@/components/faq";
@@ -8,6 +9,12 @@ import { Mtkg } from "@/components/mtkg";
 import { Pricing } from "@/components/pricing";
 import { Problem } from "@/components/problem";
 import { BlockTransition } from "@/components/ui/block-transition";
+
+export const metadata: Metadata = {
+	alternates: {
+		canonical: "/",
+	},
+};
 
 export default function Home() {
 	return (

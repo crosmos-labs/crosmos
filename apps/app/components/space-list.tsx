@@ -26,18 +26,27 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
+import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconBox, IconDotsVertical, IconPlus } from "@tabler/icons-react";
+import {
+	IconBox,
+	IconCornerDownLeft,
+	IconDotsVertical,
+} from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
 import { EmptyState } from "@/components/empty-state";
+import { HotkeyKbd } from "@/components/hotkey-kbd";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { Space } from "@/lib/types/space";
 
 function CreateSpaceDialog({
@@ -95,16 +104,14 @@ function CreateSpaceDialog({
 					className="flex min-h-15 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-input focus-visible:ring-0 resize-none"
 				/>
 				<DialogFooter>
-					<Button variant="outline" onClick={handleClose}>
-						Cancel
+					<Button variant="ghost" onClick={handleClose}>
+						Cancel <Kbd>Esc</Kbd>
 					</Button>
-					<Button
-						variant="secondary"
-						onClick={handleCreate}
-						size="lg"
-						disabled={!name.trim()}
-					>
-						Create
+					<Button onClick={handleCreate} disabled={!name.trim()}>
+						Create{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</Button>
 				</DialogFooter>
 			</DialogContent>
@@ -127,27 +134,39 @@ function SpaceCountRow({
 				{count} space{count !== 1 ? "s" : ""}
 			</span>
 			<Button onClick={onCreateClick} disabled={disabled}>
-				<IconPlus data-icon="inline-start" />
 				Create
+				<HotkeyKbd />
 			</Button>
 		</div>
 	);
 }
 
-export function SpaceList({ spaces }: { spaces: Space[] }) {
+export function SpaceList({
+	spaces,
+	orgId,
+	swrKey,
+}: {
+	spaces: Space[];
+	orgId: string;
+	swrKey: string;
+}) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [deleteTarget, setDeleteTarget] = useState<Space | null>(null);
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
+	useHotkey("k", () => {
+		if (activeCount > 0) return;
+		setDialogOpen(true);
+	});
+
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
-			const tempId = `optimistic-${Date.now()}`;
 			const now = new Date().toISOString();
 			const tempSpace: Space = {
-				id: tempId,
-				org_id: "",
+				id: `optimistic-${Date.now()}`,
+				org_id: orgId,
 				name,
 				description: description || null,
 				meta: null,
@@ -155,52 +174,47 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				updated_at: now,
 			};
 			runAction(
-				async () => {
-					await mutate(
-						"/spaces",
-						async (current: Space[] | undefined) => {
-							const space = await createSpace(name, description);
-							return [space, ...(current ?? [])];
-						},
-						{
-							optimisticData: (current: Space[] | undefined) => [
-								tempSpace,
-								...(current ?? []),
-							],
-							rollbackOnError: true,
-							revalidate: false,
-						},
+				() =>
+					optimisticInsert(mutate, swrKey, tempSpace, async () => {
+						const result = await createSpace(name, description);
+						if (!result.ok) {
+							// Throw so the optimistic row rolls back; carry the slug for the toast.
+							throw Object.assign(new Error(result.message), {
+								code: result.code,
+							});
+						}
+						return result.data;
+					}),
+				{ toast: { success: "Space created" } },
+			).catch((err: unknown) => {
+				const code =
+					err && typeof err === "object" && "code" in err
+						? (err as { code: unknown }).code
+						: null;
+				if (code === "quota_exceeded") {
+					toast.error(
+						err instanceof Error && err.message
+							? err.message
+							: "You've reached your plan's memory space limit.",
 					);
-				},
-				{
-					toast: {
-						success: "Space created",
-						error: "Failed to create space",
-					},
-				},
-			);
+				} else {
+					toast.error("Failed to create space");
+				}
+			});
 		},
-		[runAction, mutate],
+		[runAction, mutate, orgId, swrKey],
 	);
 
 	const handleDeleteSpace = useCallback(
 		(spaceId: string) => {
 			runAction(
-				async () => {
-					await mutate(
-						"/spaces",
-						async (current: Space[] | undefined) => {
-							await deleteSpace(spaceId);
-							return current?.filter((s) => s.id !== spaceId) ?? [];
-						},
-						{
-							optimisticData: (current: Space[] | undefined) =>
-								current?.filter((s) => s.id !== spaceId) ?? [],
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+				() =>
+					optimisticRemove<Space>(
+						mutate,
+						swrKey,
+						(s) => s.id === spaceId,
+						() => deleteSpace(spaceId),
+					),
 				{
 					toast: {
 						success: "Space deleted",
@@ -209,7 +223,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 				},
 			);
 		},
-		[runAction, mutate],
+		[runAction, mutate, swrKey],
 	);
 
 	if (spaces.length === 0) {
@@ -250,6 +264,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 			/>
 			<ItemGroup>
 				{spaces.map((space) => {
+					// Optimistic placeholders carry an "optimistic-" id prefix (see handleCreateSpace).
 					const isOptimistic = space.id.startsWith("optimistic-");
 					return (
 						<Item
@@ -271,11 +286,7 @@ export function SpaceList({ spaces }: { spaces: Space[] }) {
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
 									{isOptimistic ? (
-										<AnimatedSpinner
-											name="diagswipe"
-											size="1.1em"
-											speed={0.8}
-										/>
+										<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
 									) : (
 										formatDistanceToNow(new Date(space.created_at), {
 											addSuffix: true,
@@ -402,15 +413,18 @@ function DeleteSpaceDialog({
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
 				<DialogFooter>
-					<Button variant="outline" onClick={handleClose}>
-						Cancel
+					<Button variant="ghost" onClick={handleClose}>
+						Cancel <Kbd>Esc</Kbd>
 					</Button>
 					<Button
 						variant="destructive"
 						onClick={handleDelete}
 						disabled={!canDelete}
 					>
-						Delete Space
+						Delete{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</Button>
 				</DialogFooter>
 			</DialogContent>

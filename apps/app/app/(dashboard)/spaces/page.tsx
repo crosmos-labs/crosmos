@@ -4,11 +4,14 @@ import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { SpaceList } from "@/components/space-list";
 import { SpacesListSkeleton } from "@/components/spaces-list-skeleton";
-import { useSpaces } from "@/hooks/use-spaces";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
+import { spacesKey, useSpaces } from "@/hooks/use-spaces";
 
 export default function SpacesPage() {
 	const { mutate } = useSWRConfig();
+	const orgId = useActiveOrgId();
 	const { data: spaces, isLoading, error } = useSpaces();
+	const swrKey = orgId ? spacesKey(orgId) : null;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -21,12 +24,14 @@ export default function SpacesPage() {
 			{error ? (
 				<DataFetchError
 					message={error.message}
-					onRetry={() => mutate("/spaces")}
+					onRetry={() => (swrKey ? mutate(swrKey) : Promise.resolve())}
 				/>
-			) : isLoading && !spaces ? (
+			) : !orgId || (isLoading && !spaces) ? (
 				<SpacesListSkeleton />
+			) : swrKey ? (
+				<SpaceList spaces={spaces ?? []} orgId={orgId} swrKey={swrKey} />
 			) : (
-				<SpaceList spaces={spaces ?? []} />
+				<SpacesListSkeleton />
 			)}
 		</div>
 	);

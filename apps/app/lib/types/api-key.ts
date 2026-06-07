@@ -1,5 +1,5 @@
 export interface ApiKey {
-	key_id: number;
+	key_id: string;
 	name: string;
 	key_prefix: string;
 	is_active: boolean;
@@ -9,7 +9,7 @@ export interface ApiKey {
 }
 
 export interface CreateApiKeyResponse {
-	key_id: number;
+	key_id: string;
 	name: string;
 	key_prefix: string;
 	raw_key: string;

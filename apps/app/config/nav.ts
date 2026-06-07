@@ -4,13 +4,17 @@ import {
 	IconChartBar,
 	IconCreditCard,
 	IconDatabase,
+	IconEye,
 	IconFileImport,
 	IconGalaxy,
 	IconKey,
 	IconSettings,
+	IconSparkles,
 	IconTopologyComplex,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
+import { isSettingsDisabled, isVisibilityDisabled } from "@/lib/features";
+import type { OrgRole } from "@/lib/types/org";
 
 export interface NavItem {
 	label: string;
@@ -18,6 +22,8 @@ export interface NavItem {
 	icon: ComponentType<{ className?: string }>;
 	disabled?: boolean;
 	external?: boolean;
+	hidden?: boolean;
+	roles?: OrgRole[];
 }
 
 export interface NavGroup {
@@ -38,6 +44,13 @@ export const navGroups: NavGroup[] = [
 			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
 			{ label: "Sources", href: "/sources", icon: IconFileImport },
 			{ label: "Graph", href: "/graph", icon: IconTopologyComplex },
+			{
+				label: "Visibility",
+				href: "/visibility",
+				icon: IconEye,
+				hidden: isVisibilityDisabled,
+				roles: ["owner", "admin"],
+			},
 		],
 	},
 	{
@@ -59,7 +72,14 @@ export const navGroups: NavGroup[] = [
 	},
 	{
 		label: "DEVELOPER",
-		items: [{ label: "API Keys", href: "/api-key", icon: IconKey }],
+		items: [
+			{
+				label: "Playground",
+				href: "/playground",
+				icon: IconSparkles,
+			},
+			{ label: "API Keys", href: "/api-key", icon: IconKey },
+		],
 	},
 	{
 		label: "ACCOUNT",
@@ -73,7 +93,7 @@ export const navGroups: NavGroup[] = [
 				label: "Settings",
 				href: "/settings",
 				icon: IconSettings,
-				disabled: true,
+				hidden: isSettingsDisabled,
 			},
 		],
 	},
@@ -84,6 +104,8 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/spaces": "Spaces",
 	"/sources": "Sources",
 	"/graph": "Graph",
+	"/visibility": "Visibility",
+	"/playground": "Playground",
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",

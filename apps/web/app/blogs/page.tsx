@@ -1,7 +1,57 @@
+import type { Metadata } from "next";
 import { BlogCard } from "@/components/blog-card";
 import { getAllBlogs } from "@/lib/blog";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+
+const DESCRIPTION =
+	"Deep dives on memory systems, context engineering, and building with Crosmos.";
+
+export const metadata: Metadata = {
+	title: "Blogs",
+	description: DESCRIPTION,
+	alternates: {
+		canonical: "/blogs",
+	},
+	openGraph: {
+		title: "Blogs — Crosmos",
+		description: DESCRIPTION,
+		type: "website",
+		url: "/blogs",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "Blogs — Crosmos",
+		description: DESCRIPTION,
+	},
+};
 
 export default function BlogsPage() {
+	const canonicalUrl = `${SITE_URL}/blogs`;
+	const collectionPageJsonLd = {
+		"@context": "https://schema.org",
+		"@type": "CollectionPage",
+		name: "Blogs",
+		description: DESCRIPTION,
+		url: canonicalUrl,
+		isPartOf: {
+			"@type": "WebSite",
+			name: SITE_NAME,
+			url: SITE_URL,
+		},
+	};
+	const breadcrumbJsonLd = {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{ "@type": "ListItem", position: 1, name: SITE_NAME, item: SITE_URL },
+			{
+				"@type": "ListItem",
+				position: 2,
+				name: "Blogs",
+				item: canonicalUrl,
+			},
+		],
+	};
 	const blogs = getAllBlogs()
 		.slice()
 		.sort(
@@ -11,6 +61,18 @@ export default function BlogsPage() {
 
 	return (
 		<section className="px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24">
+			<script
+				type="application/ld+json"
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: required for JSON-LD
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(collectionPageJsonLd),
+				}}
+			/>
+			<script
+				type="application/ld+json"
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: required for JSON-LD
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+			/>
 			<div className="max-w-7xl mx-auto">
 				<div className="text-center max-w-2xl mx-auto">
 					<h1 className="mt-3 text-3xl sm:text-4xl font-bold">All Blogs</h1>

@@ -38,6 +38,7 @@ export const AUTHORS: Record<string, Author> = {
 export type BlogPost = {
 	slug: string;
 	title: string;
+	description: string;
 	author: Author;
 	readTime: number;
 	thumbnail: string;
@@ -47,6 +48,29 @@ export type BlogPost = {
 	tweetUrl: string;
 	content: string;
 };
+
+/**
+ * Derive a plain-text excerpt (~155 chars) from MDX content for use as a meta
+ * description when a post has no explicit `description` in its frontmatter.
+ * Strips common markdown/MDX syntax so search engines get clean prose.
+ */
+function deriveExcerpt(content: string, maxLength = 155): string {
+	const text = content
+		.replace(/<[^>]+>/g, " ") // JSX/HTML tags
+		.replace(/```[\s\S]*?```/g, " ") // fenced code blocks
+		.replace(/`[^`]*`/g, " ") // inline code
+		.replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
+		.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // links -> link text
+		.replace(/^#{1,6}\s+/gm, "") // headings
+		.replace(/[*_>#-]/g, " ") // residual markdown symbols
+		.replace(/\s+/g, " ")
+		.trim();
+
+	if (text.length <= maxLength) return text;
+	const truncated = text.slice(0, maxLength);
+	const lastSpace = truncated.lastIndexOf(" ");
+	return `${(lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated).trim()}…`;
+}
 
 export type BlogPostPreview = Pick<
 	BlogPost,
@@ -125,6 +149,10 @@ export function getAllBlogs(): BlogPost[] {
 		blogs.push({
 			slug,
 			title: data.title,
+			description:
+				typeof data.description === "string" && data.description
+					? data.description
+					: deriveExcerpt(content),
 			author,
 			readTime: data.readTime,
 			thumbnail: data.thumbnail,

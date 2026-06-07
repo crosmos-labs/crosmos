@@ -1,12 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { setOAuthState } from "@/lib/auth/cookies";
+import { setInviteTokenCookie, setOAuthState } from "@/lib/auth/cookies";
 import { getRedirectUri } from "@/lib/auth/redirect";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export async function loginWithGoogle() {
+export async function loginWithGoogle(inviteToken?: string) {
 	if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
 
 	const res = await fetch(
@@ -38,6 +38,11 @@ export async function loginWithGoogle() {
 	}
 
 	await setOAuthState(state);
+
+	// Stashed so the callback can route back to /invites/accept after login.
+	if (inviteToken) {
+		await setInviteTokenCookie(inviteToken);
+	}
 
 	redirect(authorization_url);
 }

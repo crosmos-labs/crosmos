@@ -10,7 +10,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
-import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -28,6 +27,7 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Pagination,
 	PaginationContent,
@@ -36,7 +36,12 @@ import {
 	PaginationPrevious,
 } from "@crosmos/ui/components/pagination";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconBrain, IconDotsVertical, IconTrash } from "@tabler/icons-react";
+import {
+	IconBrain,
+	IconCornerDownLeft,
+	IconDotsVertical,
+	IconTrash,
+} from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
@@ -53,6 +58,7 @@ const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
 	viewpoint: "Viewpoint",
 	semantic: "Semantic",
 	episode: "Episode",
+	inference: "Inference",
 };
 
 const MEMORY_TYPE_BADGE_VARIANT: Record<
@@ -62,6 +68,7 @@ const MEMORY_TYPE_BADGE_VARIANT: Record<
 	viewpoint: "secondary",
 	semantic: "secondary",
 	episode: "secondary",
+	inference: "outline",
 };
 
 function ForgetMemoryDialog({
@@ -105,7 +112,9 @@ function ForgetMemoryDialog({
 					</div>
 				)}
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">
+						Cancel <Kbd>Esc</Kbd>
+					</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
@@ -115,7 +124,10 @@ function ForgetMemoryDialog({
 							}
 						}}
 					>
-						Forget
+						Forget{" "}
+						<Kbd>
+							<IconCornerDownLeft />
+						</Kbd>
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
@@ -128,6 +140,7 @@ interface MemoryListProps {
 	spaceUuid: string;
 	page: number;
 	hasMore: boolean;
+	swrKey: string;
 	onPageChange: (page: number) => void;
 }
 
@@ -136,6 +149,7 @@ export function MemoryList({
 	spaceUuid,
 	page,
 	hasMore,
+	swrKey,
 	onPageChange,
 }: MemoryListProps) {
 	const [forgetTarget, setForgetTarget] = useState<Memory | null>(null);
@@ -143,8 +157,6 @@ export function MemoryList({
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
-
-	const swrKey = `/memories?space_uuid=${spaceUuid}&page=${page}`;
 
 	const handleForget = useCallback(
 		(memoryUuid: string) => {
@@ -217,17 +229,13 @@ export function MemoryList({
 		<div className="flex flex-col gap-4">
 			<ItemGroup>
 				{memories.map((memory) => {
-					const isOptimistic = memory.id.startsWith("optimistic-");
 					const isExpanded = expandedIds.has(memory.id);
 
 					return (
 						<Item
 							key={memory.id}
 							variant="outline"
-							className={cn(
-								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
-								isOptimistic && "opacity-50",
-							)}
+							className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
 						>
 							<ItemContent>
 								<ItemTitle className="flex items-center gap-2 text-base">
@@ -254,17 +262,9 @@ export function MemoryList({
 							</ItemContent>
 							<ItemActions>
 								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
-									{isOptimistic ? (
-										<AnimatedSpinner
-											name="diagswipe"
-											size="1.1em"
-											speed={0.8}
-										/>
-									) : (
-										formatDistanceToNow(new Date(memory.created_at), {
-											addSuffix: true,
-										})
-									)}
+									{formatDistanceToNow(new Date(memory.created_at), {
+										addSuffix: true,
+									})}
 								</span>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>

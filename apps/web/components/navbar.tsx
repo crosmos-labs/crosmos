@@ -7,10 +7,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MobileNavButton, MobileNavSheet } from "@/components/mobile-nav";
 import { LINKS } from "@/config/links";
+import { useCalApi } from "@/hooks/use-cal-api";
 
 export function Navbar() {
 	const [scrolled, setScrolled] = useState(false);
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const initCal = useCalApi();
 
 	useEffect(() => {
 		const onScroll = () => setScrolled(window.scrollY > 0);
@@ -55,7 +57,7 @@ export function Navbar() {
 							BLOG
 						</Link>
 						<Link
-							href="#pricing"
+							href={LINKS.product.pricing}
 							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
 							PRICING
@@ -79,6 +81,17 @@ export function Navbar() {
 					>
 						<IconBrandGithubFilled size={16} />
 					</Link>
+					<button
+						type="button"
+						className="border border-foreground/20 hover:border-foreground/40 px-6 py-2 rounded font-semibold text-sm transition-colors select-none"
+						data-cal-namespace="15min"
+						data-cal-link="crosmos/15min"
+						data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+						onPointerEnter={initCal}
+						onFocus={initCal}
+					>
+						Schedule Call
+					</button>
 					<Link
 						href={LINKS.product.console}
 						target="_blank"

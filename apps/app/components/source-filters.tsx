@@ -7,7 +7,6 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@crosmos/ui/components/popover";
-import { Separator } from "@crosmos/ui/components/separator";
 import {
 	Sheet,
 	SheetClose,
@@ -200,10 +199,7 @@ export function SourceFilters({
 				onChange={(v) => onExtractionStatusChange(v as ExtractionStatus | null)}
 			/>
 			{hasFilters && (
-				<>
-					<Separator />
-					<ClearButton hasFilters={hasFilters} onClear={onClearFilters} />
-				</>
+				<ClearButton hasFilters={hasFilters} onClear={onClearFilters} />
 			)}
 		</>
 	);

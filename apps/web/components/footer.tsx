@@ -11,10 +11,7 @@ import { CornerPlus } from "./ui/corner-plus";
 const FOOTER_DATA = {
 	product: {
 		title: "Product",
-		links: [
-			{ label: "Changelog", href: LINKS.product.changelog },
-			{ label: "Pricing", href: LINKS.product.pricing },
-		],
+		links: [{ label: "Pricing", href: LINKS.product.pricing }],
 	},
 	documentation: {
 		title: "Documentation",
@@ -28,8 +25,6 @@ const FOOTER_DATA = {
 	company: {
 		title: "Company",
 		links: [
-			{ label: "About us", href: LINKS.company.about },
-			{ label: "Developers", href: LINKS.company.developers },
 			{ label: "Terms of Service", href: LINKS.company.terms },
 			{ label: "Privacy Policy", href: LINKS.company.privacy },
 		],
