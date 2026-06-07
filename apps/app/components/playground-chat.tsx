@@ -108,7 +108,7 @@ export function PlaygroundChat() {
 	const isActive = messages.length > 0;
 	const isBusy = status === "submitted" || status === "streaming";
 	const inputWarn = value.length > MAX_INPUT_CHARS * 0.75;
-	const inputOver = value.length >= MAX_INPUT_CHARS;
+	const inputOver = value.length > MAX_INPUT_CHARS;
 	const canSend =
 		value.trim().length > 0 && !isBusy && !!selectedSpace && !inputOver;
 
