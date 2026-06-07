@@ -68,7 +68,16 @@ const playgroundChat = new Chat({
 					.clone()
 					.json()
 					.catch(() => ({}))) as { error?: string; reset?: number };
-				let message = body.error ?? "Something went wrong. Try again.";
+				const fallbackText =
+					body.error === undefined
+						? await res
+								.clone()
+								.text()
+								.catch(() => "")
+						: "";
+				let message = `${res.status} ${res.statusText}: ${
+					body.error ?? (fallbackText || "Something went wrong. Try again.")
+				}`;
 				if (typeof body.reset === "number") {
 					message += ` Resets in ${formatResetIn(body.reset)}.`;
 				}

@@ -60,20 +60,22 @@ export async function POST(req: Request) {
 	let user: Awaited<ReturnType<typeof verifyAuth>>;
 	let space: { id: string; name: string } | undefined;
 	try {
-		const [authedUser, spaces] = await Promise.all([
-			verifyAuth(),
-			listSpaces(),
-		]);
+		const authedUser = await verifyAuth();
 		user = authedUser;
-		space = spaces.find((s) => s.id === spaceId);
 	} catch {
 		return new Response("Unauthorized", { status: 401 });
 	}
 	if (!user) {
 		return new Response("Unauthorized", { status: 401 });
 	}
+	try {
+		const spaces = await listSpaces();
+		space = spaces.find((s) => s.id === spaceId);
+	} catch {
+		return new Response("Unable to load spaces", { status: 500 });
+	}
 	if (!space) {
-		return new Response("Invalid space", { status: 403 });
+		return new Response("Unable to load space", { status: 500 });
 	}
 
 	// Text-only playground: reject file/image parts whose token cost is decoupled
@@ -89,7 +91,7 @@ export async function POST(req: Request) {
 			(n, p) => n + (p.type === "text" ? p.text.length : 0),
 			0,
 		) ?? 0;
-	if (userChars >= MAX_INPUT_CHARS) {
+	if (userChars > MAX_INPUT_CHARS) {
 		return Response.json(
 			{ error: "Message is too long. Please shorten it." },
 			{ status: 413 },
