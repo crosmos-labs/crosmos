@@ -59,7 +59,7 @@ export function Hero() {
 								href={LINKS.documentation.getStarted}
 								className="border border-foreground/20 h-full text-foreground hover:border-foreground/40 px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
 							>
-								Docs
+								Documentation
 								<LinkArrow />
 							</Link>
 						</div>

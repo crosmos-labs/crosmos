@@ -24,7 +24,9 @@ export async function generateMetadata({
 	const url = `/blogs/${slug}`;
 
 	return {
-		title: blog.title,
+		title: {
+			absolute: blog.title,
+		},
 		description: blog.description,
 		alternates: {
 			canonical: url,

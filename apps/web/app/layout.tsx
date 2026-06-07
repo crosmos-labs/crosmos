@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
 	title: {
 		default: SITE_TITLE,
-		template: "%s | Crosmos",
+		template: "%s — Crosmos",
 	},
 	description: SITE_DESCRIPTION,
 	applicationName: SITE_NAME,
@@ -55,8 +55,8 @@ export const metadata: Metadata = {
 		images: [
 			{
 				url: "/opengraph-image.png",
-				width: 1200,
-				height: 630,
+				width: 2400,
+				height: 1200,
 				alt: SITE_NAME,
 			},
 		],
@@ -93,6 +93,19 @@ const organizationJsonLd = {
 		"https://x.com/crosmoslabs",
 		"https://www.linkedin.com/company/crosmos-ai",
 	],
+};
+
+const websiteJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	name: SITE_NAME,
+	url: SITE_URL,
+	description: SITE_DESCRIPTION,
+	publisher: {
+		"@type": "Organization",
+		name: "Crosmos Labs",
+		url: SITE_URL,
+	},
 };
 
 const softwareJsonLd = {
@@ -134,6 +147,13 @@ export default function RootLayout({
 					// biome-ignore lint/security/noDangerouslySetInnerHtml: required for JSON-LD
 					dangerouslySetInnerHTML={{
 						__html: JSON.stringify(organizationJsonLd),
+					}}
+				/>
+				<script
+					type="application/ld+json"
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: required for JSON-LD
+					dangerouslySetInnerHTML={{
+						__html: JSON.stringify(websiteJsonLd),
 					}}
 				/>
 				<script
