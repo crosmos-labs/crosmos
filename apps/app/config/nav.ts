@@ -13,7 +13,11 @@ import {
 	IconTopologyComplex,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
-import { isSettingsDisabled, isVisibilityDisabled } from "@/lib/features";
+import {
+	isPlaygroundDisabled,
+	isSettingsDisabled,
+	isVisibilityDisabled,
+} from "@/lib/features";
 import type { OrgRole } from "@/lib/types/org";
 
 export interface NavItem {
@@ -77,6 +81,7 @@ export const navGroups: NavGroup[] = [
 				label: "Playground",
 				href: "/playground",
 				icon: IconSparkles,
+				hidden: isPlaygroundDisabled,
 			},
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
 		],

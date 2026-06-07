@@ -18,6 +18,7 @@ import { PLAYGROUND_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { checkPlaygroundLimit, DAILY_MESSAGE_LIMIT } from "@/lib/ai/rate-limit";
 import { resolveModel } from "@/lib/ai/resolve-model";
 import { verifyAuth } from "@/lib/auth/session";
+import { isPlaygroundDisabled } from "@/lib/features";
 
 // Search can block up to 30s on the Crosmos worker before the model generates.
 export const maxDuration = 60;
@@ -32,6 +33,10 @@ const MAX_CONTENT_CHARS = 600;
 const MAX_OUTPUT_TOKENS = 1024;
 
 export async function POST(req: Request) {
+	if (isPlaygroundDisabled) {
+		return new Response("Not Found", { status: 404 });
+	}
+
 	let body: ChatRequestBody;
 	try {
 		body = (await req.json()) as ChatRequestBody;
