@@ -7,7 +7,7 @@ export interface AuthUser {
 	active_org_id?: string | null;
 }
 
-// Backend `GET /auth/me` shape; mapped to AuthUser in `getCurrentUser`.
+// Backend `GET /auth/me` shape; mapped to AuthUser via `toAuthUser`.
 export interface MeResponse {
 	user_id: string;
 	email: string;
@@ -18,6 +18,15 @@ export interface MeResponse {
 		name: string;
 		role: OrgRole;
 	} | null;
+}
+
+export function toAuthUser(me: MeResponse): AuthUser {
+	return {
+		user_id: me.user_id,
+		email: me.email,
+		name: me.name,
+		active_org_id: me.org?.id ?? null,
+	};
 }
 
 export interface TokenResponse {

@@ -8,22 +8,17 @@ import {
 	setActiveOrgCookie,
 } from "@/lib/auth/cookies";
 import { assertFeatureEnabled, isSettingsDisabled } from "@/lib/features";
-import type {
-	AuthUser,
-	MeResponse,
-	SetActiveOrgResponse,
+import {
+	type AuthUser,
+	type MeResponse,
+	type SetActiveOrgResponse,
+	toAuthUser,
 } from "@/lib/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getCurrentUser(): Promise<AuthUser> {
-	const me = await apiFetch<MeResponse>("/auth/me");
-	return {
-		user_id: me.user_id,
-		email: me.email,
-		name: me.name,
-		active_org_id: me.org?.id ?? null,
-	};
+	return toAuthUser(await apiFetch<MeResponse>("/auth/me"));
 }
 
 export async function setActiveOrg(orgId: string): Promise<void> {
