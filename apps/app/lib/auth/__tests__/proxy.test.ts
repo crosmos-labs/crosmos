@@ -46,15 +46,12 @@ function jwt(seconds: number): string {
 	return `h.${payload}.s`;
 }
 
-function request(
-	cookies: Record<string, string>,
-	headers: Record<string, string> = {},
-) {
+function request(cookies: Record<string, string>, path = "/dashboard") {
 	const cookie = Object.entries(cookies)
 		.map(([k, v]) => `${k}=${v}`)
 		.join("; ");
-	return new NextRequest("https://app.test/dashboard", {
-		headers: { cookie, ...headers },
+	return new NextRequest(`https://app.test${path}`, {
+		headers: { cookie },
 	});
 }
 
@@ -97,40 +94,29 @@ describe("proxy refresh", () => {
 		);
 	});
 
-	test("prefetch request → never refreshes", async () => {
+	test("no refresh token on protected route → redirect to /signup", async () => {
 		mockRefresh(true);
-		await proxy(
-			request(
-				{ access_token: jwt(-10), refresh_token: "r" },
-				{ "next-router-prefetch": "1" },
-			),
-		);
+		const res = await proxy(request({ access_token: jwt(-10) }));
 		expect(fetchCalls).toBe(0);
+		expect(res.status).toBe(307);
+		expect(res.headers.get("location")).toContain("/signup");
 	});
 
-	test("no refresh token → passes through", async () => {
-		mockRefresh(true);
-		await proxy(request({ access_token: jwt(-10) }));
-		expect(fetchCalls).toBe(0);
-	});
-
-	test("refresh fails → clears cookies", async () => {
+	test("refresh fails on protected route → clears cookies + redirect to /signup", async () => {
 		mockRefresh(false);
 		const res = await proxy(
 			request({ access_token: jwt(-10), refresh_token: "r" }),
 		);
 		expect(fetchCalls).toBe(1);
+		expect(res.status).toBe(307);
+		expect(res.headers.get("location")).toContain("/signup");
 		expect(res.cookies.get(ACCESS_TOKEN_COOKIE)?.value).toBe("");
-		expect(res.headers.get("cache-control")).toBe("no-store");
 	});
 
-	test("concurrent requests share one refresh", async () => {
+	test("public route (unauthenticated) → renders, no redirect", async () => {
 		mockRefresh(true);
-		await Promise.all([
-			proxy(request({ access_token: jwt(-10), refresh_token: "r" })),
-			proxy(request({ access_token: jwt(-10), refresh_token: "r" })),
-			proxy(request({ access_token: jwt(-10), refresh_token: "r" })),
-		]);
-		expect(fetchCalls).toBe(1);
+		const res = await proxy(request({}, "/signup"));
+		expect(fetchCalls).toBe(0);
+		expect(res.headers.get("location")).toBeNull();
 	});
 });

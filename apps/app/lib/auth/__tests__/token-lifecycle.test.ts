@@ -28,6 +28,11 @@ mock.module("server-only", () => ({}));
 mock.module("next/headers", () => ({
 	cookies: async () => cookieController.current,
 }));
+mock.module("next/navigation", () => ({
+	redirect: (url: string) => {
+		throw new Error(`NEXT_REDIRECT:${url}`);
+	},
+}));
 
 // Code under test (imported dynamically after mocks are installed).
 type ApiMod = typeof import("../../api");
@@ -169,7 +174,7 @@ describe("token lifecycle", () => {
 		expect(store.writeOk).toBeGreaterThan(0);
 	});
 
-	test("S7 (C) refresh token revoked, ACTION → clean terminal logout", async () => {
+	test("S7 refresh token revoked, ACTION → clears cookies + redirects to sign in", async () => {
 		await seedLogin();
 		// Revoke the refresh token (as /auth/logout would), keep access expired.
 		const refresh = store.snapshot().refresh_token;
@@ -189,18 +194,17 @@ describe("token lifecycle", () => {
 		} catch (e) {
 			err = e;
 		}
-		const apiErr = err as InstanceType<ApiMod["ApiError"]>;
 
 		tracer.dump(
 			"S7 refresh revoked, ACTION",
 			summary({
-				status: apiErr?.status,
+				thrown: (err as Error)?.message,
 				cookiesAfter: Object.keys(store.snapshot()),
 			}),
 		);
 
-		// 401 → refresh → 401 (revoked) → clearAuthCookies → original 401 thrown.
-		expect(apiErr.status).toBe(401);
+		// 401 → refresh → 401 (revoked) → clearAuthCookies → redirect to sign in.
+		expect((err as Error).message).toBe("NEXT_REDIRECT:/signup");
 		expect(backend.count("/auth/refresh")).toBe(1);
 		expect(Object.keys(store.snapshot())).toHaveLength(0); // cookies cleared
 	});
