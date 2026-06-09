@@ -1,6 +1,8 @@
 import "server-only";
 
+import { redirect } from "next/navigation";
 import { getAccessToken } from "./auth/cookies";
+import { refreshTokens } from "./auth/session";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 if (!API_URL) throw new Error("NEXT_PUBLIC_API_URL is not set");
@@ -16,8 +18,16 @@ export class ApiError extends Error {
 
 		if (typeof body === "object" && body !== null) {
 			const obj = body as Record<string, unknown>;
-			if (typeof obj.error === "string") code = obj.error;
-			if (typeof obj.message === "string") message = obj.message;
+			// Backend envelope: { error: { code, message, error? } }
+			if (typeof obj.error === "object" && obj.error !== null) {
+				const error = obj.error as Record<string, unknown>;
+				if (typeof error.error === "string") code = error.error;
+				if (typeof error.message === "string") message = error.message;
+			} else if (typeof obj.error === "string") {
+				code = obj.error;
+			}
+			// Bare Starlette responses (e.g. 404/405) carry a string detail.
+			if (typeof obj.detail === "string") message = obj.detail;
 		}
 
 		super(message);
@@ -48,6 +58,25 @@ export async function apiFetch<T>(
 		cache: options.cache ?? "no-store",
 	});
 
+	if (res.status === 401) {
+		const refreshed = await refreshTokens();
+		if (refreshed) {
+			headers.set("Authorization", `Bearer ${refreshed.access_token}`);
+			const retryRes = await fetch(`${API_URL}${path}`, {
+				...options,
+				headers,
+				cache: options.cache ?? "no-store",
+			});
+			return parseResponse<T>(retryRes);
+		}
+		// Session is gone and can't be refreshed → sign in instead of surfacing a 401.
+		redirect("/signup");
+	}
+
+	return parseResponse<T>(res);
+}
+
+async function parseResponse<T>(res: Response): Promise<T> {
 	if (!res.ok) {
 		const bodyText = await res.text();
 		let body: unknown;

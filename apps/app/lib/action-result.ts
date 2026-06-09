@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { ApiError } from "@/lib/api";
 
 // Returned by server actions instead of throwing, so the client can branch on
@@ -13,6 +14,9 @@ export function toActionError(err: unknown): {
 	code: string | null;
 	message: string;
 } {
+	// Let framework errors (e.g. the redirect thrown by apiFetch on an
+	// unrefreshable 401) propagate instead of becoming a generic action error.
+	unstable_rethrow(err);
 	if (err instanceof ApiError) {
 		return {
 			ok: false,
