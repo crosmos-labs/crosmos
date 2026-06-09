@@ -1,5 +1,6 @@
 import "server-only";
 
+import { redirect } from "next/navigation";
 import { getAccessToken } from "./auth/cookies";
 import { refreshTokens } from "./auth/session";
 
@@ -68,6 +69,8 @@ export async function apiFetch<T>(
 			});
 			return parseResponse<T>(retryRes);
 		}
+		// Session is gone and can't be refreshed → sign in instead of surfacing a 401.
+		redirect("/signup");
 	}
 
 	return parseResponse<T>(res);
