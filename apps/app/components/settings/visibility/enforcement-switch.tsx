@@ -20,14 +20,16 @@ import {
 import {
 	IconCornerDownLeft,
 	IconInfoCircle,
-	IconShieldOff,
-	IconUsers,
+	IconShieldCheck,
+	IconUsersGroup,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateVisibilitySettings } from "@/actions/visibility";
+import { useActionLoader } from "@/components/providers/action-loader-provider";
 import {
+	useGrants,
 	useVisibilitySettings,
 	visibilitySettingsKey,
 } from "@/hooks/use-visibility";
@@ -42,14 +44,20 @@ export function EnforcementSwitch({
 	onPendingChange?: (pending: boolean) => void;
 }) {
 	const { data } = useVisibilitySettings(orgId, currentUserId);
+	const {
+		data: grants,
+		isLoading: grantsLoading,
+		error: grantsError,
+	} = useGrants(orgId);
 	const { mutate } = useSWRConfig();
+	const { runAction } = useActionLoader();
 	const [busy, setBusy] = useState(false);
 	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	const loading = data === undefined;
 	const enabled = data?.visibility_enabled ?? false;
 	const key = visibilitySettingsKey(orgId);
-	const pending = loading || busy;
+	const pending = loading || grantsLoading || busy;
 
 	useEffect(() => {
 		onPendingChange?.(pending);
@@ -63,32 +71,32 @@ export function EnforcementSwitch({
 	async function applyToggle(next: boolean) {
 		setPending(true);
 		try {
-			await mutate(key, { visibility_enabled: next }, { revalidate: false });
-			const result = await updateVisibilitySettings(orgId, next);
-			if (!result.ok) {
-				await mutate(key);
-				toast.error(result.message || "Couldn't update enforcement");
-				return;
-			}
-			await mutate(
-				key,
-				{ visibility_enabled: result.data.visibility_enabled },
-				{ revalidate: false },
-			);
-			// Visible scope changes with enforcement — refresh any open preview reads.
-			await mutate(
-				(k) =>
-					typeof k === "string" &&
-					k.startsWith(`/orgs/${orgId}/visibility/preview`),
-			);
+			await runAction(async () => {
+				await mutate(key, { visibility_enabled: next }, { revalidate: false });
+				const result = await updateVisibilitySettings(orgId, next);
+				if (!result.ok) {
+					throw new Error(result.message || "Couldn't update enforcement");
+				}
+				await mutate(
+					key,
+					{ visibility_enabled: result.data.visibility_enabled },
+					{ revalidate: false },
+				);
+				// Visible scope changes with enforcement — refresh any open preview reads.
+				await mutate(
+					(k) =>
+						typeof k === "string" &&
+						k.startsWith(`/orgs/${orgId}/visibility/preview`),
+				);
+			});
 			toast.success(
-				next
-					? "Visibility enforcement enabled"
-					: "Visibility enforcement disabled",
+				next ? "Group access rules activated" : "Group access rules paused",
 			);
-		} catch {
+		} catch (error) {
 			await mutate(key).catch(() => {});
-			toast.error("Couldn't update enforcement");
+			toast.error(
+				error instanceof Error ? error.message : "Couldn't update enforcement",
+			);
 		} finally {
 			setPending(false);
 		}
@@ -98,12 +106,12 @@ export function EnforcementSwitch({
 		<div className="flex items-center justify-between gap-4 rounded-lg border p-4">
 			<div className="flex flex-col gap-1">
 				<span className="flex items-center gap-1.5 text-sm font-medium">
-					Visibility enforcement
+					Group access rules
 					<Tooltip>
 						<TooltipTrigger asChild>
 							<button
 								type="button"
-								aria-label="About visibility enforcement"
+								aria-label="About group access rules"
 								className="inline-flex items-center text-muted-foreground hover:text-foreground"
 							>
 								<IconInfoCircle className="size-3.5" />
@@ -115,62 +123,74 @@ export function EnforcementSwitch({
 							align="start"
 						>
 							<span>
-								<span className="font-medium text-foreground">On</span> —
-								members only see memories from groups they have access to.
+								<span className="font-medium text-foreground">On</span> — group
+								grants apply to private memories.
 							</span>
 							<span>
-								<span className="font-medium text-foreground">Off</span> —
-								everyone can read all private memories in the org.
+								<span className="font-medium text-foreground">Off</span> — group
+								grants are paused; members read their own private memories plus
+								org-shared content.
 							</span>
 						</TooltipContent>
 					</Tooltip>
 				</span>
 				<span className="text-sm text-muted-foreground">
-					Apply access rules to control who can read private memories.
+					Activate saved group grants for private memories.
 				</span>
 			</div>
 			<Switch
 				checked={enabled}
 				disabled={pending}
-				aria-label="Visibility enforcement"
+				aria-label="Group access rules"
 				onCheckedChange={(checked) => {
 					if (pending) return;
-					if (checked) applyToggle(true);
-					else setConfirmOpen(true);
+					if (checked) {
+						if (grantsError) {
+							toast.error(
+								"Couldn't verify saved rules. Refresh and try again.",
+							);
+							return;
+						}
+						if ((grants?.length ?? 0) > 0) {
+							setConfirmOpen(true);
+							return;
+						}
+						applyToggle(true);
+						return;
+					}
+					applyToggle(false);
 				}}
 			/>
 
 			<AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Disable visibility enforcement?</AlertDialogTitle>
+						<AlertDialogTitle>Activate group access rules?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This will broaden access to private memories until enforcement is
-							turned back on.
+							Saved rules will start granting access to private memories
+							immediately.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<div className="flex flex-col gap-2">
 						<div className="flex gap-3 rounded-lg border bg-muted/40 p-3">
-							<IconShieldOff className="mt-0.5 text-muted-foreground" />
+							<IconShieldCheck className="mt-0.5 text-muted-foreground" />
 							<div className="flex min-w-0 flex-col gap-1">
 								<span className="text-sm font-medium">
-									Access rules pause immediately
+									Saved grants become active
 								</span>
 								<span className="text-sm text-muted-foreground">
-									Groups and grants stay saved, but they will no longer limit
-									reads.
+									Private memories remain private by default, but group grants
+									can add readers.
 								</span>
 							</div>
 						</div>
 						<div className="flex gap-3 rounded-lg border bg-muted/40 p-3">
-							<IconUsers className="mt-0.5 text-muted-foreground" />
+							<IconUsersGroup className="mt-0.5 text-muted-foreground" />
 							<div className="flex min-w-0 flex-col gap-1">
-								<span className="text-sm font-medium">
-									Private memories may be visible org-wide
-								</span>
+								<span className="text-sm font-medium">Access may broaden</span>
 								<span className="text-sm text-muted-foreground">
-									Members can read using the broader org behavior until you
-									re-enable enforcement.
+									Members in viewer groups can read private memories owned by
+									subject groups, including transitive grants.
 								</span>
 							</div>
 						</div>
@@ -180,13 +200,12 @@ export function EnforcementSwitch({
 							Cancel <Kbd>Esc</Kbd>
 						</AlertDialogCancel>
 						<AlertDialogAction
-							variant="destructive"
 							onClick={() => {
 								setConfirmOpen(false);
-								applyToggle(false);
+								applyToggle(true);
 							}}
 						>
-							Disable enforcement{" "}
+							Activate rules{" "}
 							<Kbd>
 								<IconCornerDownLeft />
 							</Kbd>
