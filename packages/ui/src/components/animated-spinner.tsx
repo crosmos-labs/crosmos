@@ -16,7 +16,7 @@ function AnimatedSpinner({
 	name = "pulse",
 	size = "1.1em",
 	speed = DEFAULT_SPEED,
-	color = "var(--accent)",
+	color = "var(--primary)",
 	className,
 }: AnimatedSpinnerProps) {
 	return (

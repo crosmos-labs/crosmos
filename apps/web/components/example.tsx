@@ -156,7 +156,7 @@ export function Example() {
 									aria-selected={selected === tab.value}
 									aria-controls="tabpanel-example"
 									tabIndex={selected === tab.value ? 0 : -1}
-									className="flex-1 py-2 transition-colors duration-100 font-mono text-xs data-[state=active]:bg-accent data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+									className="flex-1 py-2 transition-colors duration-100 font-mono text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 									data-state={selected === tab.value ? "active" : "inactive"}
 									onClick={() => setSelected(tab.value)}
 									onKeyDown={handleKeyDown}

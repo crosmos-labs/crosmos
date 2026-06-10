@@ -551,7 +551,7 @@ export function Mtkg() {
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
 					{/* Left: content */}
 					<div>
-						<p className="text-accent font-mono font-bold uppercase mb-4">
+						<p className="text-primary font-mono font-bold uppercase mb-4">
 							[ Monotonic Temporal Knowledge Graph ]
 						</p>
 						<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground">
@@ -570,7 +570,7 @@ export function Mtkg() {
 							{POINTS.map(({ icon: Icon, title, description }) => (
 								<div key={title} className="flex gap-4">
 									<div className="flex-shrink-0 mt-0.5">
-										<Icon className="size-5 text-accent" />
+										<Icon className="size-5 text-primary" />
 									</div>
 									<div>
 										<h3 className="font-semibold text-foreground">{title}</h3>

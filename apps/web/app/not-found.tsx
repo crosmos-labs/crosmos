@@ -4,7 +4,7 @@ export default function NotFound() {
 	return (
 		<div className="min-h-dvh max-w-7xl flex-1 flex flex-col items-center justify-center mx-auto px-6 sm:px-6 lg:px-8">
 			<div className="flex flex-col justify-center py-12 sm:py-16 md:py-20 border-border gap-6">
-				<p className="font-mono text-2xl sm:text-3xl md:text-4xl text-accent text-end">
+				<p className="font-mono text-2xl sm:text-3xl md:text-4xl text-primary text-end">
 					{" "}
 					[ 404 ]
 				</p>
@@ -17,7 +17,7 @@ export default function NotFound() {
 					</p>
 					<Link
 						href="/"
-						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground active:not-aria-[haspopup]:translate-y-px"
+						className="hover:bg-primary/90 bg-primary px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground active:not-aria-[haspopup]:translate-y-px"
 					>
 						Go Home
 					</Link>

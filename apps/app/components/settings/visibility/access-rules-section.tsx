@@ -1,6 +1,17 @@
 "use client";
 
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@crosmos/ui/components/alert-dialog";
 import { Button } from "@crosmos/ui/components/button";
+import { Kbd } from "@crosmos/ui/components/kbd";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import {
 	Table,
@@ -17,6 +28,7 @@ import {
 } from "@crosmos/ui/components/tooltip";
 import { cn } from "@crosmos/ui/lib/utils";
 import {
+	IconCornerDownLeft,
 	IconInfoCircle,
 	IconPlus,
 	IconTrash,
@@ -45,9 +57,11 @@ function isOptimisticGrant(grant: VisibilityGrant) {
 export function AccessRulesSection({
 	orgId,
 	disabled = false,
+	rulesEnabled,
 }: {
 	orgId: string;
 	disabled?: boolean;
+	rulesEnabled: boolean;
 }) {
 	const { data: grants, isLoading, error } = useGrants(orgId);
 	const { data: groups } = useGroups(orgId);
@@ -55,10 +69,12 @@ export function AccessRulesSection({
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 	const [addOpen, setAddOpen] = useState(false);
+	const [deleteTarget, setDeleteTarget] = useState<VisibilityGrant | null>(
+		null,
+	);
 	const actionBusy = activeCount > 0;
 	const effectiveDisabled = disabled || actionBusy;
 
-	// Prefer group names over slugs for the sentence; fall back to the slug.
 	const nameById = useMemo(() => {
 		const map = new Map<string, string>();
 		for (const g of groups ?? []) map.set(g.id, g.name);
@@ -183,7 +199,7 @@ export function AccessRulesSection({
 														<IconUsersGroup className="size-3.5 shrink-0 text-muted-foreground" />
 														{subject}
 													</span>
-													.
+													, including users reachable through downstream grants.
 												</TooltipContent>
 											</Tooltip>
 										</span>
@@ -195,7 +211,7 @@ export function AccessRulesSection({
 												size="icon-sm"
 												aria-label="Remove rule"
 												disabled={effectiveDisabled}
-												onClick={() => handleDelete(grant)}
+												onClick={() => setDeleteTarget(grant)}
 											>
 												<IconTrash />
 											</Button>
@@ -212,10 +228,58 @@ export function AccessRulesSection({
 				orgId={orgId}
 				groups={groups ?? []}
 				grants={grants ?? []}
+				rulesEnabled={rulesEnabled}
 				open={addOpen}
 				onOpenChange={setAddOpen}
 				disabled={effectiveDisabled}
 			/>
+
+			<AlertDialog
+				open={deleteTarget !== null}
+				onOpenChange={(open) => {
+					if (!open) setDeleteTarget(null);
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Remove access rule?</AlertDialogTitle>
+						<AlertDialogDescription>
+							<strong>
+								{deleteTarget
+									? (nameById.get(deleteTarget.viewer_group_id) ??
+										deleteTarget.viewer_group_slug)
+									: ""}
+							</strong>{" "}
+							will no longer be able to read{" "}
+							<strong>
+								{deleteTarget
+									? (nameById.get(deleteTarget.subject_group_id) ??
+										deleteTarget.subject_group_slug)
+									: ""}
+							</strong>
+							's private memories. This can't be undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel variant="ghost">
+							Cancel <Kbd>Esc</Kbd>
+						</AlertDialogCancel>
+						<AlertDialogAction
+							variant="destructive"
+							disabled={effectiveDisabled}
+							onClick={() => {
+								if (deleteTarget) handleDelete(deleteTarget);
+								setDeleteTarget(null);
+							}}
+						>
+							Remove{" "}
+							<Kbd>
+								<IconCornerDownLeft />
+							</Kbd>
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</section>
 	);
 }

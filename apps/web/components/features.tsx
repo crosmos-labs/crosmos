@@ -925,8 +925,8 @@ function FeatureCard({
 	const { Visual } = feature;
 	return (
 		<div className="group relative flex flex-col bg-background hover:bg-card/50 transition-colors duration-200">
-			<div className="relative aspect-[16/9] w-full overflow-hidden text-accent">
-				<span className="absolute top-4 right-4 z-[1] font-mono text-[10px] tracking-widest text-accent/80">
+			<div className="relative aspect-[16/9] w-full overflow-hidden text-primary">
+				<span className="absolute top-4 right-4 z-[1] font-mono text-[10px] tracking-widest text-primary/80">
 					{feature.num}
 				</span>
 				<svg
@@ -968,7 +968,7 @@ export function Features() {
 			className="relative px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
 		>
 			<div className="max-w-7xl mx-auto">
-				<p className="text-accent font-mono font-bold uppercase text-center mb-4">
+				<p className="text-primary font-mono font-bold uppercase text-center mb-4">
 					[ Core Features ]
 				</p>
 				<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-10 sm:mb-16 lg:mb-20 text-center">
