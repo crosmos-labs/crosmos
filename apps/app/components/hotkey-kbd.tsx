@@ -16,7 +16,7 @@ export function HotkeyKbd() {
 
 	return (
 		<Kbd>
-			{!isMac ? <IconCommand /> : <span>Ctrl</span>}
+			{isMac ? <IconCommand /> : <span>Ctrl</span>}
 			<span>K</span>
 		</Kbd>
 	);
