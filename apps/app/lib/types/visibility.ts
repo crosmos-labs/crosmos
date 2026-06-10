@@ -36,6 +36,12 @@ export interface VisibilityPreview {
 	visible_users: VisiblePrincipal[];
 }
 
+export interface VisibilityGrantImpact {
+	viewer_group_id: string;
+	subject_group_id: string;
+	newly_visible: VisiblePrincipal[];
+}
+
 export interface VisibilitySettings {
 	visibility_enabled: boolean;
 }
