@@ -95,10 +95,19 @@ export function AddRuleDialog({
 		return set;
 	}, [grants]);
 
-	const pairInvalid =
-		!!viewerId &&
-		!!subjectId &&
-		(viewerId === subjectId || alreadyGranted.has(`${viewerId}:${subjectId}`));
+	// Block self / duplicate / direct inverse up front; transitive cycles are
+	// left to the server.
+	type PairStatus = "ok" | "self" | "duplicate" | "inverse";
+	function pairState(viewer: string, subject: string): PairStatus {
+		if (!viewer || !subject) return "ok";
+		if (viewer === subject) return "self";
+		if (alreadyGranted.has(`${viewer}:${subject}`)) return "duplicate";
+		if (alreadyGranted.has(`${subject}:${viewer}`)) return "inverse";
+		return "ok";
+	}
+
+	const pairStatus = pairState(viewerId, subjectId);
+	const pairInvalid = !!viewerId && !!subjectId && pairStatus !== "ok";
 
 	const {
 		data: impact,
@@ -120,14 +129,10 @@ export function AddRuleDialog({
 	function isAllowed(slot: SlotKey, groupId: string): boolean {
 		if (slot === "viewer") {
 			if (!subjectId) return true;
-			return (
-				groupId !== subjectId && !alreadyGranted.has(`${groupId}:${subjectId}`)
-			);
+			return pairState(groupId, subjectId) === "ok";
 		}
 		if (!viewerId) return true;
-		return (
-			groupId !== viewerId && !alreadyGranted.has(`${viewerId}:${groupId}`)
-		);
+		return pairState(viewerId, groupId) === "ok";
 	}
 
 	function isChipBlocked(groupId: string): boolean {
@@ -293,6 +298,13 @@ export function AddRuleDialog({
 		});
 	}
 
+	const impactErrorCode =
+		impactError && typeof impactError === "object" && "code" in impactError
+			? (impactError as { code?: unknown }).code
+			: null;
+	// Transitive cycles surface from the preview call, not the pair check.
+	const impactCycle = impactErrorCode === "grant_cycle";
+
 	const bothFilled = !!viewerId && !!subjectId;
 	const impactReady = bothFilled && !pairInvalid;
 	const canCreate =
@@ -443,11 +455,13 @@ export function AddRuleDialog({
 							{pairInvalid ? (
 								<Alert variant="destructive">
 									<IconAlertTriangle />
-									<AlertTitle>Pick two different groups</AlertTitle>
+									<AlertTitle>Can't add this rule</AlertTitle>
 									<AlertDescription>
-										{viewerId === subjectId
-											? "A group already sees its own members."
-											: "That rule already exists."}
+										{pairStatus === "self"
+											? "A group can't read its own members."
+											: pairStatus === "duplicate"
+												? "That rule already exists."
+												: `${subjectName} can already read ${viewerName}, so the reverse would create a cycle.`}
 									</AlertDescription>
 								</Alert>
 							) : !impactReady ? (
@@ -477,6 +491,16 @@ export function AddRuleDialog({
 										))}
 									</div>
 								</div>
+							) : impactCycle ? (
+								<Alert variant="destructive">
+									<IconAlertTriangle />
+									<AlertTitle>Can't add this rule</AlertTitle>
+									<AlertDescription>
+										This would create a circular access rule — {viewerName} can
+										already be reached from {subjectName} through existing
+										grants.
+									</AlertDescription>
+								</Alert>
 							) : impactError ? (
 								<Alert variant="destructive">
 									<IconAlertTriangle />
