@@ -166,7 +166,7 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 					<Button
 						asChild
 						size="lg"
-						className="bg-accent rounded hover:bg-accent/90 w-full"
+						className="bg-primary rounded hover:bg-primary/90 w-full"
 					>
 						<a href={plan.link} target="_blank" rel="noopener noreferrer">
 							{plan.buttonText}
@@ -177,7 +177,7 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 						disabled
 						size="lg"
 						className={cn(
-							"bg-accent rounded hover:bg-accent/90 w-full",
+							"bg-primary rounded hover:bg-primary/90 w-full",
 							plan.id === "enterprise" && "lg:w-1/3",
 						)}
 					>
@@ -218,7 +218,7 @@ export function Pricing() {
 		>
 			<div className="flex flex-col items-center justify-center max-w-7xl mx-auto w-full">
 				<div className="flex flex-col items-center text-center max-w-2xl mx-auto">
-					<p className="text-accent font-mono font-bold uppercase text-center mb-4">
+					<p className="text-primary font-mono font-bold uppercase text-center mb-4">
 						[ Pricing ]
 					</p>
 					<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">

@@ -77,7 +77,7 @@ export function Navbar() {
 						target="_blank"
 						rel="noopener noreferrer"
 						aria-label="GitHub (opens in new tab)"
-						className="p-2 text-foreground/90 hover:text-accent transition-colors rounded hover:bg-secondary/20 select-none inline-flex items-center"
+						className="p-2 text-foreground/90 hover:text-primary transition-colors rounded hover:bg-secondary/20 select-none inline-flex items-center"
 					>
 						<IconBrandGithubFilled size={16} />
 					</Link>
@@ -96,7 +96,7 @@ export function Navbar() {
 						href={LINKS.product.console}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="hover:bg-accent/90 bg-accent px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground select-none"
+						className="hover:bg-primary/90 bg-primary px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground select-none"
 					>
 						Get Started
 					</Link>
