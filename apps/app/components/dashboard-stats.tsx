@@ -8,6 +8,7 @@ import {
 } from "@crosmos/ui/components/card";
 import { Progress } from "@crosmos/ui/components/progress";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
+import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconArrowRight,
 	IconCreditCard,
@@ -19,6 +20,7 @@ import Link from "next/link";
 import { useApiKeys } from "@/hooks/use-api-keys";
 import { useSpaces } from "@/hooks/use-spaces";
 import { useUsage } from "@/hooks/use-usage";
+import { usageProgressClass, usageTone } from "@/lib/usage-progress";
 
 function formatNumber(n: number): string {
 	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -64,7 +66,13 @@ function StatCard({
 						{subtitle ?? "\u00A0"}
 					</span>
 					{progress !== undefined && (
-						<Progress value={progress} className="h-1.5" />
+						<Progress
+							value={progress}
+							className={cn(
+								"h-1.5",
+								usageProgressClass(usageTone(progress / 100)),
+							)}
+						/>
 					)}
 				</CardContent>
 			</Card>

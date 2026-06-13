@@ -2,9 +2,14 @@
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { formatNumber } from "@/lib/format";
+import {
+	type UsageTone,
+	usageBarClass,
+	usageTextClass,
+	usageTone,
+} from "@/lib/usage-progress";
 
-type Tone = "neutral" | "warn" | "over";
-type Pace = { text: string; tone: Tone; predictedFraction: number | null };
+type Pace = { text: string; tone: UsageTone; predictedFraction: number | null };
 
 function computePace(
 	used: number,
@@ -42,30 +47,6 @@ function computePace(
 	};
 }
 
-function usageTone(fraction: number): Tone {
-	if (fraction >= 0.9) return "over";
-
-	if (fraction >= 0.7) return "warn";
-
-	return "neutral";
-}
-
-function barClass(tone: Tone): string {
-	return tone === "over"
-		? "bg-destructive"
-		: tone === "warn"
-			? "bg-amber-500"
-			: "bg-primary";
-}
-
-function textClass(tone: Tone): string {
-	return tone === "over"
-		? "text-destructive"
-		: tone === "warn"
-			? "text-amber-500"
-			: "text-muted-foreground";
-}
-
 export function UsageMeter({
 	label,
 	used,
@@ -92,7 +73,7 @@ export function UsageMeter({
 					<span className="text-sm text-muted-foreground">{percentage}%</span>
 				</div>
 				{pace.text && (
-					<span className={cn("text-xs", textClass(pace.tone))}>
+					<span className={cn("text-xs", usageTextClass(pace.tone))}>
 						{pace.text}
 					</span>
 				)}
@@ -115,7 +96,7 @@ export function UsageMeter({
 					<div
 						className={cn(
 							"absolute inset-y-0 left-0 rounded-full",
-							barClass(actualTone),
+							usageBarClass(actualTone),
 						)}
 						style={{ width: `${fraction * 100}%` }}
 					/>
