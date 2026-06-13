@@ -4,6 +4,7 @@ import type { ContentTypeStr, ExtractionStatus } from "@/lib/types/source";
 export const CONTENT_TYPE_VALUES: ContentTypeStr[] = [
 	"text",
 	"markdown",
+	"conversation",
 	"pdf",
 	"image",
 	"audio",

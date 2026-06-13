@@ -30,6 +30,7 @@ import type { Space } from "@/lib/types/space";
 const CONTENT_TYPE_LABELS: Record<ContentTypeStr, string> = {
 	text: "Text",
 	markdown: "Markdown",
+	conversation: "Conversation",
 	pdf: "PDF",
 	image: "Image",
 	audio: "Audio",
