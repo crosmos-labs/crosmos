@@ -5,6 +5,7 @@ import {
 	type TokenResponse,
 	toAuthUser,
 } from "@/lib/types/auth";
+import type { ActiveOrgSummary } from "@/lib/types/org";
 import {
 	clearAuthCookies,
 	getAccessToken,
@@ -15,6 +16,10 @@ import {
 } from "./cookies";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+interface OrgListFallbackResponse {
+	orgs: Array<ActiveOrgSummary & { created_at?: string }>;
+}
 
 /**
  * Holds the in-flight refresh promise so concurrent callers deduplicate
@@ -89,7 +94,7 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 		});
 
 		if (res.ok) {
-			return toAuthUser(await res.json());
+			return withActiveOrgFallback(toAuthUser(await res.json()), accessToken);
 		}
 
 		if (res.status === 401 && !refreshedAtStart) {
@@ -102,10 +107,61 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 			});
 
 			if (retryRes.ok) {
-				return toAuthUser(await retryRes.json());
+				return withActiveOrgFallback(
+					toAuthUser(await retryRes.json()),
+					refreshed.access_token,
+				);
 			}
 		}
 		return null;
+	} catch {
+		return null;
+	}
+}
+
+async function withActiveOrgFallback(
+	user: AuthUser,
+	accessToken: string,
+): Promise<AuthUser> {
+	if (user.active_org || user.active_org_id) return user;
+
+	// TODO: remove this fallback after production backend is synced with the
+	// /auth/me contract that returns user_id and org details.
+	const activeOrg = await resolveActiveOrgFromOrgs(accessToken);
+	if (!activeOrg) return user;
+
+	return {
+		...user,
+		active_org_id: activeOrg.id,
+		active_org: activeOrg,
+	};
+}
+
+async function resolveActiveOrgFromOrgs(
+	accessToken: string,
+): Promise<ActiveOrgSummary | null> {
+	const activeOrgId = await getActiveOrgId();
+
+	try {
+		const res = await fetch(`${API_URL}/orgs`, {
+			headers: { Authorization: `Bearer ${accessToken}` },
+			cache: "no-store",
+		});
+
+		if (!res.ok) return null;
+
+		const data = (await res.json()) as OrgListFallbackResponse;
+		const org =
+			data.orgs.find((item) => item.id === activeOrgId) ?? data.orgs[0] ?? null;
+
+		if (!org) return null;
+
+		return {
+			id: org.id,
+			slug: org.slug,
+			name: org.name,
+			your_role: org.your_role,
+		};
 	} catch {
 		return null;
 	}
