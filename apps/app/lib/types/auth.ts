@@ -1,10 +1,11 @@
-import type { OrgRole } from "@/lib/types/org";
+import type { ActiveOrgSummary, OrgRole } from "@/lib/types/org";
 
 export interface AuthUser {
 	user_id: string;
 	email: string;
 	name: string;
 	active_org_id?: string | null;
+	active_org?: ActiveOrgSummary | null;
 }
 
 // Backend `GET /auth/me` shape; mapped to AuthUser via `toAuthUser`.
@@ -26,6 +27,14 @@ export function toAuthUser(me: MeResponse): AuthUser {
 		email: me.email,
 		name: me.name,
 		active_org_id: me.org?.id ?? null,
+		active_org: me.org
+			? {
+					id: me.org.id,
+					slug: me.org.slug,
+					name: me.org.name,
+					your_role: me.org.role,
+				}
+			: null,
 	};
 }
 

@@ -22,21 +22,23 @@ import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { setActiveOrg } from "@/actions/auth";
 import { OrgAvatar } from "@/components/org-avatar";
+import { orgsKey, useOrgs } from "@/hooks/use-orgs";
 import { getOrgSwitchFallbackPath } from "@/lib/org-switch-routes";
-import type { OrgDetailResponse } from "@/lib/types/org";
+import type { ActiveOrgSummary, OrgDetailResponse } from "@/lib/types/org";
 
-export function OrgSwitcher({
-	orgs,
-	activeOrg,
-}: {
-	orgs: OrgDetailResponse[];
-	activeOrg: OrgDetailResponse;
-}) {
+function hasPlan(
+	org: ActiveOrgSummary | OrgDetailResponse,
+): org is OrgDetailResponse {
+	return "plan" in org;
+}
+
+export function OrgSwitcher({ activeOrg }: { activeOrg: ActiveOrgSummary }) {
 	const { isMobile, state } = useSidebar();
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "bottom";
 	const router = useRouter();
 	const pathname = usePathname();
 	const { mutate } = useSWRConfig();
+	const { data: orgs, error: orgsError, isLoading: orgsLoading } = useOrgs();
 	const [open, setOpen] = useState(false);
 	const [switchingId, setSwitchingId] = useState<string | null>(null);
 	const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -60,6 +62,7 @@ export function OrgSwitcher({
 			// Refresh the client-side auth cache under the newly minted token.
 			// Org-scoped data keys include active_org_id, so they update when this lands.
 			await mutate("/auth/me");
+			await mutate(orgsKey);
 			const fallbackPath = getOrgSwitchFallbackPath(pathname);
 			if (fallbackPath) {
 				router.replace(fallbackPath);
@@ -74,11 +77,16 @@ export function OrgSwitcher({
 	}
 
 	const switching = switchingId !== null;
+	const currentActiveOrg =
+		orgs?.find((org) => org.id === activeOrg.id) ?? activeOrg;
 	// Optimistically show the target org in the trigger the moment it's clicked,
 	// muted until the switch lands (real activeOrg catches up).
 	const displayOrg = switchingId
-		? (orgs.find((o) => o.id === switchingId) ?? activeOrg)
-		: activeOrg;
+		? (orgs?.find((o) => o.id === switchingId) ?? currentActiveOrg)
+		: currentActiveOrg;
+	const orgItems = orgs ?? [currentActiveOrg];
+	const orgListUnavailable = Boolean(orgsError);
+	const canSelectOrgs = !switching && !orgsLoading && !orgListUnavailable;
 
 	return (
 		<SidebarMenuItem>
@@ -125,14 +133,14 @@ export function OrgSwitcher({
 					}}
 				>
 					<DropdownMenuGroup>
-						{orgs.map((org) => {
+						{orgItems.map((org) => {
 							// The selection follows the optimistic target while switching.
 							const isSelected = org.id === (switchingId ?? activeOrg.id);
 							const isSwitching = switchingId === org.id;
 							return (
 								<DropdownMenuItem
 									key={org.id}
-									disabled={switching}
+									disabled={!canSelectOrgs}
 									onPointerDown={() => {
 										pointerSelectionRef.current = true;
 									}}
@@ -151,12 +159,14 @@ export function OrgSwitcher({
 										</span>
 										<span className="flex items-center gap-1.5 text-xs text-muted-foreground">
 											{org.slug}
-											<Badge
-												variant="outline"
-												className="text-[10px] px-1 py-0 h-4"
-											>
-												{org.plan}
-											</Badge>
+											{hasPlan(org) && (
+												<Badge
+													variant="outline"
+													className="text-[10px] px-1 py-0 h-4"
+												>
+													{org.plan}
+												</Badge>
+											)}
 										</span>
 									</div>
 									{isSelected && <IconCheck className="size-4 shrink-0" />}
@@ -164,6 +174,14 @@ export function OrgSwitcher({
 							);
 						})}
 					</DropdownMenuGroup>
+					{orgListUnavailable && (
+						<>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem disabled className="py-2.5 px-3 text-xs">
+								Couldn't load organizations
+							</DropdownMenuItem>
+						</>
+					)}
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
 						disabled

@@ -101,6 +101,12 @@ describe("token lifecycle", () => {
 
 		// Valid token → /auth/me once, no refresh, no cookie writes attempted.
 		expect(user).not.toBeNull();
+		expect(user?.active_org).toEqual({
+			id: "org1",
+			slug: "test",
+			name: "Test Org",
+			your_role: "owner",
+		});
 		expect(backend.count("/auth/me")).toBe(1);
 		expect(backend.count("/auth/refresh")).toBe(0);
 		expect(store.writeThrew).toBe(0);

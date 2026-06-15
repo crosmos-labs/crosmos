@@ -13,6 +13,13 @@ export interface OrgDetailResponse extends OrgResponse {
 	your_role: "owner" | "admin" | "member";
 }
 
+export interface ActiveOrgSummary {
+	id: string;
+	slug: string;
+	name: string;
+	your_role: "owner" | "admin" | "member";
+}
+
 export interface OrgListResponse {
 	orgs: OrgDetailResponse[];
 	next_cursor: string | null;

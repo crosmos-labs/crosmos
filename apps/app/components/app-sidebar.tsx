@@ -54,7 +54,7 @@ import {
 import { externalItems, homeItem, navGroups } from "@/config/nav";
 import { clearCache } from "@/hooks/use-clear-cache";
 import type { AuthUser } from "@/lib/types/auth";
-import type { OrgDetailResponse } from "@/lib/types/org";
+import type { ActiveOrgSummary } from "@/lib/types/org";
 
 function isNavItemActive(pathname: string, href: string) {
 	// Home matches only its exact path; every other item also matches its
@@ -73,12 +73,10 @@ function getInitials(name: string) {
 
 export function AppSidebar({
 	user,
-	orgs,
 	activeOrg,
 }: {
 	user: AuthUser;
-	orgs: OrgDetailResponse[];
-	activeOrg: OrgDetailResponse;
+	activeOrg: ActiveOrgSummary;
 }) {
 	const pathname = usePathname();
 	const router = useRouter();
@@ -92,7 +90,7 @@ export function AppSidebar({
 		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
 				<SidebarMenu>
-					<OrgSwitcher orgs={orgs} activeOrg={activeOrg} />
+					<OrgSwitcher activeOrg={activeOrg} />
 				</SidebarMenu>
 			</SidebarHeader>
 
