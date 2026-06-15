@@ -18,9 +18,9 @@ import { useActionLoaderState } from "@/components/providers/action-loader-provi
 import { AccessRulesSection } from "@/components/settings/visibility/access-rules-section";
 import { EnforcementSwitch } from "@/components/settings/visibility/enforcement-switch";
 import { GroupsSection } from "@/components/settings/visibility/groups-section";
-import { PreviewSheet } from "@/components/settings/visibility/preview-sheet";
+import { MemberPreview } from "@/components/settings/visibility/member-preview";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useGroups } from "@/hooks/use-visibility";
+import { useGroups, useVisibilitySettings } from "@/hooks/use-visibility";
 import { isOrgScopeMismatch } from "@/lib/org-mismatch";
 
 export function VisibilitySettings() {
@@ -31,6 +31,10 @@ export function VisibilitySettings() {
 	const { activeCount } = useActionLoaderState();
 	const actionBusy = activeCount > 0;
 	const disabled = enforcementPending || actionBusy;
+	const { data: visibilitySettings } = useVisibilitySettings(
+		orgId,
+		currentUserId,
+	);
 
 	// Observe one org-scoped read to detect a stale active org (SWR shares the
 	// cache with GroupsSection, so this doesn't double-fetch).
@@ -65,26 +69,29 @@ export function VisibilitySettings() {
 				onPendingChange={setEnforcementPending}
 			/>
 
+			<MemberPreview orgId={orgId} disabled={disabled} />
+
 			<Tabs defaultValue="groups" className="gap-6">
-				<div className="flex flex-wrap items-center justify-between gap-3">
-					<TabsList variant="line">
-						<TabsTrigger value="groups" disabled={disabled}>
-							<IconUsersGroup />
-							Groups
-						</TabsTrigger>
-						<TabsTrigger value="access-rules" disabled={disabled}>
-							<IconShieldLock />
-							Access rules
-						</TabsTrigger>
-					</TabsList>
-					<PreviewSheet key={orgId} orgId={orgId} disabled={disabled} />
-				</div>
+				<TabsList variant="line">
+					<TabsTrigger value="groups" disabled={disabled}>
+						<IconUsersGroup />
+						Groups
+					</TabsTrigger>
+					<TabsTrigger value="access-rules" disabled={disabled}>
+						<IconShieldLock />
+						Access rules
+					</TabsTrigger>
+				</TabsList>
 
 				<TabsContent value="groups">
 					<GroupsSection orgId={orgId} disabled={disabled} />
 				</TabsContent>
 				<TabsContent value="access-rules">
-					<AccessRulesSection orgId={orgId} disabled={disabled} />
+					<AccessRulesSection
+						orgId={orgId}
+						disabled={disabled}
+						rulesEnabled={visibilitySettings?.visibility_enabled ?? false}
+					/>
 				</TabsContent>
 			</Tabs>
 		</div>

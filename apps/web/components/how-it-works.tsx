@@ -238,7 +238,7 @@ export function HowItWorks() {
 			className="relative px-6 lg:px-8 xl:px-0 py-16 sm:py-20 lg:py-24"
 		>
 			<div className="max-w-7xl mx-auto" ref={sectionRef}>
-				<p className="text-accent font-mono font-bold uppercase text-center mb-4">
+				<p className="text-primary font-mono font-bold uppercase text-center mb-4">
 					[ How It Works ]
 				</p>
 				<h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-12 sm:mb-14 lg:mb-16">
@@ -258,7 +258,7 @@ export function HowItWorks() {
 								key={s.number}
 								className={cn(
 									"flex-1 text-center cursor-pointer bg-transparent border-none",
-									"focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 rounded-sm",
+									"focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 rounded-sm",
 								)}
 								onClick={() => goToStep(i)}
 							>
@@ -266,7 +266,7 @@ export function HowItWorks() {
 									<span
 										className={cn(
 											"font-mono text-xs font-bold transition-colors duration-300",
-											i === activeStep ? "text-accent" : "text-foreground/25",
+											i === activeStep ? "text-primary" : "text-foreground/25",
 										)}
 									>
 										{s.number}
@@ -286,7 +286,7 @@ export function HowItWorks() {
 									{i === activeStep && started && (
 										<motion.div
 											key={progressKey}
-											className="absolute inset-0 bg-accent"
+											className="absolute inset-0 bg-primary"
 											style={{ originX: 0 }}
 											initial={{ scaleX: 0 }}
 											animate={{ scaleX: 1 }}

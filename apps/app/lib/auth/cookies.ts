@@ -1,20 +1,16 @@
 import "server-only";
 import { cookies } from "next/headers";
-
-const ACCESS_TOKEN_COOKIE = "access_token";
-const REFRESH_TOKEN_COOKIE = "refresh_token";
-const OAUTH_STATE_COOKIE = "oauth_state";
-const ACTIVE_ORG_COOKIE = "active_org_id";
-const INVITE_TOKEN_COOKIE = "invite_token";
-
-const ACCESS_TOKEN_MAX_AGE = 7 * 24 * 60 * 60;
-
-const COOKIE_OPTIONS = {
-	httpOnly: true,
-	secure: process.env.NODE_ENV === "production",
-	sameSite: "lax" as const,
-	path: "/",
-};
+import {
+	ACCESS_TOKEN_COOKIE,
+	ACCESS_TOKEN_MAX_AGE,
+	ACTIVE_ORG_COOKIE,
+	ACTIVE_ORG_MAX_AGE,
+	COOKIE_OPTIONS,
+	INVITE_TOKEN_COOKIE,
+	OAUTH_STATE_COOKIE,
+	REFRESH_TOKEN_COOKIE,
+	REFRESH_TOKEN_MAX_AGE,
+} from "./cookie-config";
 
 export async function setAuthCookies(
 	accessToken: string,
@@ -29,7 +25,7 @@ export async function setAuthCookies(
 
 	cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, {
 		...COOKIE_OPTIONS,
-		maxAge: 30 * 24 * 60 * 60,
+		maxAge: REFRESH_TOKEN_MAX_AGE,
 	});
 }
 
@@ -84,7 +80,7 @@ export async function setActiveOrgCookie(orgId: string) {
 	const cookieStore = await cookies();
 	cookieStore.set(ACTIVE_ORG_COOKIE, orgId, {
 		...COOKIE_OPTIONS,
-		maxAge: 365 * 24 * 60 * 60,
+		maxAge: ACTIVE_ORG_MAX_AGE,
 	});
 }
 

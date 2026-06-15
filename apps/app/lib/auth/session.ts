@@ -1,6 +1,10 @@
 import "server-only";
 
-import type { AuthUser, TokenResponse } from "@/lib/types/auth";
+import {
+	type AuthUser,
+	type TokenResponse,
+	toAuthUser,
+} from "@/lib/types/auth";
 import {
 	clearAuthCookies,
 	getAccessToken,
@@ -49,8 +53,6 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 
 			const data = (await res.json()) as TokenResponse;
 			await setAuthCookies(data.access_token, data.refresh_token);
-			// Keep the cookie aligned with the re-minted token's claim (the hint
-			// is ignored if the user is no longer a member of that org).
 			if (data.active_org_id != null) {
 				await setActiveOrgCookie(data.active_org_id);
 			}
@@ -69,24 +71,16 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 }
 
 export async function verifyAuth(): Promise<AuthUser | null> {
-	const accessToken = await getAccessToken();
-	if (!accessToken || !API_URL) return null;
+	if (!API_URL) return null;
 
-	const activeOrgId = await getActiveOrgId();
-
-	const toAuthUser = (
-		raw: {
-			user_id: string;
-			email: string;
-			name: string;
-		},
-		activeOrgId: string | null,
-	): AuthUser => ({
-		user_id: raw.user_id,
-		email: raw.email,
-		name: raw.name,
-		active_org_id: activeOrgId,
-	});
+	let accessToken = await getAccessToken();
+	let refreshedAtStart = false;
+	if (!accessToken) {
+		const refreshed = await refreshTokens();
+		if (!refreshed) return null;
+		accessToken = refreshed.access_token;
+		refreshedAtStart = true;
+	}
 
 	try {
 		const res = await fetch(`${API_URL}/auth/me`, {
@@ -95,10 +89,10 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 		});
 
 		if (res.ok) {
-			return toAuthUser(await res.json(), activeOrgId);
+			return toAuthUser(await res.json());
 		}
 
-		if (res.status === 401) {
+		if (res.status === 401 && !refreshedAtStart) {
 			const refreshed = await refreshTokens();
 			if (!refreshed) return null;
 
@@ -108,10 +102,9 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 			});
 
 			if (retryRes.ok) {
-				return toAuthUser(await retryRes.json(), await getActiveOrgId());
+				return toAuthUser(await retryRes.json());
 			}
 		}
-
 		return null;
 	} catch {
 		return null;

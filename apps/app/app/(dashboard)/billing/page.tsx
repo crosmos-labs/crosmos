@@ -10,18 +10,14 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
-import { Progress } from "@crosmos/ui/components/progress";
 import { useSWRConfig } from "swr";
+import { SpacesMeter } from "@/components/billing/spaces-meter";
+import { UsageMeter } from "@/components/billing/usage-meter";
 import { BillingSkeleton } from "@/components/billing-skeleton";
 import { DataFetchError } from "@/components/data-fetch-error";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { usageKey, useUsage } from "@/hooks/use-usage";
-
-function formatNumber(n: number): string {
-	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-	if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K`;
-	return n.toLocaleString();
-}
+import { formatNumber } from "@/lib/format";
 
 function capitalize(s: string): string {
 	return s.charAt(0).toUpperCase() + s.slice(1);
@@ -33,42 +29,6 @@ function formatDate(iso: string): string {
 		day: "numeric",
 		year: "numeric",
 	});
-}
-
-function UsageRow({
-	label,
-	used,
-	limit,
-	description,
-}: {
-	label: string;
-	used: number;
-	limit: number;
-	description?: string;
-}) {
-	const percentage = Math.min(Math.round((used / limit) * 100), 100);
-
-	return (
-		<div>
-			<div className="flex items-center justify-between">
-				<div className="flex flex-col gap-0.5">
-					<span className="text-sm font-medium">{label}</span>
-					{description && (
-						<span className="text-xs text-muted-foreground">{description}</span>
-					)}
-				</div>
-				<div className="flex items-center gap-3 font-mono">
-					<span className="text-sm text-foreground">
-						{formatNumber(used)} / {formatNumber(limit)}
-					</span>
-					<span className="text-sm text-muted-foreground">
-						[ {percentage} % ]
-					</span>
-				</div>
-			</div>
-			<Progress value={percentage} className="mt-2 h-2" />
-		</div>
-	);
 }
 
 export default function BillingPage() {
@@ -131,27 +91,30 @@ export default function BillingPage() {
 								{periodLabel ? ` (${periodLabel})` : ""}.
 							</p>
 						</div>
-						<div className="flex flex-col gap-6">
-							{data && (
-								<>
-									<UsageRow
-										label="Tokens Ingested"
+						{data && (
+							<div className="flex flex-col gap-4">
+								<div className="grid gap-4 sm:grid-cols-2">
+									<UsageMeter
+										label="Tokens ingested"
 										used={data.tokens.used}
 										limit={data.tokens.limit}
+										periodStart={data.period_start}
+										periodEnd={data.period_end}
 									/>
-									<UsageRow
-										label="Search Queries"
+									<UsageMeter
+										label="Search queries"
 										used={data.queries.used}
 										limit={data.queries.limit}
+										periodStart={data.period_start}
+										periodEnd={data.period_end}
 									/>
-									<UsageRow
-										label="Spaces"
-										used={data.spaces.used}
-										limit={data.spaces.limit}
-									/>
-								</>
-							)}
-						</div>
+								</div>
+								<SpacesMeter
+									used={data.spaces.used}
+									limit={data.spaces.limit}
+								/>
+							</div>
+						)}
 					</div>
 				</>
 			)}

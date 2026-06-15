@@ -10,6 +10,7 @@ import {
 import type {
 	GroupMember,
 	VisibilityGrant,
+	VisibilityGrantImpact,
 	VisibilityGroup,
 	VisibilityPreview,
 	VisibilitySettings,
@@ -158,6 +159,30 @@ export async function deleteGrant(
 	assertFeatureEnabled(isVisibilityDisabled, "Visibility");
 
 	await apiFetch(`${base(orgId)}/grants/${grantId}`, { method: "DELETE" });
+}
+
+export async function previewGrantImpact(
+	orgId: string,
+	viewerGroupId: string,
+	subjectGroupId: string,
+): Promise<ActionResult<VisibilityGrantImpact>> {
+	if (isVisibilityDisabled) return disabledFeatureResult("Visibility");
+
+	try {
+		const data = await apiFetch<VisibilityGrantImpact>(
+			`${base(orgId)}/grants/preview`,
+			{
+				method: "POST",
+				body: JSON.stringify({
+					viewer_group_id: viewerGroupId,
+					subject_group_id: subjectGroupId,
+				}),
+			},
+		);
+		return { ok: true, data };
+	} catch (err) {
+		return toActionError(err);
+	}
 }
 
 // --- Preview & settings ---

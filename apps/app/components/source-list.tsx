@@ -46,6 +46,7 @@ import {
 	IconHeadphones,
 	IconLink,
 	IconMarkdown,
+	IconMessageCircle,
 	IconPhoto,
 	IconTrash,
 	IconVideo,
@@ -71,6 +72,7 @@ import type {
 const CONTENT_TYPE_ICONS: Record<ContentTypeStr, typeof IconFileText> = {
 	text: IconFileText,
 	markdown: IconMarkdown,
+	conversation: IconMessageCircle,
 	pdf: IconFileTypePdf,
 	image: IconPhoto,
 	audio: IconHeadphones,
@@ -82,6 +84,7 @@ const CONTENT_TYPE_ICONS: Record<ContentTypeStr, typeof IconFileText> = {
 const CONTENT_TYPE_LABELS: Record<ContentTypeStr, string> = {
 	text: "Text",
 	markdown: "Markdown",
+	conversation: "Conversation",
 	pdf: "PDF",
 	image: "Image",
 	audio: "Audio",

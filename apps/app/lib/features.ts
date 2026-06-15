@@ -1,3 +1,6 @@
+export const isPlaygroundDisabled =
+	process.env.NEXT_PUBLIC_PLAYGROUND_DISABLED === "true";
+
 export const isSettingsDisabled =
 	process.env.NEXT_PUBLIC_SETTINGS_DISABLED === "true";
 

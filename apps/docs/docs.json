@@ -45,6 +45,16 @@
 				]
 			},
 			{
+				"tab": "Plugins",
+				"icon": "puzzle-piece",
+				"groups": [
+					{
+						"group": "Agent Plugins",
+						"pages": ["plugins/codex"]
+					}
+				]
+			},
+			{
 				"tab": "Toolkit",
 				"icon": "wrench",
 				"groups": [
@@ -167,6 +177,10 @@
 		{
 			"source": "/integrations/mcp",
 			"destination": "/mcp/overview"
+		},
+		{
+			"source": "/integrations/codex",
+			"destination": "/plugins/codex"
 		},
 		{
 			"source": "/integrations/typescript-sdk",

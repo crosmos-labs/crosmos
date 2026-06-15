@@ -1,6 +1,7 @@
 export type ContentTypeStr =
 	| "text"
 	| "markdown"
+	| "conversation"
 	| "pdf"
 	| "image"
 	| "audio"

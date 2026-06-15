@@ -50,7 +50,7 @@ export function Hero() {
 								href={LINKS.product.console}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="h-full bg-accent hover:bg-accent/90 text-accent-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
+								className="h-full bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded font-semibold text-base transition-colors flex items-center gap-2 select-none"
 							>
 								Get Started
 								<LinkArrow />

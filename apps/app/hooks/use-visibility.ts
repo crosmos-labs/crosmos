@@ -4,10 +4,12 @@ import {
 	listGrants,
 	listGroupMembers,
 	listGroups,
+	previewGrantImpact,
 } from "@/actions/visibility";
 import type {
 	GroupMember,
 	VisibilityGrant,
+	VisibilityGrantImpact,
 	VisibilityGroup,
 	VisibilityPreview,
 	VisibilitySettings,
@@ -28,13 +30,21 @@ export function visibilityGrantsKey(orgId: string): string {
 	return `/orgs/${orgId}/visibility/grants`;
 }
 
+export function visibilityGrantImpactKey(
+	orgId: string,
+	viewerGroupId: string,
+	subjectGroupId: string,
+): string {
+	return `/orgs/${orgId}/visibility/grants/preview?viewer_group_id=${viewerGroupId}&subject_group_id=${subjectGroupId}`;
+}
+
 export function visibilityPreviewKey(orgId: string, userId: string): string {
 	return `/orgs/${orgId}/visibility/preview?user_id=${userId}`;
 }
 
 // Synthetic key for the enforcement switch. There is no GET settings endpoint;
 // the flag is read off the current user's preview but kept under its own key so
-// the per-user Preview sheet (visibilityPreviewKey) never clobbers it.
+// the per-user preview read (visibilityPreviewKey) never clobbers it.
 export function visibilitySettingsKey(orgId: string): string {
 	return `/orgs/${orgId}/visibility/settings`;
 }
@@ -62,6 +72,35 @@ export function useGrants(orgId: string | null | undefined) {
 		orgId ? visibilityGrantsKey(orgId) : null,
 		() => listGrants(orgId as string),
 		{ revalidateOnFocus: true },
+	);
+}
+
+export function useGrantImpactPreview(
+	orgId: string | null | undefined,
+	viewerGroupId: string | null | undefined,
+	subjectGroupId: string | null | undefined,
+) {
+	return useSWR<VisibilityGrantImpact>(
+		orgId && viewerGroupId && subjectGroupId
+			? visibilityGrantImpactKey(orgId, viewerGroupId, subjectGroupId)
+			: null,
+		async () => {
+			const result = await previewGrantImpact(
+				orgId as string,
+				viewerGroupId as string,
+				subjectGroupId as string,
+			);
+			if (!result.ok) {
+				throw Object.assign(new Error(result.message), {
+					status: result.status,
+					code: result.code,
+				});
+			}
+			return result.data;
+		},
+		// Don't auto-retry on failure; the dialog surfaces a manual Retry button
+		// that calls mutate() explicitly.
+		{ revalidateOnFocus: false, shouldRetryOnError: false },
 	);
 }
 
@@ -95,7 +134,7 @@ export function useVisibilitySettings(
 	);
 }
 
-// Per-user preview for the Preview sheet (independent of the switch's read).
+// Per-user preview, independent of the enforcement switch's read.
 export function useVisibilityPreview(
 	orgId: string | null | undefined,
 	userId: string | null | undefined,
