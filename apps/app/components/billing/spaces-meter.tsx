@@ -1,8 +1,27 @@
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 
 const MAX_PIPS = 50;
+
+export function SpacesMeterSkeleton() {
+	return (
+		<div className="flex flex-col gap-3 rounded-lg border p-4">
+			<div className="flex items-center justify-between">
+				<Skeleton className="h-4 w-16" />
+				<Skeleton className="h-4 w-28" />
+			</div>
+			<div className="flex flex-wrap gap-1.5">
+				{Array.from({ length: 10 }, (_, i) => (
+					// biome-ignore lint/suspicious/noArrayIndexKey: fixed-order static pips
+					<Skeleton key={i} className="size-3 rounded-full" />
+				))}
+			</div>
+			<Skeleton className="h-3 w-24" />
+		</div>
+	);
+}
 
 export function SpacesMeter({ used, limit }: { used: number; limit: number }) {
 	const cap = Math.min(Math.max(limit, used), MAX_PIPS);
