@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { PlaygroundChat } from "@/components/playground-chat";
+import { PlaygroundChat } from "@/components/playground/playground-chat";
 import { isPlaygroundDisabled } from "@/lib/features";
 
 export default function PlaygroundPage() {

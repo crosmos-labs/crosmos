@@ -9,7 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { logout } from "@/actions/auth";
 import { acceptInvite } from "@/actions/invites";
-import { OrgAvatar } from "@/components/org-avatar";
+import { OrgAvatar } from "@/components/layout/org-avatar";
 import { getInitials } from "@/lib/members";
 import type { InvitePreviewResponse } from "@/lib/types/org";
 

@@ -3,10 +3,12 @@
 import { useQueryStates } from "nuqs";
 import { use, useEffect } from "react";
 import { useSWRConfig } from "swr";
-import { DataFetchError } from "@/components/data-fetch-error";
-import { MemoryList } from "@/components/memory-list";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
-import { SpaceDetailSkeleton } from "@/components/space-detail-skeleton";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
+import {
+	MemoryList,
+	SpaceDetailSkeleton,
+} from "@/components/spaces/memory-list";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { memoriesKey, useMemories } from "@/hooks/use-memories";
 import { spacesKey, useSpaces } from "@/hooks/use-spaces";

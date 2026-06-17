@@ -40,8 +40,8 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
-import { CreateGroupDialog } from "@/components/settings/visibility/create-group-dialog";
-import { GroupMembersSheet } from "@/components/settings/visibility/group-members-sheet";
+import { CreateGroupDialog } from "@/components/visibility/create-group-dialog";
+import { GroupMembersSheet } from "@/components/visibility/group-members-sheet";
 import {
 	useGroups,
 	visibilityGrantsKey,

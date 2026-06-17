@@ -25,10 +25,13 @@ import { DefaultChatTransport } from "ai";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { ChatResponse } from "@/components/chat-response";
-import { PlaygroundArrow } from "@/components/playground-arrow";
-import { ClaudeAI } from "@/components/provider-logos";
-import { MemorySaveChip, MemorySearchCard } from "@/components/tool-cards";
+import { ChatResponse } from "@/components/playground/chat-response";
+import { PlaygroundArrow } from "@/components/playground/playground-arrow";
+import {
+	MemorySaveChip,
+	MemorySearchCard,
+} from "@/components/playground/tool-cards";
+import { ClaudeAI } from "@/components/shared/provider-logos";
 import { useSpaces } from "@/hooks/use-spaces";
 import {
 	DEFAULT_MODEL_ID,

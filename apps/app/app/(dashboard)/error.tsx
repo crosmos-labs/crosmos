@@ -1,6 +1,6 @@
 "use client";
 
-import { DataFetchError } from "@/components/data-fetch-error";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 
 export default function DashboardError({
 	error,

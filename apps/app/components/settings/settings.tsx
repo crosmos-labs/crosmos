@@ -11,7 +11,7 @@ import { MembersSettings } from "@/components/settings/members-settings";
 import { OrganizationSettings } from "@/components/settings/organization-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
 
-export default function SettingsClient() {
+export function Settings() {
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-1">

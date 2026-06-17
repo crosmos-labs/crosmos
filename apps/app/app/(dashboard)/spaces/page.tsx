@@ -1,9 +1,8 @@
 "use client";
 
 import { useSWRConfig } from "swr";
-import { DataFetchError } from "@/components/data-fetch-error";
-import { SpaceList } from "@/components/space-list";
-import { SpacesListSkeleton } from "@/components/spaces-list-skeleton";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
+import { SpaceList, SpacesListSkeleton } from "@/components/spaces/space-list";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { spacesKey, useSpaces } from "@/hooks/use-spaces";
 

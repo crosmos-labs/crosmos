@@ -1,9 +1,9 @@
 "use client";
 
 import { useSWRConfig } from "swr";
-import { DashboardStats } from "@/components/dashboard-stats";
-import { DataFetchError } from "@/components/data-fetch-error";
-import { GetStarted } from "@/components/get-started";
+import { DashboardStats } from "@/components/dashboard/dashboard-stats";
+import { GetStarted } from "@/components/dashboard/get-started";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 function getFirstName(name: string | null | undefined): string {

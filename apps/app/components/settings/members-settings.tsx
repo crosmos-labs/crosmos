@@ -23,15 +23,15 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { createInvite } from "@/actions/members";
-import { DataFetchError } from "@/components/data-fetch-error";
-import { InviteMemberDialog } from "@/components/invite-member-dialog";
+import { useActionLoader } from "@/components/providers/action-loader-provider";
+import { InviteMemberDialog } from "@/components/settings/invite-member-dialog";
 import {
 	MembersTable,
 	type MembersTableProps,
+	MembersTableSkeleton,
 	type SortState,
-} from "@/components/members-table";
-import { MembersTableSkeleton } from "@/components/members-table-skeleton";
-import { useActionLoader } from "@/components/providers/action-loader-provider";
+} from "@/components/settings/members-table";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { invitesKey, useInvites } from "@/hooks/use-invites";
 import { membersKey, useMembers } from "@/hooks/use-members";

@@ -41,7 +41,7 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
-import { AddRuleDialog } from "@/components/settings/visibility/add-rule-dialog";
+import { AddRuleDialog } from "@/components/visibility/add-rule-dialog";
 import {
 	useGrants,
 	useGroups,
