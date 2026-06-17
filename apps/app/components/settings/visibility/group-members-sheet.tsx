@@ -136,6 +136,8 @@ export function GroupMembersSheet({
 					membersKey,
 					nextMembers,
 					() =>
+						// Batched: if any add/remove fails, the whole list rolls back even
+						// though some calls persisted; the reconcile then syncs server truth.
 						Promise.all([
 							...idsToAdd.map((userId) =>
 								addGroupMember(orgId, groupId, userId),
