@@ -33,6 +33,7 @@ import {
 	useVisibilitySettings,
 	visibilitySettingsKey,
 } from "@/hooks/use-visibility";
+import type { VisibilitySettings } from "@/lib/types/visibility";
 
 export function EnforcementSwitch({
 	orgId,
@@ -71,29 +72,35 @@ export function EnforcementSwitch({
 	async function applyToggle(next: boolean) {
 		setPending(true);
 		try {
-			await runAction(async () => {
-				await mutate(key, { visibility_enabled: next }, { revalidate: false });
-				const result = await updateVisibilitySettings(orgId, next);
-				if (!result.ok) {
-					throw new Error(result.message || "Couldn't update enforcement");
-				}
-				await mutate(
+			await runAction(() =>
+				// Synthetic settings key (no GET endpoint); the update response is
+				// authoritative, so commit it and don't reconcile this key.
+				mutate<VisibilitySettings>(
 					key,
-					{ visibility_enabled: result.data.visibility_enabled },
-					{ revalidate: false },
-				);
-				// Visible scope changes with enforcement — refresh any open preview reads.
-				await mutate(
-					(k) =>
-						typeof k === "string" &&
-						k.startsWith(`/orgs/${orgId}/visibility/preview`),
-				);
-			});
+					async () => {
+						const result = await updateVisibilitySettings(orgId, next);
+						if (!result.ok) {
+							throw new Error(result.message || "Couldn't update enforcement");
+						}
+						return { visibility_enabled: result.data.visibility_enabled };
+					},
+					{
+						optimisticData: { visibility_enabled: next },
+						rollbackOnError: true,
+						revalidate: false,
+					},
+				),
+			);
+			// Visible scope changes with enforcement — refresh open preview reads.
+			void mutate(
+				(k) =>
+					typeof k === "string" &&
+					k.startsWith(`/orgs/${orgId}/visibility/preview`),
+			).catch(() => {});
 			toast.success(
 				next ? "Group access rules activated" : "Group access rules paused",
 			);
 		} catch (error) {
-			await mutate(key).catch(() => {});
 			toast.error(
 				error instanceof Error ? error.message : "Couldn't update enforcement",
 			);
