@@ -52,7 +52,14 @@ import {
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
 import type { MemoriesResponse } from "@/hooks/use-memories";
+import { listIn, optimisticRemove } from "@/lib/optimistic";
 import type { Memory, MemoryType } from "@/lib/types/memory";
+
+const EMPTY_MEMORIES: MemoriesResponse = { memories: [], hasMore: false };
+const memoriesList = listIn<MemoriesResponse, Memory>(
+	(cache) => cache?.memories ?? [],
+	(cache, memories) => ({ ...(cache ?? EMPTY_MEMORIES), memories }),
+);
 
 const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
 	viewpoint: "Viewpoint",
@@ -161,35 +168,14 @@ export function MemoryList({
 	const handleForget = useCallback(
 		(memoryUuid: string) => {
 			runAction(
-				async () => {
-					await mutate(
+				() =>
+					optimisticRemove<Memory, MemoriesResponse>(
+						mutate,
 						swrKey,
-						async (current: MemoriesResponse | undefined) => {
-							await forgetMemory(memoryUuid, spaceUuid);
-							return current
-								? {
-										...current,
-										memories: current.memories.filter(
-											(m) => m.id !== memoryUuid,
-										),
-									}
-								: { memories: [], hasMore: false };
-						},
-						{
-							optimisticData: (current: MemoriesResponse | undefined) =>
-								current
-									? {
-											...current,
-											memories: current.memories.filter(
-												(m) => m.id !== memoryUuid,
-											),
-										}
-									: { memories: [], hasMore: false },
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+						(m) => m.id === memoryUuid,
+						() => forgetMemory(memoryUuid, spaceUuid),
+						{ adapter: memoriesList },
+					),
 				{
 					toast: {
 						success: "Memory forgotten",
