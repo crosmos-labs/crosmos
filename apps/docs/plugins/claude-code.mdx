@@ -1,0 +1,133 @@
+---
+title: "Claude Code"
+description: "Add automatic, persistent memory to Claude Code."
+icon: "/icons/claude-code.svg"
+---
+
+The Crosmos Claude Code plugin adds project memory to Claude Code. It recalls relevant context when a session starts, captures your conversations automatically through lifecycle hooks, and adds `/crosmos-recall` and `/crosmos-save` skills for on-demand lookups and explicit notes.
+
+Use this plugin when you want Claude Code to remember project decisions, preferences, and prior work without managing memory by hand. If you only need callable memory tools, use [MCP](/mcp/overview) instead.
+
+## Prerequisites
+
+- Claude Code
+- Node.js 18 or later
+- A Crosmos API key from the [Crosmos Console](https://console.crosmos.dev)
+- At least one Crosmos memory space
+
+Keys use the `csk_` prefix.
+
+## Install
+
+Run these inside Claude Code:
+
+```txt
+/plugin marketplace add crosmos-labs/claudecode-crosmos
+/plugin install crosmos
+```
+
+The plugin ships as a single bundled script, so there is nothing to install on your machine and no `node_modules` to manage.
+
+## Authentication
+
+The plugin reads your API key from `~/.crosmos/credentials.json` — the same file the Crosmos CLI and Console use, so if you have set up Crosmos anywhere it works without extra steps. Set it up in your terminal, not in the Claude session:
+
+```bash
+npx @crosmos/crosmos-mcp setup
+```
+
+You can also grab a key from the [Crosmos Console](https://console.crosmos.dev) and either drop it in `~/.crosmos/credentials.json` or export `CROSMOS_API_KEY`. Your key is entered in the terminal, never in the Claude conversation.
+
+## Verify
+
+```txt
+/crosmos:status
+```
+
+The status command reports your API key status, the resolved memory space, and connectivity.
+
+## How it works
+
+Two lifecycle hooks run a single bundled script on Claude Code events. Everything runs in-process through the `crosmos` SDK, secrets never leave your machine, and the hooks **fail open**, so memory being unavailable never blocks your session.
+
+| Hook | When it runs | What it does |
+|------|--------------|--------------|
+| `SessionStart` | A session starts or resumes | Recalls the most relevant memories for your project and injects them silently. |
+| `Stop` | At the end of each turn | Captures new conversation turns and saves them. |
+
+Two skills let you reach memory directly:
+
+- **`/crosmos-recall`** — ask Claude to look something up on demand.
+- **`/crosmos-save`** — ask Claude to save a specific note when you want to be explicit.
+
+Recall runs automatically on session start and capture runs on every turn, so these skills are only for when you want manual control.
+
+## Configuration
+
+Configure the plugin with environment variables.
+
+| Environment variable | Purpose |
+|----------------------|---------|
+| `CROSMOS_API_KEY` | API key. Overrides the credentials file. |
+| `CROSMOS_API_BASE_URL` | API base URL. Defaults to `https://api.crosmos.dev`. |
+| `CROSMOS_SPACE_ID` | Pin a memory space by ID. |
+| `CROSMOS_SPACE_NAME` | Resolve and pin a memory space by name. |
+| `CROSMOS_DEBUG` | Write a debug log to `<tmp>/crosmos-claude.log`. |
+
+If neither `CROSMOS_SPACE_ID` nor `CROSMOS_SPACE_NAME` is set, the plugin uses the first available memory space.
+
+## Troubleshooting
+
+### Recall or capture is not running
+
+Check your status:
+
+```txt
+/crosmos:status
+```
+
+It reports whether an API key is found, which space resolved, and whether the API is reachable.
+
+### No API key is configured
+
+Set `CROSMOS_API_KEY` or run setup in your terminal:
+
+```bash
+export CROSMOS_API_KEY="csk_..."
+npx @crosmos/crosmos-mcp setup
+```
+
+### No memory space is available
+
+Create a memory space in the [Crosmos Console](https://console.crosmos.dev). You can pin a specific space with `CROSMOS_SPACE_ID` or `CROSMOS_SPACE_NAME`.
+
+### Debug hook behavior
+
+Enable debug logging:
+
+```bash
+export CROSMOS_DEBUG=1
+```
+
+Logs are written to `<tmp>/crosmos-claude.log`.
+
+## Uninstall
+
+Open the plugin manager in Claude Code and remove the crosmos plugin:
+
+```txt
+/plugin
+```
+
+Existing memories in Crosmos are preserved.
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="MCP" icon="puzzle-piece" href="/mcp/overview">
+  Connect Crosmos memory tools to AI clients.
+</Card>
+<Card title="Memory tools" icon="list-check" href="/mcp/tools">
+  See the callable memory tool schemas.
+</Card>
+</CardGroup>
