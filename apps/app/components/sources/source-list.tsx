@@ -1,15 +1,5 @@
 "use client";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@crosmos/ui/components/alert-dialog";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -27,7 +17,6 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
-import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Pagination,
 	PaginationContent,
@@ -35,11 +24,11 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@crosmos/ui/components/pagination";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconBraces,
 	IconCode,
-	IconCornerDownLeft,
 	IconDotsVertical,
 	IconFileText,
 	IconFileTypePdf,
@@ -56,11 +45,12 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { deleteSource } from "@/actions/sources";
-import { EmptyState } from "@/components/empty-state";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { EmptyState } from "@/components/shared/empty-state";
+import { DeleteSourceDialog } from "@/components/sources/delete-source-dialog";
 import type { SourcesResponse } from "@/hooks/use-sources";
 import { listIn, optimisticRemove } from "@/lib/optimistic";
 import type {
@@ -91,26 +81,14 @@ const CONTENT_TYPE_ICONS: Record<ContentTypeStr, typeof IconFileText> = {
 	json: IconBraces,
 };
 
-const CONTENT_TYPE_LABELS: Record<ContentTypeStr, string> = {
-	text: "Text",
-	markdown: "Markdown",
-	conversation: "Conversation",
-	pdf: "PDF",
-	image: "Image",
-	audio: "Audio",
-	video: "Video",
-	html: "HTML",
-	json: "JSON",
-};
-
-const EXTRACTION_STATUS_LABELS: Record<ExtractionStatus, string> = {
+export const EXTRACTION_STATUS_LABELS: Record<ExtractionStatus, string> = {
 	pending: "Extraction pending",
 	processing: "Extracting",
 	completed: "Extracted",
 	failed: "Extraction failed",
 };
 
-const EXTRACTION_STATUS_BADGE_VARIANT: Record<
+export const EXTRACTION_STATUS_BADGE_VARIANT: Record<
 	ExtractionStatus,
 	"secondary" | "outline" | "destructive" | "default"
 > = {
@@ -119,78 +97,6 @@ const EXTRACTION_STATUS_BADGE_VARIANT: Record<
 	completed: "secondary",
 	failed: "destructive",
 };
-
-function DeleteSourceDialog({
-	source,
-	onDelete,
-	onOpenChange,
-}: {
-	source: SourceSummary | null;
-	onDelete: (sourceUuid: string, spaceUuid: string) => void;
-	onOpenChange: (open: boolean) => void;
-}) {
-	return (
-		<AlertDialog open={!!source} onOpenChange={onOpenChange}>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Delete Source</AlertDialogTitle>
-					<AlertDialogDescription>
-						This source and all its associated data will be permanently deleted.
-						This action cannot be undone.
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				{source && (
-					<div className="flex flex-col gap-1.5 rounded-lg border bg-muted/50 p-3 text-sm">
-						<div className="flex items-center justify-between">
-							<span className="text-muted-foreground">Type</span>
-							<Badge variant="outline">
-								{CONTENT_TYPE_LABELS[source.content_type]}
-							</Badge>
-						</div>
-						<div className="flex items-center justify-between">
-							<span className="text-muted-foreground">Status</span>
-							<Badge
-								variant={
-									EXTRACTION_STATUS_BADGE_VARIANT[source.extraction_status]
-								}
-							>
-								{EXTRACTION_STATUS_LABELS[source.extraction_status]}
-							</Badge>
-						</div>
-						<div className="flex items-center justify-between">
-							<span className="text-muted-foreground">Tokens</span>
-							<span className="text-foreground">
-								{source.token_count.toLocaleString()}
-							</span>
-						</div>
-						<div className="mt-1 line-clamp-3 text-muted-foreground whitespace-pre-wrap">
-							{source.content_preview}
-						</div>
-					</div>
-				)}
-				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
-					<AlertDialogAction
-						variant="destructive"
-						onClick={() => {
-							if (source) {
-								onDelete(source.id, source.space_id);
-								onOpenChange(false);
-							}
-						}}
-					>
-						Delete{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
-	);
-}
 
 interface SourceListProps {
 	sources: SourceSummary[];
@@ -201,6 +107,34 @@ interface SourceListProps {
 	spaceNameLookup: Map<string, string>;
 	onPageChange: (page: number) => void;
 	onClearFilters: () => void;
+}
+
+function SkeletonRow() {
+	return (
+		<Item variant="outline" className="px-4 py-3.5">
+			<ItemContent>
+				<ItemTitle className="h-5 text-base">
+					<Skeleton className="h-4 w-20" />
+				</ItemTitle>
+				<ItemDescription as="div" className="flex h-5 items-center">
+					<Skeleton className="h-3.5 w-3/4" />
+				</ItemDescription>
+			</ItemContent>
+			<ItemActions>
+				<Skeleton className="h-3 w-14" />
+			</ItemActions>
+		</Item>
+	);
+}
+
+export function SourceListSkeleton() {
+	return (
+		<div className="flex flex-col gap-4">
+			{["a", "b", "c", "d", "e"].map((k) => (
+				<SkeletonRow key={k} />
+			))}
+		</div>
+	);
 }
 
 export function SourceList({

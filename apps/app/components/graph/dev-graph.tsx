@@ -13,7 +13,7 @@ import {
 	nodeFromWire,
 } from "@/lib/graph/mappers";
 
-export function DevGraphClient() {
+export function DevGraph() {
 	const nodes = useMemo<GraphNode[]>(() => MOCK_NODES.map(nodeFromWire), []);
 	const edges = useMemo<GraphEdge[]>(() => MOCK_EDGES.map(edgeFromWire), []);
 

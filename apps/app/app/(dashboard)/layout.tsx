@@ -1,8 +1,8 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { AppSidebar } from "@/components/app-sidebar";
-import { DashboardHeader } from "@/components/dashboard-header";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
 import { BreadcrumbProvider } from "@/components/providers/breadcrumb-provider";
 import { SwrProvider } from "@/components/providers/swr-provider";

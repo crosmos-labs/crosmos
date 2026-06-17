@@ -3,7 +3,7 @@
 import { Button } from "@crosmos/ui/components/button";
 import { IconBarrierBlock } from "@tabler/icons-react";
 import { useState } from "react";
-import { EmptyState } from "@/components/empty-state";
+import { EmptyState } from "@/components/shared/empty-state";
 
 export function DataFetchError({
 	message,

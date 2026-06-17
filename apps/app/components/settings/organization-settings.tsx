@@ -8,11 +8,11 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateOrg } from "@/actions/orgs";
-import { DataFetchError } from "@/components/data-fetch-error";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { orgKey, useOrg } from "@/hooks/use-org";
 import { orgsKey } from "@/hooks/use-orgs";

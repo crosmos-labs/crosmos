@@ -11,10 +11,10 @@ import {
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
-import { DataFetchError } from "@/components/data-fetch-error";
 import { EdgePopover } from "@/components/graph/edge-popover";
 import { NodePopover } from "@/components/graph/node-popover";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { graphKey, useGraph } from "@/hooks/use-graph";
 import { spacesKey, useSpaces } from "@/hooks/use-spaces";

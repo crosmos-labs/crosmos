@@ -10,7 +10,7 @@ import "streamdown/styles.css";
 import "@/components/graph/popover.css";
 import { Toaster } from "@crosmos/ui/components/sonner";
 import { TooltipProvider } from "@crosmos/ui/components/tooltip";
-import { SkipToContent } from "@/components/skip-to-content";
+import { SkipToContent } from "@/components/shared/skip-to-content";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",

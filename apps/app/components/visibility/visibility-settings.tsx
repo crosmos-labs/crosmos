@@ -13,12 +13,12 @@ import {
 	IconUsersGroup,
 } from "@tabler/icons-react";
 import { useState } from "react";
-import { EmptyState } from "@/components/empty-state";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
-import { AccessRulesSection } from "@/components/settings/visibility/access-rules-section";
-import { EnforcementSwitch } from "@/components/settings/visibility/enforcement-switch";
-import { GroupsSection } from "@/components/settings/visibility/groups-section";
-import { MemberPreview } from "@/components/settings/visibility/member-preview";
+import { EmptyState } from "@/components/shared/empty-state";
+import { AccessRulesSection } from "@/components/visibility/access-rules-section";
+import { EnforcementSwitch } from "@/components/visibility/enforcement-switch";
+import { GroupsSection } from "@/components/visibility/groups-section";
+import { MemberPreview } from "@/components/visibility/member-preview";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useGroups, useVisibilitySettings } from "@/hooks/use-visibility";
 import { isOrgScopeMismatch } from "@/lib/org-mismatch";

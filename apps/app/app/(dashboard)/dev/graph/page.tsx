@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { DevGraphClient } from "./dev-graph-client";
+import { DevGraph } from "@/components/graph/dev-graph";
 
 /**
  * Dev-only mock-data sandbox for `@crosmos/graph`.
@@ -13,5 +13,5 @@ export default function DevGraphPage() {
 	if (process.env.NODE_ENV === "production") {
 		notFound();
 	}
-	return <DevGraphClient />;
+	return <DevGraph />;
 }

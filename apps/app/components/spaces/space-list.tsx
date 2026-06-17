@@ -3,21 +3,12 @@
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Button } from "@crosmos/ui/components/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@crosmos/ui/components/dialog";
-import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@crosmos/ui/components/dropdown-menu";
-import { Input } from "@crosmos/ui/components/input";
 import {
 	Item,
 	ItemActions,
@@ -26,98 +17,26 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
-import { Kbd } from "@crosmos/ui/components/kbd";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
-import {
-	IconBox,
-	IconCornerDownLeft,
-	IconDotsVertical,
-} from "@tabler/icons-react";
+import { IconBox, IconDotsVertical } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { createSpace, deleteSpace } from "@/actions/spaces";
-import { EmptyState } from "@/components/empty-state";
-import { HotkeyKbd } from "@/components/hotkey-kbd";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { EmptyState } from "@/components/shared/empty-state";
+import { HotkeyKbd } from "@/components/shared/hotkey-kbd";
+import { CreateSpaceDialog } from "@/components/spaces/create-space-dialog";
+import { DeleteSpaceDialog } from "@/components/spaces/delete-space-dialog";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { Space } from "@/lib/types/space";
-
-function CreateSpaceDialog({
-	open,
-	onOpenChange,
-	onCreateSpace,
-}: {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	onCreateSpace: (name: string, description?: string) => void;
-}) {
-	const [name, setName] = useState("");
-	const [description, setDescription] = useState("");
-
-	function handleClose() {
-		setName("");
-		setDescription("");
-		onOpenChange(false);
-	}
-
-	function handleCreate() {
-		if (!name.trim()) return;
-		const spaceName = name.trim();
-		const spaceDescription = description.trim() || undefined;
-		setName("");
-		setDescription("");
-		onOpenChange(false);
-		onCreateSpace(spaceName, spaceDescription);
-	}
-
-	return (
-		<Dialog open={open} onOpenChange={handleClose}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Create Space</DialogTitle>
-					<DialogDescription>
-						Enter a name and optional description for your new memory space.
-					</DialogDescription>
-				</DialogHeader>
-				<Input
-					placeholder="e.g. Startup, School"
-					value={name}
-					onChange={(e) => setName(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") handleCreate();
-					}}
-					className="focus-visible:border-input focus-visible:ring-0"
-				/>
-				<textarea
-					aria-label="Description"
-					placeholder="Description (optional)"
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					rows={2}
-					className="flex min-h-15 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-input focus-visible:ring-0 resize-none"
-				/>
-				<DialogFooter>
-					<Button variant="ghost" onClick={handleClose}>
-						Cancel <Kbd>Esc</Kbd>
-					</Button>
-					<Button onClick={handleCreate} disabled={!name.trim()}>
-						Create{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
-	);
-}
 
 function SpaceCountRow({
 	count,
@@ -137,6 +56,39 @@ function SpaceCountRow({
 				Create
 				<HotkeyKbd />
 			</Button>
+		</div>
+	);
+}
+
+function SkeletonRow() {
+	return (
+		<Item variant="outline" className="px-4 py-3.5">
+			<ItemContent>
+				<ItemTitle className="h-6 text-base">
+					<Skeleton className="h-4 w-24" />
+				</ItemTitle>
+				<ItemDescription as="div" className="flex h-5 items-center">
+					<Skeleton className="h-3.5 w-2/3" />
+				</ItemDescription>
+			</ItemContent>
+			<ItemActions>
+				<Skeleton className="h-3 w-20" />
+			</ItemActions>
+		</Item>
+	);
+}
+
+export function SpacesListSkeleton() {
+	return (
+		<div aria-busy="true" className="flex flex-col gap-4">
+			<div className="flex items-center justify-between">
+				<Skeleton className="h-4 w-16" />
+				<Skeleton className="h-8 w-20" />
+			</div>
+			{["a", "b", "c", "d", "e"].map((k) => (
+				<SkeletonRow key={k} />
+			))}
+			<span className="sr-only">Loading spaces…</span>
 		</div>
 	);
 }
@@ -334,100 +286,5 @@ export function SpaceList({
 				}}
 			/>
 		</div>
-	);
-}
-
-function DeleteSpaceDialog({
-	space,
-	onDelete,
-	onOpenChange,
-}: {
-	space: Space | null;
-	onDelete: (spaceId: string) => void;
-	onOpenChange: (open: boolean) => void;
-}) {
-	const [confirmName, setConfirmName] = useState("");
-	const canDelete = space !== null && confirmName === space.name;
-
-	function handleClose() {
-		setConfirmName("");
-		onOpenChange(false);
-	}
-
-	function handleDelete() {
-		if (!space || !canDelete) return;
-		setConfirmName("");
-		onOpenChange(false);
-		onDelete(space.id);
-	}
-
-	return (
-		<Dialog open={!!space} onOpenChange={handleClose}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Delete Space</DialogTitle>
-					<DialogDescription asChild>
-						<div className="flex flex-col gap-3 text-left">
-							<span>
-								This will permanently delete this space and all its{" "}
-								<strong>memories</strong>, <strong>entities</strong>, and{" "}
-								<strong>sources</strong>. This action cannot be undone.
-							</span>
-							<div className="flex flex-col gap-1.5 rounded-lg border bg-muted/50 p-3 text-sm">
-								<div className="flex items-center justify-between">
-									<span className="text-muted-foreground">Name</span>
-									<span className="font-medium text-foreground">
-										{space?.name}
-									</span>
-								</div>
-								{space?.description && (
-									<div className="flex items-center justify-between">
-										<span className="text-muted-foreground">Description</span>
-										<span className="text-foreground">{space.description}</span>
-									</div>
-								)}
-								<div className="flex items-center justify-between">
-									<span className="text-muted-foreground">Created</span>
-									<span className="text-foreground">
-										{space
-											? formatDistanceToNow(new Date(space.created_at), {
-													addSuffix: true,
-												})
-											: ""}
-									</span>
-								</div>
-							</div>
-							<span>
-								Type <strong>{space?.name}</strong> to confirm.
-							</span>
-						</div>
-					</DialogDescription>
-				</DialogHeader>
-				<Input
-					placeholder={space?.name}
-					value={confirmName}
-					onChange={(e) => setConfirmName(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") handleDelete();
-					}}
-					className="focus-visible:border-input focus-visible:ring-0"
-				/>
-				<DialogFooter>
-					<Button variant="ghost" onClick={handleClose}>
-						Cancel <Kbd>Esc</Kbd>
-					</Button>
-					<Button
-						variant="destructive"
-						onClick={handleDelete}
-						disabled={!canDelete}
-					>
-						Delete{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
 	);
 }

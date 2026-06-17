@@ -45,7 +45,7 @@ function LinkArrow({ className }: { className?: string }) {
 }
 
 import { cn } from "@crosmos/ui/lib/utils";
-import { OrgSwitcher } from "@/components/org-switcher";
+import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
 import type { AuthUser } from "@/lib/types/auth";

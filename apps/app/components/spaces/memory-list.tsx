@@ -1,15 +1,5 @@
 "use client";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@crosmos/ui/components/alert-dialog";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import {
@@ -27,7 +17,6 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
-import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Pagination,
 	PaginationContent,
@@ -35,22 +24,19 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@crosmos/ui/components/pagination";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
-import {
-	IconBrain,
-	IconCornerDownLeft,
-	IconDotsVertical,
-	IconTrash,
-} from "@tabler/icons-react";
+import { IconBrain, IconDotsVertical, IconTrash } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { forgetMemory } from "@/actions/memories";
-import { EmptyState } from "@/components/empty-state";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ForgetMemoryDialog } from "@/components/spaces/forget-memory-dialog";
 import type { MemoriesResponse } from "@/hooks/use-memories";
 import { listIn, optimisticRemove } from "@/lib/optimistic";
 import type { Memory, MemoryType } from "@/lib/types/memory";
@@ -61,14 +47,14 @@ const memoriesList = listIn<MemoriesResponse, Memory>(
 	(cache, memories) => ({ ...(cache ?? EMPTY_MEMORIES), memories }),
 );
 
-const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
+export const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
 	viewpoint: "Viewpoint",
 	semantic: "Semantic",
 	episode: "Episode",
 	inference: "Inference",
 };
 
-const MEMORY_TYPE_BADGE_VARIANT: Record<
+export const MEMORY_TYPE_BADGE_VARIANT: Record<
 	MemoryType,
 	"secondary" | "outline" | "ghost"
 > = {
@@ -78,70 +64,6 @@ const MEMORY_TYPE_BADGE_VARIANT: Record<
 	inference: "outline",
 };
 
-function ForgetMemoryDialog({
-	memory,
-	onForget,
-	onOpenChange,
-}: {
-	memory: Memory | null;
-	onForget: (memoryUuid: string) => void;
-	onOpenChange: (open: boolean) => void;
-}) {
-	return (
-		<AlertDialog open={!!memory} onOpenChange={onOpenChange}>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Forget Memory</AlertDialogTitle>
-					<AlertDialogDescription>
-						This memory will be permanently forgotten. This action cannot be
-						undone.
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				{memory && (
-					<div className="flex flex-col gap-1.5 rounded-lg border bg-muted/50 p-3 text-sm">
-						<div className="flex items-center justify-between">
-							<span className="text-muted-foreground">Type</span>
-							<Badge variant={MEMORY_TYPE_BADGE_VARIANT[memory.memory_type]}>
-								{MEMORY_TYPE_LABELS[memory.memory_type]}
-							</Badge>
-						</div>
-						<div className="flex items-center justify-between">
-							<span className="text-muted-foreground">Created</span>
-							<span className="text-foreground">
-								{formatDistanceToNow(new Date(memory.created_at), {
-									addSuffix: true,
-								})}
-							</span>
-						</div>
-						<div className="mt-1 line-clamp-3 text-muted-foreground whitespace-pre-wrap">
-							{memory.content}
-						</div>
-					</div>
-				)}
-				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
-					<AlertDialogAction
-						variant="destructive"
-						onClick={() => {
-							if (memory) {
-								onForget(memory.id);
-								onOpenChange(false);
-							}
-						}}
-					>
-						Forget{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
-	);
-}
-
 interface MemoryListProps {
 	memories: Memory[];
 	spaceUuid: string;
@@ -149,6 +71,45 @@ interface MemoryListProps {
 	hasMore: boolean;
 	swrKey: string;
 	onPageChange: (page: number) => void;
+}
+
+function SkeletonMemoryRow() {
+	return (
+		<Item variant="outline" className="px-4 py-3.5">
+			<ItemContent>
+				<ItemTitle className="h-5 text-base">
+					<Skeleton className="h-4 w-16" />
+				</ItemTitle>
+				<ItemDescription as="div" className="flex flex-col gap-1.5">
+					<Skeleton className="h-3.5 w-full" />
+					<Skeleton className="h-3.5 w-2/3" />
+				</ItemDescription>
+			</ItemContent>
+			<ItemActions>
+				<Skeleton className="h-3 w-20" />
+			</ItemActions>
+		</Item>
+	);
+}
+
+export function SpaceDetailSkeleton() {
+	return (
+		<div aria-busy="true" className="flex flex-col gap-6">
+			<div className="flex flex-col gap-1">
+				<Skeleton className="h-7 w-40" />
+				<Skeleton className="h-4 w-56" />
+			</div>
+			<div className="flex flex-col gap-4">
+				<div className="flex items-center justify-between">
+					<Skeleton className="h-5 w-20" />
+				</div>
+				{["a", "b", "c", "d", "e"].map((k) => (
+					<SkeletonMemoryRow key={k} />
+				))}
+			</div>
+			<span className="sr-only">Loading space details…</span>
+		</div>
+	);
 }
 
 export function MemoryList({

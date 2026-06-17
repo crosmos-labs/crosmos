@@ -2,6 +2,12 @@
 
 import { Button } from "@crosmos/ui/components/button";
 import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from "@crosmos/ui/components/card";
+import {
 	Item,
 	ItemActions,
 	ItemContent,
@@ -20,9 +26,9 @@ import {
 import { IconEyeOff } from "@tabler/icons-react";
 import Link from "next/link";
 import { useSWRConfig } from "swr";
-import { DataFetchError } from "@/components/data-fetch-error";
-import { EmptyState } from "@/components/empty-state";
-import { VisibilitySettings } from "@/components/settings/visibility/visibility-settings";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
+import { EmptyState } from "@/components/shared/empty-state";
+import { VisibilitySettings } from "@/components/visibility/visibility-settings";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { orgKey, useOrg } from "@/hooks/use-org";
 
@@ -62,6 +68,19 @@ function VisibilityPageSkeleton() {
 				</ItemActions>
 			</Item>
 
+			<Card size="sm" className="bg-card/40">
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2 text-sm">
+						<Skeleton className="size-4 rounded-sm" />
+						<Skeleton className="h-4 w-28" />
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="flex flex-col gap-3">
+					<Skeleton className="h-8 w-56" />
+					<Skeleton className="h-3.5 w-2/3" />
+				</CardContent>
+			</Card>
+
 			<div className="flex flex-col gap-6">
 				<div className="flex items-center justify-between gap-3">
 					<div className="flex items-center gap-2">
@@ -97,7 +116,7 @@ function VisibilityPageSkeleton() {
 	);
 }
 
-export default function VisibilityClient() {
+export function Visibility() {
 	const { data: user } = useCurrentUser();
 	const orgId = user?.active_org_id ?? null;
 	const { data: org, error, isLoading } = useOrg(orgId);

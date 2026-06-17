@@ -1,15 +1,5 @@
 "use client";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@crosmos/ui/components/alert-dialog";
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Avatar, AvatarFallback } from "@crosmos/ui/components/avatar";
 import { Badge } from "@crosmos/ui/components/badge";
@@ -26,7 +16,7 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@crosmos/ui/components/dropdown-menu";
-import { Kbd } from "@crosmos/ui/components/kbd";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import {
 	Table,
 	TableBody,
@@ -44,7 +34,6 @@ import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconArrowDown,
 	IconArrowUp,
-	IconCornerDownLeft,
 	IconDotsVertical,
 	IconLogout,
 	IconMail,
@@ -63,6 +52,7 @@ import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { RemoveMemberDialog } from "@/components/settings/remove-member-dialog";
 import { invitesKey } from "@/hooks/use-invites";
 import { membersKey } from "@/hooks/use-members";
 import {
@@ -77,7 +67,7 @@ import {
 import { optimisticRemove, optimisticUpdate } from "@/lib/optimistic";
 import type { InviteResponse, MemberResponse, OrgRole } from "@/lib/types/org";
 
-const LAST_OWNER_MSG =
+export const LAST_OWNER_MSG =
 	"An organization must always have an owner, so the last owner can't be removed or demoted.";
 
 const ROLE_BADGE: Record<OrgRole, "default" | "secondary" | "outline"> = {
@@ -216,6 +206,56 @@ export interface MembersTableProps {
 	statusFilter: "all" | "active" | "pending" | "expired";
 	hasFilters: boolean;
 	onClearFilters: () => void;
+}
+
+const SKELETON_COLUMNS = ["Name", "Email", "Role", "Status", "Joined"];
+
+function SkeletonRow() {
+	return (
+		<TableRow className="hover:bg-transparent">
+			<TableCell>
+				<div className="flex items-center gap-3">
+					<Skeleton className="size-8 rounded-full" />
+					<Skeleton className="h-4 w-32" />
+				</div>
+			</TableCell>
+			<TableCell>
+				<Skeleton className="h-4 w-44" />
+			</TableCell>
+			<TableCell>
+				<Skeleton className="h-5 w-14 rounded-4xl" />
+			</TableCell>
+			<TableCell>
+				<Skeleton className="h-5 w-16 rounded-4xl" />
+			</TableCell>
+			<TableCell>
+				<Skeleton className="h-4 w-16" />
+			</TableCell>
+			<TableCell className="w-10" />
+		</TableRow>
+	);
+}
+
+export function MembersTableSkeleton() {
+	return (
+		<Table>
+			<TableHeader>
+				<TableRow className="hover:bg-transparent">
+					{SKELETON_COLUMNS.map((c) => (
+						<TableHead key={c} className="text-muted-foreground font-normal">
+							{c}
+						</TableHead>
+					))}
+					<TableHead className="w-10" />
+				</TableRow>
+			</TableHeader>
+			<TableBody>
+				{["a", "b", "c", "d"].map((k) => (
+					<SkeletonRow key={k} />
+				))}
+			</TableBody>
+		</Table>
+	);
 }
 
 export function MembersTable({
@@ -698,50 +738,24 @@ export function MembersTable({
 				</TableBody>
 			</Table>
 
-			<AlertDialog
+			<RemoveMemberDialog
 				open={!!removeTarget}
 				onOpenChange={(open) => {
 					if (!open) setRemoveTarget(null);
 				}}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							{removeIsSelf ? "Leave organization" : "Remove from organization"}
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							{removeIsLastOwner
-								? LAST_OWNER_MSG
-								: removeIsSelf
-									? "You'll lose access to this organization and its memory. You can rejoin later only via a new invitation."
-									: `${displayTarget?.name ?? "This member"} will lose access to this organization. This can't be undone.`}
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel variant="ghost">
-							Cancel <Kbd>Esc</Kbd>
-						</AlertDialogCancel>
-						<AlertDialogAction
-							variant="destructive"
-							disabled={removeIsLastOwner}
-							onClick={() => {
-								if (!removeTarget || removeIsLastOwner) return;
-								if (removeIsSelf) {
-									handleLeave(removeTarget.userId);
-								} else {
-									handleRemoveMember(removeTarget.userId);
-								}
-								setRemoveTarget(null);
-							}}
-						>
-							{removeIsSelf ? "Leave" : "Remove"}{" "}
-							<Kbd>
-								<IconCornerDownLeft />
-							</Kbd>
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+				isSelf={removeIsSelf}
+				isLastOwner={removeIsLastOwner}
+				targetName={displayTarget?.name}
+				onConfirm={() => {
+					if (!removeTarget || removeIsLastOwner) return;
+					if (removeIsSelf) {
+						handleLeave(removeTarget.userId);
+					} else {
+						handleRemoveMember(removeTarget.userId);
+					}
+					setRemoveTarget(null);
+				}}
+			/>
 		</>
 	);
 }

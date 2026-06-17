@@ -21,7 +21,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { setActiveOrg } from "@/actions/auth";
-import { OrgAvatar } from "@/components/org-avatar";
+import { OrgAvatar } from "@/components/layout/org-avatar";
 import { orgsKey, useOrgs } from "@/hooks/use-orgs";
 import { getOrgSwitchFallbackPath } from "@/lib/org-switch-routes";
 import type { ActiveOrgSummary, OrgDetailResponse } from "@/lib/types/org";

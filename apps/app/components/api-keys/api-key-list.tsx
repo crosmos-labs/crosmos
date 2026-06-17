@@ -1,27 +1,9 @@
 "use client";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@crosmos/ui/components/alert-dialog";
 import { AnimatedSpinner } from "@crosmos/ui/components/animated-spinner";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Button } from "@crosmos/ui/components/button";
 import { CopyButton } from "@crosmos/ui/components/copy-button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@crosmos/ui/components/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -29,7 +11,6 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@crosmos/ui/components/dropdown-menu";
-import { Input } from "@crosmos/ui/components/input";
 import {
 	Item,
 	ItemActions,
@@ -38,35 +19,26 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@crosmos/ui/components/select";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
-import {
-	IconCornerDownLeft,
-	IconDotsVertical,
-	IconKey,
-} from "@tabler/icons-react";
+import { IconDotsVertical, IconKey } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
-import { EmptyState } from "@/components/empty-state";
-import { HotkeyKbd } from "@/components/hotkey-kbd";
+import { CreateKeyDialog } from "@/components/api-keys/create-key-dialog";
+import { RevokeKeyDialog } from "@/components/api-keys/revoke-key-dialog";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { EmptyState } from "@/components/shared/empty-state";
+import { HotkeyKbd } from "@/components/shared/hotkey-kbd";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
-function maskKey(prefix: string) {
+export function maskKey(prefix: string) {
 	return prefix + "•".repeat(12);
 }
 
@@ -92,86 +64,6 @@ function ExpiryBadge({ expiresAt }: { expiresAt: string | null }) {
 	return <Badge variant="secondary">{label}</Badge>;
 }
 
-function CreateKeyDialog({
-	open,
-	onOpenChange,
-	onCreateKey,
-}: {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	onCreateKey: (name: string, expiresInDays?: number) => void;
-}) {
-	const [name, setName] = useState("");
-	const [expiry, setExpiry] = useState("0");
-
-	function handleClose() {
-		setName("");
-		setExpiry("0");
-		onOpenChange(false);
-	}
-
-	function handleCreate() {
-		if (!name.trim()) return;
-		const keyName = name.trim();
-		const days = Number(expiry) || 0;
-		setName("");
-		setExpiry("0");
-		onOpenChange(false);
-		onCreateKey(keyName, days > 0 ? days : undefined);
-	}
-
-	return (
-		<Dialog open={open} onOpenChange={handleClose}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Create API Key</DialogTitle>
-					<DialogDescription>
-						Enter a name and expiry for your new API key.
-					</DialogDescription>
-				</DialogHeader>
-				<Input
-					placeholder="e.g. production-key"
-					value={name}
-					onChange={(e) => setName(e.target.value)}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") handleCreate();
-					}}
-					className="focus-visible:border-input focus-visible:ring-0"
-				/>
-				<div className="flex items-center justify-between">
-					<span className="text-sm text-muted-foreground">Expires in</span>
-					<Select value={expiry} onValueChange={setExpiry}>
-						<SelectTrigger
-							aria-label="Expires in"
-							className="focus-visible:ring-0 focus-visible:border-input"
-						>
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="0">Never</SelectItem>
-							<SelectItem value="30">30 days</SelectItem>
-							<SelectItem value="60">60 days</SelectItem>
-							<SelectItem value="90">90 days</SelectItem>
-							<SelectItem value="365">1 year</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-				<DialogFooter>
-					<Button variant="ghost" onClick={handleClose}>
-						Cancel <Kbd>Esc</Kbd>
-					</Button>
-					<Button onClick={handleCreate} disabled={!name.trim()}>
-						Create{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
-	);
-}
-
 function KeyCountRow({
 	count,
 	onCreateClick,
@@ -190,6 +82,39 @@ function KeyCountRow({
 				Create
 				<HotkeyKbd />
 			</Button>
+		</div>
+	);
+}
+
+function SkeletonRow() {
+	return (
+		<Item variant="outline" className="px-4 py-3.5">
+			<ItemContent>
+				<ItemTitle className="flex h-6 items-center gap-2 text-base">
+					<Skeleton className="h-4 w-28" />
+				</ItemTitle>
+				<ItemDescription as="div" className="flex h-5 items-center">
+					<Skeleton className="h-3 w-48" />
+				</ItemDescription>
+			</ItemContent>
+			<ItemActions>
+				<Skeleton className="h-3 w-20" />
+			</ItemActions>
+		</Item>
+	);
+}
+
+export function ApiKeyListSkeleton() {
+	return (
+		<div aria-busy="true" className="flex flex-col gap-4">
+			<div className="flex items-center justify-between">
+				<Skeleton className="h-4 w-16" />
+				<Skeleton className="h-8 w-20" />
+			</div>
+			{["a", "b", "c"].map((k) => (
+				<SkeletonRow key={k} />
+			))}
+			<span className="sr-only">Loading API keys…</span>
 		</div>
 	);
 }
@@ -285,7 +210,7 @@ export function ApiKeyList({
 					onOpenChange={setDialogOpen}
 					onCreateKey={handleCreateKey}
 				/>
-				<RevokeAlertDialog
+				<RevokeKeyDialog
 					revokeKey={revokeKey}
 					onRevoke={handleRevoke}
 					onOpenChange={(open) => {
@@ -396,7 +321,7 @@ export function ApiKeyList({
 				onOpenChange={setDialogOpen}
 				onCreateKey={handleCreateKey}
 			/>
-			<RevokeAlertDialog
+			<RevokeKeyDialog
 				revokeKey={revokeKey}
 				onRevoke={handleRevoke}
 				onOpenChange={(open) => {
@@ -404,94 +329,5 @@ export function ApiKeyList({
 				}}
 			/>
 		</div>
-	);
-}
-
-function RevokeAlertDialog({
-	revokeKey,
-	onRevoke,
-	onOpenChange,
-}: {
-	revokeKey: ApiKey | null;
-	onRevoke: (keyId: string) => void;
-	onOpenChange: (open: boolean) => void;
-}) {
-	return (
-		<AlertDialog open={!!revokeKey} onOpenChange={onOpenChange}>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>Revoke API Key</AlertDialogTitle>
-					<AlertDialogDescription asChild>
-						<div className="flex flex-col gap-3 text-left">
-							<span>
-								Are you sure you want to revoke this key? Any requests using it
-								will be immediately rejected.
-							</span>
-							<div className="flex flex-col gap-1.5 rounded-lg border bg-muted/50 p-3 text-sm">
-								<div className="flex items-center justify-between">
-									<span className="text-muted-foreground">Name</span>
-									<span className="font-medium text-foreground">
-										{revokeKey?.name}
-									</span>
-								</div>
-								<div className="flex items-center justify-between">
-									<span className="text-muted-foreground">Key</span>
-									<code className="font-mono text-xs text-foreground">
-										{revokeKey ? maskKey(revokeKey.key_prefix) : ""}
-									</code>
-								</div>
-								<div className="flex items-center justify-between">
-									<span className="text-muted-foreground">Created</span>
-									<span className="text-foreground">
-										{revokeKey
-											? formatDistanceToNow(new Date(revokeKey.created_at), {
-													addSuffix: true,
-												})
-											: ""}
-									</span>
-								</div>
-								{revokeKey?.last_used_at && (
-									<div className="flex items-center justify-between">
-										<span className="text-muted-foreground">Last accessed</span>
-										<span className="text-foreground">
-											{formatDistanceToNow(new Date(revokeKey.last_used_at), {
-												addSuffix: true,
-											})}
-										</span>
-									</div>
-								)}
-								{revokeKey?.expires_at && (
-									<div className="flex items-center justify-between">
-										<span className="text-muted-foreground">Expires</span>
-										<span className="text-foreground">
-											{new Date(revokeKey.expires_at).toLocaleDateString()}
-										</span>
-									</div>
-								)}
-							</div>
-						</div>
-					</AlertDialogDescription>
-				</AlertDialogHeader>
-				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
-					<AlertDialogAction
-						variant="destructive"
-						onClick={() => {
-							if (revokeKey) {
-								onRevoke(revokeKey.key_id);
-								onOpenChange(false);
-							}
-						}}
-					>
-						Revoke{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
 	);
 }
