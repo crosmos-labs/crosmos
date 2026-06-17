@@ -52,12 +52,22 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { DeleteSourceDialog } from "@/components/sources/delete-source-dialog";
 import type { SourcesResponse } from "@/hooks/use-sources";
-import { SOURCES_PER_PAGE } from "@/lib/params/constants";
+import { listIn, optimisticRemove } from "@/lib/optimistic";
 import type {
 	ContentTypeStr,
 	ExtractionStatus,
 	SourceSummary,
 } from "@/lib/types/source";
+
+const EMPTY_SOURCES: SourcesResponse = {
+	sources: [],
+	hasMore: false,
+	total: 0,
+};
+const sourcesList = listIn<SourcesResponse, SourceSummary>(
+	(cache) => cache?.sources ?? [],
+	(cache, sources) => ({ ...(cache ?? EMPTY_SOURCES), sources }),
+);
 
 const CONTENT_TYPE_ICONS: Record<ContentTypeStr, typeof IconFileText> = {
 	text: IconFileText,
@@ -145,38 +155,15 @@ export function SourceList({
 
 	const handleDelete = useCallback(
 		(sourceUuid: string, spaceUuid: string) => {
-			const offset = (page - 1) * SOURCES_PER_PAGE;
-
-			const recompute = (current: SourcesResponse): SourcesResponse => {
-				const sources = current.sources.filter((s) => s.id !== sourceUuid);
-				const total = current.total - 1;
-				return {
-					sources,
-					total,
-					hasMore: offset + sources.length < total,
-				};
-			};
-
 			runAction(
-				async () => {
-					await mutate(
+				() =>
+					optimisticRemove<SourceSummary, SourcesResponse>(
+						mutate,
 						swrKey,
-						async (current: SourcesResponse | undefined) => {
-							await deleteSource(sourceUuid, spaceUuid);
-							return current
-								? recompute(current)
-								: { sources: [], hasMore: false, total: 0 };
-						},
-						{
-							optimisticData: (current: SourcesResponse | undefined) =>
-								current
-									? recompute(current)
-									: { sources: [], hasMore: false, total: 0 },
-							rollbackOnError: true,
-							revalidate: false,
-						},
-					);
-				},
+						(s) => s.id === sourceUuid,
+						() => deleteSource(sourceUuid, spaceUuid),
+						{ adapter: sourcesList },
+					),
 				{
 					toast: {
 						success: "Source deleted",
@@ -185,7 +172,7 @@ export function SourceList({
 				},
 			);
 		},
-		[runAction, mutate, swrKey, page],
+		[runAction, mutate, swrKey],
 	);
 
 	const toggleExpand = useCallback((id: string) => {

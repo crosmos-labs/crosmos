@@ -87,8 +87,9 @@ export function GroupsSection({
 					groupsKey,
 					(g) => g.id === group.id,
 					() => deleteGroup(orgId, group.id),
-					// Grants referencing the group are removed server-side.
-				).then(() => mutate(visibilityGrantsKey(orgId))),
+					// Grants referencing the group are removed server-side — reconcile them too.
+					{ also: [visibilityGrantsKey(orgId)] },
+				),
 			{ toast: { success: "Group deleted", error: "Couldn't delete group" } },
 		);
 	}

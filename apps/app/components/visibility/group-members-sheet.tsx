@@ -36,7 +36,8 @@ import {
 	visibilityGroupsKey,
 } from "@/hooks/use-visibility";
 import { avatarColor, getInitials } from "@/lib/members";
-import type { GroupMember, VisibilityGroup } from "@/lib/types/visibility";
+import { optimisticReplace } from "@/lib/optimistic";
+import type { GroupMember } from "@/lib/types/visibility";
 
 export function GroupMembersSheet({
 	orgId,
@@ -129,34 +130,24 @@ export function GroupMembersSheet({
 
 		handleOpenChange(false);
 		runAction(
-			async () => {
-				await Promise.all([
-					mutate<GroupMember[]>(membersKey, nextMembers, {
-						revalidate: false,
-					}),
-					mutate<VisibilityGroup[]>(
-						groupsKey,
-						(current) =>
-							(current ?? []).map((visibilityGroup) =>
-								visibilityGroup.id === groupId
-									? { ...visibilityGroup, member_count: selectedSnapshot.size }
-									: visibilityGroup,
+			() =>
+				optimisticReplace<GroupMember[]>(
+					mutate,
+					membersKey,
+					nextMembers,
+					() =>
+						// Batched: if any add/remove fails, the whole list rolls back even
+						// though some calls persisted; the reconcile then syncs server truth.
+						Promise.all([
+							...idsToAdd.map((userId) =>
+								addGroupMember(orgId, groupId, userId),
 							),
-						{ revalidate: false },
-					),
-				]);
-
-				try {
-					await Promise.all([
-						...idsToAdd.map((userId) => addGroupMember(orgId, groupId, userId)),
-						...idsToRemove.map((userId) =>
-							removeGroupMember(orgId, groupId, userId),
-						),
-					]);
-				} finally {
-					await Promise.all([mutate(membersKey), mutate(groupsKey)]);
-				}
-			},
+							...idsToRemove.map((userId) =>
+								removeGroupMember(orgId, groupId, userId),
+							),
+						]),
+					{ also: [groupsKey] },
+				),
 			{
 				toast: {
 					success: "Group members updated",
