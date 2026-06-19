@@ -14,8 +14,8 @@ export default async function AuthLayout({
 	if (user?.active_org) redirect("/");
 
 	return (
-		<div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-5 overflow-hidden">
-			<div className="col-span-3 p-4 sm:p-6 md:p-8">
+		<div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+			<div className="p-4 sm:p-6 md:p-8">
 				<div>
 					<Link href="/">
 						<Image
@@ -44,7 +44,7 @@ export default async function AuthLayout({
 					<div className="w-full max-w-sm sm:max-w-md">{children}</div>
 				</div>
 			</div>
-			<div className="hidden md:block col-span-2 relative">
+			<div className="hidden md:block relative">
 				<Image
 					src="/side-bg.png"
 					alt="side image"
