@@ -47,7 +47,7 @@ function getRadius(edge_count: number): number {
 }
 
 const NODES: GraphNode[] = [
-	// People cluster — top-left
+	// People cluster, top-left
 	{
 		id: "alice",
 		name: "Alice Johnson",
@@ -88,7 +88,7 @@ const NODES: GraphNode[] = [
 		cx: 252,
 		cy: 58,
 	},
-	// Organizations — center-left
+	// Organizations, center-left
 	{
 		id: "acme",
 		name: "Acme Corp",
@@ -113,7 +113,7 @@ const NODES: GraphNode[] = [
 		cx: 375,
 		cy: 192,
 	},
-	// Projects — center-bottom
+	// Projects, center-bottom
 	{
 		id: "alpha",
 		name: "Project Alpha",
@@ -138,7 +138,7 @@ const NODES: GraphNode[] = [
 		cx: 415,
 		cy: 272,
 	},
-	// Technologies — right
+	// Technologies, right
 	{ id: "react", name: "React", type: "tech", edge_count: 4, cx: 395, cy: 105 },
 	{
 		id: "ts",
@@ -164,7 +164,7 @@ const NODES: GraphNode[] = [
 		cx: 445,
 		cy: 322,
 	},
-	// Concepts — bottom
+	// Concepts, bottom
 	{
 		id: "micro",
 		name: "Microservices",
@@ -181,7 +181,7 @@ const NODES: GraphNode[] = [
 		cx: 415,
 		cy: 365,
 	},
-	// Location — far left
+	// Location, far left
 	{
 		id: "sf",
 		name: "San Francisco",
@@ -193,7 +193,7 @@ const NODES: GraphNode[] = [
 ];
 
 const EDGES: GraphEdge[] = [
-	// Epoch 0 — Q1 2025: foundational work relationships
+	// Epoch 0, Q1 2025: foundational work relationships
 	{
 		id: "e1",
 		from: "alice",
@@ -234,7 +234,7 @@ const EDGES: GraphEdge[] = [
 		epoch: 0,
 		confidence: 0.99,
 	},
-	// Epoch 1 — Q2 2025: project assignments and tech adoption
+	// Epoch 1, Q2 2025: project assignments and tech adoption
 	{
 		id: "e6",
 		from: "alice",
@@ -275,7 +275,7 @@ const EDGES: GraphEdge[] = [
 		epoch: 1,
 		confidence: 0.96,
 	},
-	// Epoch 2 — Q3 2025: concepts, tech chains, collaboration
+	// Epoch 2, Q3 2025: concepts, tech chains, collaboration
 	{
 		id: "e11",
 		from: "alpha",
@@ -333,7 +333,7 @@ const POINTS: {
 		icon: IconTimelineEvent,
 		title: "Point-in-Time Queries",
 		description:
-			'Ask "what did we know as of Q3?" Crosmos returns the graph as it existed at that moment — not today\'s version.',
+			'Ask "what did we know as of Q3?" Crosmos returns the graph as it existed at that moment, not today\'s version.',
 	},
 	{
 		icon: IconShieldCheck,
@@ -496,7 +496,7 @@ function MTKGVisual({ reducedMotion }: { reducedMotion: boolean }) {
 					);
 				})}
 
-				{/* Epoch label — bottom-right, fades in on epoch change */}
+				{/* Epoch label, bottom-right, fades in on epoch change */}
 				<motion.g
 					key={epochIndex}
 					initial={{ opacity: 0 }}
@@ -516,7 +516,7 @@ function MTKGVisual({ reducedMotion }: { reducedMotion: boolean }) {
 				</motion.g>
 			</svg>
 
-			{/* Hover tooltip — absolute within wrapperRef */}
+			{/* Hover tooltip, absolute within wrapperRef */}
 			{tooltip && (
 				<div
 					className="absolute pointer-events-none z-10 bg-foreground/90 text-background text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap"

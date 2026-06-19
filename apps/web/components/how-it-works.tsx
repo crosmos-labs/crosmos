@@ -45,7 +45,7 @@ const STEPS: {
 		number: "01",
 		title: "Ingest",
 		description:
-			"Send any content — conversations, documents, notes. Crosmos extracts structured facts, identifies entities, and maps relationships in a single pass.",
+			"Send any content: conversations, documents, notes. Crosmos extracts structured facts, identifies entities, and maps relationships in a single pass.",
 		prompt: '/ingest "Alice joined Acme Corp as Head of Engineering."',
 		status: "crosmos · ingest",
 		lines: [
@@ -213,7 +213,7 @@ export function HowItWorks() {
 		if (isInView) setStarted(true);
 	}, [isInView]);
 
-	// Auto-advance: progressKey in deps is intentional — it acts as a reset trigger
+	// Auto-advance: progressKey in deps is intentional, it acts as a reset trigger
 	// biome-ignore lint/correctness/useExhaustiveDependencies: progressKey triggers re-run without being read
 	useEffect(() => {
 		if (!started) return;
@@ -306,7 +306,7 @@ export function HowItWorks() {
 						className="rounded-xl overflow-hidden mb-8"
 						style={{ backgroundColor: "oklch(0.19 0 0)" }}
 					>
-						{/* Header bar — traffic lights + working directory */}
+						{/* Header bar, traffic lights + working directory */}
 						<div className="flex items-center gap-3 px-4 py-2.5 border-b border-white/[0.06]">
 							<div className="flex gap-1.5">
 								<div className="size-2.5 rounded-full bg-[#ff5f57]" />
@@ -319,13 +319,13 @@ export function HowItWorks() {
 							</span>
 						</div>
 
-						{/* Terminal content. Input box containers, chevrons, and caret are static across all 3 steps —
+						{/* Terminal content. Input box containers, chevrons, and caret are static across all 3 steps,
 						    only the changing text/lines crossfade via per-region AnimatePresence. */}
 						<div
 							className="px-5 pt-4 pb-4 font-mono text-sm leading-[1.85]"
 							aria-hidden="true"
 						>
-							{/* Top input box — container is static; only the prompt text crossfades.
+							{/* Top input box, container is static; only the prompt text crossfades.
 							    overflow-y-hidden prevents an implicit vertical scrollbar when the prompt overflows horizontally
 							    on narrow viewports (overflow-x-auto alone makes the y-axis "auto" too). */}
 							<div
@@ -351,11 +351,11 @@ export function HowItWorks() {
 								</AnimatePresence>
 							</div>
 
-							{/* Body lines — fixed height fits the tallest step (8 lines) to prevent layout shift across step changes.
+							{/* Body lines, fixed height fits the tallest step (8 lines) to prevent layout shift across step changes.
 							    overflow-y-clip (not -hidden, not overflow-x-auto): each line uses `-mx-5 px-5` to bleed
 							    the highlight band past this container into the parent's padding. With overflow-x-auto,
 							    the children-wider-than-container case shows a horizontal scrollbar just above the bottom
-							    input — visible briefly on overlay-scrollbar platforms during state shifts. `clip` is the
+							    input, visible briefly on overlay-scrollbar platforms during state shifts. `clip` is the
 							    one overflow value that does NOT trigger the CSS visible→auto coercion on the other axis,
 							    so x stays visible, children bleed freely, and the terminal card's outer overflow-hidden
 							    clips at the card edge. */}
@@ -399,7 +399,7 @@ export function HowItWorks() {
 								</AnimatePresence>
 							</div>
 
-							{/* Bottom input box — container, chevron, and caret are static; only the right-side status crossfades. */}
+							{/* Bottom input box, container, chevron, and caret are static; only the right-side status crossfades. */}
 							<div
 								className="rounded-lg px-3.5 py-2.5 mt-3 flex items-center justify-between gap-3"
 								style={{
