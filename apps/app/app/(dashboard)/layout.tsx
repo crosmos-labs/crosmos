@@ -1,42 +1,27 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { RequireActiveOrg } from "@/components/layout/require-active-org";
 import { ActionLoaderProvider } from "@/components/providers/action-loader-provider";
 import { BreadcrumbProvider } from "@/components/providers/breadcrumb-provider";
 import { SwrProvider } from "@/components/providers/swr-provider";
-import { verifyAuth } from "@/lib/auth/session";
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state";
-
-export default async function DashboardLayout({
+// Static shell: no top-level auth/cookie reads, so the dashboard routes stay
+// prerenderable and <Link>-prefetchable (instant navigation). Auth is enforced
+// by proxy.ts (edge) and re-verified by the backend on every request; the
+// per-user sidebar data loads client-side via useCurrentUser.
+export default function DashboardLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const [user, cookieStore] = await Promise.all([verifyAuth(), cookies()]);
-
-	if (!user) {
-		redirect("/signup");
-	}
-
-	if (!user.active_org) {
-		redirect("/signup");
-	}
-
-	const sidebarOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value !== "false";
-
-	const swrFallback: Record<string, unknown> = {
-		"/auth/me": user,
-	};
-
 	return (
-		<SwrProvider fallback={swrFallback}>
+		<SwrProvider>
 			<ActionLoaderProvider>
 				<BreadcrumbProvider>
-					<SidebarProvider defaultOpen={sidebarOpen}>
-						<AppSidebar user={user} activeOrg={user.active_org} />
+					<SidebarProvider>
+						<RequireActiveOrg />
+						<AppSidebar />
 						<SidebarInset>
 							<DashboardHeader />
 							<div className="flex-1 overflow-auto">

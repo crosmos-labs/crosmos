@@ -21,9 +21,11 @@ import {
 	SidebarRail,
 	useSidebar,
 } from "@crosmos/ui/components/sidebar";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { IconChevronUp, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { preload } from "swr";
 
 function LinkArrow({ className }: { className?: string }) {
 	return (
@@ -45,11 +47,16 @@ function LinkArrow({ className }: { className?: string }) {
 }
 
 import { cn } from "@crosmos/ui/lib/utils";
+import { listApiKeys } from "@/actions/api-keys";
+import { listSpaces } from "@/actions/spaces";
+import { getUsage } from "@/actions/usage";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, navGroups } from "@/config/nav";
-import type { AuthUser } from "@/lib/types/auth";
-import type { ActiveOrgSummary } from "@/lib/types/org";
+import { apiKeysKey } from "@/hooks/use-api-keys";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { spacesKey } from "@/hooks/use-spaces";
+import { usageKey } from "@/hooks/use-usage";
 
 function isNavItemActive(pathname: string, href: string) {
 	// Home matches only its exact path; every other item also matches its
@@ -66,14 +73,25 @@ function getInitials(name: string) {
 		.slice(0, 2);
 }
 
-export function AppSidebar({
-	user,
-	activeOrg,
-}: {
-	user: AuthUser;
-	activeOrg: ActiveOrgSummary;
-}) {
+// Warm a route's SWR cache on hover/focus so the data is in flight before the
+// click lands. Only the cheap, org-only reads are warmed; sources/graph also
+// depend on the spaces list, which this primes.
+function warmRoute(href: string, orgId: string | null) {
+	if (!orgId) return;
+	if (href === "/spaces" || href === "/sources" || href === "/graph") {
+		preload(spacesKey(orgId), () => listSpaces());
+	} else if (href === "/api-key") {
+		preload(apiKeysKey(orgId), () => listApiKeys());
+	} else if (href === "/billing") {
+		preload(usageKey(orgId), () => getUsage());
+	}
+}
+
+export function AppSidebar() {
 	const pathname = usePathname();
+	const { data: user } = useCurrentUser();
+	const activeOrg = user?.active_org ?? null;
+	const orgId = user?.active_org_id ?? null;
 	const { activeCount } = useActionLoaderState();
 	const { isMobile, setOpenMobile, state } = useSidebar();
 
@@ -83,7 +101,16 @@ export function AppSidebar({
 		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
 				<SidebarMenu>
-					<OrgSwitcher activeOrg={activeOrg} />
+					{activeOrg ? (
+						<OrgSwitcher activeOrg={activeOrg} />
+					) : (
+						<SidebarMenuItem>
+							<SidebarMenuButton size="lg" disabled>
+								<Skeleton className="size-8 shrink-0 rounded-md" />
+								<Skeleton className="h-4 flex-1 group-data-[collapsible=icon]:hidden" />
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					)}
 				</SidebarMenu>
 			</SidebarHeader>
 
@@ -117,7 +144,10 @@ export function AppSidebar({
 									.filter(
 										(item) =>
 											!item.hidden &&
-											(!item.roles || item.roles.includes(activeOrg.your_role)),
+											(!item.roles ||
+												(activeOrg
+													? item.roles.includes(activeOrg.your_role)
+													: false)),
 									)
 									.map((item) => (
 										<SidebarMenuItem key={item.href}>
@@ -138,7 +168,11 @@ export function AppSidebar({
 														<span>{item.label}</span>
 													</>
 												) : (
-													<Link href={item.href}>
+													<Link
+														href={item.href}
+														onMouseEnter={() => warmRoute(item.href, orgId)}
+														onFocus={() => warmRoute(item.href, orgId)}
+													>
 														<item.icon />
 														<span>{item.label}</span>
 													</Link>
@@ -174,44 +208,54 @@ export function AppSidebar({
 				</SidebarMenu>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<SidebarMenuButton
-									size="lg"
-									tooltip={user.name}
-									className="group data-[state=open]:pointer-events-auto data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+						{user ? (
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<SidebarMenuButton
+										size="lg"
+										tooltip={user.name}
+										className="group data-[state=open]:pointer-events-auto data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+									>
+										<Avatar className="size-8">
+											<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+										</Avatar>
+										<div className="grid flex-1 text-left text-sm leading-tight overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
+											<span className="truncate">{user.name}</span>
+											<span className="truncate text-xs text-muted-foreground">
+												{user.email}
+											</span>
+										</div>
+										<IconChevronUp className="ml-auto size-4 overflow-hidden transition-[transform,rotate,max-width,opacity] duration-200 ease-in-out group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0" />
+									</SidebarMenuButton>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent
+									side={dropdownSide}
+									align="end"
+									className="w-(--radix-dropdown-menu-trigger-width)"
 								>
-									<Avatar className="size-8">
-										<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-									</Avatar>
-									<div className="grid flex-1 text-left text-sm leading-tight overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
-										<span className="truncate">{user.name}</span>
-										<span className="truncate text-xs text-muted-foreground">
-											{user.email}
-										</span>
-									</div>
-									<IconChevronUp className="ml-auto size-4 overflow-hidden transition-[transform,rotate,max-width,opacity] duration-200 ease-in-out group-data-[state=open]:rotate-180 group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0" />
-								</SidebarMenuButton>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								side={dropdownSide}
-								align="end"
-								className="w-(--radix-dropdown-menu-trigger-width)"
-							>
-								<DropdownMenuItem
-									asChild
-									disabled={activeCount > 0}
-									onSelect={() => {
-										if (isMobile) setOpenMobile(false);
-									}}
-								>
-									<a href="/logout">
-										<IconLogout />
-										<span>Log out</span>
-									</a>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+									<DropdownMenuItem
+										asChild
+										disabled={activeCount > 0}
+										onSelect={() => {
+											if (isMobile) setOpenMobile(false);
+										}}
+									>
+										<a href="/logout">
+											<IconLogout />
+											<span>Log out</span>
+										</a>
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						) : (
+							<SidebarMenuButton size="lg" disabled>
+								<Skeleton className="size-8 shrink-0 rounded-full" />
+								<div className="grid flex-1 gap-1 group-data-[collapsible=icon]:hidden">
+									<Skeleton className="h-3.5 w-24" />
+									<Skeleton className="h-3 w-32" />
+								</div>
+							</SidebarMenuButton>
+						)}
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarFooter>
