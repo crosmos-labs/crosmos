@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import {
 	clearAuthCookies,
@@ -7,18 +8,22 @@ import {
 	setAccessTokenCookie,
 	setActiveOrgCookie,
 } from "@/lib/auth/cookies";
+import { verifyAuth } from "@/lib/auth/session";
 import { assertFeatureEnabled, isSettingsDisabled } from "@/lib/features";
-import {
-	type AuthUser,
-	type MeResponse,
-	type SetActiveOrgResponse,
-	toAuthUser,
+import type {
+	AuthUser,
+	MeResponse,
+	SetActiveOrgResponse,
 } from "@/lib/types/auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Routes through verifyAuth so the client gets the same user the server layout
+// used to provide — including the active-org fallback and 401 refresh/retry.
 export async function getCurrentUser(): Promise<AuthUser> {
-	return toAuthUser(await apiFetch<MeResponse>("/auth/me"));
+	const user = await verifyAuth();
+	if (!user) redirect("/signup");
+	return user;
 }
 
 export async function setActiveOrg(orgId: string): Promise<void> {
