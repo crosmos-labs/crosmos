@@ -39,7 +39,7 @@ export function Problem() {
 		>
 			<div className="max-w-7xl mx-auto">
 				<div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 items-start">
-					{/* Content column — 60% on lg+ */}
+					{/* Content column, 60% on lg+ */}
 					<div className="lg:col-span-3">
 						<p className="text-primary font-mono font-bold uppercase mb-4">
 							[ The Problem ]
@@ -50,7 +50,7 @@ export function Problem() {
 						<p className="mt-6 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
 							Context lives in Slack, docs, tickets, and meetings. Agents see
 							fragments, not the picture. Crosmos builds structured
-							organizational memory — queryable, persistent, and self-improving.
+							organizational memory: queryable, persistent, and self-improving.
 						</p>
 
 						<div className="mt-10 sm:mt-12">
@@ -80,7 +80,7 @@ export function Problem() {
 						</div>
 					</div>
 
-					{/* Asset column — 40% on lg+ */}
+					{/* Asset column, 40% on lg+ */}
 					<div className="lg:col-span-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +90,7 @@ export function Problem() {
 						>
 							<style type="text/css">{`.cls-1{fill:none;stroke:#000;stroke-width:.4;stroke-linecap:round;stroke-miterlimit:10}.cls-2{fill:#242424}.cls-3{fill:#fff}.cls-4{fill:#326DE6}.cls-6{fill:#f1f1f1}.cls-7{fill:#757575}.cls-14{fill:#D17048}.cls-15{fill:#4757FF}.cls-26{fill:none;stroke:#ddd;stroke-width:.25;stroke-miterlimit:10}`}</style>
 							<defs>
-								{/* Arrowhead — points right in marker space; orient="auto" rotates it to follow each line */}
+								{/* Arrowhead, points right in marker space; orient="auto" rotates it to follow each line */}
 								<marker
 									id="arr"
 									markerWidth="2.5"
@@ -280,7 +280,7 @@ export function Problem() {
 								</linearGradient>
 							</defs>
 
-							{/* Service icons — fixed at top */}
+							{/* Service icons, fixed at top */}
 							<path d="m36.1 7.6c1-1.8-0.3-4.2-2.6-4.2-0.4 0-0.7 0-0.9 0.1-1.6-1.7-5.1-1.4-6 1.1-2.1 0.4-3.2 2.8-2 4.7-0.7 2.3 1.3 5.3 3.9 4.8 1.4 1.8 5 1.8 6.1-0.9 2.3-0.1 3.5-3.1 1.8-5.3l-0.3-0.3zm-2.7-3.3c1.3 0 2.4 1.3 2.1 2.6l-2.3-1.3c-0.2-0.2-0.5-0.2-0.8 0l-2.9 1.6v-1.3l2.6-1.4c0.5-0.2 0.9-0.2 1.3-0.2zm-4.3-1c0.6-0.2 1.5-0.2 2.3 0.4l-2.5 1.3c-0.3 0.1-0.4 0.4-0.4 0.7v2.2l-1-0.5v-2.1c0-1 0.7-1.8 1.6-2zm-3.6 5.6c-0.7-1-0.3-2.7 1-3.1v2.1c0 0.3 0.1 0.6 0.4 0.7l2.7 1.6-1 0.6-2.4-1.4c-0.3 0-0.6-0.3-0.7-0.5zm0.6 4.1c-0.7-0.6-1-1.6-0.7-2.4l2.8 1.5c0.3 0.1 0.6 0.1 0.8 0l2.6-1.5v1.2l-2.4 1.2c-1 0.6-2.3 0.6-3.1 0zm7.5-0.4c-0.2 1.5-2.5 2.5-4 1.3l2.5-1.3c0.3-0.1 0.4-0.5 0.4-0.7v-2.5l1 0.6v2.1l0.1 0.5zm1-0.4v-2.8c0-0.3-0.1-0.5-0.4-0.7l-2.7-1.6 1.1-0.6 2.4 1.4c1.5 0.7 1.5 3.7-0.4 4.3z" />
 							<path
 								className="cls-4"
@@ -364,7 +364,7 @@ export function Problem() {
 
 							{/* Arrows: icons → avatars
 							    Identical geometry for all 3 columns: top spread ±20 from avatar centre,
-							    converges to ±5 at avatar top — left/right are perfect mirrors. */}
+							    converges to ±5 at avatar top, left/right are perfect mirrors. */}
 							{/* Left avatar (centre x=30.4) */}
 							<line
 								className="cls-1"
@@ -415,7 +415,7 @@ export function Problem() {
 								y2="75"
 								markerEnd="url(#arr)"
 							/>
-							{/* Right avatar (centre x=180.4) — x at icon centres, y just below icons */}
+							{/* Right avatar (centre x=180.4), x at icon centres, y just below icons */}
 							<line
 								className="cls-1"
 								x1="170"
@@ -433,7 +433,7 @@ export function Problem() {
 								markerEnd="url(#arr)"
 							/>
 
-							{/* User avatars — shifted down 30 */}
+							{/* User avatars, shifted down 30 */}
 							<g transform="translate(0, 30)">
 								<path
 									className="cls-2"
@@ -475,7 +475,7 @@ export function Problem() {
 								markerEnd="url(#arr)"
 							/>
 
-							{/* Central hub — shifted down 60 */}
+							{/* Central hub, shifted down 60 */}
 							<g transform="translate(0, 60)">
 								<path
 									className="cls-2"
@@ -497,7 +497,7 @@ export function Problem() {
 								markerEnd="url(#arr)"
 							/>
 
-							{/* 3D data cube — shifted down 80 */}
+							{/* 3D data cube, shifted down 80 */}
 							<g transform="translate(0, 80)">
 								<path
 									d="m124 211c0-0.6-0.4-1.5-0.9-1.6l-18.2-9.4c-1.3-0.6-3.3-22-4.9-21.4l-17.8 28.5c-0.6 0.3-1 0.9-1 1.8v9.3h42.8v-7.2z"

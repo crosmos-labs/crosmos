@@ -18,8 +18,8 @@ const EASE_HOUSE = [0.22, 1, 0.36, 1] as const; // default: resize, dropdown, mo
 const EASE_BOB = [0.34, 1.35, 0.64, 1] as const; // success check bob (bouncy)
 
 // transitions-dev "premium opacity" pattern: blur + translateY paired with opacity
-const TEXT_SWAP_BLUR = 2; // px — matches --text-swap-blur
-const TEXT_SWAP_DY = 4; // px — matches --text-swap-translate-y
+const TEXT_SWAP_BLUR = 2; // px, matches --text-swap-blur
+const TEXT_SWAP_DY = 4; // px, matches --text-swap-translate-y
 
 function MonoLabel({
 	x,
@@ -50,7 +50,7 @@ function MonoLabel({
 }
 
 // ----------------------------------------------------------------------------
-// 01 Hybrid Retrieval — 4 streams converge into a result pill
+// 01 Hybrid Retrieval, 4 streams converge into a result pill
 // ----------------------------------------------------------------------------
 
 function HybridRetrievalVisual({ shouldAnimate }: VisualProps) {
@@ -130,7 +130,7 @@ function HybridRetrievalVisual({ shouldAnimate }: VisualProps) {
 							repeat: shouldAnimate ? Number.POSITIVE_INFINITY : 0,
 							delay: s.delay,
 							// Linear so the bead moves at constant speed along the
-							// pre-sampled bezier — EASE_HOUSE on every segment was
+							// pre-sampled bezier, EASE_HOUSE on every segment was
 							// causing per-keyframe deceleration (visible stutter).
 							ease: "linear",
 						}}
@@ -138,7 +138,7 @@ function HybridRetrievalVisual({ shouldAnimate }: VisualProps) {
 				);
 			})}
 
-			{/* Result pill with subtle pulse — outer <g> handles position,
+			{/* Result pill with subtle pulse, outer <g> handles position,
 			    inner motion.g scales around local (0,0) which is now the pill center. */}
 			<g transform={`translate(${target.x} ${target.y})`}>
 				<motion.g
@@ -185,7 +185,7 @@ function HybridRetrievalVisual({ shouldAnimate }: VisualProps) {
 }
 
 // ----------------------------------------------------------------------------
-// 02 Active Consolidation — drifting dots cluster into 3 groups
+// 02 Active Consolidation, drifting dots cluster into 3 groups
 // ----------------------------------------------------------------------------
 
 function ActiveConsolidationVisual({ shouldAnimate }: VisualProps) {
@@ -219,7 +219,7 @@ function ActiveConsolidationVisual({ shouldAnimate }: VisualProps) {
 
 	return (
 		<>
-			{/* Cluster halos: dashed rings — visible only while dots are settled
+			{/* Cluster halos: dashed rings, visible only while dots are settled
 			    in their cluster (dots reach target at 42% and leave at 62%). */}
 			{clusters.map((cl, idx) => (
 				<motion.circle
@@ -252,7 +252,7 @@ function ActiveConsolidationVisual({ shouldAnimate }: VisualProps) {
 				/>
 			))}
 
-			{/* Cluster labels — same window as halos */}
+			{/* Cluster labels, same window as halos */}
 			{clusters.map((cl) => (
 				<motion.g
 					key={`lbl-${cl.label}`}
@@ -319,7 +319,7 @@ function ActiveConsolidationVisual({ shouldAnimate }: VisualProps) {
 }
 
 // ----------------------------------------------------------------------------
-// 03 Forgetting — central node fades to outline, satellites stay solid
+// 03 Forgetting, central node fades to outline, satellites stay solid
 // ----------------------------------------------------------------------------
 
 function ForgettingVisual({ shouldAnimate }: VisualProps) {
@@ -371,7 +371,7 @@ function ForgettingVisual({ shouldAnimate }: VisualProps) {
 							x: [0, 0, dx, 0, 0],
 							y: [0, 0, dy, 0, 0],
 							opacity: [0, 0, 0.7, 0, 0],
-							// subtle blur on the drift peak — wisp feel
+							// subtle blur on the drift peak, wisp feel
 							filter: [
 								"blur(0px)",
 								"blur(0px)",
@@ -454,7 +454,7 @@ function ForgettingVisual({ shouldAnimate }: VisualProps) {
 				}}
 			/>
 
-			{/* archived_at label — text-states-swap pattern */}
+			{/* archived_at label, text-states-swap pattern */}
 			<motion.g
 				animate={{
 					opacity: [0, 0, 0.75, 0.75, 0],
@@ -487,7 +487,7 @@ function ForgettingVisual({ shouldAnimate }: VisualProps) {
 }
 
 // ----------------------------------------------------------------------------
-// 04 Temporal Inference — phrase chip + timeline + morphing range bar
+// 04 Temporal Inference, phrase chip + timeline + morphing range bar
 // ----------------------------------------------------------------------------
 
 function TemporalInferenceVisual({ shouldAnimate }: VisualProps) {
@@ -660,7 +660,7 @@ function TemporalInferenceVisual({ shouldAnimate }: VisualProps) {
 }
 
 // ----------------------------------------------------------------------------
-// 05 Persistence Scoring — center node strengthens as team pings arrive
+// 05 Persistence Scoring, center node strengthens as team pings arrive
 // ----------------------------------------------------------------------------
 
 function PersistenceScoringVisual({ shouldAnimate }: VisualProps) {
@@ -674,7 +674,7 @@ function PersistenceScoringVisual({ shouldAnimate }: VisualProps) {
 
 	return (
 		<>
-			{/* Concentric ripple rings — wrap in static <g> at center; animate the radius
+			{/* Concentric ripple rings, wrap in static <g> at center; animate the radius
 			    (not scale) so the ring always grows from the true center. */}
 			<g transform={`translate(${center.x} ${center.y})`}>
 				{[0, 1, 2].map((r) => (
@@ -769,7 +769,7 @@ function PersistenceScoringVisual({ shouldAnimate }: VisualProps) {
 }
 
 // ----------------------------------------------------------------------------
-// 06 Per-Query Search Controls — 4 toggleable retrieval switches
+// 06 Per-Query Search Controls, 4 toggleable retrieval switches
 // ----------------------------------------------------------------------------
 
 function PerQueryControlsVisual({ shouldAnimate }: VisualProps) {
@@ -807,7 +807,7 @@ function PerQueryControlsVisual({ shouldAnimate }: VisualProps) {
 						strokeWidth={1}
 					/>
 
-					{/* Track fill — appears while "on", with text-swap blur on entry/exit */}
+					{/* Track fill, appears while "on", with text-swap blur on entry/exit */}
 					<motion.rect
 						x={trackX}
 						y={t.y - trackH / 2}
@@ -834,7 +834,7 @@ function PerQueryControlsVisual({ shouldAnimate }: VisualProps) {
 						}}
 					/>
 
-					{/* Thumb sliding off → on → off — fills with bg so it stays
+					{/* Thumb sliding off → on → off, fills with bg so it stays
 					    visible against the accent track when "on". */}
 					<motion.circle
 						cy={t.y}
@@ -889,28 +889,28 @@ const FEATURES: Feature[] = [
 		num: "03",
 		title: "Forgetting",
 		description:
-			"Memories are never deleted — just soft-hidden with a full audit trail. Low-signal knowledge fades, what matters stays.",
+			"Memories are never deleted, just soft-hidden with a full audit trail. Low-signal knowledge fades, what matters stays.",
 		Visual: ForgettingVisual,
 	},
 	{
 		num: "04",
 		title: "Temporal Inference",
 		description:
-			"Understands natural language time expressions — “last Tuesday,” “since January,” “3 months ago.”",
+			"Understands natural language time expressions: “last Tuesday,” “since January,” “3 months ago.”",
 		Visual: TemporalInferenceVisual,
 	},
 	{
 		num: "05",
 		title: "Persistence Scoring",
 		description:
-			"Organizational knowledge that compounds. Frequently accessed facts persist longer through reinforcement — the more your teams use a piece of knowledge, the more it endures.",
+			"Organizational knowledge that compounds. Frequently accessed facts persist longer through reinforcement, the more your teams use a piece of knowledge, the more it endures.",
 		Visual: PersistenceScoringVisual,
 	},
 	{
 		num: "06",
 		title: "Per-Query Search Controls",
 		description:
-			"Tune retrieval per-request — recency bias, graph depth, cross-encoder, diversity toggles.",
+			"Tune retrieval per-request: recency bias, graph depth, cross-encoder, diversity toggles.",
 		Visual: PerQueryControlsVisual,
 	},
 ];

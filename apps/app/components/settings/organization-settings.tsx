@@ -4,18 +4,19 @@ import { Button } from "@crosmos/ui/components/button";
 import { Input } from "@crosmos/ui/components/input";
 import { Label } from "@crosmos/ui/components/label";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateOrg } from "@/actions/orgs";
-import { DataFetchError } from "@/components/data-fetch-error";
 import {
 	useActionLoader,
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { orgKey, useOrg } from "@/hooks/use-org";
+import { orgsKey } from "@/hooks/use-orgs";
+import type { OrgDetailResponse } from "@/lib/types/org";
 
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
 
@@ -24,7 +25,6 @@ export function OrganizationSettings() {
 	const orgId = user?.active_org_id ?? null;
 	const { data: org, error, isLoading } = useOrg(orgId);
 	const { mutate } = useSWRConfig();
-	const router = useRouter();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
 
@@ -106,8 +106,15 @@ export function OrganizationSettings() {
 					});
 				}
 				await mutate(orgKey(orgId));
-				// Refresh the server-rendered sidebar (org name/avatar).
-				router.refresh();
+				await mutate(
+					orgsKey,
+					(current: OrgDetailResponse[] | undefined) =>
+						current?.map((item) =>
+							item.id === orgId ? { ...item, ...result.data } : item,
+						),
+					{ revalidate: false },
+				);
+				await mutate(orgsKey);
 			},
 			{ toast: { success: "Organization updated" } },
 		).catch((err: unknown) => {

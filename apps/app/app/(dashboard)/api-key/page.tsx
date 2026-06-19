@@ -1,9 +1,11 @@
 "use client";
 
 import { mutate } from "swr";
-import { ApiKeyList } from "@/components/api-key-list";
-import { ApiKeyListSkeleton } from "@/components/api-key-list-skeleton";
-import { DataFetchError } from "@/components/data-fetch-error";
+import {
+	ApiKeyList,
+	ApiKeyListSkeleton,
+} from "@/components/api-keys/api-key-list";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { apiKeysKey, useApiKeys } from "@/hooks/use-api-keys";
 

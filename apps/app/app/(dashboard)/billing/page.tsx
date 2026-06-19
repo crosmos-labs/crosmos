@@ -11,10 +11,10 @@ import {
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { useSWRConfig } from "swr";
+import { BillingSkeleton } from "@/components/billing/billing-skeleton";
 import { SpacesMeter } from "@/components/billing/spaces-meter";
 import { UsageMeter } from "@/components/billing/usage-meter";
-import { BillingSkeleton } from "@/components/billing-skeleton";
-import { DataFetchError } from "@/components/data-fetch-error";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { usageKey, useUsage } from "@/hooks/use-usage";
 import { formatNumber } from "@/lib/format";

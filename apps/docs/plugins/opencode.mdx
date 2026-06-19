@@ -1,0 +1,145 @@
+---
+title: "OpenCode"
+description: "Add automatic, persistent memory to opencode."
+icon: "/icons/opencode.svg"
+---
+
+The Crosmos opencode plugin adds project memory to opencode. At the start of a session the agent loads your project's stored context, your conversations are saved automatically, and it recalls and saves durable facts proactively as it works through the `crosmos_recall` and `crosmos_save` tools.
+
+The plugin makes no model calls of its own, so it behaves the same whichever provider or model you run. Use it when you want opencode to remember project decisions, preferences, and prior work without managing memory by hand. If you only need callable memory tools, use [MCP](/mcp/overview) instead.
+
+## Prerequisites
+
+- [opencode](https://opencode.ai), which runs plugins on the Bun runtime it ships with
+- A Crosmos API key from the [Crosmos Console](https://console.crosmos.dev)
+- At least one Crosmos memory space
+
+Keys use the `csk_` prefix.
+
+## Install
+
+The CLI registers the plugin in your opencode config and saves your key:
+
+```bash
+bunx @crosmos/opencode install         # add the plugin to your opencode config
+bunx @crosmos/opencode set-key csk_…   # save the key to ~/.crosmos/credentials.json
+bunx @crosmos/opencode status          # verify connectivity and the resolved space
+```
+
+To wire it up by hand, add the plugin to `~/.config/opencode/opencode.json` (or a project `opencode.json`):
+
+```json
+{
+  "plugin": ["@crosmos/opencode"]
+}
+```
+
+To pass options inline instead of using the environment or credentials file, use the tuple form:
+
+```json
+{
+  "plugin": [["@crosmos/opencode", { "spaceName": "my-project" }]]
+}
+```
+
+<Note>
+Before an npm publish you can install straight from GitHub, which opencode builds on install, with `"plugin": ["github:crosmos-labs/opencode-crosmos"]`. For local development, run `bun run build` and point at the built file: `"plugin": ["file:///abs/path/opencode-crosmos/dist/index.js"]`.
+</Note>
+
+## Authentication
+
+The plugin reads your API key from `~/.crosmos/credentials.json` — the same file the Crosmos CLI and Console use, so if you have set up Crosmos anywhere it works without extra steps. The quickest way to create it:
+
+```bash
+bunx @crosmos/opencode set-key csk_… --base-url https://api.crosmos.dev
+```
+
+You can also grab a key from the [Crosmos Console](https://console.crosmos.dev) and either drop it in `~/.crosmos/credentials.json` or export `CROSMOS_API_KEY`. Without a key the plugin is a silent no-op, so opencode is never affected.
+
+## Verify
+
+```bash
+bunx @crosmos/opencode status
+```
+
+The status command prints connectivity and the resolved memory space.
+
+## How it works
+
+The plugin is a single in-process module that uses three opencode hooks and talks to Crosmos over the `crosmos` SDK. Fact extraction and retrieval happen server-side, so the plugin makes **no model calls** and behaves identically across providers. Everything **fails open** — memory being unavailable never blocks your session, and secrets never leave your machine.
+
+| Hook | When it runs | What it does |
+|------|--------------|--------------|
+| `chat.message` | The first message of a session | Injects a one-time, non-blocking directive telling the agent to load the project's memory. |
+| `event` → `session.idle` | The session goes idle | Captures new conversation turns and saves them, secret-redacted and deduped per turn. |
+| `tool` → `crosmos_recall` / `crosmos_save` | When the agent decides it needs memory | Recalls context, or saves a durable fact — proactively, without being asked. |
+
+Because recall runs as a visible `crosmos_recall` tool step rather than a blocking hook, your **first message never waits on memory**. The agent loads your project's profile — conventions, decisions, and coding preferences — at the start of a session, recalls again whenever a request depends on past context, and records durable, user-specific facts with `crosmos_save` as they surface.
+
+## CLI commands
+
+```bash
+bunx @crosmos/opencode install [--project]                 # add the plugin to the global (or project) config
+bunx @crosmos/opencode uninstall [--project]               # remove it again
+bunx @crosmos/opencode set-key <csk_…> [--base-url <url>]  # save the API key to ~/.crosmos/credentials.json
+bunx @crosmos/opencode status                              # show connectivity and the resolved space
+```
+
+## Configuration
+
+Each value resolves from opencode plugin options first, then the environment, then the credentials file. All are optional except the API key.
+
+| Option | Environment variable | Purpose |
+|--------|----------------------|---------|
+| `apiKey` | `CROSMOS_API_KEY` | API key (`csk_…`). |
+| `baseUrl` | `CROSMOS_API_BASE_URL` | API base URL. Defaults to `https://api.crosmos.dev`. |
+| `spaceId` | `CROSMOS_SPACE_ID` | Pin a memory space by ID. |
+| `spaceName` | `CROSMOS_SPACE_NAME` | Resolve and pin a memory space by name. |
+
+If neither `spaceId` nor `spaceName` is set, the org's first space is used.
+
+## Privacy
+
+- All ingested content is scanned and secrets such as keys, tokens, and passwords are masked before upload.
+- Wrap anything you never want captured in `<private>…</private>` — those spans are stripped entirely.
+
+## Troubleshooting
+
+### Memory is not working
+
+Check connectivity and the resolved space:
+
+```bash
+bunx @crosmos/opencode status
+```
+
+### No API key is configured
+
+Without a key the plugin is a silent no-op. Save one or export `CROSMOS_API_KEY`:
+
+```bash
+bunx @crosmos/opencode set-key csk_…
+```
+
+### No memory space is available
+
+Create a memory space in the [Crosmos Console](https://console.crosmos.dev). You can pin a specific space with `CROSMOS_SPACE_ID` or `CROSMOS_SPACE_NAME`, or the `spaceId` / `spaceName` plugin options.
+
+## Uninstall
+
+```bash
+bunx @crosmos/opencode uninstall
+```
+
+Add `--project` to remove it from a project config. Existing memories in Crosmos are preserved.
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="MCP" icon="puzzle-piece" href="/mcp/overview">
+  Connect Crosmos memory tools to AI clients.
+</Card>
+<Card title="Memory tools" icon="list-check" href="/mcp/tools">
+  See the callable memory tool schemas.
+</Card>
+</CardGroup>

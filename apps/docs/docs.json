@@ -50,7 +50,11 @@
 				"groups": [
 					{
 						"group": "Agent Plugins",
-						"pages": ["plugins/codex"]
+						"pages": [
+							"plugins/claude-code",
+							"plugins/codex",
+							"plugins/opencode"
+						]
 					}
 				]
 			},

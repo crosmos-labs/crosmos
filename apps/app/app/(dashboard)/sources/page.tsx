@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
-import { DataFetchError } from "@/components/data-fetch-error";
-import { SourceFilters } from "@/components/source-filters";
-import { SourceList } from "@/components/source-list";
-import { SourceListSkeleton } from "@/components/source-list-skeleton";
+import { DataFetchError } from "@/components/shared/data-fetch-error";
+import { SourceFilters } from "@/components/sources/source-filters";
+import {
+	SourceList,
+	SourceListSkeleton,
+} from "@/components/sources/source-list";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { buildSourcesKey, useSources } from "@/hooks/use-sources";
 import { useSpaces } from "@/hooks/use-spaces";
