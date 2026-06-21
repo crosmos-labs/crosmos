@@ -314,16 +314,18 @@ export function MemberList() {
 							<MemberAvatar name={member.name} email={member.email} />
 							<ItemContent>
 								<ItemTitle className="text-base">
-									{member.name || member.email}
+									<span className="min-w-0 truncate">
+										{member.name || member.email}
+									</span>
 									{isSelf && (
-										<span className="text-xs font-normal text-muted-foreground">
+										<span className="shrink-0 text-xs font-normal text-muted-foreground">
 											(You)
 										</span>
 									)}
 								</ItemTitle>
-								<ItemDescription className="flex items-center gap-1.5">
-									<IconMail className="size-3.5" />
-									{member.email}
+								<ItemDescription className="flex min-w-0 items-center gap-1.5">
+									<IconMail className="size-3.5 shrink-0" />
+									<span className="min-w-0 truncate">{member.email}</span>
 								</ItemDescription>
 							</ItemContent>
 							<ItemActions>

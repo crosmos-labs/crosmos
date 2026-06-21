@@ -41,7 +41,7 @@ export function GroupOverview({
 
 	return (
 		<div className="flex flex-col gap-6">
-			<div className="grid gap-4 sm:grid-cols-3">
+			<div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
 				<Stat label="Members" value={group.member_count} />
 				<Stat label="Groups with access" value={groupsWithAccess} />
 				<Stat

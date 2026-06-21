@@ -145,7 +145,7 @@ export function GroupAccessEditor({
 	return (
 		<div className="flex flex-col gap-8">
 			<div className="flex flex-col gap-4">
-				<div className="flex items-start justify-between gap-4">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 					<div className="flex flex-col gap-1">
 						<h2 className="text-base font-medium">
 							Who can read these memories
@@ -235,7 +235,7 @@ export function GroupAccessEditor({
 									<GroupAvatar name={vg.name} seed={vg.slug} />
 									<ItemContent className="h-8 justify-between gap-0">
 										<ItemTitle className="text-sm leading-tight">
-											{vg.name}
+											<span className="min-w-0 truncate">{vg.name}</span>
 										</ItemTitle>
 										<HoverMeta
 											base={members(vg.member_count)}
@@ -308,7 +308,7 @@ export function GroupAccessEditor({
 										<GroupAvatar name={sg.name} seed={sg.slug} />
 										<ItemContent className="h-8 justify-between gap-0">
 											<ItemTitle className="text-sm leading-tight">
-												{sg.name}
+												<span className="min-w-0 truncate">{sg.name}</span>
 											</ItemTitle>
 											<HoverMeta
 												base={members(sg.member_count)}

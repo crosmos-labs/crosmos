@@ -137,7 +137,9 @@ export function GroupMembersTab({
 							<MemberAvatar name={member.name} email={member.email} />
 							<ItemContent>
 								<ItemTitle className="text-base">
-									{member.name || member.email}
+									<span className="min-w-0 truncate">
+										{member.name || member.email}
+									</span>
 								</ItemTitle>
 							</ItemContent>
 							<ItemActions>

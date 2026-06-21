@@ -156,7 +156,7 @@ export function GroupList() {
 									<GroupAvatar name={group.name} seed={group.slug} />
 									<ItemContent className="h-8 justify-between gap-0">
 										<ItemTitle className="text-sm leading-tight">
-											{group.name}
+											<span className="min-w-0 truncate">{group.name}</span>
 										</ItemTitle>
 										<ItemDescription className="text-xs leading-none line-clamp-1">
 											{group.member_count} member

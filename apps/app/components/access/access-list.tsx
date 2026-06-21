@@ -156,13 +156,13 @@ export function AccessList() {
 									<GroupAvatar name={group.name} seed={group.slug} />
 									<ItemContent className="h-8 justify-between gap-0">
 										<ItemTitle className="text-sm leading-tight">
-											{group.name}
+											<span className="min-w-0 truncate">{group.name}</span>
 										</ItemTitle>
 										<ItemDescription className="text-xs leading-none line-clamp-1">
 											{members(group.member_count)}
 										</ItemDescription>
 									</ItemContent>
-									<ItemActions>
+									<ItemActions className="min-w-0 flex-wrap justify-end">
 										{viewers.length === 0 ? (
 											<Badge variant="outline">
 												<IconLock className="size-3" />

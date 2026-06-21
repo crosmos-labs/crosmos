@@ -54,8 +54,10 @@ export function GroupHeader({
 	return (
 		<div className="flex items-center gap-4">
 			<GroupAvatar name={group.name} seed={group.slug} size="lg" />
-			<div className="flex flex-1 flex-col gap-0.5">
-				<h1 className="text-xl font-semibold tracking-tight">{group.name}</h1>
+			<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+				<h1 className="truncate text-xl font-semibold tracking-tight">
+					{group.name}
+				</h1>
 				<p className="text-sm text-muted-foreground">
 					{group.member_count} member{group.member_count === 1 ? "" : "s"}
 				</p>
