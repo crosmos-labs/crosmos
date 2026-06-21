@@ -8,7 +8,9 @@ import {
 } from "@crosmos/ui/components/input-group";
 import {
 	Item,
+	ItemActions,
 	ItemContent,
+	ItemDescription,
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
@@ -39,14 +41,18 @@ function AccessListSkeleton() {
 		<div aria-busy="true" className="flex flex-col gap-6">
 			<Skeleton className="h-16 w-full rounded-lg" />
 			<Skeleton className="h-9 w-full max-w-xs" />
-			<ItemGroup variant="default">
-				{["a", "b", "c"].map((k) => (
-					<Item key={k} variant="outline" className="items-start px-4 py-3.5">
+			<ItemGroup>
+				{["a", "b", "c", "d"].map((k) => (
+					<Item key={k} variant="outline" size="lg">
 						<Skeleton className="size-8 rounded-full" />
-						<ItemContent className="gap-2">
-							<Skeleton className="h-4 w-32" />
-							<Skeleton className="h-4 w-48" />
+						<ItemContent className="h-8 justify-between gap-0">
+							<Skeleton className="h-3.5 w-28" />
+							<Skeleton className="h-3 w-16" />
 						</ItemContent>
+						<ItemActions>
+							<Skeleton className="h-5 w-16 rounded-full" />
+							<Skeleton className="h-5 w-16 rounded-full" />
+						</ItemActions>
 					</Item>
 				))}
 			</ItemGroup>
@@ -139,45 +145,43 @@ export function AccessList() {
 					No groups match “{search}”.
 				</p>
 			) : (
-				<ItemGroup variant="default">
+				<ItemGroup>
 					{visible.map((group) => {
 						const viewers = viewersBySubject.get(group.id) ?? [];
+						const shown = viewers.slice(0, 3);
+						const extra = viewers.length - shown.length;
 						return (
-							<Item
-								key={group.id}
-								asChild
-								variant="outline"
-								className="items-start px-4 py-3.5"
-							>
+							<Item key={group.id} asChild variant="outline" size="lg">
 								<Link href={`/access/${group.id}`}>
 									<GroupAvatar name={group.name} seed={group.slug} />
-									<ItemContent className="gap-2">
-										<div className="flex items-center gap-2">
-											<ItemTitle className="text-base">{group.name}</ItemTitle>
-											<span className="text-sm text-muted-foreground">
-												{members(group.member_count)}
-											</span>
-										</div>
-										<div className="flex flex-col gap-1.5">
-											<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-												Visible to
-											</span>
-											<div className="flex flex-wrap gap-1.5">
-												{viewers.length === 0 ? (
-													<Badge variant="outline">
-														<IconLock className="size-3" />
-														Only {group.name}
-													</Badge>
-												) : (
-													viewers.map((v) => (
-														<Badge key={v.id} variant="secondary">
-															{v.name}
-														</Badge>
-													))
-												)}
-											</div>
-										</div>
+									<ItemContent className="h-8 justify-between gap-0">
+										<ItemTitle className="text-sm leading-tight">
+											{group.name}
+										</ItemTitle>
+										<ItemDescription className="text-xs leading-none line-clamp-1">
+											{members(group.member_count)}
+										</ItemDescription>
 									</ItemContent>
+									<ItemActions>
+										{viewers.length === 0 ? (
+											<Badge variant="outline">
+												<IconLock className="size-3" />
+												Only {group.name}
+											</Badge>
+										) : (
+											<>
+												<span className="text-xs text-muted-foreground">
+													Visible to
+												</span>
+												{shown.map((v) => (
+													<Badge key={v.id} variant="secondary">
+														{v.name}
+													</Badge>
+												))}
+												{extra > 0 && <Badge variant="outline">+{extra}</Badge>}
+											</>
+										)}
+									</ItemActions>
 								</Link>
 							</Item>
 						);

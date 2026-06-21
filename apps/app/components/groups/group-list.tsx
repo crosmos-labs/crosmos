@@ -149,13 +149,16 @@ export function GroupList() {
 								key={group.id}
 								asChild
 								variant="outline"
-								className={cn("px-4 py-3.5", isOptimistic && "opacity-50")}
+								size="lg"
+								className={cn(isOptimistic && "opacity-50")}
 							>
 								<Link href={`/groups/${group.id}`}>
 									<GroupAvatar name={group.name} seed={group.slug} />
-									<ItemContent>
-										<ItemTitle className="text-base">{group.name}</ItemTitle>
-										<ItemDescription>
+									<ItemContent className="h-8 justify-between gap-0">
+										<ItemTitle className="text-sm leading-tight">
+											{group.name}
+										</ItemTitle>
+										<ItemDescription className="text-xs leading-none line-clamp-1">
 											{group.member_count} member
 											{group.member_count === 1 ? "" : "s"}
 										</ItemDescription>

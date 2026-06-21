@@ -9,11 +9,11 @@ export function HoverMeta({
 	hover: ReactNode;
 }) {
 	return (
-		<ItemDescription as="div" className="grid">
-			<span className="col-start-1 row-start-1 transition-opacity duration-100 group-hover/item:opacity-0 group-hover/item:transition-none">
+		<ItemDescription as="div" className="grid text-xs leading-none">
+			<span className="col-start-1 row-start-1 whitespace-nowrap transition-opacity duration-100 group-hover/item:opacity-0 group-hover/item:transition-none">
 				{base}
 			</span>
-			<span className="col-start-1 row-start-1 opacity-0 transition-opacity duration-100 group-hover/item:opacity-100 group-hover/item:transition-none">
+			<span className="col-start-1 row-start-1 whitespace-nowrap opacity-0 transition-opacity duration-100 group-hover/item:opacity-100 group-hover/item:transition-none">
 				{hover}
 			</span>
 		</ItemDescription>

@@ -164,7 +164,7 @@ export function GroupAccessEditor({
 							return {
 								id: g.id,
 								value: `${g.name} ${g.slug}`,
-								leading: <GroupAvatar name={g.name} seed={g.slug} size="sm" />,
+								leading: <GroupAvatar name={g.name} seed={g.slug} size="xs" />,
 								label: g.name,
 								disabled: added,
 								trailing: added ? (
@@ -229,11 +229,14 @@ export function GroupAccessEditor({
 								<Item
 									key={grant.id}
 									variant="outline"
-									className={cn("px-4 py-3.5", isOptimistic && "opacity-50")}
+									size="lg"
+									className={cn(isOptimistic && "opacity-50")}
 								>
 									<GroupAvatar name={vg.name} seed={vg.slug} />
-									<ItemContent>
-										<ItemTitle className="text-base">{vg.name}</ItemTitle>
+									<ItemContent className="h-8 justify-between gap-0">
+										<ItemTitle className="text-sm leading-tight">
+											{vg.name}
+										</ItemTitle>
 										<HoverMeta
 											base={members(vg.member_count)}
 											hover={grantedLabel(grant.created_at)}
@@ -301,14 +304,12 @@ export function GroupAccessEditor({
 									grant.subject_group_slug,
 								);
 								return (
-									<Item
-										key={grant.id}
-										variant="outline"
-										className="px-4 py-3.5"
-									>
+									<Item key={grant.id} variant="outline" size="lg">
 										<GroupAvatar name={sg.name} seed={sg.slug} />
-										<ItemContent>
-											<ItemTitle className="text-base">{sg.name}</ItemTitle>
+										<ItemContent className="h-8 justify-between gap-0">
+											<ItemTitle className="text-sm leading-tight">
+												{sg.name}
+											</ItemTitle>
 											<HoverMeta
 												base={members(sg.member_count)}
 												hover={grantedLabel(grant.created_at)}
