@@ -1,3 +1,4 @@
+import { Card } from "@crosmos/ui/components/card";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
@@ -7,7 +8,7 @@ const MAX_PIPS = 50;
 
 export function SpacesMeterSkeleton() {
 	return (
-		<div className="flex flex-col gap-3 rounded-lg border p-4">
+		<Card className="gap-3 p-4">
 			<div className="flex items-center justify-between">
 				<Skeleton className="h-4 w-16" />
 				<Skeleton className="h-4 w-28" />
@@ -19,7 +20,7 @@ export function SpacesMeterSkeleton() {
 				))}
 			</div>
 			<Skeleton className="h-3 w-24" />
-		</div>
+		</Card>
 	);
 }
 
@@ -28,7 +29,7 @@ export function SpacesMeter({ used, limit }: { used: number; limit: number }) {
 	const overflow = limit - cap;
 
 	return (
-		<div className="flex flex-col gap-3 rounded-lg border p-4">
+		<Card className="gap-3 p-4">
 			<div className="flex items-center justify-between">
 				<span className="text-sm font-medium">Spaces</span>
 				<span className="text-sm text-muted-foreground">
@@ -60,6 +61,6 @@ export function SpacesMeter({ used, limit }: { used: number; limit: number }) {
 				Manage spaces
 				<IconArrowRight className="size-3.5" />
 			</Link>
-		</div>
+		</Card>
 	);
 }
