@@ -139,7 +139,7 @@ export function AppSidebar() {
 					<SidebarGroup key={group.label}>
 						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
 						<SidebarGroupContent>
-							<SidebarMenu>
+							<SidebarMenu className="gap-px">
 								{group.items
 									.filter(
 										(item) =>

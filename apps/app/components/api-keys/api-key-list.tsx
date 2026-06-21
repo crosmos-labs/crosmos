@@ -88,7 +88,7 @@ function KeyCountRow({
 
 function SkeletonRow() {
 	return (
-		<Item variant="outline" className="px-4 py-3.5">
+		<Item variant="outline" size="lg">
 			<ItemContent>
 				<ItemTitle className="flex h-6 items-center gap-2 text-base">
 					<Skeleton className="h-4 w-28" />
@@ -111,9 +111,11 @@ export function ApiKeyListSkeleton() {
 				<Skeleton className="h-4 w-16" />
 				<Skeleton className="h-8 w-20" />
 			</div>
-			{["a", "b", "c"].map((k) => (
-				<SkeletonRow key={k} />
-			))}
+			<ItemGroup>
+				{["a", "b", "c"].map((k) => (
+					<SkeletonRow key={k} />
+				))}
+			</ItemGroup>
 			<span className="sr-only">Loading API keys…</span>
 		</div>
 	);
@@ -240,7 +242,7 @@ export function ApiKeyList({
 							key={key.key_id}
 							variant="outline"
 							className={cn(
-								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
+								"px-4 py-3.5",
 								isRecent &&
 									"border-green-500/30 bg-green-500/5 dark:bg-green-500/10",
 								isOptimistic && "opacity-50",
