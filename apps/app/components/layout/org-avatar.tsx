@@ -1,9 +1,4 @@
-"use client";
-
-import { Avatar } from "@crosmos/ui/components/avatar";
-import { cn } from "@crosmos/ui/lib/utils";
-import { Hashvatar } from "hashvatar/react";
-import type { CSSProperties } from "react";
+import { HashAvatar } from "@/components/shared/hash-avatar";
 
 export function OrgAvatar({
 	slug,
@@ -14,31 +9,12 @@ export function OrgAvatar({
 	size?: number;
 	className?: string;
 }) {
-	// Radius scales with size (sidebar's 20px → 4px) so the rounding looks
-	// identical at any size.
-	const radius = Math.round(size * 0.2);
 	return (
-		<Avatar
-			className={cn(
-				"shrink-0 after:[border-radius:var(--org-avatar-radius)]",
-				className,
-			)}
-			style={
-				{
-					width: size,
-					height: size,
-					borderRadius: radius,
-					"--org-avatar-radius": `${radius}px`,
-				} as CSSProperties
-			}
-			aria-label={`${slug} avatar`}
-		>
-			<Hashvatar
-				hash={slug}
-				size={size}
-				mode="dither"
-				style={{ borderRadius: radius }}
-			/>
-		</Avatar>
+		<HashAvatar
+			hash={slug}
+			size={size}
+			label={`${slug} avatar`}
+			className={className}
+		/>
 	);
 }

@@ -1,5 +1,6 @@
-import { Avatar, AvatarFallback } from "@crosmos/ui/components/avatar";
-import { avatarColor, getInitials } from "@/lib/members";
+import { HashAvatar } from "@/components/shared/hash-avatar";
+
+const SIZE_PX = { xs: 20, sm: 24, default: 32, lg: 40 } as const;
 
 export function GroupAvatar({
 	name,
@@ -9,14 +10,15 @@ export function GroupAvatar({
 }: {
 	name: string;
 	seed: string;
-	size?: "default" | "sm" | "lg";
+	size?: keyof typeof SIZE_PX;
 	className?: string;
 }) {
 	return (
-		<Avatar size={size} className={className}>
-			<AvatarFallback style={avatarColor(seed)}>
-				{getInitials(name)}
-			</AvatarFallback>
-		</Avatar>
+		<HashAvatar
+			hash={seed}
+			size={SIZE_PX[size]}
+			label={`${name} avatar`}
+			className={className}
+		/>
 	);
 }
