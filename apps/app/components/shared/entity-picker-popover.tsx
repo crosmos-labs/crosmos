@@ -17,6 +17,8 @@ import {
 import { IconPlus } from "@tabler/icons-react";
 import { type ReactNode, useState } from "react";
 
+const MAX_RESULTS = 50;
+
 export interface PickerItem {
 	id: string;
 	value: string;
@@ -45,14 +47,27 @@ export function EntityPickerPopover({
 }) {
 	const [open, setOpen] = useState(false);
 	const [active, setActive] = useState("");
+	const [query, setQuery] = useState("");
 	const activeItem = items.find((i) => i.value === active) ?? null;
+
+	// Own the filtering so the rendered list can be capped (cap is applied AFTER
+	// filtering, so search still covers every item).
+	const q = query.trim().toLowerCase();
+	const matched = q
+		? items.filter((i) => i.value.toLowerCase().includes(q))
+		: items;
+	const shown = matched.slice(0, MAX_RESULTS);
+	const hidden = matched.length - shown.length;
 
 	return (
 		<Popover
 			open={open}
 			onOpenChange={(next) => {
 				setOpen(next);
-				if (!next) setActive("");
+				if (!next) {
+					setActive("");
+					setQuery("");
+				}
 			}}
 		>
 			<PopoverTrigger asChild>
@@ -61,13 +76,20 @@ export function EntityPickerPopover({
 					{triggerLabel}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent align="end" className="gap-0 overflow-hidden p-0 w-80">
-				<Command value={active} onValueChange={setActive}>
-					<CommandInput placeholder={searchPlaceholder} />
+			<PopoverContent
+				align="end"
+				className="w-[calc(100vw-2rem)] gap-0 overflow-hidden p-0 sm:w-80"
+			>
+				<Command shouldFilter={false} value={active} onValueChange={setActive}>
+					<CommandInput
+						placeholder={searchPlaceholder}
+						value={query}
+						onValueChange={setQuery}
+					/>
 					<CommandList>
 						<CommandEmpty>{emptyLabel}</CommandEmpty>
 						<CommandGroup>
-							{items.map((item) => (
+							{shown.map((item) => (
 								<CommandItem
 									key={item.id}
 									value={item.value}
@@ -84,6 +106,11 @@ export function EntityPickerPopover({
 								</CommandItem>
 							))}
 						</CommandGroup>
+						{hidden > 0 && (
+							<div className="px-3 py-2 text-center text-xs text-muted-foreground">
+								Showing {MAX_RESULTS} of {matched.length} — type to narrow
+							</div>
+						)}
 					</CommandList>
 				</Command>
 				{footer && (
