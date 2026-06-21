@@ -3,6 +3,7 @@ import {
 	IconBook,
 	IconChartBar,
 	IconCreditCard,
+	IconCube,
 	IconDatabase,
 	IconEye,
 	IconFileImport,
@@ -11,6 +12,7 @@ import {
 	IconSettings,
 	IconSparkles,
 	IconTopologyComplex,
+	IconUsers,
 } from "@tabler/icons-react";
 import type { ComponentType } from "react";
 import {
@@ -48,9 +50,27 @@ export const navGroups: NavGroup[] = [
 			{ label: "Spaces", href: "/spaces", icon: IconDatabase },
 			{ label: "Sources", href: "/sources", icon: IconFileImport },
 			{ label: "Graph", href: "/graph", icon: IconTopologyComplex },
+		],
+	},
+	{
+		label: "WORKSPACE",
+		items: [
 			{
-				label: "Visibility",
-				href: "/visibility",
+				label: "Members",
+				href: "/members",
+				icon: IconUsers,
+				hidden: isSettingsDisabled,
+			},
+			{
+				label: "Groups",
+				href: "/groups",
+				icon: IconCube,
+				hidden: isVisibilityDisabled,
+				roles: ["owner", "admin"],
+			},
+			{
+				label: "Access",
+				href: "/access",
 				icon: IconEye,
 				hidden: isVisibilityDisabled,
 				roles: ["owner", "admin"],
@@ -109,7 +129,9 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/spaces": "Spaces",
 	"/sources": "Sources",
 	"/graph": "Graph",
-	"/visibility": "Visibility",
+	"/members": "Members",
+	"/groups": "Groups",
+	"/access": "Access",
 	"/playground": "Playground",
 	"/analytics": "Analytics",
 	"/activity": "Activity",

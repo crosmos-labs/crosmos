@@ -1,5 +1,8 @@
 import type { InviteResponse, MemberResponse, OrgRole } from "@/lib/types/org";
 
+export const LAST_OWNER_MSG =
+	"An organization must always have an owner, so the last owner can't be removed or demoted.";
+
 export type RowStatus = "active" | "pending" | "expired";
 export type SortColumn = "name" | "email" | "role" | "status" | "joined";
 export type SortDirection = "asc" | "desc";
