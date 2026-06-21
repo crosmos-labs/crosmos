@@ -6,6 +6,7 @@ import {
 	listGroups,
 	previewGrantImpact,
 } from "@/actions/visibility";
+import { byCreatedAtDesc } from "@/lib/sort";
 import type {
 	GroupMember,
 	VisibilityGrant,
@@ -61,7 +62,8 @@ export function useGroups(orgId: string | null | undefined) {
 					code: result.code,
 				});
 			}
-			return result.data;
+			// Newest-first so optimistic top-inserts match the order after refetch (API returns created_at ASC).
+			return byCreatedAtDesc(result.data);
 		},
 		{ revalidateOnFocus: true },
 	);
@@ -70,7 +72,8 @@ export function useGroups(orgId: string | null | undefined) {
 export function useGrants(orgId: string | null | undefined) {
 	return useSWR<VisibilityGrant[]>(
 		orgId ? visibilityGrantsKey(orgId) : null,
-		() => listGrants(orgId as string),
+		// Newest-first so optimistic top-inserts match the order after refetch (API returns created_at ASC).
+		async () => byCreatedAtDesc(await listGrants(orgId as string)),
 		{ revalidateOnFocus: true },
 	);
 }
