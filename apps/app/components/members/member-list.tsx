@@ -306,103 +306,95 @@ export function MemberList() {
 				)}
 			</div>
 
-			<ItemGroup>
-				{visibleMembers.map((member) => {
-					const isSelf = member.user_id === currentUserId;
-					const isLastOwner = member.role === "owner" && ownerCount <= 1;
-					const showMenu = canManage || isSelf;
-					return (
-						<Item
-							key={member.user_id}
-							variant="outline"
-							className="px-4 py-3.5"
-						>
-							<MemberAvatar name={member.name} email={member.email} />
-							<ItemContent>
-								<ItemTitle className="text-base">
-									<span className="min-w-0 truncate">
-										{member.name || member.email}
-									</span>
-									{isSelf && (
-										<span className="shrink-0 text-xs font-normal text-muted-foreground">
-											(You)
+			{visibleMembers.length === 0 ? (
+				<p className="py-8 text-center text-sm text-muted-foreground">
+					{q ? `No members match “${search}”.` : "No members to show."}
+				</p>
+			) : (
+				<ItemGroup>
+					{visibleMembers.map((member) => {
+						const isSelf = member.user_id === currentUserId;
+						const isLastOwner = member.role === "owner" && ownerCount <= 1;
+						const showMenu = canManage || isSelf;
+						return (
+							<Item
+								key={member.user_id}
+								variant="outline"
+								className="px-4 py-3.5"
+							>
+								<MemberAvatar name={member.name} email={member.email} />
+								<ItemContent>
+									<ItemTitle className="text-base">
+										<span className="min-w-0 truncate">
+											{member.name || member.email}
 										</span>
-									)}
-								</ItemTitle>
-								<ItemDescription className="flex min-w-0 items-center gap-1.5">
-									<IconMail className="size-3.5 shrink-0" />
-									<span className="min-w-0 truncate">{member.email}</span>
-								</ItemDescription>
-							</ItemContent>
-							<ItemActions>
-								<Badge variant={ROLE_BADGE[member.role]}>
-									{ROLE_LABEL[member.role]}
-								</Badge>
-								{showMenu && (
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button
-												variant="ghost"
-												size="icon-sm"
-												aria-label="Open member actions"
-												className="focus:ring-0 focus-visible:ring-0"
-											>
-												<IconDotsVertical />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end">
-											<DropdownMenuGroup>
-												{canManage && !isSelf && (
-													<DropdownMenuSub>
-														<DropdownMenuSubTrigger
-															disabled={busy || isLastOwner}
-														>
-															<IconUserCog />
-															Change role
-														</DropdownMenuSubTrigger>
-														<DropdownMenuSubContent>
-															<DropdownMenuRadioGroup
-																value={member.role}
-																onValueChange={(v) =>
-																	handleChangeRole(
-																		member.user_id,
-																		member.role,
-																		v as "admin" | "member",
-																	)
-																}
+										{isSelf && (
+											<span className="shrink-0 text-xs font-normal text-muted-foreground">
+												(You)
+											</span>
+										)}
+									</ItemTitle>
+									<ItemDescription className="flex min-w-0 items-center gap-1.5">
+										<IconMail className="size-3.5 shrink-0" />
+										<span className="min-w-0 truncate">{member.email}</span>
+									</ItemDescription>
+								</ItemContent>
+								<ItemActions>
+									<Badge variant={ROLE_BADGE[member.role]}>
+										{ROLE_LABEL[member.role]}
+									</Badge>
+									{showMenu && (
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button
+													variant="ghost"
+													size="icon-sm"
+													aria-label="Open member actions"
+													className="focus:ring-0 focus-visible:ring-0"
+												>
+													<IconDotsVertical />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuGroup>
+													{canManage && !isSelf && (
+														<DropdownMenuSub>
+															<DropdownMenuSubTrigger
+																disabled={busy || isLastOwner}
 															>
-																{member.role === "owner" && (
-																	<DropdownMenuRadioItem value="owner" disabled>
-																		Owner
+																<IconUserCog />
+																Change role
+															</DropdownMenuSubTrigger>
+															<DropdownMenuSubContent>
+																<DropdownMenuRadioGroup
+																	value={member.role}
+																	onValueChange={(v) =>
+																		handleChangeRole(
+																			member.user_id,
+																			member.role,
+																			v as "admin" | "member",
+																		)
+																	}
+																>
+																	{member.role === "owner" && (
+																		<DropdownMenuRadioItem
+																			value="owner"
+																			disabled
+																		>
+																			Owner
+																		</DropdownMenuRadioItem>
+																	)}
+																	<DropdownMenuRadioItem value="admin">
+																		Admin
 																	</DropdownMenuRadioItem>
-																)}
-																<DropdownMenuRadioItem value="admin">
-																	Admin
-																</DropdownMenuRadioItem>
-																<DropdownMenuRadioItem value="member">
-																	Member
-																</DropdownMenuRadioItem>
-															</DropdownMenuRadioGroup>
-														</DropdownMenuSubContent>
-													</DropdownMenuSub>
-												)}
-												{isSelf ? (
-													<DropdownMenuItem
-														variant="destructive"
-														disabled={busy || isLastOwner}
-														onClick={() =>
-															setRemoveTarget({
-																userId: member.user_id,
-																name: member.name || member.email,
-																role: member.role,
-															})
-														}
-													>
-														<IconLogout />
-														Leave organization
-													</DropdownMenuItem>
-												) : (
-													canManage && (
+																	<DropdownMenuRadioItem value="member">
+																		Member
+																	</DropdownMenuRadioItem>
+																</DropdownMenuRadioGroup>
+															</DropdownMenuSubContent>
+														</DropdownMenuSub>
+													)}
+													{isSelf ? (
 														<DropdownMenuItem
 															variant="destructive"
 															disabled={busy || isLastOwner}
@@ -414,20 +406,37 @@ export function MemberList() {
 																})
 															}
 														>
-															<IconTrash />
-															Remove
+															<IconLogout />
+															Leave organization
 														</DropdownMenuItem>
-													)
-												)}
-											</DropdownMenuGroup>
-										</DropdownMenuContent>
-									</DropdownMenu>
-								)}
-							</ItemActions>
-						</Item>
-					);
-				})}
-			</ItemGroup>
+													) : (
+														canManage && (
+															<DropdownMenuItem
+																variant="destructive"
+																disabled={busy || isLastOwner}
+																onClick={() =>
+																	setRemoveTarget({
+																		userId: member.user_id,
+																		name: member.name || member.email,
+																		role: member.role,
+																	})
+																}
+															>
+																<IconTrash />
+																Remove
+															</DropdownMenuItem>
+														)
+													)}
+												</DropdownMenuGroup>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									)}
+								</ItemActions>
+							</Item>
+						);
+					})}
+				</ItemGroup>
+			)}
 
 			{canManage && visibleInvites.length > 0 && (
 				<div className="flex flex-col gap-4">
