@@ -35,7 +35,11 @@ export function GroupMembersTab({
 	groupId: string;
 	groupName: string;
 }) {
-	const { data: groupMembers, isLoading } = useGroupMembers(orgId, groupId);
+	const {
+		data: groupMembers,
+		isLoading,
+		error,
+	} = useGroupMembers(orgId, groupId);
 	const { data: orgMembers } = useMembers(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -86,10 +90,12 @@ export function GroupMembersTab({
 			<div className="flex items-center justify-between gap-2">
 				{isLoading && !groupMembers ? (
 					<Skeleton className="h-5 w-44" />
-				) : (
+				) : groupMembers ? (
 					<p className="text-sm text-muted-foreground">
 						{count} {count === 1 ? "person is" : "people are"} in {groupName}.
 					</p>
+				) : (
+					<span />
 				)}
 				<EntityPickerPopover
 					triggerLabel="Add member"
@@ -122,6 +128,13 @@ export function GroupMembersTab({
 						</Item>
 					))}
 				</ItemGroup>
+			) : error && !groupMembers ? (
+				<div className="flex items-center justify-between gap-2 rounded-lg border p-4 text-sm text-muted-foreground">
+					<span>Couldn't load members.</span>
+					<Button variant="outline" size="sm" onClick={() => mutate(key)}>
+						Try again
+					</Button>
+				</div>
 			) : count === 0 ? (
 				<div className="rounded-lg border p-4 text-sm text-muted-foreground">
 					No members in this group yet.

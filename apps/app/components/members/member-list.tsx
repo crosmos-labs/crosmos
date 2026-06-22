@@ -150,7 +150,13 @@ export function MemberList() {
 	const [removeTarget, setRemoveTarget] = useState<RemoveTarget | null>(null);
 
 	function handleInvite(email: string, role: CreateInviteRequest["role"]) {
-		if (!orgId || invites === undefined) return;
+		if (!orgId) return;
+		if (invites === undefined) {
+			toast.error(
+				"Couldn't load existing invites. Please refresh and try again.",
+			);
+			return;
+		}
 		const blocked = new Set([
 			...(members ?? []).map((m) => m.email.toLowerCase()),
 			...invites
@@ -494,6 +500,19 @@ export function MemberList() {
 							);
 						})}
 					</ItemGroup>
+				</div>
+			)}
+
+			{canManage && invitesError && orgId && (
+				<div className="flex items-center justify-between gap-2 rounded-lg border p-4 text-sm text-muted-foreground">
+					<span>Couldn't load pending invites.</span>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => mutate(invitesKey(orgId))}
+					>
+						Try again
+					</Button>
 				</div>
 			)}
 

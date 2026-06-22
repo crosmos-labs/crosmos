@@ -28,6 +28,7 @@ import { useOrgRole } from "@/hooks/use-org-role";
 import {
 	useGrants,
 	useGroups,
+	visibilityGrantsKey,
 	visibilityGroupsKey,
 } from "@/hooks/use-visibility";
 import type { VisibilityGroup } from "@/lib/types/visibility";
@@ -70,7 +71,9 @@ export function AccessList() {
 		isLoading,
 		error,
 	} = useGroups(isOwnerAdmin ? orgId : null);
-	const { data: grants } = useGrants(isOwnerAdmin ? orgId : null);
+	const { data: grants, error: grantsError } = useGrants(
+		isOwnerAdmin ? orgId : null,
+	);
 	const { mutate } = useSWRConfig();
 
 	const [search, setSearch] = useState("");
@@ -84,18 +87,22 @@ export function AccessList() {
 		);
 	}
 
-	if (error) {
+	if (error || (grantsError && !grants)) {
 		return (
 			<DataFetchError
-				message={error.message}
-				onRetry={() =>
-					orgId ? mutate(visibilityGroupsKey(orgId)) : Promise.resolve()
-				}
+				message={(error ?? grantsError)?.message ?? "Couldn't load access."}
+				onRetry={() => {
+					if (!orgId) return Promise.resolve();
+					return Promise.all([
+						mutate(visibilityGroupsKey(orgId)),
+						mutate(visibilityGrantsKey(orgId)),
+					]);
+				}}
 			/>
 		);
 	}
 
-	if (!user || (isLoading && !groups)) {
+	if (!user || (isLoading && !groups) || grants === undefined) {
 		return <AccessListSkeleton />;
 	}
 
