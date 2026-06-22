@@ -56,7 +56,7 @@ export function GroupAccessEditor({
 	orgId: string;
 	group: VisibilityGroup;
 }) {
-	const { data: grants, isLoading } = useGrants(orgId);
+	const { data: grants, isLoading, error: grantsError } = useGrants(orgId);
 	const { data: groups } = useGroups(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
@@ -213,6 +213,17 @@ export function GroupAccessEditor({
 							</Item>
 						))}
 					</ItemGroup>
+				) : grantsError && !grants ? (
+					<div className="flex items-center justify-between gap-2 rounded-lg border p-4 text-sm text-muted-foreground">
+						<span>Couldn't load access.</span>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => mutate(visibilityGrantsKey(orgId))}
+						>
+							Try again
+						</Button>
+					</div>
 				) : viewerGrants.length === 0 ? (
 					<div className="rounded-lg border p-4 text-sm text-muted-foreground">
 						No groups can read these memories yet.
