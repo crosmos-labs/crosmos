@@ -63,10 +63,7 @@ export default function BillingPage() {
 			) : (
 				<>
 					<ItemGroup>
-						<Item
-							variant="outline"
-							className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
-						>
+						<Item variant="outline" className="px-4 py-3.5">
 							<ItemContent>
 								<ItemTitle className="flex items-center gap-2 text-base">
 									{capitalize(plan)} Plan

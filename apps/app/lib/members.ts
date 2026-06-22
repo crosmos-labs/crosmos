@@ -1,5 +1,8 @@
 import type { InviteResponse, MemberResponse, OrgRole } from "@/lib/types/org";
 
+export const LAST_OWNER_MSG =
+	"An organization must always have an owner, so the last owner can't be removed or demoted.";
+
 export type RowStatus = "active" | "pending" | "expired";
 export type SortColumn = "name" | "email" | "role" | "status" | "joined";
 export type SortDirection = "asc" | "desc";
@@ -112,21 +115,4 @@ export function getInitials(seed: string): string {
 	// Single token (a name or an email local-part).
 	const token = first.includes("@") ? (first.split("@")[0] ?? first) : first;
 	return token.slice(0, 2).toUpperCase() || "?";
-}
-
-/** Deterministic, readable avatar color derived from a seed (name/email). */
-export function avatarColor(seed: string): {
-	backgroundColor: string;
-	color: string;
-} {
-	let hash = 0;
-	for (let i = 0; i < seed.length; i++) {
-		hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-		hash |= 0;
-	}
-	const hue = Math.abs(hash) % 360;
-	return {
-		backgroundColor: `oklch(0.62 0.13 ${hue})`,
-		color: "oklch(0.98 0 0)",
-	};
 }

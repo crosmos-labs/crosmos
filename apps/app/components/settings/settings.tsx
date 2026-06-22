@@ -6,8 +6,7 @@ import {
 	TabsList,
 	TabsTrigger,
 } from "@crosmos/ui/components/tabs";
-import { IconBuilding, IconUserCircle, IconUsers } from "@tabler/icons-react";
-import { MembersSettings } from "@/components/settings/members-settings";
+import { IconBuilding, IconUserCircle } from "@tabler/icons-react";
 import { OrganizationSettings } from "@/components/settings/organization-settings";
 import { ProfileSettings } from "@/components/settings/profile-settings";
 
@@ -17,16 +16,12 @@ export function Settings() {
 			<div className="flex flex-col gap-1">
 				<h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
 				<p className="text-sm text-muted-foreground">
-					Manage your organization and its members.
+					Manage your organization and profile.
 				</p>
 			</div>
 
-			<Tabs defaultValue="members" className="gap-6">
+			<Tabs defaultValue="organization" className="gap-6">
 				<TabsList variant="line">
-					<TabsTrigger value="members">
-						<IconUsers />
-						Members
-					</TabsTrigger>
 					<TabsTrigger value="organization">
 						<IconBuilding />
 						Organization
@@ -36,9 +31,6 @@ export function Settings() {
 						Profile
 					</TabsTrigger>
 				</TabsList>
-				<TabsContent value="members">
-					<MembersSettings />
-				</TabsContent>
 				<TabsContent value="organization">
 					<OrganizationSettings />
 				</TabsContent>

@@ -129,11 +129,11 @@ function SkeletonRow() {
 
 export function SourceListSkeleton() {
 	return (
-		<div className="flex flex-col gap-4">
+		<ItemGroup>
 			{["a", "b", "c", "d", "e"].map((k) => (
 				<SkeletonRow key={k} />
 			))}
-		</div>
+		</ItemGroup>
 	);
 }
 
@@ -220,11 +220,7 @@ export function SourceList({
 					const ContentTypeIcon = CONTENT_TYPE_ICONS[source.content_type];
 
 					return (
-						<Item
-							key={source.id}
-							variant="outline"
-							className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
-						>
+						<Item key={source.id} variant="outline" className="px-4 py-3.5">
 							<ItemContent>
 								<ItemTitle className="flex items-center gap-2 text-base">
 									<ContentTypeIcon className="size-4 text-muted-foreground" />

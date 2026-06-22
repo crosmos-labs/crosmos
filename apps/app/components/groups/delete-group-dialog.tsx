@@ -12,36 +12,25 @@ import {
 } from "@crosmos/ui/components/alert-dialog";
 import { Kbd } from "@crosmos/ui/components/kbd";
 import { IconCornerDownLeft } from "@tabler/icons-react";
-import { LAST_OWNER_MSG } from "@/components/settings/members-table";
+import type { VisibilityGroup } from "@/lib/types/visibility";
 
-export function RemoveMemberDialog({
-	open,
+export function DeleteGroupDialog({
+	group,
+	onDelete,
 	onOpenChange,
-	isSelf,
-	isLastOwner,
-	targetName,
-	onConfirm,
 }: {
-	open: boolean;
+	group: VisibilityGroup | null;
+	onDelete: (groupId: string) => void;
 	onOpenChange: (open: boolean) => void;
-	isSelf: boolean;
-	isLastOwner: boolean;
-	targetName: string | undefined;
-	onConfirm: () => void;
 }) {
 	return (
-		<AlertDialog open={open} onOpenChange={onOpenChange}>
+		<AlertDialog open={!!group} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>
-						{isSelf ? "Leave organization" : "Remove from organization"}
-					</AlertDialogTitle>
+					<AlertDialogTitle>Delete group</AlertDialogTitle>
 					<AlertDialogDescription>
-						{isLastOwner
-							? LAST_OWNER_MSG
-							: isSelf
-								? "You'll lose access to this organization and its memory. You can rejoin later only via a new invitation."
-								: `${targetName ?? "This member"} will lose access to this organization. This can't be undone.`}
+						{group?.name ?? "This group"} and its access rules will be removed.
+						Members keep their workspace access. This can't be undone.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
@@ -50,10 +39,9 @@ export function RemoveMemberDialog({
 					</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
-						disabled={isLastOwner}
-						onClick={onConfirm}
+						onClick={() => group && onDelete(group.id)}
 					>
-						{isSelf ? "Leave" : "Remove"}{" "}
+						Delete{" "}
 						<Kbd>
 							<IconCornerDownLeft />
 						</Kbd>

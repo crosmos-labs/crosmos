@@ -85,9 +85,11 @@ export function SpacesListSkeleton() {
 				<Skeleton className="h-4 w-16" />
 				<Skeleton className="h-8 w-20" />
 			</div>
-			{["a", "b", "c", "d", "e"].map((k) => (
-				<SkeletonRow key={k} />
-			))}
+			<ItemGroup>
+				{["a", "b", "c", "d", "e"].map((k) => (
+					<SkeletonRow key={k} />
+				))}
+			</ItemGroup>
 			<span className="sr-only">Loading spaces…</span>
 		</div>
 	);
@@ -222,10 +224,8 @@ export function SpaceList({
 						<Item
 							key={space.id}
 							variant="outline"
-							className={cn(
-								"hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5",
-								isOptimistic && "opacity-50",
-							)}
+							size="lg"
+							className={cn(isOptimistic && "opacity-50")}
 						>
 							<ItemContent>
 								<Link href={`/spaces/${space.id}`}>

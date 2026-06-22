@@ -1,5 +1,6 @@
 "use client";
 
+import { Card } from "@crosmos/ui/components/card";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
 import { formatNumber } from "@/lib/format";
@@ -50,7 +51,7 @@ function computePace(
 
 export function UsageMeterSkeleton() {
 	return (
-		<div className="flex flex-col gap-2 rounded-lg border p-4">
+		<Card className="gap-2 p-4">
 			<div className="flex items-center justify-between">
 				<Skeleton className="h-4 w-24" />
 				<Skeleton className="h-4 w-8" />
@@ -58,7 +59,7 @@ export function UsageMeterSkeleton() {
 			<Skeleton className="h-4 w-28" />
 			<Skeleton className="h-2 w-full rounded-full" />
 			<Skeleton className="h-3 w-32" />
-		</div>
+		</Card>
 	);
 }
 
@@ -81,7 +82,7 @@ export function UsageMeter({
 	const actualTone = usageTone(fraction);
 
 	return (
-		<div className="flex flex-col gap-2 rounded-lg border p-4">
+		<Card className="gap-2 p-4">
 			<div className="flex flex-col gap-2">
 				<div className="flex items-center justify-between">
 					<span className="text-sm font-medium">{label}</span>
@@ -117,6 +118,6 @@ export function UsageMeter({
 					/>
 				</div>
 			</div>
-		</div>
+		</Card>
 	);
 }

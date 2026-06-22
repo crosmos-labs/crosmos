@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import { Visibility } from "@/components/visibility/visibility";
+import type { ReactNode } from "react";
 import { isVisibilityDisabled } from "@/lib/features";
 
-export default function VisibilityPage() {
+export default function GroupsLayout({ children }: { children: ReactNode }) {
 	if (isVisibilityDisabled) notFound();
 
-	return <Visibility />;
+	return children;
 }

@@ -103,9 +103,11 @@ export function SpaceDetailSkeleton() {
 				<div className="flex items-center justify-between">
 					<Skeleton className="h-5 w-20" />
 				</div>
-				{["a", "b", "c", "d", "e"].map((k) => (
-					<SkeletonMemoryRow key={k} />
-				))}
+				<ItemGroup>
+					{["a", "b", "c", "d", "e"].map((k) => (
+						<SkeletonMemoryRow key={k} />
+					))}
+				</ItemGroup>
 			</div>
 			<span className="sr-only">Loading space details…</span>
 		</div>
@@ -179,11 +181,7 @@ export function MemoryList({
 					const isExpanded = expandedIds.has(memory.id);
 
 					return (
-						<Item
-							key={memory.id}
-							variant="outline"
-							className="hover:bg-muted/50 transition-colors hover:transition-none px-4 py-3.5"
-						>
+						<Item key={memory.id} variant="outline" className="px-4 py-3.5">
 							<ItemContent>
 								<ItemTitle className="flex items-center gap-2 text-base">
 									<Badge

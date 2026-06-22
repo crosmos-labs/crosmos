@@ -95,7 +95,7 @@ export function EnforcementSwitch({
 	}
 
 	return (
-		<div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+		<div className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
 			<div className="flex flex-col gap-1">
 				<span className="flex items-center gap-1.5 text-sm font-medium">
 					Group access rules

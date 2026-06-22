@@ -7,10 +7,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
-import {
-	InputGroup,
-	InputGroupAddon,
-} from "@crosmos/ui/components/input-group";
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconCheck, IconSearch } from "@tabler/icons-react";
@@ -25,7 +21,7 @@ function Command({
 		<CommandPrimitive
 			data-slot="command"
 			className={cn(
-				"flex size-full flex-col overflow-hidden rounded-xl! bg-popover p-1 text-popover-foreground",
+				"flex size-full flex-col overflow-hidden rounded-lg bg-popover text-popover-foreground",
 				className,
 			)}
 			{...props}
@@ -70,20 +66,19 @@ function CommandInput({
 	...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
 	return (
-		<div data-slot="command-input-wrapper" className="p-1 pb-0">
-			<InputGroup className="h-8! rounded-lg! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:pl-2!">
-				<CommandPrimitive.Input
-					data-slot="command-input"
-					className={cn(
-						"w-full text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
-						className,
-					)}
-					{...props}
-				/>
-				<InputGroupAddon>
-					<IconSearch className="size-4 shrink-0 opacity-50" />
-				</InputGroupAddon>
-			</InputGroup>
+		<div
+			data-slot="command-input-wrapper"
+			className="flex shrink-0 items-center gap-2 border-b px-3 py-2.5"
+		>
+			<IconSearch className="size-4 shrink-0 text-muted-foreground" />
+			<CommandPrimitive.Input
+				data-slot="command-input"
+				className={cn(
+					"w-full bg-transparent text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+					className,
+				)}
+				{...props}
+			/>
 		</div>
 	);
 }
@@ -155,7 +150,7 @@ function CommandItem({
 		<CommandPrimitive.Item
 			data-slot="command-item"
 			className={cn(
-				"group/command-item relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground",
+				"group/command-item relative flex cursor-default items-center gap-2 rounded-sm px-3 py-2.5 text-sm outline-hidden transition-colors duration-100 select-none hover:transition-none in-data-[slot=dialog-content]:rounded-lg! data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-muted data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-selected:*:[svg]:text-foreground",
 				className,
 			)}
 			{...props}

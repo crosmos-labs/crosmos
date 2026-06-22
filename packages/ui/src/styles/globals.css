@@ -333,7 +333,7 @@
 		scrollbar-color: gray transparent;
 	}
 	body {
-		@apply bg-background text-foreground tracking-normal selection:bg-primary/80 selection:text-primary-foreground
+		@apply bg-background text-foreground tracking-normal selection:bg-primary/80 selection:text-primary-foreground;
 	}
 	button {
 		@apply cursor-pointer focus:outline-none focus:ring-0;
