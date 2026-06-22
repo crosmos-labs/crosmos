@@ -71,7 +71,7 @@ export function EntityPickerPopover({
 			}}
 		>
 			<PopoverTrigger asChild>
-				<Button variant="outline" disabled={disabled}>
+				<Button variant="default" disabled={disabled}>
 					<IconPlus />
 					{triggerLabel}
 				</Button>

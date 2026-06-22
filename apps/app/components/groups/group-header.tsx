@@ -68,7 +68,6 @@ export function GroupHeader({
 						variant="ghost"
 						size="icon-sm"
 						aria-label="Open group actions"
-						className="focus:ring-0 focus-visible:ring-0"
 					>
 						<IconDotsVertical />
 					</Button>
