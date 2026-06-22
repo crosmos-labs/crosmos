@@ -52,7 +52,7 @@ import { listSpaces } from "@/actions/spaces";
 import { getUsage } from "@/actions/usage";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
-import { externalItems, homeItem, navGroups } from "@/config/nav";
+import { externalItems, homeItem, type NavItem, navGroups } from "@/config/nav";
 import { apiKeysKey } from "@/hooks/use-api-keys";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { spacesKey } from "@/hooks/use-spaces";
@@ -97,6 +97,17 @@ export function AppSidebar() {
 
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "top";
 
+	const isItemVisible = (item: NavItem) =>
+		!item.hidden &&
+		(!item.roles ||
+			(activeOrg ? item.roles.includes(activeOrg.your_role) : false));
+
+	// Drop a nav group and its label when none of its items are visible —
+	// e.g. all workspace pages disabled in prod.
+	const visibleGroups = navGroups.filter((group) =>
+		group.items.some(isItemVisible),
+	);
+
 	return (
 		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
@@ -135,51 +146,42 @@ export function AppSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 
-				{navGroups.map((group) => (
+				{visibleGroups.map((group) => (
 					<SidebarGroup key={group.label}>
 						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
 						<SidebarGroupContent>
 							<SidebarMenu className="gap-px">
-								{group.items
-									.filter(
-										(item) =>
-											!item.hidden &&
-											(!item.roles ||
-												(activeOrg
-													? item.roles.includes(activeOrg.your_role)
-													: false)),
-									)
-									.map((item) => (
-										<SidebarMenuItem key={item.href}>
-											<SidebarMenuButton
-												asChild={!item.disabled}
-												isActive={isNavItemActive(pathname, item.href)}
-												disabled={item.disabled}
-												tooltip={item.disabled ? "Coming soon" : item.label}
-												className={cn(
-													"pl-4 hover:transition-none",
-													item.disabled &&
-														"text-muted-foreground hover:bg-transparent hover:text-muted-foreground active:bg-transparent active:text-muted-foreground data-active:bg-transparent data-active:text-muted-foreground",
-												)}
-											>
-												{item.disabled ? (
-													<>
-														<item.icon />
-														<span>{item.label}</span>
-													</>
-												) : (
-													<Link
-														href={item.href}
-														onMouseEnter={() => warmRoute(item.href, orgId)}
-														onFocus={() => warmRoute(item.href, orgId)}
-													>
-														<item.icon />
-														<span>{item.label}</span>
-													</Link>
-												)}
-											</SidebarMenuButton>
-										</SidebarMenuItem>
-									))}
+								{group.items.filter(isItemVisible).map((item) => (
+									<SidebarMenuItem key={item.href}>
+										<SidebarMenuButton
+											asChild={!item.disabled}
+											isActive={isNavItemActive(pathname, item.href)}
+											disabled={item.disabled}
+											tooltip={item.disabled ? "Coming soon" : item.label}
+											className={cn(
+												"pl-4 hover:transition-none",
+												item.disabled &&
+													"text-muted-foreground hover:bg-transparent hover:text-muted-foreground active:bg-transparent active:text-muted-foreground data-active:bg-transparent data-active:text-muted-foreground",
+											)}
+										>
+											{item.disabled ? (
+												<>
+													<item.icon />
+													<span>{item.label}</span>
+												</>
+											) : (
+												<Link
+													href={item.href}
+													onMouseEnter={() => warmRoute(item.href, orgId)}
+													onFocus={() => warmRoute(item.href, orgId)}
+												>
+													<item.icon />
+													<span>{item.label}</span>
+												</Link>
+											)}
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								))}
 							</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>
