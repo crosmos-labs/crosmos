@@ -48,6 +48,7 @@ function LinkArrow({ className }: { className?: string }) {
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { listApiKeys } from "@/actions/api-keys";
+import { logout } from "@/actions/auth";
 import { listSpaces } from "@/actions/spaces";
 import { getUsage } from "@/actions/usage";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
@@ -236,16 +237,15 @@ export function AppSidebar() {
 									className="w-(--radix-dropdown-menu-trigger-width)"
 								>
 									<DropdownMenuItem
-										asChild
 										disabled={activeCount > 0}
-										onSelect={() => {
+										onSelect={async () => {
 											if (isMobile) setOpenMobile(false);
+											await logout();
+											window.location.href = "/signup";
 										}}
 									>
-										<a href="/logout">
-											<IconLogout />
-											<span>Log out</span>
-										</a>
+										<IconLogout />
+										<span>Log out</span>
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>

@@ -19,7 +19,6 @@ export interface SourceSummary {
 	id: string;
 	space_id: string;
 	content_type: ContentTypeStr;
-	sequence: number;
 	extraction_status: ExtractionStatus;
 	meta: Record<string, unknown> | null;
 	token_count: number;

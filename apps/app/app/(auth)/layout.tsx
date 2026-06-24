@@ -9,9 +9,7 @@ export default async function AuthLayout({
 	children: React.ReactNode;
 }) {
 	const user = await verifyAuth();
-	// TODO: remove the active_org guard after production backend is synced with
-	// the /auth/me contract that returns org details for authenticated users.
-	if (user?.active_org) redirect("/");
+	if (user) redirect("/");
 
 	return (
 		<div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 overflow-hidden">
@@ -49,6 +47,7 @@ export default async function AuthLayout({
 					src="/side-bg.png"
 					alt="side image"
 					fill
+					sizes="(min-width: 768px) 50vw, 0px"
 					className="object-cover"
 				/>
 			</div>
