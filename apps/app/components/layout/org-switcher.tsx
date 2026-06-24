@@ -61,8 +61,7 @@ export function OrgSwitcher({ activeOrg }: { activeOrg: ActiveOrgSummary }) {
 			await setActiveOrg(orgId);
 			// Refresh the client-side auth cache under the newly minted token.
 			// Org-scoped data keys include active_org_id, so they update when this lands.
-			await mutate("/auth/me");
-			await mutate(orgsKey);
+			await Promise.all([mutate("/auth/me"), mutate(orgsKey)]);
 			const fallbackPath = getOrgSwitchFallbackPath(pathname);
 			if (fallbackPath) {
 				router.replace(fallbackPath);
