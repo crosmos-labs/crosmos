@@ -24,7 +24,7 @@ import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconDotsVertical, IconKey } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import { createApiKey, revokeApiKey } from "@/actions/api-keys";
 import { CreateKeyDialog } from "@/components/api-keys/create-key-dialog";
@@ -35,7 +35,7 @@ import {
 } from "@/components/providers/action-loader-provider";
 import { EmptyState } from "@/components/shared/empty-state";
 import { HotkeyKbd } from "@/components/shared/hotkey-kbd";
-import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
+import { optimisticInsert } from "@/lib/optimistic";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
 export function maskKey(prefix: string) {
@@ -86,6 +86,107 @@ function KeyCountRow({
 	);
 }
 
+function KeyRow({
+	apiKey,
+	recent,
+	isRevoking,
+	onRevoke,
+	actionsDisabled,
+}: {
+	apiKey: ApiKey;
+	recent?: CreateApiKeyResponse;
+	isRevoking: boolean;
+	onRevoke: (key: ApiKey) => void;
+	actionsDisabled: boolean;
+}) {
+	const isRecent = !!recent;
+	const isOptimistic = apiKey.key_id.startsWith("optimistic-");
+	const isRevoked = !apiKey.is_active && !isRevoking;
+	const isMuted = isOptimistic || isRevoking || isRevoked;
+	const showActions = !isRevoking && !isRevoked;
+
+	return (
+		<Item
+			variant="outline"
+			className={cn(
+				"px-4 py-3.5",
+				isRecent && "border-green-500/30 bg-green-500/5 dark:bg-green-500/10",
+				isMuted && "opacity-50",
+			)}
+		>
+			<ItemContent>
+				<ItemTitle className="flex items-center gap-2 text-base">
+					{apiKey.name}
+					{isRecent && (
+						<Badge
+							variant="outline"
+							className="text-green-600 border-green-500/30 dark:text-green-400"
+						>
+							New
+						</Badge>
+					)}
+					{showActions && <ExpiryBadge expiresAt={apiKey.expires_at} />}
+				</ItemTitle>
+				<ItemDescription>
+					{isRecent ? (
+						<span className="flex items-center gap-1.5">
+							<code className="font-mono text-sm">{recent.raw_key}</code>
+							<CopyButton value={recent.raw_key} />
+						</span>
+					) : (
+						<code className="font-mono text-sm">
+							{isOptimistic ? "•".repeat(40) : maskKey(apiKey.key_prefix)}
+						</code>
+					)}
+				</ItemDescription>
+			</ItemContent>
+			<ItemActions>
+				{isRevoked && <Badge variant="destructive">Revoked</Badge>}
+				<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
+					{isRevoking ? (
+						<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
+					) : isOptimistic ? (
+						<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
+					) : (
+						formatDistanceToNow(new Date(apiKey.created_at), {
+							addSuffix: true,
+						})
+					)}
+				</span>
+				{showActions && (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								aria-label={`Open actions for ${apiKey.name}`}
+								className={cn(
+									"focus:ring-0 focus-visible:ring-0",
+									isRecent &&
+										"hover:bg-transparent dark:hover:bg-transparent aria-expanded:bg-transparent dark:aria-expanded:bg-transparent",
+								)}
+							>
+								<IconDotsVertical />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="start">
+							<DropdownMenuGroup>
+								<DropdownMenuItem
+									variant="destructive"
+									onClick={() => onRevoke(apiKey)}
+									disabled={actionsDisabled}
+								>
+									Revoke
+								</DropdownMenuItem>
+							</DropdownMenuGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				)}
+			</ItemActions>
+		</Item>
+	);
+}
+
 function SkeletonRow() {
 	return (
 		<Item variant="outline" size="lg">
@@ -130,6 +231,7 @@ export function ApiKeyList({
 }) {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [revokeKey, setRevokeKey] = useState<ApiKey | null>(null);
+	const [revokingIds, setRevokingIds] = useState<Set<string>>(new Set());
 	const [recentCreates, setRecentCreates] = useState<
 		Map<string, CreateApiKeyResponse>
 	>(new Map());
@@ -142,20 +244,50 @@ export function ApiKeyList({
 		setDialogOpen(true);
 	});
 
+	// A key mid-revoke counts as inactive immediately so it drops to the revoked group.
+	const isActiveRow = useCallback(
+		(k: ApiKey) => k.is_active && !revokingIds.has(k.key_id),
+		[revokingIds],
+	);
+
+	const activeKeys = useMemo(
+		() => keys.filter(isActiveRow),
+		[keys, isActiveRow],
+	);
+	const revokedKeys = useMemo(
+		() => keys.filter((k) => !isActiveRow(k)),
+		[keys, isActiveRow],
+	);
+
 	const handleRevoke = useCallback(
 		(keyId: string) => {
+			// Drop the row to the revoked group (muted, no badge) immediately; the
+			// "Revoked" badge only lands once the DELETE actually succeeds.
+			setRevokingIds((prev) => new Set(prev).add(keyId));
 			runAction(
-				() =>
-					optimisticRemove<ApiKey>(
-						mutate,
+				async () => {
+					await revokeApiKey(keyId);
+					await mutate<ApiKey[]>(
 						swrKey,
-						(k) => k.key_id === keyId,
-						() => revokeApiKey(keyId),
-					),
+						(cache) =>
+							(cache ?? []).map((k) =>
+								k.key_id === keyId ? { ...k, is_active: false } : k,
+							),
+						{ revalidate: false },
+					);
+				},
 				{
 					toast: { success: "API key revoked", error: "Failed to revoke key" },
 				},
-			);
+			)
+				.catch(() => {})
+				.finally(() => {
+					setRevokingIds((prev) => {
+						const next = new Set(prev);
+						next.delete(keyId);
+						return next;
+					});
+				});
 		},
 		[runAction, mutate, swrKey],
 	);
@@ -194,130 +326,8 @@ export function ApiKeyList({
 		[runAction, mutate, swrKey],
 	);
 
-	if (keys.length === 0) {
-		return (
-			<>
-				<KeyCountRow
-					count={keys.length}
-					onCreateClick={() => setDialogOpen(true)}
-					disabled={activeCount > 0}
-				/>
-				<EmptyState
-					icon={IconKey}
-					title="No API keys yet"
-					description="Create an API key to authenticate requests to the Crosmos API."
-				/>
-				<CreateKeyDialog
-					open={dialogOpen}
-					onOpenChange={setDialogOpen}
-					onCreateKey={handleCreateKey}
-				/>
-				<RevokeKeyDialog
-					revokeKey={revokeKey}
-					onRevoke={handleRevoke}
-					onOpenChange={(open) => {
-						if (!open) setRevokeKey(null);
-					}}
-				/>
-			</>
-		);
-	}
-
-	return (
-		<div className="flex flex-col gap-4">
-			<KeyCountRow
-				count={keys.length}
-				onCreateClick={() => setDialogOpen(true)}
-				disabled={activeCount > 0}
-			/>
-			<ItemGroup>
-				{keys.map((key) => {
-					const recent = recentCreates.get(key.key_id);
-					const isRecent = !!recent;
-					// Optimistic placeholders carry an "optimistic-" id prefix (see handleCreateKey).
-					const isOptimistic = key.key_id.startsWith("optimistic-");
-
-					return (
-						<Item
-							key={key.key_id}
-							variant="outline"
-							className={cn(
-								"px-4 py-3.5",
-								isRecent &&
-									"border-green-500/30 bg-green-500/5 dark:bg-green-500/10",
-								isOptimistic && "opacity-50",
-							)}
-						>
-							<ItemContent>
-								<ItemTitle className="flex items-center gap-2 text-base">
-									{key.name}
-									{isRecent && (
-										<Badge
-											variant="outline"
-											className="text-green-600 border-green-500/30 dark:text-green-400"
-										>
-											New
-										</Badge>
-									)}
-									<ExpiryBadge expiresAt={key.expires_at} />
-								</ItemTitle>
-								<ItemDescription>
-									{isRecent ? (
-										<span className="flex items-center gap-1.5">
-											<code className="font-mono text-sm">
-												{recent.raw_key}
-											</code>
-											<CopyButton value={recent.raw_key} />
-										</span>
-									) : (
-										<code className="font-mono text-sm">
-											{isOptimistic ? "•".repeat(40) : maskKey(key.key_prefix)}
-										</code>
-									)}
-								</ItemDescription>
-							</ItemContent>
-							<ItemActions>
-								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
-									{isOptimistic ? (
-										<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
-									) : (
-										formatDistanceToNow(new Date(key.created_at), {
-											addSuffix: true,
-										})
-									)}
-								</span>
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											aria-label={`Open actions for ${key.name}`}
-											className={cn(
-												"focus:ring-0 focus-visible:ring-0",
-												isRecent &&
-													"hover:bg-transparent dark:hover:bg-transparent aria-expanded:bg-transparent dark:aria-expanded:bg-transparent",
-											)}
-										>
-											<IconDotsVertical />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent align="start">
-										<DropdownMenuGroup>
-											<DropdownMenuItem
-												variant="destructive"
-												onClick={() => setRevokeKey(key)}
-												disabled={activeCount > 0}
-											>
-												Revoke
-											</DropdownMenuItem>
-										</DropdownMenuGroup>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</ItemActions>
-						</Item>
-					);
-				})}
-			</ItemGroup>
+	const dialogs = (
+		<>
 			<CreateKeyDialog
 				open={dialogOpen}
 				onOpenChange={setDialogOpen}
@@ -330,6 +340,63 @@ export function ApiKeyList({
 					if (!open) setRevokeKey(null);
 				}}
 			/>
+		</>
+	);
+
+	if (keys.length === 0) {
+		return (
+			<>
+				<KeyCountRow
+					count={0}
+					onCreateClick={() => setDialogOpen(true)}
+					disabled={activeCount > 0}
+				/>
+				<EmptyState
+					icon={IconKey}
+					title="No API keys yet"
+					description="Create an API key to authenticate requests to the Crosmos API."
+				/>
+				{dialogs}
+			</>
+		);
+	}
+
+	return (
+		<div className="flex flex-col gap-4">
+			<KeyCountRow
+				count={activeKeys.length}
+				onCreateClick={() => setDialogOpen(true)}
+				disabled={activeCount > 0}
+			/>
+			{activeKeys.length > 0 && (
+				<ItemGroup>
+					{activeKeys.map((key) => (
+						<KeyRow
+							key={key.key_id}
+							apiKey={key}
+							recent={recentCreates.get(key.key_id)}
+							isRevoking={revokingIds.has(key.key_id)}
+							onRevoke={setRevokeKey}
+							actionsDisabled={activeCount > 0}
+						/>
+					))}
+				</ItemGroup>
+			)}
+			{revokedKeys.length > 0 && (
+				<ItemGroup>
+					{revokedKeys.map((key) => (
+						<KeyRow
+							key={key.key_id}
+							apiKey={key}
+							recent={recentCreates.get(key.key_id)}
+							isRevoking={revokingIds.has(key.key_id)}
+							onRevoke={setRevokeKey}
+							actionsDisabled={activeCount > 0}
+						/>
+					))}
+				</ItemGroup>
+			)}
+			{dialogs}
 		</div>
 	);
 }
