@@ -13,6 +13,12 @@ import { buildSourcesKey, useSources } from "@/hooks/use-sources";
 import { useSpaces } from "@/hooks/use-spaces";
 import type { ContentTypeStr, ExtractionStatus } from "@/lib/types/source";
 
+const emptyFilters = {
+	content_type: null,
+	extraction_status: null,
+	space_id: null,
+};
+
 export default function SourcesPage() {
 	const orgId = useActiveOrgId();
 	const [_page, setPage] = useState(1);
@@ -32,11 +38,6 @@ export default function SourcesPage() {
 		content_type: queryCt,
 		extraction_status: queryEs,
 		space_id: querySpace,
-	};
-	const emptyFilters = {
-		content_type: null,
-		extraction_status: null,
-		space_id: null,
 	};
 	const queryMatchesOrg =
 		!orgId || prevOrgIdRef.current === null || prevOrgIdRef.current === orgId;

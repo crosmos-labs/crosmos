@@ -1,12 +1,6 @@
 "use client";
 
-import {
-	createContext,
-	type ReactNode,
-	useContext,
-	useMemo,
-	useState,
-} from "react";
+import { createContext, type ReactNode, use, useMemo, useState } from "react";
 
 interface BreadcrumbData {
 	label: string;
@@ -24,7 +18,7 @@ interface BreadcrumbContextValue {
 const BreadcrumbContext = createContext<BreadcrumbContextValue | null>(null);
 
 export function useBreadcrumb() {
-	const ctx = useContext(BreadcrumbContext);
+	const ctx = use(BreadcrumbContext);
 	if (!ctx)
 		throw new Error("useBreadcrumb must be used within BreadcrumbProvider");
 	return ctx;
