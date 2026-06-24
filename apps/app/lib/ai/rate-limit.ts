@@ -3,7 +3,7 @@ import "server-only";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-export const DAILY_MESSAGE_LIMIT = 20;
+export const DAILY_MESSAGE_LIMIT = 10;
 
 const ratelimit = new Ratelimit({
 	redis: Redis.fromEnv(),
