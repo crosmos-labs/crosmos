@@ -100,11 +100,10 @@ export function AppSidebar() {
 
 	const isItemVisible = (item: NavItem) =>
 		!item.hidden &&
+		!item.disabled &&
 		(!item.roles ||
 			(activeOrg ? item.roles.includes(activeOrg.your_role) : false));
 
-	// Drop a nav group and its label when none of its items are visible —
-	// e.g. all workspace pages disabled in prod.
 	const visibleGroups = navGroups.filter((group) =>
 		group.items.some(isItemVisible),
 	);
@@ -155,31 +154,19 @@ export function AppSidebar() {
 								{group.items.filter(isItemVisible).map((item) => (
 									<SidebarMenuItem key={item.href}>
 										<SidebarMenuButton
-											asChild={!item.disabled}
+											asChild
 											isActive={isNavItemActive(pathname, item.href)}
-											disabled={item.disabled}
-											tooltip={item.disabled ? "Coming soon" : item.label}
-											className={cn(
-												"pl-4 hover:transition-none",
-												item.disabled &&
-													"text-muted-foreground hover:bg-transparent hover:text-muted-foreground active:bg-transparent active:text-muted-foreground data-active:bg-transparent data-active:text-muted-foreground",
-											)}
+											tooltip={item.label}
+											className="pl-4 hover:transition-none"
 										>
-											{item.disabled ? (
-												<>
-													<item.icon />
-													<span>{item.label}</span>
-												</>
-											) : (
-												<Link
-													href={item.href}
-													onMouseEnter={() => warmRoute(item.href, orgId)}
-													onFocus={() => warmRoute(item.href, orgId)}
-												>
-													<item.icon />
-													<span>{item.label}</span>
-												</Link>
-											)}
+											<Link
+												href={item.href}
+												onMouseEnter={() => warmRoute(item.href, orgId)}
+												onFocus={() => warmRoute(item.href, orgId)}
+											>
+												<item.icon />
+												<span>{item.label}</span>
+											</Link>
 										</SidebarMenuButton>
 									</SidebarMenuItem>
 								))}
