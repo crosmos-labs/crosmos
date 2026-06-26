@@ -101,9 +101,8 @@ function KeyRow({
 }) {
 	const isRecent = !!recent;
 	const isOptimistic = apiKey.key_id.startsWith("optimistic-");
-	const isRevoked = !apiKey.is_active && !isRevoking;
-	const isMuted = isOptimistic || isRevoking || isRevoked;
-	const showActions = !isRevoking && !isRevoked;
+	const isMuted = isOptimistic || isRevoking;
+	const showActions = !isRevoking;
 
 	return (
 		<Item
@@ -141,7 +140,6 @@ function KeyRow({
 				</ItemDescription>
 			</ItemContent>
 			<ItemActions>
-				{isRevoked && <Badge variant="destructive">Revoked</Badge>}
 				<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
 					{isRevoking ? (
 						<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
@@ -244,25 +242,10 @@ export function ApiKeyList({
 		setDialogOpen(true);
 	});
 
-	// A key mid-revoke counts as inactive immediately so it drops to the revoked group.
-	const isActiveRow = useCallback(
-		(k: ApiKey) => k.is_active && !revokingIds.has(k.key_id),
-		[revokingIds],
-	);
-
-	const activeKeys = useMemo(
-		() => keys.filter(isActiveRow),
-		[keys, isActiveRow],
-	);
-	const revokedKeys = useMemo(
-		() => keys.filter((k) => !isActiveRow(k)),
-		[keys, isActiveRow],
-	);
+	const activeKeys = useMemo(() => keys.filter((k) => k.is_active), [keys]);
 
 	const handleRevoke = useCallback(
 		(keyId: string) => {
-			// Drop the row to the revoked group (muted, no badge) immediately; the
-			// "Revoked" badge only lands once the DELETE actually succeeds.
 			setRevokingIds((prev) => new Set(prev).add(keyId));
 			runAction(
 				async () => {
@@ -343,7 +326,7 @@ export function ApiKeyList({
 		</>
 	);
 
-	if (keys.length === 0) {
+	if (activeKeys.length === 0) {
 		return (
 			<>
 				<KeyCountRow
@@ -368,34 +351,18 @@ export function ApiKeyList({
 				onCreateClick={() => setDialogOpen(true)}
 				disabled={activeCount > 0}
 			/>
-			{activeKeys.length > 0 && (
-				<ItemGroup>
-					{activeKeys.map((key) => (
-						<KeyRow
-							key={key.key_id}
-							apiKey={key}
-							recent={recentCreates.get(key.key_id)}
-							isRevoking={revokingIds.has(key.key_id)}
-							onRevoke={setRevokeKey}
-							actionsDisabled={activeCount > 0}
-						/>
-					))}
-				</ItemGroup>
-			)}
-			{revokedKeys.length > 0 && (
-				<ItemGroup>
-					{revokedKeys.map((key) => (
-						<KeyRow
-							key={key.key_id}
-							apiKey={key}
-							recent={recentCreates.get(key.key_id)}
-							isRevoking={revokingIds.has(key.key_id)}
-							onRevoke={setRevokeKey}
-							actionsDisabled={activeCount > 0}
-						/>
-					))}
-				</ItemGroup>
-			)}
+			<ItemGroup>
+				{activeKeys.map((key) => (
+					<KeyRow
+						key={key.key_id}
+						apiKey={key}
+						recent={recentCreates.get(key.key_id)}
+						isRevoking={revokingIds.has(key.key_id)}
+						onRevoke={setRevokeKey}
+						actionsDisabled={activeCount > 0}
+					/>
+				))}
+			</ItemGroup>
 			{dialogs}
 		</div>
 	);
