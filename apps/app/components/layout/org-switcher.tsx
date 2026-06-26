@@ -102,7 +102,7 @@ export function OrgSwitcher({ activeOrg }: { activeOrg: ActiveOrgSummary }) {
 								switching && "opacity-50",
 							)}
 						>
-							<OrgAvatar slug={displayOrg.slug} />
+							<OrgAvatar name={displayOrg.name} />
 						</div>
 						<div className="grid flex-1 text-left text-sm leading-tight overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-200 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0">
 							<span
@@ -151,7 +151,7 @@ export function OrgSwitcher({ activeOrg }: { activeOrg: ActiveOrgSummary }) {
 										isSwitching && "opacity-50",
 									)}
 								>
-									<OrgAvatar slug={org.slug} size={20} />
+									<OrgAvatar name={org.name} size={20} />
 									<div className="flex-1 min-w-0 space-y-0.75">
 										<span className="block text-sm font-medium truncate">
 											{org.name}

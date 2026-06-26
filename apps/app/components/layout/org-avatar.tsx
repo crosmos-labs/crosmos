@@ -1,19 +1,19 @@
 import { HashAvatar } from "@/components/shared/hash-avatar";
 
 export function OrgAvatar({
-	slug,
+	name,
 	size = 20,
 	className,
 }: {
-	slug: string;
+	name: string;
 	size?: number;
 	className?: string;
 }) {
 	return (
 		<HashAvatar
-			hash={slug}
+			hash={name}
 			size={size}
-			label={`${slug} avatar`}
+			label={`${name} avatar`}
 			className={className}
 		/>
 	);
