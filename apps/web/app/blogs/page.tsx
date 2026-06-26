@@ -93,7 +93,6 @@ export default function BlogsPage() {
 							thumbnail={blog.thumbnail}
 							thumbnailWidth={blog.thumbnailWidth}
 							thumbnailHeight={blog.thumbnailHeight}
-							fullWidth
 						/>
 					))}
 				</div>
