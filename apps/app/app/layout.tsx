@@ -24,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
 	metadataBase: new URL("https://console.crosmos.dev"),
-	title: "Console — Crosmos",
+	title: "Console",
 	description:
 		"Manage Crosmos memory spaces, API keys, sources, and organization settings.",
 	openGraph: {
