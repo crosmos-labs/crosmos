@@ -24,11 +24,8 @@ type BlogCardProps = {
 	thumbnail: string;
 	thumbnailWidth: number;
 	thumbnailHeight: number;
-	fullWidth?: boolean;
 	className?: string;
 };
-
-const CARD_HEIGHT = 320;
 
 export function BlogCard({
 	slug,
@@ -38,32 +35,24 @@ export function BlogCard({
 	thumbnail,
 	thumbnailWidth,
 	thumbnailHeight,
-	fullWidth,
 	className,
 }: BlogCardProps) {
-	const imageAspect = thumbnailWidth / thumbnailHeight;
-	const cardWidth = CARD_HEIGHT * 0.55 * imageAspect + CARD_HEIGHT * 0.45;
-	const style = fullWidth
-		? { height: CARD_HEIGHT }
-		: { width: cardWidth, height: CARD_HEIGHT };
-
 	return (
 		<div
 			className={cn(
-				"group relative flex flex-col border border-foreground/10 hover:border-foreground/30 transition-all duration-300 overflow-hidden",
-				fullWidth ? "w-full" : "shrink-0",
+				"group relative flex w-full flex-col overflow-hidden border border-foreground/10 hover:border-foreground/30 transition-all duration-300",
 				className,
 			)}
-			style={style}
 		>
 			<Link href={`/blogs/${slug}`} className="flex flex-col flex-1">
-				<div className="relative flex-1 overflow-hidden">
+				<div className="relative w-full overflow-hidden">
 					<Image
 						src={thumbnail}
 						alt={title}
-						fill
-						sizes={`${Math.round(cardWidth)}px`}
-						className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+						width={thumbnailWidth}
+						height={thumbnailHeight}
+						sizes="(min-width: 1024px) 420px, (min-width: 640px) 50vw, 100vw"
+						className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
 					/>
 				</div>
 				<div className="flex flex-col shrink-0 px-4 pt-4 pb-0">

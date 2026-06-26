@@ -3,8 +3,8 @@
 import {
 	createContext,
 	type ReactNode,
+	use,
 	useCallback,
-	useContext,
 	useEffect,
 	useMemo,
 	useRef,
@@ -35,7 +35,7 @@ const ActionLoaderContext = createContext<ActionLoaderContextValue | null>(
 );
 
 export function useActionLoader() {
-	const ctx = useContext(ActionLoaderContext);
+	const ctx = use(ActionLoaderContext);
 	if (!ctx)
 		throw new Error("useActionLoader must be used within ActionLoaderProvider");
 	return ctx;

@@ -10,8 +10,7 @@ export interface AuthUser {
 
 // Backend `GET /auth/me` shape; mapped to AuthUser via `toAuthUser`.
 export interface MeResponse {
-	user_id?: string;
-	id?: string;
+	user_id: string;
 	email: string;
 	name: string;
 	org: {
@@ -24,7 +23,7 @@ export interface MeResponse {
 
 export function toAuthUser(me: MeResponse): AuthUser {
 	return {
-		user_id: me.user_id ?? me.id ?? "",
+		user_id: me.user_id,
 		email: me.email,
 		name: me.name,
 		active_org_id: me.org?.id ?? null,

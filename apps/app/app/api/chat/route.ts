@@ -66,7 +66,9 @@ export async function POST(req: Request) {
 	} catch {
 		return new Response("Unauthorized", { status: 401 });
 	}
-	if (!user) {
+	// An empty user_id would key every caller under one Upstash bucket
+	// (`playground:daily:`), so reject it rather than rate-limit globally.
+	if (!user?.user_id) {
 		return new Response("Unauthorized", { status: 401 });
 	}
 	try {

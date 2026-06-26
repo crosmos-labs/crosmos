@@ -67,7 +67,7 @@ export function AcceptInviteCard({
 					</AvatarFallback>
 				</Avatar>
 				<IconLink className="size-8 text-muted-foreground" />
-				<OrgAvatar slug={preview.org_name} size={64} />
+				<OrgAvatar name={preview.org_name} size={64} />
 			</div>
 
 			<p className="max-w-4xl text-2xl text-balance">

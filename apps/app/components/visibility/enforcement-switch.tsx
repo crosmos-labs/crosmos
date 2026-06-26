@@ -7,7 +7,7 @@ import {
 	TooltipTrigger,
 } from "@crosmos/ui/components/tooltip";
 import { IconInfoCircle } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { updateVisibilitySettings } from "@/actions/visibility";
@@ -23,11 +23,9 @@ import type { VisibilitySettings } from "@/lib/types/visibility";
 export function EnforcementSwitch({
 	orgId,
 	currentUserId,
-	onPendingChange,
 }: {
 	orgId: string;
 	currentUserId: string | null;
-	onPendingChange?: (pending: boolean) => void;
 }) {
 	const { data } = useVisibilitySettings(orgId, currentUserId);
 	const {
@@ -45,17 +43,8 @@ export function EnforcementSwitch({
 	const key = visibilitySettingsKey(orgId);
 	const pending = loading || grantsLoading || busy;
 
-	useEffect(() => {
-		onPendingChange?.(pending);
-	}, [onPendingChange, pending]);
-
-	function setPending(next: boolean) {
-		setBusy(next);
-		onPendingChange?.(next);
-	}
-
 	async function applyToggle(next: boolean) {
-		setPending(true);
+		setBusy(true);
 		try {
 			await runAction(() =>
 				// Synthetic settings key (no GET endpoint); the update response is
@@ -90,12 +79,12 @@ export function EnforcementSwitch({
 				error instanceof Error ? error.message : "Couldn't update enforcement",
 			);
 		} finally {
-			setPending(false);
+			setBusy(false);
 		}
 	}
 
 	return (
-		<div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+		<div className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
 			<div className="flex flex-col gap-1">
 				<span className="flex items-center gap-1.5 text-sm font-medium">
 					Group access rules

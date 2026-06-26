@@ -105,15 +105,20 @@ export function OrganizationSettings() {
 						code: result.code,
 					});
 				}
-				await mutate(orgKey(orgId));
-				await mutate(
-					orgsKey,
-					(current: OrgDetailResponse[] | undefined) =>
-						current?.map((item) =>
-							item.id === orgId ? { ...item, ...result.data } : item,
-						),
-					{ revalidate: false },
-				);
+				// The org-detail revalidation is independent of the list cache, so it
+				// runs alongside the optimistic list patch; the list revalidation must
+				// follow the optimistic write so it overwrites it with server truth.
+				await Promise.all([
+					mutate(orgKey(orgId)),
+					mutate(
+						orgsKey,
+						(current: OrgDetailResponse[] | undefined) =>
+							current?.map((item) =>
+								item.id === orgId ? { ...item, ...result.data } : item,
+							),
+						{ revalidate: false },
+					),
+				]);
 				await mutate(orgsKey);
 			},
 			{ toast: { success: "Organization updated" } },

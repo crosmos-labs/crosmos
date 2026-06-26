@@ -48,11 +48,12 @@ function LinkArrow({ className }: { className?: string }) {
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { listApiKeys } from "@/actions/api-keys";
+import { logout } from "@/actions/auth";
 import { listSpaces } from "@/actions/spaces";
 import { getUsage } from "@/actions/usage";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
-import { externalItems, homeItem, navGroups } from "@/config/nav";
+import { externalItems, homeItem, type NavItem, navGroups } from "@/config/nav";
 import { apiKeysKey } from "@/hooks/use-api-keys";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { spacesKey } from "@/hooks/use-spaces";
@@ -97,6 +98,16 @@ export function AppSidebar() {
 
 	const dropdownSide = !isMobile && state === "collapsed" ? "right" : "top";
 
+	const isItemVisible = (item: NavItem) =>
+		!item.hidden &&
+		!item.disabled &&
+		(!item.roles ||
+			(activeOrg ? item.roles.includes(activeOrg.your_role) : false));
+
+	const visibleGroups = navGroups.filter((group) =>
+		group.items.some(isItemVisible),
+	);
+
 	return (
 		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
@@ -135,51 +146,30 @@ export function AppSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 
-				{navGroups.map((group) => (
+				{visibleGroups.map((group) => (
 					<SidebarGroup key={group.label}>
 						<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
 						<SidebarGroupContent>
-							<SidebarMenu>
-								{group.items
-									.filter(
-										(item) =>
-											!item.hidden &&
-											(!item.roles ||
-												(activeOrg
-													? item.roles.includes(activeOrg.your_role)
-													: false)),
-									)
-									.map((item) => (
-										<SidebarMenuItem key={item.href}>
-											<SidebarMenuButton
-												asChild={!item.disabled}
-												isActive={isNavItemActive(pathname, item.href)}
-												disabled={item.disabled}
-												tooltip={item.disabled ? "Coming soon" : item.label}
-												className={cn(
-													"pl-4 hover:transition-none",
-													item.disabled &&
-														"text-muted-foreground hover:bg-transparent hover:text-muted-foreground active:bg-transparent active:text-muted-foreground data-active:bg-transparent data-active:text-muted-foreground",
-												)}
+							<SidebarMenu className="gap-px">
+								{group.items.filter(isItemVisible).map((item) => (
+									<SidebarMenuItem key={item.href}>
+										<SidebarMenuButton
+											asChild
+											isActive={isNavItemActive(pathname, item.href)}
+											tooltip={item.label}
+											className="pl-4 hover:transition-none"
+										>
+											<Link
+												href={item.href}
+												onMouseEnter={() => warmRoute(item.href, orgId)}
+												onFocus={() => warmRoute(item.href, orgId)}
 											>
-												{item.disabled ? (
-													<>
-														<item.icon />
-														<span>{item.label}</span>
-													</>
-												) : (
-													<Link
-														href={item.href}
-														onMouseEnter={() => warmRoute(item.href, orgId)}
-														onFocus={() => warmRoute(item.href, orgId)}
-													>
-														<item.icon />
-														<span>{item.label}</span>
-													</Link>
-												)}
-											</SidebarMenuButton>
-										</SidebarMenuItem>
-									))}
+												<item.icon />
+												<span>{item.label}</span>
+											</Link>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								))}
 							</SidebarMenu>
 						</SidebarGroupContent>
 					</SidebarGroup>
@@ -234,16 +224,15 @@ export function AppSidebar() {
 									className="w-(--radix-dropdown-menu-trigger-width)"
 								>
 									<DropdownMenuItem
-										asChild
 										disabled={activeCount > 0}
-										onSelect={() => {
+										onSelect={async () => {
 											if (isMobile) setOpenMobile(false);
+											await logout();
+											window.location.href = "/signup";
 										}}
 									>
-										<a href="/logout">
-											<IconLogout />
-											<span>Log out</span>
-										</a>
+										<IconLogout />
+										<span>Log out</span>
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
