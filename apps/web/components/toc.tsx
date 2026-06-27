@@ -1,16 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { LegalSection } from "@/lib/legal";
+import type { TocSection } from "@/lib/toc";
 
 const SCROLL_LOCK_MS = 800;
 const ACTIVE_OFFSET_PX = 120;
 
-export function LegalToc({
+export function Toc({
 	sections,
 	className,
 }: {
-	sections: LegalSection[];
+	sections: TocSection[];
 	className?: string;
 }) {
 	const [activeId, setActiveId] = useState<string | null>(
@@ -107,7 +107,7 @@ export function LegalToc({
 			<p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground/80 mb-5">
 				On this page
 			</p>
-			<ul className="relative border-l border-border/60">
+			<ul className="relative border-l border-muted-foreground/30">
 				{sections.map((s) => {
 					const isActive = s.id === activeId;
 					const isSub = s.depth === 3;

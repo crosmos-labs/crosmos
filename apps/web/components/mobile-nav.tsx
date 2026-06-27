@@ -9,6 +9,7 @@ import { LINKS } from "@/config/links";
 
 const NAV_LINKS = [
 	{ href: "/blogs", label: "BLOGS" },
+	{ href: "/research", label: "RESEARCH" },
 	{ href: LINKS.product.pricing, label: "PRICING" },
 	{ href: LINKS.social.discord, label: "DISCORD" },
 ] as const;

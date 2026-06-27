@@ -1,8 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { extractSections, type TocSection } from "./toc";
+
+export { slugifyHeading } from "./toc";
 
 const LEGAL_DIR = path.join(process.cwd(), "content/legal");
+
+export type LegalSection = TocSection;
 
 export type LegalDoc = {
 	slug: "terms" | "privacy";
@@ -13,56 +18,6 @@ export type LegalDoc = {
 	content: string;
 	sections: LegalSection[];
 };
-
-export type LegalSection = {
-	id: string;
-	title: string;
-	depth: 2 | 3;
-};
-
-export function slugifyHeading(text: string): string {
-	return text
-		.toLowerCase()
-		.replace(/^\s*\d+(?:\.\d+)*\.?\s*/, "")
-		.replace(/[^a-z0-9\s.-]/g, "")
-		.replace(/[\s.]+/g, "-")
-		.replace(/-+/g, "-")
-		.replace(/^-|-$/g, "");
-}
-
-function extractSections(content: string): LegalSection[] {
-	const sections: LegalSection[] = [];
-	const seen = new Set<string>();
-	const lines = content.split("\n");
-	let inFence = false;
-
-	for (const line of lines) {
-		if (line.startsWith("```")) {
-			inFence = !inFence;
-			continue;
-		}
-		if (inFence) continue;
-
-		const match = line.match(/^(#{2,3})\s+(.+?)\s*$/);
-		if (!match || !match[1] || !match[2]) continue;
-
-		const depth = match[1].length as 2 | 3;
-		const title = match[2].trim();
-		let id = slugifyHeading(title);
-		if (!id) continue;
-
-		let suffix = 2;
-		const base = id;
-		while (seen.has(id)) {
-			id = `${base}-${suffix++}`;
-		}
-		seen.add(id);
-
-		sections.push({ id, title, depth });
-	}
-
-	return sections;
-}
 
 export function getLegalDoc(slug: "terms" | "privacy"): LegalDoc {
 	const file = path.join(LEGAL_DIR, `${slug}.mdx`);

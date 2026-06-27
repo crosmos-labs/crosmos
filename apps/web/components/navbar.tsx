@@ -57,6 +57,12 @@ export function Navbar() {
 							BLOG
 						</Link>
 						<Link
+							href="/research"
+							className="text-foreground/90 text-sm font-medium link-underline select-none"
+						>
+							RESEARCH
+						</Link>
+						<Link
 							href={LINKS.product.pricing}
 							className="text-foreground/90 text-sm font-medium link-underline select-none"
 						>
