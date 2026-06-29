@@ -1,4 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
+import { PastDueBanner } from "@/components/billing/past-due-banner";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { RequireActiveOrg } from "@/components/layout/require-active-org";
@@ -19,18 +20,23 @@ export default function DashboardLayout({
 		<SwrProvider>
 			<ActionLoaderProvider>
 				<BreadcrumbProvider>
-					<SidebarProvider>
-						<RequireActiveOrg />
-						<AppSidebar />
-						<SidebarInset>
-							<DashboardHeader />
-							<div className="flex-1 overflow-auto">
-								<div id="main-content" className="mx-auto max-w-5xl p-6">
-									{children}
+					<div className="flex min-h-0 flex-1 flex-col">
+						<PastDueBanner />
+						{/* translateZ(0) makes this the containing block for the fixed
+						sidebar, so it starts below the banner instead of the viewport top. */}
+						<SidebarProvider className="min-h-0 flex-1 [transform:translateZ(0)]">
+							<RequireActiveOrg />
+							<AppSidebar />
+							<SidebarInset>
+								<DashboardHeader />
+								<div className="flex-1 overflow-auto">
+									<div id="main-content" className="mx-auto max-w-5xl p-6">
+										{children}
+									</div>
 								</div>
-							</div>
-						</SidebarInset>
-					</SidebarProvider>
+							</SidebarInset>
+						</SidebarProvider>
+					</div>
 				</BreadcrumbProvider>
 			</ActionLoaderProvider>
 		</SwrProvider>

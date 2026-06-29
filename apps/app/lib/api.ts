@@ -28,6 +28,8 @@ export class ApiError extends Error {
 			}
 			// Bare Starlette responses (e.g. 404/405) carry a string detail.
 			if (typeof obj.detail === "string") message = obj.detail;
+			// Billing envelope: { detail, code, request_id }.
+			if (code === null && typeof obj.code === "string") code = obj.code;
 		}
 
 		super(message);
