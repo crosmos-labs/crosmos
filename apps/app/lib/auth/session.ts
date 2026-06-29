@@ -6,7 +6,6 @@ import {
 	toAuthUser,
 } from "@/lib/types/auth";
 import {
-	clearAuthCookies,
 	getAccessToken,
 	getActiveOrgId,
 	getRefreshToken,
@@ -46,10 +45,8 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 				cache: "no-store",
 			});
 
-			if (!res.ok) {
-				await clearAuthCookies();
-				return null;
-			}
+			// Non-destructive: don't clear cookies on a lost rotation race.
+			if (!res.ok) return null;
 
 			const data = (await res.json()) as TokenResponse;
 			await setAuthCookies(data.access_token, data.refresh_token);
@@ -106,6 +103,24 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 			}
 		}
 		return null;
+	} catch {
+		return null;
+	}
+}
+
+// Read-only: never refreshes/writes cookies, so it's safe during RSC render.
+export async function peekUser(): Promise<AuthUser | null> {
+	if (!API_URL) return null;
+
+	const accessToken = await getAccessToken();
+	if (!accessToken) return null;
+
+	try {
+		const res = await fetch(`${API_URL}/auth/me`, {
+			headers: { Authorization: `Bearer ${accessToken}` },
+			cache: "no-store",
+		});
+		return res.ok ? toAuthUser(await res.json()) : null;
 	} catch {
 		return null;
 	}

@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { verifyAuth } from "@/lib/auth/session";
+import { peekUser } from "@/lib/auth/session";
 
 export default async function AuthLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const user = await verifyAuth();
+	const user = await peekUser();
 	if (user) redirect("/");
 
 	return (

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { previewInvite } from "@/actions/invites";
-import { verifyAuth } from "@/lib/auth/session";
+import { peekUser } from "@/lib/auth/session";
 import { AcceptInviteCard } from "./accept-invite-card";
 
 export default async function AcceptInvitePage({
@@ -13,7 +13,7 @@ export default async function AcceptInvitePage({
 	const { token } = await searchParams;
 	if (!token) redirect("/");
 
-	const user = await verifyAuth();
+	const user = await peekUser();
 	if (!user) redirect(`/signup?invite=${encodeURIComponent(token)}`);
 
 	const result = await previewInvite(token);
