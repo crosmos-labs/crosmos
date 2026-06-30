@@ -29,20 +29,6 @@ export default function BillingSuccessPage() {
 	const started = useRef(false);
 
 	useEffect(() => {
-		if (process.env.NODE_ENV !== "production") {
-			const devPhase = new URLSearchParams(window.location.search).get(
-				"dev_phase",
-			);
-			if (
-				devPhase === "finalizing" ||
-				devPhase === "active" ||
-				devPhase === "timeout"
-			) {
-				if (devPhase === "active") setActivePlan("pro");
-				setPhase(devPhase);
-				return;
-			}
-		}
 		if (!orgId || started.current) return;
 		started.current = true;
 		const controller = new AbortController();
