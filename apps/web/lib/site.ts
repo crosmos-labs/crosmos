@@ -5,3 +5,9 @@ export const SITE_DESCRIPTION =
 	"Persistent context for enterprise AI. Connect your data sources, build a living knowledge graph, and give every agent your organization's full context.";
 export const DOCS_URL = "https://docs.crosmos.dev";
 export const CONSOLE_URL = "https://console.crosmos.dev";
+export const OG_IMAGE = {
+	url: "/opengraph-image.png",
+	width: 2400,
+	height: 1200,
+	alt: SITE_NAME,
+};

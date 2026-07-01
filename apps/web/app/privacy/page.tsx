@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal-layout";
 import { getLegalDoc } from "@/lib/legal";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const DESCRIPTION =
 	"How Crosmos collects, uses, and protects information when you use the Service, including your rights and how to exercise them.";
@@ -16,11 +16,13 @@ export const metadata: Metadata = {
 		title: "Privacy Policy — Crosmos",
 		description: DESCRIPTION,
 		type: "article",
+		images: [OG_IMAGE],
 	},
 	twitter: {
 		card: "summary_large_image",
 		title: "Privacy Policy — Crosmos",
 		description: DESCRIPTION,
+		images: [OG_IMAGE.url],
 	},
 };
 

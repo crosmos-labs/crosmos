@@ -13,7 +13,6 @@ export type ResearchRef = {
 export type ResearchDoc = {
 	title: string;
 	epigraph: string;
-	note: string;
 	body: string;
 	sections: TocSection[];
 	uncitedRefs: ResearchRef[];
@@ -34,7 +33,6 @@ export function getResearchDoc(): ResearchDoc {
 
 	const title = data.title;
 	const epigraph = typeof data.epigraph === "string" ? data.epigraph : "";
-	const note = typeof data.note === "string" ? data.note : "";
 	const body = content.trimStart();
 
 	const defs: ResearchRef[] = [];
@@ -54,7 +52,6 @@ export function getResearchDoc(): ResearchDoc {
 	return {
 		title,
 		epigraph,
-		note,
 		body,
 		sections: extractSections(body),
 		uncitedRefs,

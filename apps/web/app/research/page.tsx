@@ -8,7 +8,7 @@ import {
 } from "@/components/prose-mdx";
 import { Toc } from "@/components/toc";
 import { getResearchDoc } from "@/lib/research";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const doc = getResearchDoc();
 
@@ -21,11 +21,13 @@ export const metadata: Metadata = {
 		url: "/research",
 		title: doc.title,
 		description: doc.epigraph,
+		images: [OG_IMAGE],
 	},
 	twitter: {
 		card: "summary_large_image",
 		title: doc.title,
 		description: doc.epigraph,
+		images: [OG_IMAGE.url],
 	},
 };
 
@@ -101,9 +103,6 @@ export default function ResearchPage() {
 						<p className="mt-6 border-l-2 border-primary pl-5 text-lg leading-relaxed text-foreground/90 sm:text-xl">
 							{doc.epigraph}
 						</p>
-					)}
-					{doc.note && (
-						<p className="mt-5 text-sm text-muted-foreground">{doc.note}</p>
 					)}
 				</header>
 
