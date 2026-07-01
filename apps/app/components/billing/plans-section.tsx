@@ -10,6 +10,7 @@ import { BillingEmailDialog } from "@/components/billing/billing-email-dialog";
 import { PlanCard, PlanCardSkeleton } from "@/components/billing/plan-card";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { subscriptionKey, usePlans } from "@/hooks/use-billing";
+import { useCalApi } from "@/hooks/use-cal-api";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useOrg } from "@/hooks/use-org";
 import {
@@ -18,12 +19,13 @@ import {
 	type PurchasablePlan,
 } from "@/lib/types/billing";
 
-const SALES_MAILTO =
-	"mailto:sales@crosmos.dev?subject=Enterprise%20plan%20inquiry";
+const SALES_CAL_NAMESPACE = "30min";
+const SALES_CAL_LINK = "crosmos/30min";
 
 export function PlansSection({ currentPlan }: { currentPlan: Plan }) {
 	const { data: plans, isLoading, error, mutate: reloadPlans } = usePlans();
 	const { data: user } = useCurrentUser();
+	const initCal = useCalApi();
 	const canUpgrade =
 		user?.active_org?.your_role === "owner" && currentPlan === "free";
 	const orgId = user?.active_org_id ?? null;
@@ -71,6 +73,13 @@ export function PlansSection({ currentPlan }: { currentPlan: Plan }) {
 
 	const hasComingSoon = plans?.some((p) => p.status === "coming_soon") ?? false;
 
+	const salesCalConfig = JSON.stringify({
+		layout: "month_view",
+		useSlotsViewOnSmallScreen: "true",
+		...(user?.name ? { name: user.name } : {}),
+		...(user?.email ? { email: user.email } : {}),
+	});
+
 	return (
 		<section className="flex flex-col gap-3">
 			<div className="flex items-center justify-between gap-3">
@@ -78,49 +87,54 @@ export function PlansSection({ currentPlan }: { currentPlan: Plan }) {
 					Change your plan
 				</h2>
 				{hasComingSoon && (
-					<Button variant="ghost" size="sm" asChild>
-						<a href={SALES_MAILTO}>
-							Talk to sales about Enterprise
-							<IconArrowUpRight data-icon="inline-end" />
-						</a>
+					<Button
+						variant="ghost"
+						size="sm"
+						data-cal-namespace={SALES_CAL_NAMESPACE}
+						data-cal-link={SALES_CAL_LINK}
+						data-cal-config={salesCalConfig}
+						onPointerEnter={initCal}
+						onFocus={initCal}
+					>
+						Talk to sales about Enterprise
+						<IconArrowUpRight data-icon="inline-end" />
 					</Button>
 				)}
 			</div>
-				<div className="grid gap-3 sm:grid-cols-3">
-					{error ? (
-						<div className="col-span-full flex flex-col items-start gap-2 p-4">
-							<p className="text-sm text-muted-foreground">
-								Couldn't load plans.
-							</p>
-							<Button variant="outline" size="sm" onClick={() => reloadPlans()}>
-								Try again
-							</Button>
-						</div>
-					) : isLoading || !plans ? (
-						<>
-							<PlanCardSkeleton />
-							<PlanCardSkeleton />
-							<PlanCardSkeleton />
-						</>
-					) : (
-						plans
-							.filter((p) => p.status === "live")
-							.sort(
-								(a, b) =>
-									PLAN_ORDER.indexOf(a.plan) - PLAN_ORDER.indexOf(b.plan),
-							)
-							.map((p) => (
-								<PlanCard
-									key={p.plan}
-									plan={p}
-									isCurrent={p.plan === currentPlan}
-									isBusy={busy}
-									canUpgrade={canUpgrade}
-									onUpgrade={() => onUpgrade(p.plan as PurchasablePlan)}
-								/>
-							))
-					)}
-				</div>
+			<div className="grid gap-3 sm:grid-cols-3">
+				{error ? (
+					<div className="col-span-full flex flex-col items-start gap-2 p-4">
+						<p className="text-sm text-muted-foreground">
+							Couldn't load plans.
+						</p>
+						<Button variant="outline" size="sm" onClick={() => reloadPlans()}>
+							Try again
+						</Button>
+					</div>
+				) : isLoading || !plans ? (
+					<>
+						<PlanCardSkeleton />
+						<PlanCardSkeleton />
+						<PlanCardSkeleton />
+					</>
+				) : (
+					plans
+						.filter((p) => p.status === "live")
+						.sort(
+							(a, b) => PLAN_ORDER.indexOf(a.plan) - PLAN_ORDER.indexOf(b.plan),
+						)
+						.map((p) => (
+							<PlanCard
+								key={p.plan}
+								plan={p}
+								isCurrent={p.plan === currentPlan}
+								isBusy={busy}
+								canUpgrade={canUpgrade}
+								onUpgrade={() => onUpgrade(p.plan as PurchasablePlan)}
+							/>
+						))
+				)}
+			</div>
 			<BillingEmailDialog
 				open={emailDialogPlan !== null}
 				onOpenChange={(open) => {

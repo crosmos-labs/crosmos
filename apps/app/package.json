@@ -14,6 +14,7 @@
 		"@agilek/cli-loaders": "^1.1.0",
 		"@ai-sdk/anthropic": "^3.0.81",
 		"@ai-sdk/react": "^3.0.195",
+		"@calcom/embed-react": "^1.5.3",
 		"@crosmos/graph": "workspace:*",
 		"@crosmos/ui": "workspace:*",
 		"@tabler/icons-react": "^3.41.1",
