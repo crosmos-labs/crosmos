@@ -324,7 +324,7 @@ export function MemberList() {
 							>
 								<MemberAvatar name={member.name} email={member.email} />
 								<ItemContent>
-									<ItemTitle className="text-base">
+									<ItemTitle className="text-sm">
 										<span className="min-w-0 truncate">
 											{member.name || member.email}
 										</span>
@@ -469,7 +469,7 @@ export function MemberList() {
 										</Avatar>
 									)}
 									<ItemContent>
-										<ItemTitle className="text-base">{invite.email}</ItemTitle>
+										<ItemTitle className="text-sm">{invite.email}</ItemTitle>
 										<ItemDescription>
 											{isExpired ? "Invite expired" : "Invite pending"}
 										</ItemDescription>

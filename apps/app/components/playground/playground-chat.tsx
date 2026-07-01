@@ -280,11 +280,11 @@ export function PlaygroundChat() {
 						</Button>
 					)}
 
-					<div className="flex flex-col gap-1.5 rounded-2xl border border-border bg-card p-1.5">
+					<div className="flex flex-col gap-1.5 rounded-4xl border border-border bg-card p-2">
 						{/* Input box — reflows from textarea-over-buttons to a single inline row. */}
 						<motion.div
 							layout
-							className="flex flex-wrap items-center gap-1 rounded-2xl border border-border/60 bg-background/60 p-1.5"
+							className="flex flex-wrap items-center gap-1 rounded-sm border border-border/60 bg-background/60 p-1.5"
 						>
 							{/* + (left) */}
 							<motion.div
