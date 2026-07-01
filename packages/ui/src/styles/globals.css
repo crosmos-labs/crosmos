@@ -210,7 +210,6 @@
 	--sidebar-border: oklch(1 0 0 / 10%);
 	/*--sidebar-ring: oklch(0.5544 0.1146 158.24);*/
 	--sidebar-ring: oklch(0.556 0 0);
-	--radius: 0.35rem;
 	--shadow-x: 0px;
 	--shadow-y: 4px;
 	--shadow-blur: 10px;
