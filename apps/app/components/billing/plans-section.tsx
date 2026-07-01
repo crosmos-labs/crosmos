@@ -2,7 +2,7 @@
 
 import { Button } from "@crosmos/ui/components/button";
 import { IconArrowUpRight } from "@tabler/icons-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { startCheckout } from "@/actions/billing";
@@ -25,7 +25,7 @@ const SALES_CAL_LINK = "crosmos/30min";
 export function PlansSection({ currentPlan }: { currentPlan: Plan }) {
 	const { data: plans, isLoading, error, mutate: reloadPlans } = usePlans();
 	const { data: user } = useCurrentUser();
-	const initCal = useCalApi();
+	const initCal = useCalApi(SALES_CAL_NAMESPACE);
 	const canUpgrade =
 		user?.active_org?.your_role === "owner" && currentPlan === "free";
 	const orgId = user?.active_org_id ?? null;
@@ -73,12 +73,16 @@ export function PlansSection({ currentPlan }: { currentPlan: Plan }) {
 
 	const hasComingSoon = plans?.some((p) => p.status === "coming_soon") ?? false;
 
-	const salesCalConfig = JSON.stringify({
-		layout: "month_view",
-		useSlotsViewOnSmallScreen: "true",
-		...(user?.name ? { name: user.name } : {}),
-		...(user?.email ? { email: user.email } : {}),
-	});
+	const salesCalConfig = useMemo(
+		() =>
+			JSON.stringify({
+				layout: "month_view",
+				useSlotsViewOnSmallScreen: "true",
+				...(user?.name ? { name: user.name } : {}),
+				...(user?.email ? { email: user.email } : {}),
+			}),
+		[user?.name, user?.email],
+	);
 
 	return (
 		<section className="flex flex-col gap-3">

@@ -14,13 +14,22 @@ export function subscriptionKey(orgId: string): string {
 	return `/orgs/${orgId}/billing/subscription`;
 }
 
+// Role-gated like useSubscription: members never render plans, so skip the fetch.
 export function usePlans() {
-	const orgId = useActiveOrgId();
+	const { data: user } = useCurrentUser();
 
-	return useSWR<PlanInfo[]>(orgId ? plansKey(orgId) : null, () => getPlans(), {
-		revalidateIfStale: false,
-		revalidateOnFocus: false,
-	});
+	const orgId = user?.active_org_id ?? null;
+	const role = user?.active_org?.your_role ?? null;
+	const canRead = role === "owner" || role === "admin";
+
+	return useSWR<PlanInfo[]>(
+		orgId && canRead ? plansKey(orgId) : null,
+		() => getPlans(),
+		{
+			revalidateIfStale: false,
+			revalidateOnFocus: false,
+		},
+	);
 }
 
 // Subscription reads are owner/admin only; gate the fetch by role so members
