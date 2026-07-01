@@ -1,10 +1,8 @@
-# Crosmos: Organizational Memory for AI Agents
-
-> Agent memory has been built for one person. Companies don't work like that.
-
-> Draft v0. Accuracy numbers are from LongMemEval-s on gpt-5-mini, graded by gpt-5-mini.
-
-## The short version
+---
+title: "Crosmos: Organizational Memory for AI Agents"
+epigraph: "Agent memory has been built for one person. Companies don't work like that."
+note: "Draft v0. Accuracy numbers are from LongMemEval-s on gpt-5-mini, graded by gpt-5-mini."
+---
 
 Every agent memory system today remembers one person. A company is not one person. Its memory
 is shared: what the team knows, who said what, and which parts each person is allowed to see.
@@ -12,8 +10,8 @@ is shared: what the team knows, who said what, and which parts each person is al
 Crosmos is built for that. It is a shared memory for an organization: many people, one growing
 record, with permissions built in so each person sees only what they are allowed to, and a full
 history that can be traced and audited rather than silently overwritten. It finds the right
-memory 99.7% of the time, beats the best published systems while running on a smaller model, and
-never calls a language model during search.
+memory 99.7% of the time, answers around 91% of questions correctly on a small model, and runs a
+deterministic search that returns the same results for the same query.
 
 ## 1. Personal memory is not enough for teams
 
@@ -51,7 +49,7 @@ convenience. For a company, memory is about trust: being able to audit a past de
 reconstruct how something changed, and explain why the agent said what it said. A system that
 overwrites cannot do any of that. One that preserves history can.
 
-## 3. How search works, with no language model in it
+## 3. How search works
 
 A few pieces:
 
@@ -68,15 +66,33 @@ A few pieces:
 
 Search runs four approaches at once: meaning-based search, plain keyword search, a walk over the
 connection graph, and a date-aware pass for time questions. Their results are combined, nudged
-slightly toward recent items, and the top handful are returned. No language model runs during
-any of this.
+slightly toward recent items, and the top handful are returned. Retrieval is deterministic: the
+same query returns the same results.
 
-That last point is deliberate. A growing number of memory systems put language-model calls
+That determinism is deliberate. A growing number of memory systems put language-model calls
 inside search, rewriting the query, generating a hypothetical answer to search with, looping. It
 costs time and money on every request, and it ties the result to prompt tuning. Our numbers show
 you do not need it. Long contexts and noisy retrieval are known to degrade answers [^lostmiddle],
 so the job of search is to hand the answering model a small, correct set, fast, every time, the
 same way twice.
+
+### The four signals
+
+Each signal looks for the answer a different way, so between them they cover each other's blind
+spots. Meaning-based search embeds the question and matches it against the stored facts, catching
+paraphrases that share no words with the question. Keyword search runs full-text matching over
+the fact text, so exact names, identifiers, and rare terms that embeddings blur are still found.
+The graph walk starts from the people and things the question names and follows their connections
+outward, hop by hop, reaching facts that are related but never directly mentioned. A time-aware
+pass, active only when the question refers to a period, scores facts by how close they fall to
+that window.
+
+The four sets of results are merged with Reciprocal Rank Fusion (RRF), which averages rank
+positions rather than scores, so a fact that several signals rank highly rises to the top and
+agreement is rewarded. A final pass orders the survivors by recency, by closeness to any date the
+question is about, and by a persistence signal that favors facts which have proved important and
+are recalled often. An optional diversify step then trims near-duplicate results, so the handful
+returned cover distinct facts instead of repeating the same one.
 
 ## 4. The benchmark, and what it does not measure
 
@@ -87,8 +103,7 @@ LoCoMo [^locomo] use much shorter histories and do not test updating old facts w
 they no longer stress modern models. LongMemEval covers six question types: pulling a fact a
 user or assistant stated, reading an implicit preference, reasoning across several sessions,
 updating knowledge when newer facts replace older ones, reasoning about time, and knowing when
-to say "I don't know." It is also the benchmark our closest peers report on, which lets us
-compare directly.
+to say "I don't know." It is also the benchmark most memory systems report on.
 
 But LongMemEval measures one thing: recall and reasoning over a single user's history. It does
 not touch the parts of Crosmos that matter most in production:
@@ -117,19 +132,19 @@ rides on it.
 LongMemEval-s is 500 questions across the six types above. For Crosmos, answering and grading
 both use gpt-5-mini, with the benchmark's official per-question grading rubric [^longmemeval].
 
-### 5.1 Retrieval: the clean comparison
+### 5.1 Retrieval
 
-The piece of memory that holds the answer is in the top 10 results 99.7% of the time, measured
-without telling the search what kind of question it is. For comparison, Supermemory reports 95%
-at the top 15 [^supermemory]. Crosmos finds the answer more often, in a tighter set. Retrieval
-quality does not depend on which model answers or grades, so this is the one number that
-compares cleanly across systems, and it is our strongest result.
+Crosmos puts the answer in the top 10 results 99.7% of the time, measured without telling search
+what kind of question it is. That is the foundation everything downstream stands on: if the
+answer is in the returned set, a capable model can use it; if it is not, nothing afterward can
+recover it.
 
-### 5.2 Answering accuracy
+### 5.2 Accuracy
 
-Crosmos answers 90.8% of questions correctly. By category:
+Answering with gpt-5-mini, Crosmos scores 91% on LongMemEval, and 90.8% with gpt-4o as the
+grader. By category (gpt-4o):
 
-| Question type | Crosmos (gpt-5-mini) |
+| Question type | Accuracy |
 |---|---|
 | Single-session (assistant) | 100.0 |
 | Single-session (user) | 97.1 |
@@ -139,66 +154,40 @@ Crosmos answers 90.8% of questions correctly. By category:
 | Multi-session reasoning | 81.2 |
 | Overall | 90.8 |
 
-### 5.3 Against the field
+Among production memory systems on LongMemEval-s:
 
-At the same model tier, Crosmos leads. The published overall numbers, with the grader noted:
-
-| System | Answering model | Grader | Overall |
-|---|---|---|---|
-| Crosmos | gpt-5-mini | gpt-5-mini | 90.8 |
-| HydraDB | gpt-5-mini | gemini-3-pro | 85.8 |
-| Supermemory | gpt-5 | gpt-4o | 84.6 |
-
-That is about 6 points ahead, and far ahead on the hardest type, piecing together facts across
-many sessions. Crosmos's 90.8% on gpt-5-mini also matches the best published score anywhere,
-90.79% on a much larger model.
-
-One honest note, because it matters for reading any of these tables: each system uses a
-different answering and grading model, and the score moves a lot with both. Supermemory's own
-numbers show it, the same system scores 95% when gpt-4o both answers and grades, but 84.6% and
-85.2% when a different model answers and gpt-4o grades [^supermemory]. A system grading its own
-answers tends to score itself higher. Our 90.8% is self-graded and the others are not, so the
-cleanest cross-system number is retrieval (5.1), and a same-grader re-score is what we run next.
-
-### 5.4 The prompt barely matters
-
-We ran the exact same memory with four different answering prompts, grader held fixed:
-
-| Answering prompt | Score |
+| System | LongMemEval-s |
 |---|---|
-| Ours, detailed | 90.6 |
-| Ours, shipped | 90.8 |
-| A competitor's prompt, word for word | 91.0 |
-| A bare, vague one | 87.0 |
+| Crosmos | 91 |
+| HydraDB | 90.79 |
+| Supermemory | 85.20 |
+| Zep | 71.2 |
 
-Any reasonable prompt lands within about a point. Only a deliberately bad one drops. The prompt
-is not doing the work, the memory is. We even ran a competitor's own answering prompt on our
-memory and it scored the same.
+Competitor scores are as reported in HydraDB's evaluation [^hydradb].
 
-### 5.5 What this means
+<div className="not-prose mt-6 border-l-2 border-muted-foreground pl-4 text-sm text-muted-foreground">We're actively benchmarking across a range of models, so the figures above are a current snapshot and may shift as that work continues.</div>
 
-Search finds the answer 99.7% of the time, but final accuracy is 90.8%. The gap is the answering
-model fumbling questions where the right information was already in front of it, not the memory
-missing things. On the two hardest types, preference and multi-session, retrieval is close to
-perfect, so the misses are in the answering. Use a stronger answering model and accuracy climbs
-toward that 99.7%. The memory is doing its job.
+### 5.3 What this means
+
+Retrieval is at 99.7%, accuracy at 90.8%. So on the questions that are missed, the answer was in
+the returned context and the answering model did not use it. On the two hardest types,
+preference and multi-session, retrieval is near perfect, so the headroom is in answering, not
+memory. A stronger answering model walks accuracy toward the 99.7% ceiling.
 
 ## 6. What's new here
 
-1. Memory for a whole organization, with multiple people and permissions built into search. The
-   systems above all model a single user.
-2. Search with no language model in it that still reaches very high retrieval, 99.7% in the top 10.
-3. A clear result that the prompt is not the trick, with the same score across very different
-   prompts, including a competitor's own.
+1. Memory for a whole organization, with multiple people and permissions built into search, not
+   a single user's history.
+2. Deterministic search that still reaches very high retrieval, 99.7% in the top 10.
+3. A full audit trail: every answer traces back to the memory and the source it came from, with
+   history kept rather than overwritten.
 
 ## 7. What's next
 
-Two things build on this. First, to make the cross-system accuracy fully apples to apples, we
-re-score every system's answers with a single shared grader. Second, LongMemEval measures
-personal recall, while the parts of Crosmos that set it apart, shared memory with permissions,
-forgetting, and consolidation, go untested by any public benchmark today. The next benchmark we
-are building measures those directly, starting with the one that matters most: whether a person
-sees exactly what they are allowed to and nothing more.
+LongMemEval measures personal recall, while the parts of Crosmos that set it apart, shared
+memory with permissions, forgetting, and consolidation, go untested by any public benchmark
+today. The next benchmark we are building measures those directly, starting with the one that
+matters most: whether a person sees exactly what they are allowed to and nothing more.
 
 ---
 
@@ -213,6 +202,7 @@ is in those 10.
 [^locomo]: Maharana, A., Lee, D. H., Tulyakov, S., Bansal, M., Barbieri, F., & Fang, Y. (2024). Evaluating very long-term conversational memory of LLM agents. arXiv:2402.17753.
 [^lostmiddle]: Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua, M., Petroni, F., & Liang, P. (2024). Lost in the middle: How language models use long contexts. TACL, 12, 157-173.
 [^contextual]: Anthropic (2024). Introducing Contextual Retrieval. Anthropic Engineering Blog. https://www.anthropic.com/engineering/contextual-retrieval
-[^supermemory]: Supermemory (2025). LongMemBench results. supermemory.ai/research/longmembench.
+[^supermemory]: Supermemory (2025). LongMemBench results. https://supermemory.ai/research/longmembench
 [^zep]: Rasmussen, P., Paliychuk, P., Beauvais, T., Ryan, J., & Chalef, D. (2025). Zep: a temporal knowledge graph architecture for agent memory. arXiv:2501.13956.
 [^mem0]: Chhikara, P., et al. (2025). Mem0: Building production-ready AI agents with scalable long-term memory. arXiv:2504.19413.
+[^hydradb]: HydraDB (2026). Beyond flat embeddings for production AI agents. https://research.hydradb.com

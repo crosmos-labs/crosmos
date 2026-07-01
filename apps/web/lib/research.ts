@@ -3,7 +3,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import { extractSections, type TocSection } from "./toc";
 
-const RESEARCH_FILE = path.join(process.cwd(), "content/research/paper.md");
+const RESEARCH_FILE = path.join(process.cwd(), "content/research/paper.mdx");
 
 export type ResearchRef = {
 	id: string;
@@ -24,40 +24,18 @@ function escapeRegExp(value: string): string {
 	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** Pull the consecutive `>` blockquote blocks that sit before the body. */
-function extractBlockquotes(lines: string[]): string[] {
-	const blocks: string[] = [];
-	let current: string[] = [];
-
-	const flush = () => {
-		if (current.length > 0) {
-			blocks.push(current.join(" ").trim());
-			current = [];
-		}
-	};
-
-	for (const line of lines) {
-		if (line.startsWith(">")) {
-			current.push(line.replace(/^>\s?/, "").trim());
-		} else {
-			flush();
-		}
-	}
-	flush();
-	return blocks;
-}
-
 export function getResearchDoc(): ResearchDoc {
 	const raw = fs.readFileSync(RESEARCH_FILE, "utf-8");
-	const { content } = matter(raw);
-	const lines = content.split("\n");
+	const { data, content } = matter(raw);
 
-	const bodyStart = lines.findIndex((l) => /^##\s/.test(l));
-	const head = bodyStart === -1 ? lines : lines.slice(0, bodyStart);
-	const body = bodyStart === -1 ? "" : lines.slice(bodyStart).join("\n");
+	if (typeof data.title !== "string" || !data.title) {
+		throw new Error('Missing or invalid "title" in research/paper.mdx');
+	}
 
-	const title = head.find((l) => /^#\s/.test(l))?.replace(/^#\s+/, "").trim() ?? "";
-	const [epigraph = "", note = ""] = extractBlockquotes(head);
+	const title = data.title;
+	const epigraph = typeof data.epigraph === "string" ? data.epigraph : "";
+	const note = typeof data.note === "string" ? data.note : "";
+	const body = content.trimStart();
 
 	const defs: ResearchRef[] = [];
 	const defRe = /^\[\^([^\]]+)\]:\s*(.+)$/gm;

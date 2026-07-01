@@ -40,6 +40,20 @@ export function wrapQuotedText(children: ReactNode): ReactNode {
 	});
 }
 
+export function linkifyText(text: string): ReactNode {
+	const parts = text.split(/(https?:\/\/[^\s]+)/g);
+	if (parts.length === 1) return text;
+	return parts.map((part, i) =>
+		/^https?:\/\//.test(part) ? (
+			<a key={`${i}`} href={part}>
+				{part}
+			</a>
+		) : (
+			part
+		),
+	);
+}
+
 export function AnchorHeading({
 	tag: Tag,
 	children,
@@ -49,14 +63,14 @@ export function AnchorHeading({
 	const id = slugifyHeading(text);
 	return (
 		<Tag id={id} className="group/heading scroll-mt-24" {...rest}>
+			{children}
 			<a
 				href={`#${id}`}
 				aria-label={`Link to section: ${text}`}
-				className="no-underline opacity-0 group-hover/heading:opacity-100 transition-opacity mr-2 inline-flex align-middle text-muted-foreground hover:text-foreground"
+				className="no-underline opacity-0 group-hover/heading:opacity-100 transition-opacity ml-2 inline-flex align-middle text-muted-foreground hover:text-foreground"
 			>
 				<IconLink className="size-4 inline-block -mt-0.5" />
 			</a>
-			{children}
 		</Tag>
 	);
 }
