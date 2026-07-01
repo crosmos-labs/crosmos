@@ -1,7 +1,7 @@
 import { capitalize, formatDate } from "@/lib/format";
 import type { Subscription } from "@/lib/types/billing";
 
-export type BillingTone = "neutral" | "warn";
+export type BillingTone = "neutral" | "warn" | "danger";
 
 export interface BillingStatusBadge {
 	label: string;
@@ -30,8 +30,8 @@ export function billingStatusDisplay(sub: Subscription): BillingStatusDisplay {
 		case "past_due":
 			return {
 				label: planLabel,
-				detail: "Payment failed. Update your card.",
-				tone: "warn",
+				detail: `Your last payment failed. Update your card to keep your ${capitalize(sub.plan)} plan.`,
+				tone: "danger",
 				badge: { label: "Past due", variant: "destructive" },
 			};
 		case "canceled":
@@ -54,5 +54,12 @@ export function billingStatusDisplay(sub: Subscription): BillingStatusDisplay {
 }
 
 export function billingToneClass(tone: BillingTone): string {
-	return tone === "warn" ? "text-amber-500" : "text-muted-foreground";
+	switch (tone) {
+		case "danger":
+			return "text-destructive";
+		case "warn":
+			return "text-amber-500";
+		default:
+			return "text-muted-foreground";
+	}
 }

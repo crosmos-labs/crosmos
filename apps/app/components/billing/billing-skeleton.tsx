@@ -7,10 +7,11 @@ import {
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
+import { PlanCardSkeleton } from "@/components/billing/plan-card";
 import { SpacesMeterSkeleton } from "@/components/billing/spaces-meter";
 import { UsageMeterSkeleton } from "@/components/billing/usage-meter";
 
-export function BillingSkeleton() {
+export function BillingSkeleton({ showPlans = true }: { showPlans?: boolean }) {
 	return (
 		<div aria-busy="true" className="flex flex-col gap-6">
 			<Item variant="outline" className="px-4 py-3.5">
@@ -24,6 +25,16 @@ export function BillingSkeleton() {
 					</ItemDescription>
 				</ItemContent>
 			</Item>
+			{showPlans && (
+				<section className="flex flex-col gap-3">
+					<Skeleton className="h-6 w-32" />
+					<div className="grid gap-3 sm:grid-cols-3">
+						<PlanCardSkeleton />
+						<PlanCardSkeleton />
+						<PlanCardSkeleton />
+					</div>
+				</section>
+			)}
 			<div className="flex flex-col gap-6">
 				<div className="flex flex-col gap-1">
 					<Skeleton className="h-5 w-12" />

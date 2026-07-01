@@ -21,8 +21,11 @@ export function SubscriptionPanel({
 	subscription: Subscription;
 	canManage?: boolean;
 }) {
-	const { label, detail, tone, badge } = billingStatusDisplay(subscription);
 	const status = subscription.subscription_status;
+	// Free with no history carries no useful info, so skip the panel entirely.
+	if (status === "none") return null;
+
+	const { label, detail, tone, badge } = billingStatusDisplay(subscription);
 	const showManage =
 		canManage &&
 		(status === "active" || status === "past_due" || status === "canceled");

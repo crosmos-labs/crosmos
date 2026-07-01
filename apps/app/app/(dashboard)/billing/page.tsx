@@ -15,7 +15,11 @@ import { SubscriptionPanel } from "@/components/billing/subscription-panel";
 import { UsageMeter } from "@/components/billing/usage-meter";
 import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
-import { usePortalReturnSync, useSubscription } from "@/hooks/use-billing";
+import {
+	usePlans,
+	usePortalReturnSync,
+	useSubscription,
+} from "@/hooks/use-billing";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { usageKey, useUsage } from "@/hooks/use-usage";
 import { capitalize, formatDate } from "@/lib/format";
@@ -39,6 +43,7 @@ export default function BillingPage() {
 		isLoading: subLoading,
 		error: subError,
 	} = useSubscription();
+	const { data: plans, isLoading: plansLoading } = usePlans();
 
 	const swrKey = orgId ? usageKey(orgId) : null;
 
@@ -49,11 +54,14 @@ export default function BillingPage() {
 			: undefined;
 
 	const error = usageError ?? (canManageBilling ? subError : undefined);
+	// One combined loading gate: wait for subscription AND plans together so the
+	// plan cards never flash a second skeleton after the page skeleton.
 	const loading =
 		!user ||
 		!orgId ||
 		(usageLoading && !usage) ||
-		(canManageBilling && subLoading && !subscription);
+		(canManageBilling &&
+			((subLoading && !subscription) || (plansLoading && !plans)));
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -69,7 +77,7 @@ export default function BillingPage() {
 					onRetry={() => (swrKey ? mutate(swrKey) : Promise.resolve())}
 				/>
 			) : loading ? (
-				<BillingSkeleton />
+				<BillingSkeleton showPlans={canManageBilling} />
 			) : (
 				<>
 					{canManageBilling && subscription ? (
@@ -77,7 +85,7 @@ export default function BillingPage() {
 							subscription={subscription}
 							canManage={role === "owner"}
 						/>
-					) : (
+					) : plan !== "free" ? (
 						<ItemGroup>
 							<Item variant="outline" className="px-4 py-3.5">
 								<ItemContent>
@@ -88,7 +96,7 @@ export default function BillingPage() {
 								</ItemContent>
 							</Item>
 						</ItemGroup>
-					)}
+					) : null}
 					{(role === "owner" || role === "admin") && subscription && (
 						<PlansSection currentPlan={subscription.plan} />
 					)}

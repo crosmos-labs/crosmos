@@ -12,19 +12,19 @@ export default function BillingSuccessPage() {
 
 	return (
 		<div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
-			<PurchaseGraphic className="size-20 text-muted-foreground" />
+			<PurchaseGraphic className="size-28 text-muted-foreground" />
 
 			{phase === "finalizing" && (
 				<div className="flex flex-col items-center gap-2">
-					<div className="flex items-center gap-2">
-						<Spinner className="size-4" />
-						<h1 className="text-lg font-semibold tracking-tight">
+					<div className="flex items-center gap-2.5">
+						<Spinner className="size-5" />
+						<h1 className="text-2xl font-semibold tracking-tight">
 							{subscription?.plan_pending
 								? `Finalizing your upgrade to ${capitalize(subscription.plan_pending)}…`
 								: "Finalizing your upgrade…"}
 						</h1>
 					</div>
-					<p className="text-sm text-muted-foreground">
+					<p className="text-base text-muted-foreground">
 						This usually takes a few seconds.
 					</p>
 				</div>
@@ -32,12 +32,12 @@ export default function BillingSuccessPage() {
 
 			{phase === "active" && (
 				<div className="flex flex-col items-center gap-4">
-					<div className="flex flex-col gap-1">
-						<h1 className="text-lg font-semibold tracking-tight">
+					<div className="flex flex-col gap-1.5">
+						<h1 className="text-2xl font-semibold tracking-tight">
 							You're on the {capitalize(subscription?.plan ?? "free")} plan.
 						</h1>
 						{subscription?.current_period_end && (
-							<p className="text-sm text-muted-foreground">
+							<p className="text-base text-muted-foreground">
 								Renews {formatDate(subscription.current_period_end)}.
 							</p>
 						)}
@@ -50,22 +50,17 @@ export default function BillingSuccessPage() {
 
 			{phase === "timeout" && (
 				<div className="flex flex-col items-center gap-4">
-					<div className="flex flex-col gap-1">
-						<h1 className="text-lg font-semibold tracking-tight">
+					<div className="flex flex-col gap-1.5">
+						<h1 className="text-2xl font-semibold tracking-tight">
 							We're still finalizing your upgrade.
 						</h1>
-						<p className="text-sm text-muted-foreground">
+						<p className="text-base text-muted-foreground">
 							It can take a moment. Your plan will update automatically.
 						</p>
 					</div>
-					<div className="flex items-center gap-2.5">
-						<Button asChild>
-							<Link href="/billing">Go to billing</Link>
-						</Button>
-						<Button variant="ghost" asChild>
-							<a href="mailto:support@crosmos.dev">Contact support</a>
-						</Button>
-					</div>
+					<Button asChild>
+						<Link href="/billing">Go to billing</Link>
+					</Button>
 				</div>
 			)}
 		</div>

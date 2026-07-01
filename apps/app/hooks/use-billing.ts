@@ -17,7 +17,7 @@ export function subscriptionKey(orgId: string): string {
 export function usePlans() {
 	const orgId = useActiveOrgId();
 
-    return useSWR<PlanInfo[]>(orgId ? plansKey(orgId) : null, () => getPlans(), {
+	return useSWR<PlanInfo[]>(orgId ? plansKey(orgId) : null, () => getPlans(), {
 		revalidateIfStale: false,
 		revalidateOnFocus: false,
 	});

@@ -33,7 +33,8 @@ export function CancelSubscriptionDialog({
 				<AlertDialogHeader>
 					<AlertDialogTitle>Cancel subscription?</AlertDialogTitle>
 					<AlertDialogDescription>
-						You'll keep access until {until}. No refund.
+						Your plan won't renew. You'll keep full access until {until}, then
+						move to the Free plan. The current period isn't refunded.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
