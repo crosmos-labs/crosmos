@@ -1,4 +1,4 @@
-import { MDXRemote } from "next-mdx-remote/rsc";
+import { Markdown } from "@/components/markdown";
 import { proseMdxComponents } from "@/components/prose-mdx";
 import { Toc } from "@/components/toc";
 import { formatLegalDate, type LegalDoc } from "@/lib/legal";
@@ -62,7 +62,7 @@ export function LegalLayout({ doc }: { doc: LegalDoc }) {
 						</details>
 
 						<div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-12 prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed prose-code:text-sm prose-a:text-foreground prose-a:underline prose-a:underline-offset-4">
-							<MDXRemote source={doc.content} components={proseMdxComponents} />
+							<Markdown source={doc.content} components={proseMdxComponents} />
 						</div>
 
 						<ContactBox docTitle={doc.title} />
