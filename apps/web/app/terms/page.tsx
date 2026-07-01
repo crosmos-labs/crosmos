@@ -13,14 +13,14 @@ export const metadata: Metadata = {
 		canonical: "/terms",
 	},
 	openGraph: {
-		title: "Terms of Service — Crosmos",
+		title: "Terms of Service - Crosmos",
 		description: DESCRIPTION,
 		type: "article",
 		images: [OG_IMAGE],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Terms of Service — Crosmos",
+		title: "Terms of Service - Crosmos",
 		description: DESCRIPTION,
 		images: [OG_IMAGE.url],
 	},

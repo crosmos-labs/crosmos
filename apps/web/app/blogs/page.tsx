@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 		canonical: "/blogs",
 	},
 	openGraph: {
-		title: "Blogs — Crosmos",
+		title: "Blogs - Crosmos",
 		description: DESCRIPTION,
 		type: "website",
 		url: "/blogs",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Blogs — Crosmos",
+		title: "Blogs - Crosmos",
 		description: DESCRIPTION,
 		images: [OG_IMAGE.url],
 	},

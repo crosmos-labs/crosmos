@@ -13,14 +13,14 @@ export const metadata: Metadata = {
 		canonical: "/privacy",
 	},
 	openGraph: {
-		title: "Privacy Policy — Crosmos",
+		title: "Privacy Policy - Crosmos",
 		description: DESCRIPTION,
 		type: "article",
 		images: [OG_IMAGE],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Privacy Policy — Crosmos",
+		title: "Privacy Policy - Crosmos",
 		description: DESCRIPTION,
 		images: [OG_IMAGE.url],
 	},

@@ -13,7 +13,7 @@ import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 const doc = getResearchDoc();
 
 export const metadata: Metadata = {
-	title: { absolute: `${doc.title} — Research` },
+	title: { absolute: `${doc.title} - Research` },
 	description: doc.epigraph,
 	alternates: { canonical: "/research" },
 	openGraph: {
