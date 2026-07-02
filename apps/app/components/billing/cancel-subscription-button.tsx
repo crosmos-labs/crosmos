@@ -2,13 +2,13 @@
 
 import { Button } from "@crosmos/ui/components/button";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { cancelSubscription } from "@/actions/billing";
 import { CancelSubscriptionDialog } from "@/components/billing/cancel-subscription-dialog";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { subscriptionKey } from "@/hooks/use-billing";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { toastBillingError } from "@/lib/billing-errors";
 
 export function CancelSubscriptionButton({
 	periodEnd,
@@ -37,12 +37,11 @@ export function CancelSubscriptionButton({
 				msg.includes("already_canceled")
 			) {
 				if (orgId) mutate(subscriptionKey(orgId));
-			} else if (msg.includes("rate_limited")) {
-				toast.error("Too many attempts. Try again shortly.");
-			} else if (msg.includes("provider_error")) {
-				toast.error("Payment provider error. Please try again.");
 			} else {
-				toast.error("Couldn't cancel your subscription. Please try again.");
+				toastBillingError(
+					err,
+					"Couldn't cancel your subscription. Please try again.",
+				);
 			}
 		}
 	}

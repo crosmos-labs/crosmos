@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { getPlans, getSubscription } from "@/actions/billing";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useOrgRole } from "@/hooks/use-org-role";
 import { usageKey } from "@/hooks/use-usage";
 import type { PlanInfo, Subscription } from "@/lib/types/billing";
 
@@ -16,14 +16,10 @@ export function subscriptionKey(orgId: string): string {
 
 // Role-gated like useSubscription: members never render plans, so skip the fetch.
 export function usePlans() {
-	const { data: user } = useCurrentUser();
-
-	const orgId = user?.active_org_id ?? null;
-	const role = user?.active_org?.your_role ?? null;
-	const canRead = role === "owner" || role === "admin";
+	const { orgId, isOwnerAdmin } = useOrgRole();
 
 	return useSWR<PlanInfo[]>(
-		orgId && canRead ? plansKey(orgId) : null,
+		orgId && isOwnerAdmin ? plansKey(orgId) : null,
 		() => getPlans(),
 		{
 			revalidateIfStale: false,
@@ -35,14 +31,10 @@ export function usePlans() {
 // Subscription reads are owner/admin only; gate the fetch by role so members
 // never trigger a 403 (the member view is driven by role, not by the error).
 export function useSubscription() {
-	const { data: user } = useCurrentUser();
-
-	const orgId = user?.active_org_id ?? null;
-	const role = user?.active_org?.your_role ?? null;
-	const canRead = role === "owner" || role === "admin";
+	const { orgId, isOwnerAdmin } = useOrgRole();
 
 	return useSWR<Subscription>(
-		orgId && canRead ? subscriptionKey(orgId) : null,
+		orgId && isOwnerAdmin ? subscriptionKey(orgId) : null,
 		() => getSubscription(),
 		{ revalidateIfStale: false, revalidateOnFocus: true },
 	);
@@ -59,10 +51,12 @@ export function useSubscriptionActivation(): {
 	const orgId = useActiveOrgId();
 	const [deadlinePassed, setDeadlinePassed] = useState(false);
 
+	// Start the budget once polling can actually begin (orgId gates the SWR key).
 	useEffect(() => {
+		if (!orgId) return;
 		const t = setTimeout(() => setDeadlinePassed(true), 30_000);
 		return () => clearTimeout(t);
-	}, []);
+	}, [orgId]);
 
 	const { data } = useSWR<Subscription>(
 		orgId ? subscriptionKey(orgId) : null,
@@ -106,9 +100,10 @@ export function usePortalReturnSync() {
 	useEffect(() => {
 		if (!orgId || sessionStorage.getItem(PORTAL_RETURN_KEY) !== "1") return;
 
-		sessionStorage.removeItem(PORTAL_RETURN_KEY);
-
+		// Consume the flag only when a refresh runs, so navigating away before
+		// the first timer re-arms the sync on the next /billing visit.
 		const refresh = () => {
+			sessionStorage.removeItem(PORTAL_RETURN_KEY);
 			mutate(subscriptionKey(orgId));
 			mutate(usageKey(orgId));
 		};

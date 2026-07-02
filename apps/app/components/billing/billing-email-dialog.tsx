@@ -18,8 +18,7 @@ import { updateOrg } from "@/actions/orgs";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { orgKey } from "@/hooks/use-org";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { isValidEmail } from "@/lib/validate";
 
 export function BillingEmailDialog({
 	open,
@@ -38,7 +37,7 @@ export function BillingEmailDialog({
 	const [saving, setSaving] = useState(false);
 
 	const trimmed = email.trim();
-	const valid = EMAIL_RE.test(trimmed);
+	const valid = isValidEmail(trimmed);
 
 	async function handleSave() {
 		if (!orgId || !valid || saving) return;

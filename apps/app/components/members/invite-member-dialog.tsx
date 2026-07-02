@@ -21,8 +21,7 @@ import {
 import { IconCornerDownLeft } from "@tabler/icons-react";
 import { useState } from "react";
 import type { CreateInviteRequest } from "@/lib/types/org";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { isValidEmail } from "@/lib/validate";
 
 export function InviteMemberDialog({
 	open,
@@ -36,7 +35,7 @@ export function InviteMemberDialog({
 	const [email, setEmail] = useState("");
 	const [role, setRole] = useState<CreateInviteRequest["role"]>("member");
 
-	const canSubmit = EMAIL_RE.test(email.trim());
+	const canSubmit = isValidEmail(email.trim());
 
 	function handleClose() {
 		setEmail("");

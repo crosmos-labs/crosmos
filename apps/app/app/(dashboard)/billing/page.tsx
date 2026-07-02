@@ -13,21 +13,18 @@ import { SpacesMeter } from "@/components/billing/spaces-meter";
 import { SubscriptionPanel } from "@/components/billing/subscription-panel";
 import { UsageMeter } from "@/components/billing/usage-meter";
 import { DataFetchError } from "@/components/shared/data-fetch-error";
-import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import {
 	usePlans,
 	usePortalReturnSync,
 	useSubscription,
 } from "@/hooks/use-billing";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useOrgRole } from "@/hooks/use-org-role";
 import { useUsage } from "@/hooks/use-usage";
 import { capitalize, formatDate } from "@/lib/format";
 
 export default function BillingPage() {
-	const orgId = useActiveOrgId();
-	const { data: user } = useCurrentUser();
-	const role = user?.active_org?.your_role ?? null;
-	const canManageBilling = role === "owner" || role === "admin";
+	const { user, orgId, role, isOwnerAdmin } = useOrgRole();
+	const canManageBilling = isOwnerAdmin;
 
 	usePortalReturnSync();
 
@@ -51,7 +48,11 @@ export default function BillingPage() {
 			? `${formatDate(usage.period_start)} – ${formatDate(usage.period_end)}`
 			: undefined;
 
-	const error = usageError ?? (canManageBilling ? subError : undefined);
+	// Only surface an error when its data is missing: a failed background
+	// revalidation keeps the rendered page instead of tearing it down.
+	const error =
+		(!usage ? usageError : undefined) ??
+		(canManageBilling && !subscription ? subError : undefined);
 	// One combined loading gate: wait for subscription AND plans together so the
 	// plan cards never flash a second skeleton after the page skeleton.
 	const loading =
@@ -95,7 +96,7 @@ export default function BillingPage() {
 							</Item>
 						</ItemGroup>
 					) : null}
-					{(role === "owner" || role === "admin") && subscription && (
+					{canManageBilling && subscription && (
 						<PlansSection currentPlan={subscription.plan} />
 					)}
 					{usage && (

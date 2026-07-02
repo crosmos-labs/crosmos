@@ -6,12 +6,11 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
 import { useSubscription } from "@/hooks/use-billing";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useOrgRole } from "@/hooks/use-org-role";
 
 export function PastDueBanner() {
-	const { data: user } = useCurrentUser();
+	const { orgId, role } = useOrgRole();
 	const { data: subscription } = useSubscription();
-	const orgId = user?.active_org_id ?? null;
 
 	// Scope dismissal to the org: switching orgs (or a token refresh that swaps
 	// the user) re-evaluates the banner instead of staying hidden. SWR keeps the
@@ -22,7 +21,7 @@ export function PastDueBanner() {
 	const show =
 		orgId !== null &&
 		dismissedOrg !== orgId &&
-		user?.active_org?.your_role === "owner" &&
+		role === "owner" &&
 		subscription?.subscription_status === "past_due";
 
 	return (

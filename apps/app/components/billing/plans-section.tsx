@@ -11,8 +11,9 @@ import { PlanCard, PlanCardSkeleton } from "@/components/billing/plan-card";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { subscriptionKey, usePlans } from "@/hooks/use-billing";
 import { useCalApi } from "@/hooks/use-cal-api";
-import { useCurrentUser } from "@/hooks/use-current-user";
 import { useOrg } from "@/hooks/use-org";
+import { useOrgRole } from "@/hooks/use-org-role";
+import { toastBillingError } from "@/lib/billing-errors";
 import {
 	PLAN_ORDER,
 	type Plan,
@@ -24,15 +25,16 @@ const SALES_CAL_LINK = "crosmos/30min";
 
 export function PlansSection({ currentPlan }: { currentPlan: Plan }) {
 	const { data: plans, isLoading, error, mutate: reloadPlans } = usePlans();
-	const { data: user } = useCurrentUser();
+	const { user, orgId, role } = useOrgRole();
 	const initCal = useCalApi(SALES_CAL_NAMESPACE);
-	const canUpgrade =
-		user?.active_org?.your_role === "owner" && currentPlan === "free";
-	const orgId = user?.active_org_id ?? null;
+	const canUpgrade = role === "owner" && currentPlan === "free";
 	const { data: org } = useOrg(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction, state } = useActionLoader();
-	const busy = state.activeCount > 0;
+	// redirecting stays true until the page unloads, so buttons can't fire a
+	// second checkout while the Polar navigation is in flight.
+	const [redirecting, setRedirecting] = useState(false);
+	const busy = state.activeCount > 0 || redirecting;
 
 	const [emailDialogPlan, setEmailDialogPlan] =
 		useState<PurchasablePlan | null>(null);
@@ -43,21 +45,18 @@ export function PlansSection({ currentPlan }: { currentPlan: Plan }) {
 				const res = await startCheckout(plan);
 				if (!res.ok) throw new Error(res.message);
 				if (!res.data.checkout_url) throw new Error("missing_checkout_url");
+				setRedirecting(true);
 				window.location.assign(res.data.checkout_url);
 			});
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "";
 			if (msg.includes("billing_email")) {
 				setEmailDialogPlan(plan);
-			} else if (msg.includes("rate_limited")) {
-				toast.error("Too many upgrade attempts. Try again shortly.");
-			} else if (msg.includes("provider_error")) {
-				toast.error("Payment provider error. Please try again.");
 			} else if (msg.includes("already on plan")) {
 				toast.error("You're already on this plan.");
 				if (orgId) mutate(subscriptionKey(orgId));
 			} else {
-				toast.error("Couldn't start checkout. Please try again.");
+				toastBillingError(err, "Couldn't start checkout. Please try again.");
 			}
 		}
 	}

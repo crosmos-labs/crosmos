@@ -43,5 +43,3 @@ export interface CancelResponse {
 }
 
 export const PLAN_ORDER: Plan[] = ["free", "developer", "pro", "enterprise"];
-
-export const RECOMMENDED_PLAN: Plan = "pro";
