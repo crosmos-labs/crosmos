@@ -2,137 +2,67 @@
 
 import { Button } from "@crosmos/ui/components/button";
 import { Spinner } from "@crosmos/ui/components/spinner";
-import { IconCircleCheck, IconClock } from "@tabler/icons-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { useSWRConfig } from "swr";
-import { getSubscription } from "@/actions/billing";
-import { useActiveOrgId } from "@/hooks/use-active-org-id";
-import { plansKey, subscriptionKey } from "@/hooks/use-billing";
-import { orgKey } from "@/hooks/use-org";
-import { usageKey } from "@/hooks/use-usage";
-import { capitalize } from "@/lib/format";
-import { pollUntil } from "@/lib/poll";
-import type { Plan, PurchasablePlan } from "@/lib/types/billing";
-
-const PENDING_PLAN_KEY = "billing:pending_plan";
-
-type Phase = "finalizing" | "active" | "timeout";
+import { PurchaseGraphic } from "@/components/billing/purchase-graphic";
+import { useSubscriptionActivation } from "@/hooks/use-billing";
+import { capitalize, formatDate } from "@/lib/format";
 
 export default function BillingSuccessPage() {
-	const router = useRouter();
-	const orgId = useActiveOrgId();
-	const { mutate } = useSWRConfig();
-	const [phase, setPhase] = useState<Phase>("finalizing");
-	const [activePlan, setActivePlan] = useState<Plan | null>(null);
-	const started = useRef(false);
-
-	useEffect(() => {
-		if (!orgId || started.current) return;
-		started.current = true;
-		const controller = new AbortController();
-
-		let expected: PurchasablePlan | null = null;
-		try {
-			expected = sessionStorage.getItem(
-				PENDING_PLAN_KEY,
-			) as PurchasablePlan | null;
-		} catch {}
-
-		void pollUntil({
-			fn: () => getSubscription(),
-			done: (s) =>
-				s.subscription_status === "active" &&
-				s.plan_pending === null &&
-				(expected === null || s.plan === expected),
-			signal: controller.signal,
-		}).then(async (result) => {
-			if (controller.signal.aborted) return;
-			if (result.status === "done") {
-				try {
-					sessionStorage.removeItem(PENDING_PLAN_KEY);
-				} catch {}
-				setActivePlan(result.value.plan);
-				await Promise.all([
-					mutate(subscriptionKey(orgId), result.value, { revalidate: false }),
-					mutate(usageKey(orgId)),
-					mutate(plansKey(orgId)),
-					mutate(orgKey(orgId)),
-					mutate("/auth/me"),
-				]);
-				router.refresh();
-				setPhase("active");
-			} else {
-				setPhase("timeout");
-			}
-		});
-
-		return () => controller.abort();
-	}, [orgId, mutate, router]);
+	const { phase, subscription } = useSubscriptionActivation();
 
 	return (
-		<div className="mx-auto flex max-w-md flex-col items-center gap-4 py-16 text-center">
+		<div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
+			<PurchaseGraphic className="size-28 text-muted-foreground" />
+
 			{phase === "finalizing" && (
-				<>
-					<Spinner className="size-8 animation-duration-[0.7s] text-muted-foreground" />
-					<div className="flex flex-col gap-1">
-						<h1 className="text-xl font-semibold tracking-tight">
-							Finalizing your upgrade…
+				<div className="flex flex-col items-center gap-2">
+					<div className="flex items-center gap-2.5">
+						<Spinner className="size-5" />
+						<h1 className="text-2xl font-semibold tracking-tight">
+							{subscription?.plan_pending
+								? `Finalizing your upgrade to ${capitalize(subscription.plan_pending)}…`
+								: "Finalizing your upgrade…"}
 						</h1>
-						<p className="text-sm text-muted-foreground">
-							Confirming your subscription with the payment provider. This only
-							takes a few seconds.
-						</p>
 					</div>
-				</>
+					<p className="text-base text-muted-foreground">
+						This usually takes a few seconds.
+					</p>
+				</div>
 			)}
 
 			{phase === "active" && (
-				<>
-					<IconCircleCheck className="size-10 text-primary" />
-					<div className="flex flex-col gap-1">
-						<h1 className="text-xl font-semibold tracking-tight">
-							You're all set
+				<div className="flex flex-col items-center gap-4">
+					<div className="flex flex-col gap-1.5">
+						<h1 className="text-2xl font-semibold tracking-tight">
+							You're on the {capitalize(subscription?.plan ?? "free")} plan.
 						</h1>
-						<p className="text-sm text-muted-foreground">
-							{activePlan
-								? `Your ${capitalize(activePlan)} plan is now active.`
-								: "Your subscription is now active."}
-						</p>
+						{subscription?.current_period_end && (
+							<p className="text-base text-muted-foreground">
+								Renews {formatDate(subscription.current_period_end)}.
+							</p>
+						)}
 					</div>
-					<div className="flex items-center gap-2">
-						<Button asChild>
-							<Link href="/billing">View billing</Link>
-						</Button>
-						<Button asChild variant="outline">
-							<Link href="/">Go to dashboard</Link>
-						</Button>
-					</div>
-				</>
+					<Button asChild>
+						<Link href="/billing">Go to billing</Link>
+					</Button>
+				</div>
 			)}
 
 			{phase === "timeout" && (
-				<>
-					<IconClock className="size-10 text-muted-foreground" />
-					<div className="flex flex-col gap-1">
-						<h1 className="text-xl font-semibold tracking-tight">
-							Almost there
+				<div className="flex flex-col items-center gap-4">
+					<div className="flex flex-col gap-1.5">
+						<h1 className="text-2xl font-semibold tracking-tight">
+							We're still finalizing your upgrade.
 						</h1>
-						<p className="text-sm text-muted-foreground">
-							Your payment went through and we're finalizing your upgrade. It
-							should appear shortly — no need to pay again.
+						<p className="text-base text-muted-foreground">
+							This is taking longer than usual. Check the billing page for the
+							latest status.
 						</p>
 					</div>
-					<div className="flex items-center gap-2">
-						<Button asChild>
-							<Link href="/billing">Go to billing</Link>
-						</Button>
-						<Button variant="outline" onClick={() => router.refresh()}>
-							Refresh
-						</Button>
-					</div>
-				</>
+					<Button asChild>
+						<Link href="/billing">Go to billing</Link>
+					</Button>
+				</div>
 			)}
 		</div>
 	);

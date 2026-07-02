@@ -108,7 +108,7 @@ export function EntityPickerPopover({
 						</CommandGroup>
 						{hidden > 0 && (
 							<div className="px-3 py-2 text-center text-xs text-muted-foreground">
-								Showing {MAX_RESULTS} of {matched.length} — type to narrow
+								Showing {MAX_RESULTS} of {matched.length}. Type to narrow
 							</div>
 						)}
 					</CommandList>

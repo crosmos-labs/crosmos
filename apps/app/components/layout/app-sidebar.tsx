@@ -49,14 +49,12 @@ function LinkArrow({ className }: { className?: string }) {
 import { cn } from "@crosmos/ui/lib/utils";
 import { listApiKeys } from "@/actions/api-keys";
 import { logout } from "@/actions/auth";
-import { getPlans } from "@/actions/billing";
 import { listSpaces } from "@/actions/spaces";
 import { getUsage } from "@/actions/usage";
 import { OrgSwitcher } from "@/components/layout/org-switcher";
 import { useActionLoaderState } from "@/components/providers/action-loader-provider";
 import { externalItems, homeItem, type NavItem, navGroups } from "@/config/nav";
 import { apiKeysKey } from "@/hooks/use-api-keys";
-import { plansKey } from "@/hooks/use-billing";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { spacesKey } from "@/hooks/use-spaces";
 import { usageKey } from "@/hooks/use-usage";
@@ -82,12 +80,11 @@ function getInitials(name: string) {
 function warmRoute(href: string, orgId: string | null) {
 	if (!orgId) return;
 	if (href === "/spaces" || href === "/sources" || href === "/graph") {
-		preload(spacesKey(orgId), () => listSpaces());
+		void preload(spacesKey(orgId), () => listSpaces()).catch(() => {});
 	} else if (href === "/api-key") {
-		preload(apiKeysKey(orgId), () => listApiKeys());
+		void preload(apiKeysKey(orgId), () => listApiKeys()).catch(() => {});
 	} else if (href === "/billing") {
-		preload(usageKey(orgId), () => getUsage());
-		preload(plansKey(orgId), () => getPlans());
+		void preload(usageKey(orgId), () => getUsage()).catch(() => {});
 	}
 }
 
@@ -112,7 +109,7 @@ export function AppSidebar() {
 	);
 
 	return (
-		<Sidebar collapsible="icon" className="select-none h-auto">
+		<Sidebar collapsible="icon" className="select-none">
 			<SidebarHeader>
 				<SidebarMenu>
 					{activeOrg ? (

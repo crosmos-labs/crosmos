@@ -10,45 +10,64 @@ import {
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
 import { Input } from "@crosmos/ui/components/input";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { Spinner } from "@crosmos/ui/components/spinner";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useSWRConfig } from "swr";
+import { updateOrg } from "@/actions/orgs";
+import { useActionLoader } from "@/components/providers/action-loader-provider";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { orgKey } from "@/hooks/use-org";
+import { isValidEmail } from "@/lib/validate";
 
 export function BillingEmailDialog({
 	open,
 	onOpenChange,
-	defaultEmail,
-	busy,
-	onSubmit,
+	onSaved,
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	defaultEmail: string;
-	busy: boolean;
-	onSubmit: (email: string) => void;
+	onSaved: () => void;
 }) {
-	const [email, setEmail] = useState(defaultEmail);
+	const { data: user } = useCurrentUser();
+	const orgId = user?.active_org_id ?? null;
+	const { runAction } = useActionLoader();
+	const { mutate } = useSWRConfig();
+	const [email, setEmail] = useState(user?.email ?? "");
+	const [saving, setSaving] = useState(false);
 
-	useEffect(() => {
-		if (open) setEmail(defaultEmail);
-	}, [open, defaultEmail]);
+	const trimmed = email.trim();
+	const valid = isValidEmail(trimmed);
 
-	const valid = EMAIL_RE.test(email.trim());
-
-	function handleSubmit() {
-		if (!valid || busy) return;
-		onSubmit(email.trim());
+	async function handleSave() {
+		if (!orgId || !valid || saving) return;
+		setSaving(true);
+		try {
+			await runAction(
+				async () => {
+					const res = await updateOrg(orgId, { billing_email: trimmed });
+					if (!res.ok) throw new Error(res.message);
+					await mutate(orgKey(orgId));
+				},
+				{ toast: { success: "Billing email saved" } },
+			);
+			onOpenChange(false);
+			onSaved();
+		} catch {
+			toast.error("Couldn't save billing email");
+		} finally {
+			setSaving(false);
+		}
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={(o) => !saving && onOpenChange(o)}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Add a billing email</DialogTitle>
 					<DialogDescription>
-						Invoices and receipts are sent here. Required before checkout.
+						Polar sends your invoices and receipts here. It's required before
+						checkout.
 					</DialogDescription>
 				</DialogHeader>
 				<Input
@@ -57,23 +76,21 @@ export function BillingEmailDialog({
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
 					onKeyDown={(e) => {
-						if (e.key === "Enter") handleSubmit();
+						if (e.key === "Enter") handleSave();
 					}}
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
 				<DialogFooter>
 					<Button
 						variant="ghost"
+						disabled={saving}
 						onClick={() => onOpenChange(false)}
-						disabled={busy}
 					>
-						Cancel <Kbd>Esc</Kbd>
+						Cancel
 					</Button>
-					<Button onClick={handleSubmit} disabled={!valid || busy}>
-						Continue{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+					<Button onClick={handleSave} disabled={!valid || saving}>
+						{saving && <Spinner data-icon="inline-start" />}
+						Save & continue
 					</Button>
 				</DialogFooter>
 			</DialogContent>

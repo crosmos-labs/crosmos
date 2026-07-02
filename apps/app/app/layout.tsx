@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 		type: "website",
 		url: "https://console.crosmos.dev",
 		siteName: "Crosmos Console",
-		title: "Console — Crosmos",
+		title: "Console - Crosmos",
 		description:
 			"Manage Crosmos memory spaces, API keys, sources, and organization settings.",
 		images: [
@@ -39,13 +39,13 @@ export const metadata: Metadata = {
 				url: "/opengraph-image.png",
 				width: 2400,
 				height: 1200,
-				alt: "Console — Crosmos",
+				alt: "Console - Crosmos",
 			},
 		],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Console — Crosmos",
+		title: "Console - Crosmos",
 		description:
 			"Manage Crosmos memory spaces, API keys, sources, and organization settings.",
 		images: ["/opengraph-image.png"],

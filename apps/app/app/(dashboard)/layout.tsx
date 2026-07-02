@@ -20,23 +20,19 @@ export default function DashboardLayout({
 		<SwrProvider>
 			<ActionLoaderProvider>
 				<BreadcrumbProvider>
-					<div className="flex min-h-0 flex-1 flex-col">
-						<PastDueBanner />
-						{/* translateZ(0) makes this the containing block for the fixed
-						sidebar, so it starts below the banner instead of the viewport top. */}
-						<SidebarProvider className="min-h-0 flex-1 [transform:translateZ(0)]">
-							<RequireActiveOrg />
-							<AppSidebar />
-							<SidebarInset>
-								<DashboardHeader />
-								<div className="flex-1 overflow-auto">
-									<div id="main-content" className="mx-auto max-w-5xl p-6">
-										{children}
-									</div>
+					<SidebarProvider>
+						<RequireActiveOrg />
+						<AppSidebar />
+						<SidebarInset>
+							<PastDueBanner />
+							<DashboardHeader />
+							<div className="flex-1 overflow-auto">
+								<div id="main-content" className="mx-auto max-w-5xl p-6">
+									{children}
 								</div>
-							</SidebarInset>
-						</SidebarProvider>
-					</div>
+							</div>
+						</SidebarInset>
+					</SidebarProvider>
 				</BreadcrumbProvider>
 			</ActionLoaderProvider>
 		</SwrProvider>

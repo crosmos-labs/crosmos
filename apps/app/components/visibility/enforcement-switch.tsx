@@ -104,11 +104,11 @@ export function EnforcementSwitch({
 							align="start"
 						>
 							<span>
-								<span className="font-medium text-foreground">On</span> — group
+								<span className="font-medium text-foreground">On</span>: group
 								grants apply to private memories.
 							</span>
 							<span>
-								<span className="font-medium text-foreground">Off</span> — group
+								<span className="font-medium text-foreground">Off</span>: group
 								grants are paused; members read their own private memories plus
 								org-shared content.
 							</span>

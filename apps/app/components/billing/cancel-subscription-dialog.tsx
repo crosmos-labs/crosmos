@@ -10,50 +10,39 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { formatDate } from "@/lib/format";
 
 export function CancelSubscriptionDialog({
 	open,
 	onOpenChange,
-	currentPeriodEnd,
-	busy,
+	periodEnd,
 	onConfirm,
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	currentPeriodEnd: string | null;
-	busy: boolean;
+	periodEnd: string | null;
 	onConfirm: () => void;
 }) {
-	const endLabel = currentPeriodEnd
-		? formatDate(currentPeriodEnd)
-		: "the end of the billing period";
+	const until = periodEnd
+		? formatDate(periodEnd)
+		: "the end of your billing period";
 
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Cancel subscription</AlertDialogTitle>
+					<AlertDialogTitle>Cancel subscription?</AlertDialogTitle>
 					<AlertDialogDescription>
-						You'll keep full access until {endLabel}. No refund is issued for
-						the current period, and you can resume anytime before then.
+						Your plan won't renew. You'll keep full access until {until}, then
+						move to the Free plan. The current period isn't refunded.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel variant="ghost">
-						Keep plan <Kbd>Esc</Kbd>
+						Keep subscription
 					</AlertDialogCancel>
-					<AlertDialogAction
-						variant="destructive"
-						disabled={busy}
-						onClick={onConfirm}
-					>
-						Cancel subscription{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+					<AlertDialogAction variant="destructive" onClick={onConfirm}>
+						Cancel subscription
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
