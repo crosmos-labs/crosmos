@@ -7,7 +7,6 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
-import { useSWRConfig } from "swr";
 import { BillingSkeleton } from "@/components/billing/billing-skeleton";
 import { PlansSection } from "@/components/billing/plans-section";
 import { SpacesMeter } from "@/components/billing/spaces-meter";
@@ -21,11 +20,10 @@ import {
 	useSubscription,
 } from "@/hooks/use-billing";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { usageKey, useUsage } from "@/hooks/use-usage";
+import { useUsage } from "@/hooks/use-usage";
 import { capitalize, formatDate } from "@/lib/format";
 
 export default function BillingPage() {
-	const { mutate } = useSWRConfig();
 	const orgId = useActiveOrgId();
 	const { data: user } = useCurrentUser();
 	const role = user?.active_org?.your_role ?? null;
@@ -37,15 +35,15 @@ export default function BillingPage() {
 		data: usage,
 		isLoading: usageLoading,
 		error: usageError,
+		mutate: reloadUsage,
 	} = useUsage();
 	const {
 		data: subscription,
 		isLoading: subLoading,
 		error: subError,
+		mutate: reloadSubscription,
 	} = useSubscription();
 	const { data: plans, isLoading: plansLoading } = usePlans();
-
-	const swrKey = orgId ? usageKey(orgId) : null;
 
 	const plan = usage?.plan ?? "free";
 	const periodLabel =
@@ -74,7 +72,7 @@ export default function BillingPage() {
 			{error ? (
 				<DataFetchError
 					message={error.message}
-					onRetry={() => (swrKey ? mutate(swrKey) : Promise.resolve())}
+					onRetry={() => (usageError ? reloadUsage() : reloadSubscription())}
 				/>
 			) : loading ? (
 				<BillingSkeleton showPlans={canManageBilling} />

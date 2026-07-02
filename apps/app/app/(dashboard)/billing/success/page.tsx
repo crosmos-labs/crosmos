@@ -55,7 +55,8 @@ export default function BillingSuccessPage() {
 							We're still finalizing your upgrade.
 						</h1>
 						<p className="text-base text-muted-foreground">
-							It can take a moment. Your plan will update automatically.
+							This is taking longer than usual. Check the billing page for the
+							latest status.
 						</p>
 					</div>
 					<Button asChild>

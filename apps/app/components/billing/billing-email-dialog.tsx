@@ -62,7 +62,7 @@ export function BillingEmailDialog({
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={(o) => !saving && onOpenChange(o)}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Add a billing email</DialogTitle>
@@ -82,7 +82,11 @@ export function BillingEmailDialog({
 					className="focus-visible:border-input focus-visible:ring-0"
 				/>
 				<DialogFooter>
-					<Button variant="ghost" onClick={() => onOpenChange(false)}>
+					<Button
+						variant="ghost"
+						disabled={saving}
+						onClick={() => onOpenChange(false)}
+					>
 						Cancel
 					</Button>
 					<Button onClick={handleSave} disabled={!valid || saving}>
