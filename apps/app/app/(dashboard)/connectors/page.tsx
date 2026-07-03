@@ -15,7 +15,13 @@ import {
 
 export default function ConnectorsPage() {
 	const [installTarget, setInstallTarget] = useState<Connector | null>(null);
-	const lastCategoryId = connectorCategories.at(-1)?.id;
+	const sections = connectorCategories
+		.map((category) => ({
+			category,
+			items: connectors.filter((c) => c.category === category.id),
+		}))
+		.filter(({ items }) => items.length > 0);
+	const teaserCategoryId = sections.at(-1)?.category.id;
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -33,28 +39,24 @@ export default function ConnectorsPage() {
 					.
 				</p>
 			</div>
-			{connectorCategories.map((category) => {
-				const items = connectors.filter((c) => c.category === category.id);
-				if (items.length === 0) return null;
-				return (
-					<section key={category.id} className="flex flex-col gap-3">
-						<h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-							{category.label}
-						</h2>
-						<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							{items.map((connector) => (
-								<ConnectorCard
-									key={connector.id}
-									connector={connector}
-									itemLabel={category.itemLabel}
-									onInstall={() => setInstallTarget(connector)}
-								/>
-							))}
-							{category.id === lastCategoryId && <ConnectorTeaserCard />}
-						</div>
-					</section>
-				);
-			})}
+			{sections.map(({ category, items }) => (
+				<section key={category.id} className="flex flex-col gap-3">
+					<h2 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+						{category.label}
+					</h2>
+					<div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+						{items.map((connector) => (
+							<ConnectorCard
+								key={connector.id}
+								connector={connector}
+								itemLabel={category.itemLabel}
+								onInstall={() => setInstallTarget(connector)}
+							/>
+						))}
+						{category.id === teaserCategoryId && <ConnectorTeaserCard />}
+					</div>
+				</section>
+			))}
 			<ConnectorInstallDialog
 				connector={installTarget}
 				onOpenChange={(open) => {
