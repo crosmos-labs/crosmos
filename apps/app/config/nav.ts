@@ -9,6 +9,7 @@ import {
 	IconFileImport,
 	IconGalaxy,
 	IconKey,
+	IconPlug,
 	IconSettings,
 	IconSparkles,
 	IconTopologyComplex,
@@ -104,6 +105,7 @@ export const navGroups: NavGroup[] = [
 				hidden: isPlaygroundDisabled,
 			},
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
+			{ label: "Connectors", href: "/connectors", icon: IconPlug },
 		],
 	},
 	{
@@ -136,6 +138,7 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",
+	"/connectors": "Connectors",
 	"/billing": "Billing",
 	"/settings": "Settings",
 };
