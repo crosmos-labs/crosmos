@@ -7,9 +7,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@crosmos/ui/components/card";
-import { CopyButton } from "@crosmos/ui/components/copy-button";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
+import { CodeBlock } from "@/components/shared/code-block";
+import { StepBadge } from "@/components/shared/step-badge";
 
 const SETUP_CMD = "npx @crosmos/crosmos-mcp setup";
 
@@ -22,37 +23,10 @@ const MCP_CONFIG_PLAIN = `{
   }
 }`;
 
-function CodeBlock({
-	value,
-	className,
-}: {
-	value: string;
-	className?: string;
-}) {
-	return (
-		<div className="relative rounded-lg border bg-muted/50 p-3 pl-4">
-			<div className="absolute top-2 right-2">
-				<CopyButton value={value} />
-			</div>
-			<pre
-				className={
-					className ?? "text-sm font-mono whitespace-pre overflow-x-auto pr-8"
-				}
-			>
-				{value}
-			</pre>
-		</div>
-	);
-}
-
 function McpConfigBlock() {
 	return (
-		<div className="relative rounded-lg border bg-muted/50 p-3 pl-4">
-			<div className="absolute top-2 right-2">
-				<CopyButton value={MCP_CONFIG_PLAIN} />
-			</div>
-			<pre className="text-sm font-mono whitespace-pre overflow-x-auto pr-8">
-				{"{"}
+		<CodeBlock value={MCP_CONFIG_PLAIN}>
+			{"{"}
 				{"\n"}
 				{"  "}
 				<span className="text-foreground">"mcpServers"</span>
@@ -81,8 +55,7 @@ function McpConfigBlock() {
 				{"  }"}
 				{"\n"}
 				{"}"}
-			</pre>
-		</div>
+		</CodeBlock>
 	);
 }
 
@@ -110,9 +83,7 @@ export function GetStarted() {
 					/>
 				))}
 				<div className="flex items-center gap-3">
-					<span className="flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted text-xs font-medium text-muted-foreground">
-						3
-					</span>
+					<StepBadge number={3} />
 					<span className="text-sm font-medium">Connect with MCP</span>
 				</div>
 				<div className="flex flex-col gap-4 pl-9">
@@ -146,9 +117,7 @@ function GetStartedItem({
 	return (
 		<div className="flex items-center justify-between">
 			<div className="flex items-center gap-3">
-				<span className="flex size-6 shrink-0 items-center justify-center rounded-full border bg-muted text-xs font-medium text-muted-foreground">
-					{number}
-				</span>
+				<StepBadge number={number} />
 				<span className="text-sm font-medium">{title}</span>
 			</div>
 			<Link
