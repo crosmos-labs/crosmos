@@ -9,8 +9,9 @@ is shared: what the team knows, who said what, and which parts each person is al
 Crosmos is built for that. It is a shared memory for an organization: many people, one growing
 record, with permissions built in so each person sees only what they are allowed to, and a full
 history that can be traced and audited rather than silently overwritten. It finds the right
-memory 99.7% of the time, answers around 91% of questions correctly on a small model, and runs a
-deterministic search that returns the same results for the same query.
+memory 99.7% of the time, answers around 91% of questions correctly on gpt-5-mini, a small model,
+or 90.8% under an independent gpt-4o grader, and runs a deterministic search that returns the same
+results for the same query.
 
 ## 1. Personal memory is not enough for teams
 
@@ -68,12 +69,11 @@ connection graph, and a date-aware pass for time questions. Their results are co
 slightly toward recent items, and the top handful are returned. Retrieval is deterministic: the
 same query returns the same results.
 
-That determinism is deliberate. A growing number of memory systems put language-model calls
-inside search, rewriting the query, generating a hypothetical answer to search with, looping. It
-costs time and money on every request, and it ties the result to prompt tuning. Our numbers show
-you do not need it. Long contexts and noisy retrieval are known to degrade answers [^lostmiddle],
-so the job of search is to hand the answering model a small, correct set, fast, every time, the
-same way twice.
+That determinism is deliberate. Search does not rewrite the query with a language model, generate
+a hypothetical answer to search with, or loop, so it adds no extra cost or latency on each
+request and does not shift when a prompt is tuned. Long contexts and noisy retrieval are known to
+degrade answers [^lostmiddle], so the job of search is to hand the answering model a small,
+correct set, fast, every time, the same way twice.
 
 ### The four signals
 
@@ -128,20 +128,21 @@ that is really about the memory is recall: how often the answer is actually in w
 That is the number a memory system lives or dies by, and ours is 99.7%. Everything downstream
 rides on it.
 
-LongMemEval-s is 500 questions across the six types above. For Crosmos, answering and grading
-both use gpt-5-mini, with the benchmark's official per-question grading rubric [^longmemeval].
+LongMemEval-s is 500 questions across the six types above. Crosmos answers with gpt-5-mini; we
+report results graded both by gpt-5-mini and by an independent gpt-4o, using the benchmark's
+official per-question grading rubric [^longmemeval].
 
 ### 5.1 Retrieval
 
-Crosmos puts the answer in the top 10 results 99.7% of the time, measured without telling search
-what kind of question it is. That is the foundation everything downstream stands on: if the
-answer is in the returned set, a capable model can use it; if it is not, nothing afterward can
-recover it.
+Crosmos reaches 99.7% recall@10: the item holding the answer is in the top 10 retrieved results
+99.7% of the time, measured without telling search what kind of question it is. Recall is the
+foundation everything downstream stands on. If the answer is in the returned set, a capable model
+can use it; if it is not, nothing afterward can recover it.
 
 ### 5.2 Accuracy
 
-Answering with gpt-5-mini, Crosmos scores 91% on LongMemEval, and 90.8% with gpt-4o as the
-grader. By category (gpt-4o):
+Answering with gpt-5-mini, Crosmos scores 91% self-graded and 90.8% when graded by an
+independent gpt-4o. By category (gpt-5-mini answering, gpt-4o grader):
 
 | Question type | Accuracy |
 |---|---|
@@ -153,16 +154,32 @@ grader. By category (gpt-4o):
 | Multi-session reasoning | 81.2 |
 | Overall | 90.8 |
 
-Among production memory systems on LongMemEval-s:
+And self-graded (gpt-5-mini), by category:
 
-| System | LongMemEval-s |
+| Question type | Accuracy |
 |---|---|
-| Crosmos | 91 |
-| HydraDB | 90.79 |
-| Supermemory | 85.20 |
-| Zep | 71.2 |
+| Single-session (assistant) | 100.0 |
+| Single-session (user) | 95.7 |
+| Knowledge update | 93.6 |
+| Time reasoning | 94.0 |
+| Single-session (preference) | 76.7 |
+| Multi-session reasoning | 83.5 |
+| Overall | 91.0 |
 
-Competitor scores are as reported in HydraDB's evaluation [^hydradb].
+Crosmos scores highest among production memory systems on LongMemEval-s:
+
+| System | Answering model | LongMemEval-s |
+|---|---|---|
+| Crosmos (self-graded) | gpt-5-mini | 91 |
+| Crosmos (gpt-4o) | gpt-5-mini | 90.8 |
+| HydraDB | gemini-3-pro | 90.79 |
+| Supermemory[^supermemory] | gemini-3-pro | 85.20 |
+| Zep[^zep] | gpt-4o | 71.2 |
+| Full context (baseline) | gpt-4o | 60.2 |
+
+Crosmos reaches these numbers on gpt-5-mini, a small and cheap model. That a light model gets there points to the retrieval carrying the load, and it leaves headroom: a stronger answering model would push accuracy toward the recall ceiling.
+
+Crosmos is shown under both its own grader and an independent one. Competitor scores are from HydraDB's evaluation [^hydradb].
 
 <div className="not-prose mt-6 border-l-2 border-muted-foreground pl-4 text-sm text-muted-foreground">We're actively benchmarking across a range of models, so the figures above are a current snapshot and may shift as that work continues.</div>
 
@@ -191,9 +208,8 @@ matters most: whether a person sees exactly what they are allowed to and nothing
 ---
 
 Reproducibility: the benchmark harness records the exact settings and dataset version for every
-run, the answering prompt is published in full, grading uses the benchmark's official rubric
-unchanged, and search returns the top 10. The 99.7% figure is how often the answer-bearing item
-is in those 10.
+run, grading uses the benchmark's official rubric unchanged, and search returns the top 10. The
+99.7% figure is how often the answer-bearing item is in those 10.
 
 ## Citations
 
@@ -203,5 +219,4 @@ is in those 10.
 [^contextual]: Anthropic (2024). Introducing Contextual Retrieval. Anthropic Engineering Blog. https://www.anthropic.com/engineering/contextual-retrieval
 [^supermemory]: Supermemory (2025). LongMemBench results. https://supermemory.ai/research/longmembench
 [^zep]: Rasmussen, P., Paliychuk, P., Beauvais, T., Ryan, J., & Chalef, D. (2025). Zep: a temporal knowledge graph architecture for agent memory. arXiv:2501.13956.
-[^mem0]: Chhikara, P., et al. (2025). Mem0: Building production-ready AI agents with scalable long-term memory. arXiv:2504.19413.
 [^hydradb]: HydraDB (2026). Beyond flat embeddings for production AI agents. https://research.hydradb.com
