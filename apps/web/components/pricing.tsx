@@ -43,8 +43,8 @@ export const PLANS: PLAN[] = [
 		badge: "Most Popular",
 		buttonText: "Upgrade to Developer",
 		features: [
-			"5M tokens/month",
-			"50K queries/month",
+			"3M tokens/month",
+			"30K queries/month",
 			"7 memory spaces",
 			"MCP server integration",
 			"Pre-built data connectors",
@@ -60,8 +60,8 @@ export const PLANS: PLAN[] = [
 		annuallyPrice: 3588,
 		buttonText: "Upgrade to Pro",
 		features: [
-			"80M tokens/month",
-			"300K queries/month",
+			"40M tokens/month",
+			"200K queries/month",
 			"50 memory spaces",
 			"MCP server integration",
 			"Pre-built data connectors",
