@@ -2,7 +2,7 @@
 
 import { cn } from "@crosmos/ui/lib/utils";
 import { useQueryStates } from "nuqs";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useSWRConfig } from "swr";
 import { DataFetchError } from "@/components/shared/data-fetch-error";
 import {
@@ -15,7 +15,35 @@ import { buildSourcesKey, useSources } from "@/hooks/use-sources";
 import { useSpaces } from "@/hooks/use-spaces";
 import { paginationParsers } from "@/lib/params/pagination";
 
+function PageHeader() {
+	return (
+		<div className="flex flex-col gap-1">
+			<h1 className="text-2xl font-semibold tracking-tight">Sources</h1>
+			<p className="text-sm text-muted-foreground">
+				All sources ingested across your spaces.
+			</p>
+		</div>
+	);
+}
+
+// useQueryStates reads useSearchParams, so the static /sources route must
+// render it inside a Suspense boundary to prerender.
 export default function SourcesPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex flex-col gap-6">
+					<PageHeader />
+					<SourceListSkeleton />
+				</div>
+			}
+		>
+			<SourcesPageContent />
+		</Suspense>
+	);
+}
+
+function SourcesPageContent() {
 	const orgId = useActiveOrgId();
 	const [params, setParams] = useQueryStates(paginationParsers);
 	const page = Math.max(1, params.page);
@@ -50,12 +78,7 @@ export default function SourcesPage() {
 
 	return (
 		<div className="flex flex-col gap-6">
-			<div className="flex flex-col gap-1">
-				<h1 className="text-2xl font-semibold tracking-tight">Sources</h1>
-				<p className="text-sm text-muted-foreground">
-					All sources ingested across your spaces.
-				</p>
-			</div>
+			<PageHeader />
 			{sourcesError ? (
 				<DataFetchError
 					message={sourcesError.message}
