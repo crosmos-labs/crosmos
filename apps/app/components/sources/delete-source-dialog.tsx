@@ -13,23 +13,9 @@ import {
 import { Badge } from "@crosmos/ui/components/badge";
 import { Kbd } from "@crosmos/ui/components/kbd";
 import { IconCornerDownLeft } from "@tabler/icons-react";
-import {
-	EXTRACTION_STATUS_BADGE_VARIANT,
-	EXTRACTION_STATUS_LABELS,
-} from "@/components/sources/source-list";
-import type { ContentTypeStr, SourceSummary } from "@/lib/types/source";
-
-const CONTENT_TYPE_LABELS: Record<ContentTypeStr, string> = {
-	text: "Text",
-	markdown: "Markdown",
-	conversation: "Conversation",
-	pdf: "PDF",
-	image: "Image",
-	audio: "Audio",
-	video: "Video",
-	html: "HTML",
-	json: "JSON",
-};
+import { SourceStatus } from "@/components/sources/source-status";
+import { CONTENT_TYPE_LABELS } from "@/lib/source-labels";
+import type { SourceSummary } from "@/lib/types/source";
 
 export function DeleteSourceDialog({
 	source,
@@ -60,13 +46,7 @@ export function DeleteSourceDialog({
 						</div>
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Status</span>
-							<Badge
-								variant={
-									EXTRACTION_STATUS_BADGE_VARIANT[source.extraction_status]
-								}
-							>
-								{EXTRACTION_STATUS_LABELS[source.extraction_status]}
-							</Badge>
+							<SourceStatus status={source.extraction_status} />
 						</div>
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Tokens</span>
