@@ -51,6 +51,7 @@ export function useSources(page: number = 1, filters: SourcesFilters) {
 		{
 			revalidateIfStale: false,
 			revalidateOnFocus: false,
+			keepPreviousData: true,
 		},
 	);
 }
