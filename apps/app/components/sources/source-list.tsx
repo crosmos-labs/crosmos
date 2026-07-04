@@ -44,8 +44,8 @@ import type { SourcesResponse } from "@/hooks/use-sources";
 import { formatNumber } from "@/lib/format";
 import { listIn, optimisticRemove } from "@/lib/optimistic";
 import {
-	CONTENT_TYPE_ICONS,
-	CONTENT_TYPE_LABELS,
+	contentTypeIcon,
+	contentTypeLabel,
 	sourceErrorMessage,
 	sourceTitle,
 } from "@/lib/source-labels";
@@ -167,7 +167,7 @@ export function SourceList({
 		<div className="flex flex-col gap-4">
 			<ItemGroup>
 				{sources.map((source) => {
-					const ContentTypeIcon = CONTENT_TYPE_ICONS[source.content_type];
+					const ContentTypeIcon = contentTypeIcon(source.content_type);
 					const title = sourceTitle(source);
 					const spaceName = spaceNameLookup.get(source.space_id);
 					const errorMessage =
@@ -193,7 +193,7 @@ export function SourceList({
 							<ItemContent className="gap-0.5">
 								<ItemTitle className="text-base">{title}</ItemTitle>
 								<ItemDescription as="div" className="line-clamp-1">
-									{CONTENT_TYPE_LABELS[source.content_type]}
+									{contentTypeLabel(source.content_type)}
 									<span aria-hidden> · </span>
 									{spaceName && (
 										<>
@@ -291,9 +291,7 @@ export function SourceList({
 				onOpenChange={(open) => {
 					if (!open) setDetailTarget(null);
 				}}
-				onRequestDelete={() => {
-					if (detailTarget) setDeleteTarget(detailTarget);
-				}}
+				onRequestDelete={setDeleteTarget}
 			/>
 			<DeleteSourceDialog
 				source={deleteTarget}

@@ -14,7 +14,7 @@ import { Badge } from "@crosmos/ui/components/badge";
 import { Kbd } from "@crosmos/ui/components/kbd";
 import { IconCornerDownLeft } from "@tabler/icons-react";
 import { SourceStatus } from "@/components/sources/source-status";
-import { CONTENT_TYPE_LABELS } from "@/lib/source-labels";
+import { contentTypeLabel } from "@/lib/source-labels";
 import type { SourceSummary } from "@/lib/types/source";
 
 export function DeleteSourceDialog({
@@ -41,7 +41,7 @@ export function DeleteSourceDialog({
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Type</span>
 							<Badge variant="outline">
-								{CONTENT_TYPE_LABELS[source.content_type]}
+								{contentTypeLabel(source.content_type)}
 							</Badge>
 						</div>
 						<div className="flex items-center justify-between">
