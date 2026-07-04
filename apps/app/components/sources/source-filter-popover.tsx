@@ -12,6 +12,7 @@ import {
 	Popover,
 	PopoverAnchor,
 	PopoverContent,
+	PopoverTrigger,
 } from "@crosmos/ui/components/popover";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconX } from "@tabler/icons-react";
@@ -62,9 +63,7 @@ export function FilterPopover({
 						activeLabel !== null && "bg-muted/50",
 					)}
 				>
-					<button
-						type="button"
-						onClick={() => setOpen(!open)}
+					<PopoverTrigger
 						className={cn(
 							segmentClasses,
 							activeLabel === null
@@ -74,7 +73,7 @@ export function FilterPopover({
 					>
 						<Icon className="size-4 text-muted-foreground" />
 						{label}
-					</button>
+					</PopoverTrigger>
 					{activeLabel !== null && (
 						<>
 							<button
@@ -119,7 +118,8 @@ export function FilterPopover({
 							{options.map((option) => (
 								<CommandItem
 									key={option.value}
-									value={option.label}
+									value={option.value}
+									keywords={[option.label]}
 									data-checked={option.value === value}
 									onSelect={() => {
 										onSelect(option.value === value ? null : option.value);
