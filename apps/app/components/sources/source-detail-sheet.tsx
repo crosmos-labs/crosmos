@@ -110,105 +110,101 @@ export function SourceDetailSheet({
 								<span>{CONTENT_TYPE_LABELS[display.content_type]}</span>
 							</div>
 						</SheetHeader>
-						<div className="relative min-h-0 flex-1">
-							<div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-popover to-transparent" />
-							<div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-6 bg-gradient-to-t from-popover to-transparent" />
-							<ScrollArea className="h-full">
-								<div className="flex flex-col gap-4 px-4 pb-4">
-									<div className="flex flex-col gap-2 rounded-lg border bg-muted/50 p-3 text-sm">
-										<DetailRow
-											label="Space"
-											value={
-												<Link
-													href={`/spaces/${display.space_id}`}
-													className="underline-offset-4 hover:underline"
-												>
-													{spaceName ?? "View space"}
-												</Link>
-											}
-										/>
-										<DetailRow
-											label="Tokens"
-											value={display.token_count.toLocaleString()}
-										/>
-										<DetailRow
-											label="Created"
-											value={formatDateTime(display.created_at)}
-										/>
-										<DetailRow
-											label="Updated"
-											value={formatDateTime(display.updated_at)}
-										/>
-									</div>
-									{errorMessage && (
-										<div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-											{errorMessage}
-										</div>
-									)}
-									{metaEntries.length > 0 && (
-										<div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-											{metaEntries.map(([key, value]) => (
-												<span
-													key={key}
-													className="rounded bg-muted px-1.5 py-0.5"
-												>
-													{key}: {formatMetaValue(value)}
-												</span>
-											))}
-										</div>
-									)}
-									<div className="flex flex-col gap-2">
-										<span className="text-[0.68rem] font-semibold text-foreground/70 uppercase tracking-widest">
-											Content
-										</span>
-										{isLoading ? (
-											<div className="flex flex-col gap-2">
-												<Skeleton className="h-3.5 w-full" />
-												<Skeleton className="h-3.5 w-11/12" />
-												<Skeleton className="h-3.5 w-4/5" />
-												<Skeleton className="h-3.5 w-2/3" />
-											</div>
-										) : error ? (
-											<div className="flex items-center gap-3 text-sm text-muted-foreground">
-												Failed to load content.
-												<Button
-													variant="outline"
-													size="sm"
-													onClick={() => mutate()}
-												>
-													Try again
-												</Button>
-											</div>
-										) : (
-											<>
-												<p className="whitespace-pre-wrap text-sm">
-													{isClamped
-														? content.slice(0, CONTENT_RENDER_LIMIT)
-														: content}
-												</p>
-												{isClamped && (
-													<div className="flex items-center gap-3">
-														<Button
-															variant="outline"
-															size="sm"
-															onClick={() => setShowFullContent(true)}
-														>
-															Show full content
-														</Button>
-														<span className="text-xs text-muted-foreground">
-															{formatNumber(
-																content.length - CONTENT_RENDER_LIMIT,
-															)}{" "}
-															more characters
-														</span>
-													</div>
-												)}
-											</>
-										)}
-									</div>
+						<ScrollArea className="min-h-0 flex-1">
+							<div className="flex flex-col gap-4 px-4 pb-4">
+								<div className="flex flex-col gap-2 rounded-lg border bg-muted/50 p-3 text-sm">
+									<DetailRow
+										label="Space"
+										value={
+											<Link
+												href={`/spaces/${display.space_id}`}
+												className="underline-offset-4 hover:underline"
+											>
+												{spaceName ?? "View space"}
+											</Link>
+										}
+									/>
+									<DetailRow
+										label="Tokens"
+										value={display.token_count.toLocaleString()}
+									/>
+									<DetailRow
+										label="Created"
+										value={formatDateTime(display.created_at)}
+									/>
+									<DetailRow
+										label="Updated"
+										value={formatDateTime(display.updated_at)}
+									/>
 								</div>
-							</ScrollArea>
-						</div>
+								{errorMessage && (
+									<div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+										{errorMessage}
+									</div>
+								)}
+								{metaEntries.length > 0 && (
+									<div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+										{metaEntries.map(([key, value]) => (
+											<span
+												key={key}
+												className="rounded bg-muted px-1.5 py-0.5"
+											>
+												{key}: {formatMetaValue(value)}
+											</span>
+										))}
+									</div>
+								)}
+								<div className="flex flex-col gap-2">
+									<span className="text-[0.68rem] font-semibold text-foreground/70 uppercase tracking-widest">
+										Content
+									</span>
+									{isLoading ? (
+										<div className="flex flex-col gap-2">
+											<Skeleton className="h-3.5 w-full" />
+											<Skeleton className="h-3.5 w-11/12" />
+											<Skeleton className="h-3.5 w-4/5" />
+											<Skeleton className="h-3.5 w-2/3" />
+										</div>
+									) : error ? (
+										<div className="flex items-center gap-3 text-sm text-muted-foreground">
+											Failed to load content.
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => mutate()}
+											>
+												Try again
+											</Button>
+										</div>
+									) : (
+										<>
+											<p className="whitespace-pre-wrap text-sm">
+												{isClamped
+													? content.slice(0, CONTENT_RENDER_LIMIT)
+													: content}
+											</p>
+											{isClamped && (
+												<div className="flex items-center gap-3">
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={() => setShowFullContent(true)}
+													>
+														Show full content
+													</Button>
+													<span className="text-xs text-muted-foreground">
+														{formatNumber(
+															content.length - CONTENT_RENDER_LIMIT,
+														)}{" "}
+														more characters
+													</span>
+												</div>
+											)}
+										</>
+									)}
+								</div>
+							</div>
+						</ScrollArea>
 						<SheetFooter>
 							<Button variant="destructive" onClick={onRequestDelete}>
 								<IconTrash />
