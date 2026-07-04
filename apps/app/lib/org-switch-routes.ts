@@ -1,5 +1,6 @@
 const ORG_SWITCH_FALLBACKS = [
 	{ pattern: /^\/spaces\/[^/]+$/, fallback: "/spaces" },
+	{ pattern: /^\/sources$/, fallback: "/sources" },
 ] as const;
 
 export function getOrgSwitchFallbackPath(pathname: string): string | null {
