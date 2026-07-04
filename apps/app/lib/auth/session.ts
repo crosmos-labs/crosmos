@@ -89,7 +89,7 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 			return toAuthUser(await res.json());
 		}
 
-		if (res.status === 401 && !refreshedAtStart) {
+		if ((res.status === 401 || res.status === 404) && !refreshedAtStart) {
 			const refreshed = await refreshTokens();
 			if (!refreshed) return null;
 
