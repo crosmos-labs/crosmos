@@ -36,6 +36,9 @@ yarn-error.log*
 # Docs (local only)
 /docs/
 
+# Editor
+.zed/
+
 # Misc
 .DS_Store
 *.pem
