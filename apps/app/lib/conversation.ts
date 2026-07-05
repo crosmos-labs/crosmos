@@ -1,4 +1,4 @@
-export interface ConversationTurn {
+interface ConversationTurn {
 	role: string;
 	text: string;
 }

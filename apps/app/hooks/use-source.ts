@@ -3,7 +3,7 @@ import { getSource } from "@/actions/sources";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import type { Source } from "@/lib/types/source";
 
-export function sourceKey(orgId: string, sourceUuid: string): string {
+function sourceKey(orgId: string, sourceUuid: string): string {
 	return `/orgs/${orgId}/sources/${sourceUuid}`;
 }
 

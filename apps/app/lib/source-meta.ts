@@ -1,13 +1,13 @@
 import { type Connector, connectors } from "@/config/connectors";
 import type { SourceSummary } from "@/lib/types/source";
 
-export interface SourceRepo {
+interface SourceRepo {
 	ownerRepo: string;
 	branch: string | null;
 	url: string | null;
 }
 
-export interface ParsedSourceMeta {
+interface ParsedSourceMeta {
 	connector: Connector | null;
 	repo: SourceRepo | null;
 	project: string | null;
@@ -16,7 +16,7 @@ export interface ParsedSourceMeta {
 	extras: [string, string][];
 }
 
-export function formatMetaValue(value: unknown): string {
+function formatMetaValue(value: unknown): string {
 	return typeof value === "object" && value !== null
 		? JSON.stringify(value)
 		: String(value);

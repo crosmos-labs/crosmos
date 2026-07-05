@@ -14,7 +14,7 @@ export interface SourcesResponse {
 	total: number;
 }
 
-export interface SourcesFilters {
+interface SourcesFilters {
 	content_type: ContentTypeStr | null;
 	extraction_status: ExtractionStatus | null;
 	space_id: string | null;

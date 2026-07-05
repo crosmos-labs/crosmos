@@ -18,7 +18,7 @@ import { cn } from "@crosmos/ui/lib/utils";
 import { IconX } from "@tabler/icons-react";
 import { type ComponentType, type ReactNode, useRef, useState } from "react";
 
-export interface FilterOption {
+interface FilterOption {
 	value: string;
 	label: string;
 	icon?: ReactNode;
