@@ -81,7 +81,10 @@ export function SourceDetailSheet({
 	} = useSource(display?.id ?? null, display?.space_id ?? null);
 
 	const meta = useMemo(() => parseSourceMeta(display?.meta ?? null), [display]);
-	const errorMessage = display ? sourceErrorMessage(display.meta) : null;
+	const errorMessage =
+		display?.extraction_status === "failed"
+			? sourceErrorMessage(display.meta)
+			: null;
 	const content = detail?.content ?? "";
 
 	const turnItems = useMemo(() => {
