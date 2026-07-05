@@ -123,7 +123,7 @@ export function SourceDetailSheet({
 
 	return (
 		<Sheet open={!!source} onOpenChange={onOpenChange}>
-			<SheetContent className="gap-0 data-[side=right]:sm:max-w-lg">
+			<SheetContent className="gap-0 data-[side=right]:w-full data-[side=right]:sm:w-3/4 data-[side=right]:sm:max-w-lg">
 				{display && ContentTypeIcon && (
 					<>
 						<SheetHeader className="border-b">
@@ -141,7 +141,7 @@ export function SourceDetailSheet({
 										</SheetTitle>
 										<SourceStatusPill status={display.extraction_status} />
 									</div>
-									<div className="flex items-center gap-3">
+									<div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
 										<div
 											className="flex size-10 shrink-0 items-center justify-center rounded-lg border bg-muted/50"
 											title={meta.connector?.name ?? "API"}
@@ -184,7 +184,7 @@ export function SourceDetailSheet({
 									)}
 								</div>
 								<Separator />
-								<div className="grid grid-cols-2 gap-4 p-4">
+								<div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
 									<Field label="Space">
 										<Link
 											href={`/spaces/${display.space_id}`}
