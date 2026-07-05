@@ -12,7 +12,6 @@ import {
 	Item,
 	ItemActions,
 	ItemContent,
-	ItemDescription,
 	ItemGroup,
 	ItemMedia,
 	ItemTitle,
@@ -26,9 +25,13 @@ import {
 } from "@crosmos/ui/components/pagination";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconDotsVertical, IconFileText, IconTrash } from "@tabler/icons-react";
+import {
+	IconCoins,
+	IconDotsVertical,
+	IconFileText,
+	IconTrash,
+} from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useSWRConfig } from "swr";
 import { deleteSource } from "@/actions/sources";
@@ -39,17 +42,15 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { DeleteSourceDialog } from "@/components/sources/delete-source-dialog";
 import { SourceDetailSheet } from "@/components/sources/source-detail-sheet";
-import { SourceStatus } from "@/components/sources/source-status";
+import { SourceStatusPill } from "@/components/sources/source-status";
 import type { SourcesResponse } from "@/hooks/use-sources";
 import { formatNumber } from "@/lib/format";
 import { listIn, optimisticRemove } from "@/lib/optimistic";
-import {
-	contentTypeIcon,
-	contentTypeLabel,
-	sourceErrorMessage,
-	sourceTitle,
-} from "@/lib/source-labels";
+import { contentTypeIcon, sourceTitle } from "@/lib/source-labels";
 import type { SourceSummary } from "@/lib/types/source";
+
+const metaPillClasses =
+	"inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground";
 
 const EMPTY_SOURCES: SourcesResponse = {
 	sources: [],
@@ -170,10 +171,6 @@ export function SourceList({
 					const ContentTypeIcon = contentTypeIcon(source.content_type);
 					const title = sourceTitle(source);
 					const spaceName = spaceNameLookup.get(source.space_id);
-					const errorMessage =
-						source.extraction_status === "failed"
-							? sourceErrorMessage(source.meta)
-							: null;
 
 					return (
 						<Item
@@ -191,41 +188,29 @@ export function SourceList({
 								<ContentTypeIcon className="size-4 text-muted-foreground" />
 							</ItemMedia>
 							<ItemContent className="gap-0.5">
-								<ItemTitle className="text-base">{title}</ItemTitle>
-								<ItemDescription as="div" className="line-clamp-1">
-									{contentTypeLabel(source.content_type)}
-									<span aria-hidden> · </span>
+								<ItemTitle className="w-full text-base">
+									<span className="min-w-0 truncate">{title}</span>
+								</ItemTitle>
+								<div
+									data-slot="item-description"
+									className="flex flex-wrap items-center gap-1.5"
+								>
+									<SourceStatusPill status={source.extraction_status} />
 									{spaceName && (
-										<>
-											<span>
-												<Link
-													href={`/spaces/${source.space_id}`}
-													className="relative z-10 underline-offset-4 transition-colors hover:text-foreground hover:underline"
-												>
-													{spaceName}
-												</Link>
-											</span>
-											<span aria-hidden> · </span>
-										</>
+										<span className={metaPillClasses}>{spaceName}</span>
 									)}
-									{formatNumber(source.token_count)} tokens
-								</ItemDescription>
-								{errorMessage && (
-									<p className="line-clamp-1 text-sm text-destructive">
-										{errorMessage}
-									</p>
-								)}
+									<span className={metaPillClasses}>
+										{formatDistanceToNow(new Date(source.created_at), {
+											addSuffix: true,
+										})}
+									</span>
+									<span className={metaPillClasses}>
+										<IconCoins className="size-3" />
+										{formatNumber(source.token_count)}
+									</span>
+								</div>
 							</ItemContent>
-							<ItemActions className="gap-3">
-								<SourceStatus
-									status={source.extraction_status}
-									className="text-sm"
-								/>
-								<span className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">
-									{formatDistanceToNow(new Date(source.created_at), {
-										addSuffix: true,
-									})}
-								</span>
+							<ItemActions>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
 										<Button

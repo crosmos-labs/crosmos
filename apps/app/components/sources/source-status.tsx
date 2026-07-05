@@ -56,25 +56,3 @@ export function SourceStatusPill({
 		</span>
 	);
 }
-
-export function SourceStatus({
-	status,
-	className,
-}: {
-	status: ExtractionStatus;
-	className?: string;
-}) {
-	return (
-		<span className={cn("inline-flex items-center gap-1.5 text-xs", className)}>
-			<SourceStatusDot status={status} />
-			<span
-				className={cn(
-					"text-muted-foreground",
-					status === "failed" && "text-destructive",
-				)}
-			>
-				{EXTRACTION_STATUS_LABELS[status]}
-			</span>
-		</span>
-	);
-}

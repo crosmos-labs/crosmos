@@ -12,8 +12,8 @@ import {
 } from "@crosmos/ui/components/alert-dialog";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
-import { SourceStatus } from "@/components/sources/source-status";
+import { IconCoins, IconCornerDownLeft } from "@tabler/icons-react";
+import { SourceStatusPill } from "@/components/sources/source-status";
 import { contentTypeLabel } from "@/lib/source-labels";
 import type { SourceSummary } from "@/lib/types/source";
 
@@ -46,13 +46,14 @@ export function DeleteSourceDialog({
 						</div>
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Status</span>
-							<SourceStatus status={source.extraction_status} />
+							<SourceStatusPill status={source.extraction_status} />
 						</div>
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Tokens</span>
-							<span className="text-foreground">
+							<Badge variant="secondary">
+								<IconCoins />
 								{source.token_count.toLocaleString()}
-							</span>
+							</Badge>
 						</div>
 						<div className="mt-1 line-clamp-3 text-muted-foreground whitespace-pre-wrap">
 							{source.content_preview}
