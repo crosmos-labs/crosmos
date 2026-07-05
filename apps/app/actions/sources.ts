@@ -5,6 +5,7 @@ import { SOURCES_PER_PAGE } from "@/lib/params/constants";
 import type {
 	ContentTypeStr,
 	ExtractionStatus,
+	Source,
 	SourceListResponse,
 	SourceSummary,
 } from "@/lib/types/source";
@@ -35,6 +36,13 @@ export async function listSources(options?: {
 		hasMore: offset + data.sources.length < data.total,
 		total: data.total,
 	};
+}
+
+export async function getSource(
+	sourceUuid: string,
+	spaceUuid: string,
+): Promise<Source> {
+	return apiFetch<Source>(`/sources/${sourceUuid}?space_uuid=${spaceUuid}`);
 }
 
 export async function deleteSource(

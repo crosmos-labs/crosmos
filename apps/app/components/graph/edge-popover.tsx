@@ -1,22 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { formatDateTime } from "@/lib/format";
 import type { GraphEdge, GraphNode } from "@/lib/graph/mappers";
-
-function formatDateTime(dateStr: string | null): string | null {
-	if (!dateStr) return null;
-	try {
-		return new Date(dateStr).toLocaleString("en-US", {
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-			hour: "numeric",
-			minute: "2-digit",
-		});
-	} catch {
-		return dateStr;
-	}
-}
 
 interface EdgePopoverProps {
 	edge: GraphEdge;
@@ -39,7 +25,9 @@ export function EdgePopover({ edge, nodeMap, onClose }: EdgePopoverProps) {
 	const validFromDisplay = wire.valid_from
 		? formatDateTime(wire.valid_from)
 		: "Ongoing";
-	const recordedDisplay = formatDateTime(wire.recorded_at);
+	const recordedDisplay = wire.recorded_at
+		? formatDateTime(wire.recorded_at)
+		: null;
 
 	return (
 		<div className="cg-popover">

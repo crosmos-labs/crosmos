@@ -1,20 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { formatDate } from "@/lib/format";
 import type { GraphNode } from "@/lib/graph/mappers";
-
-function formatDate(dateStr: string | null): string | null {
-	if (!dateStr) return null;
-	try {
-		return new Date(dateStr).toLocaleDateString("en-US", {
-			year: "numeric",
-			month: "short",
-			day: "numeric",
-		});
-	} catch {
-		return dateStr;
-	}
-}
 
 interface NodePopoverProps {
 	node: GraphNode;
@@ -31,8 +19,8 @@ export function NodePopover({ node, onClose }: NodePopoverProps) {
 	}, [onClose]);
 
 	const wire = node.data;
-	const createdDate = formatDate(wire.created_at);
-	const updatedDate = formatDate(wire.updated_at);
+	const createdDate = wire.created_at ? formatDate(wire.created_at) : null;
+	const updatedDate = wire.updated_at ? formatDate(wire.updated_at) : null;
 
 	return (
 		<div className="cg-popover">

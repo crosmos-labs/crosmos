@@ -27,6 +27,10 @@ export interface SourceSummary {
 	content_preview: string;
 }
 
+export interface Source extends Omit<SourceSummary, "content_preview"> {
+	content: string;
+}
+
 export interface SourceListResponse {
 	sources: SourceSummary[];
 	count: number;

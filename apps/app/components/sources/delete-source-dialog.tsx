@@ -12,24 +12,10 @@ import {
 } from "@crosmos/ui/components/alert-dialog";
 import { Badge } from "@crosmos/ui/components/badge";
 import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
-import {
-	EXTRACTION_STATUS_BADGE_VARIANT,
-	EXTRACTION_STATUS_LABELS,
-} from "@/components/sources/source-list";
-import type { ContentTypeStr, SourceSummary } from "@/lib/types/source";
-
-const CONTENT_TYPE_LABELS: Record<ContentTypeStr, string> = {
-	text: "Text",
-	markdown: "Markdown",
-	conversation: "Conversation",
-	pdf: "PDF",
-	image: "Image",
-	audio: "Audio",
-	video: "Video",
-	html: "HTML",
-	json: "JSON",
-};
+import { IconCoins, IconCornerDownLeft } from "@tabler/icons-react";
+import { SourceStatusPill } from "@/components/sources/source-status";
+import { contentTypeLabel } from "@/lib/source-labels";
+import type { SourceSummary } from "@/lib/types/source";
 
 export function DeleteSourceDialog({
 	source,
@@ -55,24 +41,19 @@ export function DeleteSourceDialog({
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Type</span>
 							<Badge variant="outline">
-								{CONTENT_TYPE_LABELS[source.content_type]}
+								{contentTypeLabel(source.content_type)}
 							</Badge>
 						</div>
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Status</span>
-							<Badge
-								variant={
-									EXTRACTION_STATUS_BADGE_VARIANT[source.extraction_status]
-								}
-							>
-								{EXTRACTION_STATUS_LABELS[source.extraction_status]}
-							</Badge>
+							<SourceStatusPill status={source.extraction_status} />
 						</div>
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Tokens</span>
-							<span className="text-foreground">
+							<Badge variant="secondary">
+								<IconCoins />
 								{source.token_count.toLocaleString()}
-							</span>
+							</Badge>
 						</div>
 						<div className="mt-1 line-clamp-3 text-muted-foreground whitespace-pre-wrap">
 							{source.content_preview}
