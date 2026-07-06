@@ -10,41 +10,57 @@ import {
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { loginWithGoogle } from "../actions";
+import { AUTH_ERROR_COOKIE } from "@/lib/auth/cookie-config";
+
+// Flash cookie set by the /auth/google and /auth/callback routes on failure.
+// Consumed on read, so a refresh never re-shows the toast.
+function consumeAuthError(): string | null {
+	// document.cookie throws a SecurityError when the browser blocks cookies.
+	try {
+		const entry = document.cookie
+			.split("; ")
+			.find((c) => c.startsWith(`${AUTH_ERROR_COOKIE}=`));
+		if (!entry) return null;
+		// biome-ignore lint/suspicious/noDocumentCookie: CookieStore isn't cross-browser
+		document.cookie = `${AUTH_ERROR_COOKIE}=; path=/; max-age=0`;
+		return decodeURIComponent(entry.slice(AUTH_ERROR_COOKIE.length + 1));
+	} catch {
+		return null;
+	}
+}
 
 function SignupForm() {
 	const [loading, setLoading] = useState(false);
 	const searchParams = useSearchParams();
 
-	const hasError = useMemo(
-		() => searchParams.get("error") !== null,
-		[searchParams],
-	);
 	const inviteToken = useMemo(
 		() => searchParams.get("invite") ?? undefined,
 		[searchParams],
 	);
 
 	useEffect(() => {
-		if (hasError) {
-			toast.error("Something went wrong. Try again later.");
+		const code = consumeAuthError();
+		if (code === null) return;
+		if (code === "cancelled") {
+			toast("Sign-in was cancelled.");
+		} else if (code === "expired") {
+			toast.error("Your sign-in session expired. Please try again.");
+		} else if (code === "start_failed") {
+			toast.error("Couldn't start sign-in. Please try again.");
+		} else {
+			toast.error(
+				"Something went wrong while signing you in. Please try again.",
+			);
 		}
-	}, [hasError]);
+	}, []);
 
-	async function handleGoogleLogin() {
+	function handleGoogleLogin() {
 		setLoading(true);
-		try {
-			await loginWithGoogle(inviteToken);
-		} catch (e) {
-			// Next.js redirect() works by throwing a special error with a digest
-			// prefixed with "NEXT_REDIRECT". Re-throw it so the router handles
-			// the navigation instead of resetting the loading state prematurely.
-			if (
-				(e as Error & { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")
-			)
-				throw e;
-			setLoading(false);
-		}
+		window.location.assign(
+			inviteToken
+				? `/auth/google?invite=${encodeURIComponent(inviteToken)}`
+				: "/auth/google",
+		);
 	}
 
 	return (

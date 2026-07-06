@@ -36,7 +36,8 @@ function isExpired(token: string | undefined): boolean {
 export const config = {
 	matcher: [
 		{
-			source: "/((?!api|_next/static|_next/image|auth/callback|.*\\..*).*)",
+			source:
+				"/((?!api|_next/static|_next/image|auth/callback|auth/google|.*\\..*).*)",
 			missing: [
 				{ type: "header", key: "next-router-prefetch" },
 				{ type: "header", key: "purpose", value: "prefetch" },
