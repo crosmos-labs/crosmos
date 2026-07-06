@@ -27,34 +27,34 @@ function McpConfigBlock() {
 	return (
 		<CodeBlock value={MCP_CONFIG_PLAIN}>
 			{"{"}
-				{"\n"}
-				{"  "}
-				<span className="text-foreground">"mcpServers"</span>
-				{": {"}
-				{"\n"}
-				{"    "}
-				<span className="text-foreground">"crosmos-memory"</span>
-				{": {"}
-				{"\n"}
-				{"      "}
-				<span className="text-foreground">"command"</span>
-				{": "}
-				<span className="text-muted-foreground">"npx"</span>
-				{","}
-				{"\n"}
-				{"      "}
-				<span className="text-foreground">"args"</span>
-				{": ["}
-				<span className="text-muted-foreground">"-y"</span>
-				{", "}
-				<span className="text-muted-foreground">"@crosmos/crosmos-mcp"</span>
-				{"]"}
-				{"\n"}
-				{"    }"}
-				{"\n"}
-				{"  }"}
-				{"\n"}
-				{"}"}
+			{"\n"}
+			{"  "}
+			<span className="text-foreground">"mcpServers"</span>
+			{": {"}
+			{"\n"}
+			{"    "}
+			<span className="text-foreground">"crosmos-memory"</span>
+			{": {"}
+			{"\n"}
+			{"      "}
+			<span className="text-foreground">"command"</span>
+			{": "}
+			<span className="text-muted-foreground">"npx"</span>
+			{","}
+			{"\n"}
+			{"      "}
+			<span className="text-foreground">"args"</span>
+			{": ["}
+			<span className="text-muted-foreground">"-y"</span>
+			{", "}
+			<span className="text-muted-foreground">"@crosmos/crosmos-mcp"</span>
+			{"]"}
+			{"\n"}
+			{"    }"}
+			{"\n"}
+			{"  }"}
+			{"\n"}
+			{"}"}
 		</CodeBlock>
 	);
 }

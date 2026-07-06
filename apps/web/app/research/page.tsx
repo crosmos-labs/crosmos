@@ -124,7 +124,11 @@ export default function ResearchPage() {
 						</details>
 
 						<div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-h2:text-2xl prose-h2:mt-12 prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed prose-code:text-sm prose-a:text-foreground prose-a:underline prose-a:underline-offset-4">
-							<Markdown source={doc.body} components={researchMdxComponents} gfm />
+							<Markdown
+								source={doc.body}
+								components={researchMdxComponents}
+								gfm
+							/>
 							{doc.uncitedRefs.length > 0 && (
 								<section className="footnotes research-uncited">
 									<ol start={doc.citedCount + 1}>

@@ -62,11 +62,7 @@ export function OpenCode(props: SVGProps<SVGSVGElement>) {
 			preserveAspectRatio="xMidYMid"
 			viewBox="84 84 344 344"
 		>
-			<path
-				fill="currentColor"
-				opacity={0.3}
-				d="M320 224V352H192V224H320Z"
-			/>
+			<path fill="currentColor" opacity={0.3} d="M320 224V352H192V224H320Z" />
 			<path
 				fill="currentColor"
 				fillRule="evenodd"
