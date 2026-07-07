@@ -8,7 +8,7 @@ import { useCallback, useRef } from "react";
  * SDK and `embed.js` are only fetched when someone is about to book, instead of
  * on every page load. Initialisation runs at most once.
  */
-export function useCalApi() {
+export function useCalApi(namespace = "15min") {
 	const initialized = useRef(false);
 
 	return useCallback(() => {
@@ -16,8 +16,8 @@ export function useCalApi() {
 		initialized.current = true;
 		void (async () => {
 			const { getCalApi } = await import("@calcom/embed-react");
-			const cal = await getCalApi({ namespace: "15min" });
+			const cal = await getCalApi({ namespace });
 			cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
 		})();
-	}, []);
+	}, [namespace]);
 }

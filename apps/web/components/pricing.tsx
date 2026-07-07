@@ -1,8 +1,11 @@
+"use client";
+
 import { Button } from "@crosmos/ui/components/button";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconCheck } from "@tabler/icons-react";
 import Image from "next/image";
 import { LINKS } from "@/config/links";
+import { useCalApi } from "@/hooks/use-cal-api";
 import { CornerPlus } from "./ui/corner-plus";
 
 type PLAN = {
@@ -14,7 +17,7 @@ type PLAN = {
 	badge?: string;
 	buttonText: string;
 	features: string[];
-	link: string;
+	link?: string;
 };
 
 export const PLANS: PLAN[] = [
@@ -50,7 +53,7 @@ export const PLANS: PLAN[] = [
 			"Pre-built data connectors",
 			"Priority email support",
 		],
-		link: "#",
+		link: `${LINKS.product.console}/billing`,
 	},
 	{
 		id: "pro",
@@ -68,7 +71,7 @@ export const PLANS: PLAN[] = [
 			"Dedicated support channel",
 			"Full observability & tracing",
 		],
-		link: "#",
+		link: `${LINKS.product.console}/billing`,
 	},
 	{
 		id: "enterprise",
@@ -83,11 +86,12 @@ export const PLANS: PLAN[] = [
 			"Unlimited memory spaces",
 			"Self-hosted deployment option",
 		],
-		link: "#",
 	},
 ];
 
 const PlanCard = ({ plan }: { plan: PLAN }) => {
+	const initCal = useCalApi("30min");
+
 	return (
 		<div
 			className={cn(
@@ -162,7 +166,19 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 					plan.id === "enterprise" && "py-1 md:py-1.5",
 				)}
 			>
-				{plan.id === "basic" ? (
+				{plan.id === "enterprise" ? (
+					<Button
+						size="lg"
+						className="bg-primary rounded hover:bg-primary/90 w-full lg:w-1/3"
+						data-cal-namespace="30min"
+						data-cal-link="crosmos/30min"
+						data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+						onPointerEnter={initCal}
+						onFocus={initCal}
+					>
+						{plan.buttonText}
+					</Button>
+				) : (
 					<Button
 						asChild
 						size="lg"
@@ -171,17 +187,6 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 						<a href={plan.link} target="_blank" rel="noopener noreferrer">
 							{plan.buttonText}
 						</a>
-					</Button>
-				) : (
-					<Button
-						disabled
-						size="lg"
-						className={cn(
-							"bg-primary rounded hover:bg-primary/90 w-full",
-							plan.id === "enterprise" && "lg:w-1/3",
-						)}
-					>
-						Coming Soon
 					</Button>
 				)}
 				{plan.monthlyPrice !== -1 && (
