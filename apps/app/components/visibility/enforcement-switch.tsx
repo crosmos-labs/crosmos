@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { Switch } from "@crosmos/ui/components/switch";
 import {
 	Tooltip,
@@ -81,6 +82,10 @@ export function EnforcementSwitch({
 		} finally {
 			setBusy(false);
 		}
+	}
+
+	if (loading) {
+		return <Skeleton className="h-16 w-full rounded-lg" />;
 	}
 
 	return (
