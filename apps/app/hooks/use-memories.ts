@@ -9,12 +9,16 @@ export interface MemoriesResponse {
 	hasMore: boolean;
 }
 
+export function memoriesPrefix(orgId: string): string {
+	return `/orgs/${orgId}/memories`;
+}
+
 export function memoriesKey(
 	orgId: string,
 	spaceUuid: string,
 	page: number,
 ): string {
-	return `/orgs/${orgId}/memories?space_uuid=${spaceUuid}&page=${page}`;
+	return `${memoriesPrefix(orgId)}?space_uuid=${spaceUuid}&page=${page}`;
 }
 
 export function useMemories(spaceUuid: string, page: number = 1) {

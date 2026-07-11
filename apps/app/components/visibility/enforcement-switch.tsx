@@ -19,6 +19,7 @@ import {
 	useVisibilitySettings,
 	visibilitySettingsKey,
 } from "@/hooks/use-visibility";
+import { clearContentCaches } from "@/lib/content-cache";
 import type { VisibilitySettings } from "@/lib/types/visibility";
 
 export function EnforcementSwitch({
@@ -72,6 +73,7 @@ export function EnforcementSwitch({
 					typeof k === "string" &&
 					k.startsWith(`/orgs/${orgId}/visibility/preview`),
 			).catch(() => {});
+			void clearContentCaches(mutate, orgId);
 			toast.success(
 				next ? "Group access rules activated" : "Group access rules paused",
 			);

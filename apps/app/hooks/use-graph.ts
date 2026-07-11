@@ -3,8 +3,12 @@ import { getGraphViewport } from "@/actions/graph";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import type { GraphViewportResponse } from "@/lib/types/graph";
 
+export function graphPrefix(orgId: string): string {
+	return `/orgs/${orgId}/graph`;
+}
+
 export function graphKey(orgId: string, spaceUuid: string): string {
-	return `/orgs/${orgId}/graph?space_uuid=${spaceUuid}`;
+	return `${graphPrefix(orgId)}?space_uuid=${spaceUuid}`;
 }
 
 export function useGraph(spaceUuid: string | null) {
