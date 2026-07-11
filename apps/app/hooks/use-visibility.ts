@@ -15,6 +15,7 @@ import type {
 	VisibilityPreview,
 	VisibilitySettings,
 } from "@/lib/types/visibility";
+import { unwrapAction } from "@/lib/unwrap-action";
 
 export function visibilityGroupsKey(orgId: string): string {
 	return `/orgs/${orgId}/visibility/groups`;
@@ -55,15 +56,8 @@ export function useGroups(orgId: string | null | undefined) {
 		orgId ? visibilityGroupsKey(orgId) : null,
 		async () => {
 			const result = await listGroups(orgId as string);
-			if (!result.ok) {
-				// Throw on the client so status/code survive for isOrgScopeMismatch.
-				throw Object.assign(new Error(result.message), {
-					status: result.status,
-					code: result.code,
-				});
-			}
 			// Newest-first so optimistic top-inserts match the order after refetch (API returns created_at ASC).
-			return byCreatedAtDesc(result.data);
+			return byCreatedAtDesc(unwrapAction(result));
 		},
 		{ revalidateOnFocus: true },
 	);
@@ -87,20 +81,14 @@ export function useGrantImpactPreview(
 		orgId && viewerGroupId && subjectGroupId
 			? visibilityGrantImpactKey(orgId, viewerGroupId, subjectGroupId)
 			: null,
-		async () => {
-			const result = await previewGrantImpact(
-				orgId as string,
-				viewerGroupId as string,
-				subjectGroupId as string,
-			);
-			if (!result.ok) {
-				throw Object.assign(new Error(result.message), {
-					status: result.status,
-					code: result.code,
-				});
-			}
-			return result.data;
-		},
+		async () =>
+			unwrapAction(
+				await previewGrantImpact(
+					orgId as string,
+					viewerGroupId as string,
+					subjectGroupId as string,
+				),
+			),
 		// Don't auto-retry on failure; the dialog surfaces a manual Retry button
 		// that calls mutate() explicitly.
 		{ revalidateOnFocus: false, shouldRetryOnError: false },

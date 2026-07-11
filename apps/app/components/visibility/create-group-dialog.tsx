@@ -24,6 +24,7 @@ import {
 import { visibilityGroupsKey } from "@/hooks/use-visibility";
 import { optimisticInsert } from "@/lib/optimistic";
 import type { VisibilityGroup } from "@/lib/types/visibility";
+import { unwrapAction } from "@/lib/unwrap-action";
 
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
 
@@ -89,19 +90,10 @@ export function CreateGroupDialog({
 					mutate,
 					visibilityGroupsKey(orgId),
 					tempGroup,
-					async () => {
-						const result = await createGroup(
-							orgId,
-							name,
-							trimmedSlug || undefined,
-						);
-						if (!result.ok) {
-							throw Object.assign(new Error(result.message), {
-								code: result.code,
-							});
-						}
-						return result.data;
-					},
+					async () =>
+						unwrapAction(
+							await createGroup(orgId, name, trimmedSlug || undefined),
+						),
 				),
 			{ toast: { success: "Group created" } },
 		).catch((err: unknown) => {

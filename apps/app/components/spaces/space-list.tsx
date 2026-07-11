@@ -37,6 +37,7 @@ import { CreateSpaceDialog } from "@/components/spaces/create-space-dialog";
 import { DeleteSpaceDialog } from "@/components/spaces/delete-space-dialog";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { Space } from "@/lib/types/space";
+import { unwrapAction } from "@/lib/unwrap-action";
 
 function SpaceCountRow({
 	count,
@@ -129,16 +130,9 @@ export function SpaceList({
 			};
 			runAction(
 				() =>
-					optimisticInsert(mutate, swrKey, tempSpace, async () => {
-						const result = await createSpace(name, description);
-						if (!result.ok) {
-							// Throw so the optimistic row rolls back; carry the slug for the toast.
-							throw Object.assign(new Error(result.message), {
-								code: result.code,
-							});
-						}
-						return result.data;
-					}),
+					optimisticInsert(mutate, swrKey, tempSpace, async () =>
+						unwrapAction(await createSpace(name, description)),
+					),
 				{ toast: { success: "Space created" } },
 			).catch((err: unknown) => {
 				const code =
