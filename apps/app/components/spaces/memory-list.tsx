@@ -29,6 +29,7 @@ import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrain, IconDotsVertical, IconTrash } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { forgetMemory } from "@/actions/memories";
 import {
@@ -37,9 +38,12 @@ import {
 } from "@/components/providers/action-loader-provider";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ForgetMemoryDialog } from "@/components/spaces/forget-memory-dialog";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import type { MemoriesResponse } from "@/hooks/use-memories";
+import { clearContentCaches } from "@/lib/content-cache";
 import { listIn, optimisticRemove } from "@/lib/optimistic";
 import type { Memory, MemoryType } from "@/lib/types/memory";
+import { unwrapAction } from "@/lib/unwrap-action";
 
 const EMPTY_MEMORIES: MemoriesResponse = { memories: [], hasMore: false };
 const memoriesList = listIn<MemoriesResponse, Memory>(
@@ -124,6 +128,7 @@ export function MemoryList({
 }: MemoryListProps) {
 	const [forgetTarget, setForgetTarget] = useState<Memory | null>(null);
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+	const orgId = useActiveOrgId();
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
@@ -136,18 +141,23 @@ export function MemoryList({
 						mutate,
 						swrKey,
 						(m) => m.id === memoryUuid,
-						() => forgetMemory(memoryUuid, spaceUuid),
+						async () => {
+							unwrapAction(await forgetMemory(memoryUuid, spaceUuid));
+						},
 						{ adapter: memoriesList },
 					),
-				{
-					toast: {
-						success: "Memory forgotten",
-						error: "Failed to forget memory",
-					},
-				},
-			);
+				{ toast: { success: "Memory forgotten" } },
+			).catch((err: unknown) => {
+				if ((err as { status?: number }).status === 404 && orgId) {
+					toast.error("This memory is no longer available.");
+					// The current page key is already reconciled by optimisticRemove.
+					void clearContentCaches(mutate, orgId, swrKey);
+					return;
+				}
+				toast.error("Failed to forget memory");
+			});
 		},
-		[runAction, mutate, swrKey, spaceUuid],
+		[runAction, mutate, swrKey, spaceUuid, orgId],
 	);
 
 	const toggleExpand = useCallback((id: string) => {

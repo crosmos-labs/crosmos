@@ -1,5 +1,6 @@
 "use server";
 
+import { type ActionResult, toActionError } from "@/lib/action-result";
 import { apiFetch } from "@/lib/api";
 import { MEMORIES_PER_PAGE } from "@/lib/params/constants";
 import type { Memory, MemoryListResponse } from "@/lib/types/memory";
@@ -22,8 +23,13 @@ export async function listMemories(
 export async function forgetMemory(
 	memoryUuid: string,
 	spaceUuid: string,
-): Promise<void> {
-	await apiFetch(`/memories/${memoryUuid}?space_uuid=${spaceUuid}`, {
-		method: "DELETE",
-	});
+): Promise<ActionResult<void>> {
+	try {
+		await apiFetch(`/memories/${memoryUuid}?space_uuid=${spaceUuid}`, {
+			method: "DELETE",
+		});
+		return { ok: true, data: undefined };
+	} catch (err) {
+		return toActionError(err);
+	}
 }

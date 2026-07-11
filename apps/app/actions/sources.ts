@@ -1,5 +1,6 @@
 "use server";
 
+import { type ActionResult, toActionError } from "@/lib/action-result";
 import { apiFetch } from "@/lib/api";
 import { SOURCES_PER_PAGE } from "@/lib/params/constants";
 import type {
@@ -41,8 +42,15 @@ export async function listSources(options?: {
 export async function getSource(
 	sourceUuid: string,
 	spaceUuid: string,
-): Promise<Source> {
-	return apiFetch<Source>(`/sources/${sourceUuid}?space_uuid=${spaceUuid}`);
+): Promise<ActionResult<Source>> {
+	try {
+		const data = await apiFetch<Source>(
+			`/sources/${sourceUuid}?space_uuid=${spaceUuid}`,
+		);
+		return { ok: true, data };
+	} catch (err) {
+		return toActionError(err);
+	}
 }
 
 export async function deleteSource(

@@ -14,9 +14,12 @@ import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconArrowUpRight, IconCode, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { useSWRConfig } from "swr";
 import { SourceStatusPill } from "@/components/sources/source-status";
-import { useSource } from "@/hooks/use-source";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
+import { sourceKey, useSource } from "@/hooks/use-source";
+import { clearContentCaches } from "@/lib/content-cache";
 import { parseConversationTurns } from "@/lib/conversation";
 import { formatDate, formatDateTime, formatNumber } from "@/lib/format";
 import {
@@ -79,6 +82,19 @@ export function SourceDetailSheet({
 		error,
 		mutate,
 	} = useSource(display?.id ?? null, display?.space_id ?? null);
+
+	const sourceGone = (error as { status?: number } | undefined)?.status === 404;
+
+	// A 404 on a cached row means access changed; drop stale content caches.
+	// The dead key itself is excluded so the heal can't refetch it or clear its
+	// error, which keeps sourceGone stable and this effect one-shot per source.
+	const orgId = useActiveOrgId();
+	const { mutate: globalMutate } = useSWRConfig();
+	const displayId = display?.id ?? null;
+	useEffect(() => {
+		if (!sourceGone || !orgId || !displayId) return;
+		void clearContentCaches(globalMutate, orgId, sourceKey(orgId, displayId));
+	}, [sourceGone, orgId, displayId, globalMutate]);
 
 	const meta = useMemo(() => parseSourceMeta(display?.meta ?? null), [display]);
 	const errorMessage =
@@ -275,7 +291,9 @@ export function SourceDetailSheet({
 										</div>
 									) : error ? (
 										<div className="flex items-center gap-3 text-sm text-muted-foreground">
-											Failed to load content.
+											{sourceGone
+												? "This source is no longer available."
+												: "Failed to load content."}
 											<Button
 												variant="outline"
 												size="sm"
