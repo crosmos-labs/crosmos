@@ -101,6 +101,12 @@ Memories are retrieved using a hybrid approach combining four signals:
 
 Results are fused using Reciprocal Rank Fusion (RRF), boosted by recency signals, and optionally reranked with a cross-encoder.
 
+## Visibility
+
+Every memory is either `private` (the default) or `org`. Org-visible memories are readable by every member of the organization; private memories are readable only by their owner. A source's visibility cascades to the memories and edges extracted from it.
+
+Organizations can widen this with **group access rules** (Groups and Access in the console): a grant lets one group read another group's private memories. Rules apply only while enforcement is switched on, and there is no admin bypass. Visibility is enforced at query time on every read path, including list, search, and graph.
+
 ## Soft delete
 
 Memories can be "forgotten" via soft delete. The memory and its connected edges are hidden from retrieval but preserved in the database. This allows:
