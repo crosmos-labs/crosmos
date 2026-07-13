@@ -1,32 +1,70 @@
+"use client";
+
 import { Card } from "@crosmos/ui/components/card";
+import {
+	CELL,
+	paintColumn,
+} from "@crosmos/ui/components/dither-kit/dither-paint";
+import { seedOfColor } from "@crosmos/ui/components/dither-kit/palette";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
-
-const MAX_PIPS = 50;
+import { useEffect, useRef } from "react";
 
 export function SpacesMeterSkeleton() {
 	return (
 		<Card className="gap-3 p-4">
 			<div className="flex items-center justify-between">
 				<Skeleton className="h-4 w-16" />
-				<Skeleton className="h-4 w-28" />
+				<Skeleton className="h-4 w-20" />
 			</div>
-			<div className="flex flex-wrap gap-1.5">
-				{Array.from({ length: 10 }, (_, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: fixed-order static pips
-					<Skeleton key={i} className="size-3 rounded-full" />
-				))}
-			</div>
+			<Skeleton className="h-3 w-full rounded-[4px]" />
 			<Skeleton className="h-3 w-24" />
 		</Card>
 	);
 }
 
+// Filled block: the kit's fade-up dither wash (dense base, soft top edge).
+function DitherFill() {
+	const ref = useRef<HTMLCanvasElement>(null);
+
+	useEffect(() => {
+		const canvas = ref.current;
+		if (!canvas) return;
+		const seed = seedOfColor("green");
+		const observer = new ResizeObserver(([entry]) => {
+			if (!entry) return;
+			const { width, height } = entry.contentRect;
+			canvas.width = Math.max(2, Math.round(width / CELL));
+			canvas.height = Math.max(2, Math.round(height / CELL));
+			const ctx = canvas.getContext("2d");
+			if (!ctx) return;
+			for (let x = 0; x < canvas.width; x++) {
+				paintColumn(ctx, x, 0, canvas.height, seed, {
+					variant: "gradient",
+					intensity: 0,
+					dim: 1,
+					stacked: false,
+				});
+			}
+		});
+		observer.observe(canvas);
+		return () => observer.disconnect();
+	}, []);
+
+	return (
+		<canvas
+			ref={ref}
+			aria-hidden
+			className="absolute inset-0 size-full [image-rendering:pixelated]"
+		/>
+	);
+}
+
 export function SpacesMeter({ used, limit }: { used: number; limit: number }) {
-	const cap = Math.min(Math.max(limit, used), MAX_PIPS);
-	const overflow = limit - cap;
+	const unlimited = limit === -1;
+	const filled = unlimited ? 0 : Math.min(used, limit);
 
 	return (
 		<Card className="gap-3 p-4">
@@ -34,26 +72,27 @@ export function SpacesMeter({ used, limit }: { used: number; limit: number }) {
 				<span className="text-sm font-medium">Spaces</span>
 				<span className="text-sm text-muted-foreground">
 					<span className="font-medium text-foreground">
-						{used}/{limit}
+						{unlimited ? used : `${used}/${limit}`}
 					</span>{" "}
 					used
 				</span>
 			</div>
-			<div className="flex flex-wrap items-center gap-1.5">
-				{Array.from({ length: cap }, (_, i) => (
-					<span
-						// biome-ignore lint/suspicious/noArrayIndexKey: fixed-order static pip grid
-						key={i}
-						className={cn(
-							"size-3 rounded-full",
-							i < used ? "bg-primary" : "bg-muted",
-						)}
-					/>
-				))}
-				{overflow > 0 && (
-					<span className="text-xs text-muted-foreground">+{overflow}</span>
-				)}
-			</div>
+			{!unlimited && (
+				<div className="flex gap-[3px]">
+					{Array.from({ length: limit }, (_, i) => (
+						<span
+							// biome-ignore lint/suspicious/noArrayIndexKey: fixed-order slots
+							key={i}
+							className={cn(
+								"relative h-3 flex-1 overflow-hidden rounded-[4px]",
+								i >= filled && "bg-muted",
+							)}
+						>
+							{i < filled && <DitherFill />}
+						</span>
+					))}
+				</div>
+			)}
 			<Link
 				href="/spaces"
 				className="inline-flex w-fit items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
