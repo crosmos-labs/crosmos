@@ -53,6 +53,7 @@ export default function BillingPage() {
 	const error =
 		(!usage ? usageError : undefined) ??
 		(canManageBilling && !subscription ? subError : undefined);
+
 	// One combined loading gate: wait for subscription AND plans together so the
 	// plan cards never flash a second skeleton after the page skeleton.
 	const loading =
@@ -123,6 +124,7 @@ export default function BillingPage() {
 										limit={usage.queries.limit}
 										periodStart={usage.period_start}
 										periodEnd={usage.period_end}
+										color="purple"
 									/>
 								</div>
 								<SpacesMeter
