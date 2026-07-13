@@ -9,6 +9,8 @@
 	"devDependencies": {
 		"@crosmos/typescript-config": "*",
 		"@tailwindcss/postcss": "^4.1.18",
+		"@types/d3-scale": "^4.0.9",
+		"@types/d3-shape": "^3.1.8",
 		"@types/node": "^22.15.3",
 		"@types/react": "19.2.2",
 		"@types/react-dom": "19.2.2",
@@ -24,6 +26,8 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
+		"d3-scale": "^4.0.2",
+		"d3-shape": "^3.2.0",
 		"embla-carousel-react": "^8.6.0",
 		"input-otp": "^1.4.2",
 		"motion": "^12.40.0",
@@ -46,6 +50,10 @@
 		"./globals.css": "./src/styles/globals.css",
 		"./postcss.config": "./postcss.config.mjs",
 		"./lib/*": "./src/lib/*.ts",
+		"./components/dither-kit/*": [
+			"./src/components/dither-kit/*.tsx",
+			"./src/components/dither-kit/*.ts"
+		],
 		"./components/*": "./src/components/*.tsx",
 		"./hooks/*": "./src/hooks/*.ts"
 	}

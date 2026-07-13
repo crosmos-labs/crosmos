@@ -21,6 +21,7 @@
 		"hooks": "@crosmos/ui/hooks"
 	},
 	"registries": {
-		"@unlumen-ui": "https://ui.unlumen.com/r/{name}.json"
+		"@unlumen-ui": "https://ui.unlumen.com/r/{name}.json",
+		"@dither-kit": "https://tripwire.sh/r/{name}.json"
 	}
 }
