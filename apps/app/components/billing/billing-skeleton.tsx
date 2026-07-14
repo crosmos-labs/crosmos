@@ -7,11 +7,9 @@ import {
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
-import { PlanCardSkeleton } from "@/components/billing/plan-card";
-import { SpacesMeterSkeleton } from "@/components/billing/spaces-meter";
 import { UsageMeterSkeleton } from "@/components/billing/usage-meter";
 
-export function BillingSkeleton({ showPlans = true }: { showPlans?: boolean }) {
+export function BillingSkeleton() {
 	return (
 		<div aria-busy="true" className="flex flex-col gap-6">
 			<Item variant="outline" className="px-4 py-3.5">
@@ -25,31 +23,28 @@ export function BillingSkeleton({ showPlans = true }: { showPlans?: boolean }) {
 					</ItemDescription>
 				</ItemContent>
 			</Item>
-			{showPlans && (
-				<section className="flex flex-col gap-3">
-					<Skeleton className="h-6 w-32" />
-					<div className="grid gap-3 sm:grid-cols-3">
-						<PlanCardSkeleton />
-						<PlanCardSkeleton />
-						<PlanCardSkeleton />
-					</div>
-				</section>
-			)}
-			<div className="flex flex-col gap-6">
-				<div className="flex flex-col gap-1">
-					<Skeleton className="h-5 w-12" />
-					<Skeleton className="h-4 w-64" />
+			<section className="flex flex-col gap-3">
+				<Skeleton className="h-6 w-36" />
+				<div className="flex flex-col gap-2">
+					<Skeleton className="h-16 w-full rounded-lg" />
+					<Skeleton className="h-16 w-full rounded-lg" />
+					<Skeleton className="h-16 w-full rounded-lg" />
 				</div>
-				<div className="flex flex-col gap-4">
-					<div className="grid gap-4 sm:grid-cols-2">
-						<UsageMeterSkeleton />
-						<UsageMeterSkeleton />
-					</div>
-					<SpacesMeterSkeleton />
-					<Skeleton className="h-3 w-56" />
-				</div>
-			</div>
+			</section>
 			<span className="sr-only">Loading billing data…</span>
+		</div>
+	);
+}
+
+export function UsageSkeleton() {
+	return (
+		<div aria-busy="true" className="flex flex-col gap-4">
+			<div className="grid gap-4 sm:grid-cols-2">
+				<UsageMeterSkeleton />
+				<UsageMeterSkeleton />
+			</div>
+			<Skeleton className="h-3 w-56" />
+			<span className="sr-only">Loading usage data…</span>
 		</div>
 	);
 }

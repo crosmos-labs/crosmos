@@ -4,6 +4,7 @@ import { Card } from "@crosmos/ui/components/card";
 import type { ChartConfig } from "@crosmos/ui/components/dither-kit/chart-context";
 import { Pie } from "@crosmos/ui/components/dither-kit/pie";
 import { PieChart } from "@crosmos/ui/components/dither-kit/pie-chart";
+import { Tooltip } from "@crosmos/ui/components/dither-kit/tooltip";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
 import { useMemo } from "react";
@@ -125,6 +126,9 @@ export function UsageMeter({
 					margins={ZERO_MARGINS}
 				>
 					<Pie variant="gradient" />
+					{!unlimited && (
+						<Tooltip valueFormatter={(value) => formatNumber(value)} />
+					)}
 				</PieChart>
 				<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
 					<span className="text-lg font-semibold tabular-nums">

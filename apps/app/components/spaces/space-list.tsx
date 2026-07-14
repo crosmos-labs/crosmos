@@ -35,6 +35,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { HotkeyKbd } from "@/components/shared/hotkey-kbd";
 import { CreateSpaceDialog } from "@/components/spaces/create-space-dialog";
 import { DeleteSpaceDialog } from "@/components/spaces/delete-space-dialog";
+import { useUsage } from "@/hooks/use-usage";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { Space } from "@/lib/types/space";
 import { unwrapAction } from "@/lib/unwrap-action";
@@ -48,10 +49,15 @@ function SpaceCountRow({
 	onCreateClick: () => void;
 	disabled?: boolean;
 }) {
+	const { data: usage } = useUsage();
+	const limit = usage?.spaces.limit;
+
 	return (
 		<div className="flex items-center justify-between">
 			<span className="text-sm text-muted-foreground">
-				{count} space{count !== 1 ? "s" : ""}
+				{limit !== undefined && limit !== -1
+					? `${count} of ${limit} spaces`
+					: `${count} space${count !== 1 ? "s" : ""}`}
 			</span>
 			<Button onClick={onCreateClick} disabled={disabled}>
 				Create

@@ -147,7 +147,7 @@ export function DashboardStats() {
 				value={formatNumber(tokensUsed)}
 				subtitle={`${formatNumber(tokensUsed)} / ${formatNumber(tokensLimit)}`}
 				icon={IconSearch}
-				href="/billing"
+				href="/usage"
 				progress={tokensPercent}
 			/>
 			<StatCard
@@ -155,7 +155,7 @@ export function DashboardStats() {
 				value={formatNumber(queriesUsed)}
 				subtitle={`${formatNumber(queriesUsed)} / ${formatNumber(queriesLimit)}`}
 				icon={IconCreditCard}
-				href="/billing"
+				href="/usage"
 				progress={queriesPercent}
 			/>
 		</div>

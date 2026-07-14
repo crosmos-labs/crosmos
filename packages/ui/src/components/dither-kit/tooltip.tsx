@@ -40,6 +40,8 @@ export function Tooltip({
 
   const heading = chart.heading(index, labelKey)
   const items = chart.itemsAt(index)
+  // Near the top edge the upward lift would cover the cursor — drop below it.
+  const liftY = chart.tooltipFlipped ? "20%" : "-115%"
 
   return (
     <AnimatePresence>
@@ -49,14 +51,14 @@ export function Tooltip({
           initial={{
             opacity: 0,
             x: "-50%",
-            y: "-115%",
+            y: liftY,
             top: chart.tooltipTop,
             left: chart.tooltipLeft,
           }}
           animate={{
             opacity: 1,
             x: "-50%",
-            y: "-115%",
+            y: liftY,
             top: chart.tooltipTop,
             left: chart.tooltipLeft,
           }}

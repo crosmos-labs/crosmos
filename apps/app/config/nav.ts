@@ -8,6 +8,7 @@ import {
 	IconEye,
 	IconFileImport,
 	IconGalaxy,
+	IconGauge,
 	IconKey,
 	IconPlug,
 	IconSettings,
@@ -115,6 +116,12 @@ export const navGroups: NavGroup[] = [
 				label: "Billing",
 				href: "/billing",
 				icon: IconCreditCard,
+				roles: ["owner", "admin"],
+			},
+			{
+				label: "Usage",
+				href: "/usage",
+				icon: IconGauge,
 			},
 			{
 				label: "Settings",
@@ -140,6 +147,7 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/api-key": "API Keys",
 	"/connectors": "Connectors",
 	"/billing": "Billing",
+	"/usage": "Usage",
 	"/settings": "Settings",
 };
 

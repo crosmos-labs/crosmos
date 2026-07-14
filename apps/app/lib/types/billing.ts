@@ -43,3 +43,44 @@ export interface CancelResponse {
 }
 
 export const PLAN_ORDER: Plan[] = ["free", "developer", "pro", "enterprise"];
+
+export type PaymentStatus =
+	| "draft"
+	| "pending"
+	| "paid"
+	| "refunded"
+	| "partially_refunded"
+	| "void";
+
+// Amount fields are minor units (cents) of `currency`, matching Polar.
+export interface Payment {
+	id: string;
+	status: PaymentStatus;
+	paid: boolean;
+	created_at: string;
+	subtotal_amount: number;
+	discount_amount: number;
+	tax_amount: number;
+	total_amount: number;
+	refunded_amount: number;
+	currency: string;
+	billing_reason: string;
+	description: string | null;
+	invoice_number: string | null;
+	invoice_available: boolean;
+	product_name: string | null;
+	plan: string | null;
+}
+
+export interface PaymentsResponse {
+	payments: Payment[];
+	pagination: {
+		page: number;
+		limit: number;
+		total_count: number;
+		max_page: number;
+	};
+}
+
+// 202 = invoice generation triggered; retry shortly.
+export type InvoiceResult = { invoice_url: string } | { status: "generating" };

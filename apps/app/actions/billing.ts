@@ -5,6 +5,8 @@ import { apiFetch } from "@/lib/api";
 import type {
 	CancelResponse,
 	CheckoutResponse,
+	InvoiceResult,
+	PaymentsResponse,
 	PlanInfo,
 	PlansResponse,
 	PortalResponse,
@@ -19,6 +21,23 @@ export async function getPlans(): Promise<PlanInfo[]> {
 
 export async function getSubscription(): Promise<Subscription> {
 	return apiFetch<Subscription>("/billing/subscription");
+}
+
+export async function getPayments(page: number): Promise<PaymentsResponse> {
+	return apiFetch<PaymentsResponse>(`/billing/payments?page=${page}&limit=20`);
+}
+
+export async function getPaymentInvoice(
+	paymentId: string,
+): Promise<ActionResult<InvoiceResult>> {
+	try {
+		const data = await apiFetch<InvoiceResult>(
+			`/billing/payments/${paymentId}/invoice`,
+		);
+		return { ok: true, data };
+	} catch (err) {
+		return toActionError(err);
+	}
 }
 
 export async function startCheckout(

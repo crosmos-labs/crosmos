@@ -8,6 +8,15 @@ export function capitalize(s: string): string {
 	return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+// Assumes 2-decimal minor units; zero-decimal currencies (JPY) would need a
+// lookup, but Polar bills us in USD today.
+export function formatMoney(minorUnits: number, currency: string): string {
+	return new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: currency.toUpperCase(),
+	}).format(minorUnits / 100);
+}
+
 export function formatDate(iso: string): string {
 	return new Date(iso).toLocaleDateString("en-US", {
 		month: "short",
