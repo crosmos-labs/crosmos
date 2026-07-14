@@ -55,7 +55,7 @@ function SpaceCountRow({
 	return (
 		<div className="flex items-center justify-between">
 			<span className="text-sm text-muted-foreground">
-				{limit && limit !== -1
+				{limit !== undefined && limit !== -1
 					? `${count} of ${limit} spaces`
 					: `${count} space${count !== 1 ? "s" : ""}`}
 			</span>

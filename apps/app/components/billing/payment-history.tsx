@@ -77,13 +77,18 @@ function InvoiceButton({ paymentId }: { paymentId: string }) {
 					if (!res.ok) throw new Error(res.message);
 					if ("invoice_url" in res.data) {
 						const url = res.data.invoice_url;
+						// Null the opener manually: the "noopener" feature string makes
+						// window.open return null even on success, which would break the
+						// popup-blocker detection below.
+						const openTab = () => {
+							const win = window.open(url, "_blank");
+							if (win) win.opener = null;
+							return win;
+						};
 						// Popup blockers kill window.open this long after the click.
-						if (!window.open(url, "_blank")) {
+						if (!openTab()) {
 							toast("Invoice ready", {
-								action: {
-									label: "Open",
-									onClick: () => window.open(url, "_blank"),
-								},
+								action: { label: "Open", onClick: () => void openTab() },
 							});
 						}
 						return;
@@ -199,6 +204,7 @@ export function PaymentHistory() {
 								<PaginationItem>
 									<PaginationPrevious
 										href="#"
+										aria-disabled={!hasPrev}
 										onClick={(e) => {
 											e.preventDefault();
 											if (hasPrev) setPage(page - 1);
@@ -209,6 +215,7 @@ export function PaymentHistory() {
 								<PaginationItem>
 									<PaginationNext
 										href="#"
+										aria-disabled={!hasMore}
 										onClick={(e) => {
 											e.preventDefault();
 											if (hasMore) setPage(page + 1);
