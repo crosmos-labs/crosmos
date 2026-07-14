@@ -7,7 +7,10 @@ import { UsageMeter } from "@/components/billing/usage-meter";
 import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useOrgRole } from "@/hooks/use-org-role";
 import { useUsage } from "@/hooks/use-usage";
-import { capitalize, formatDate } from "@/lib/format";
+import { capitalize, formatDate, formatNumber } from "@/lib/format";
+
+const ratePillClasses =
+	"inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground";
 
 export default function UsagePage() {
 	const { user, orgId, isOwnerAdmin } = useOrgRole();
@@ -30,16 +33,25 @@ export default function UsagePage() {
 						{periodLabel ? ` (${periodLabel})` : ""}.
 					</p>
 				</div>
-				{usage &&
-					(isOwnerAdmin ? (
-						<Button variant="outline" size="sm" asChild>
-							<Link href="/billing">{capitalize(usage.plan)} plan</Link>
-						</Button>
-					) : (
-						<span className="text-sm text-muted-foreground">
-							{capitalize(usage.plan)} plan
+				{usage && (
+					<div className="flex flex-wrap items-center justify-end gap-2">
+						<span className={ratePillClasses}>
+							{usage.rate_limit_rpm} requests/min
 						</span>
-					))}
+						<span className={ratePillClasses}>
+							{formatNumber(usage.rate_limit_per_day)} requests/day
+						</span>
+						{isOwnerAdmin ? (
+							<Button variant="outline" size="sm" asChild>
+								<Link href="/billing">{capitalize(usage.plan)} plan</Link>
+							</Button>
+						) : (
+							<span className="text-sm text-muted-foreground">
+								{capitalize(usage.plan)} plan
+							</span>
+						)}
+					</div>
+				)}
 			</div>
 			{error && !usage ? (
 				<DataFetchError message={error.message} onRetry={() => reloadUsage()} />
@@ -64,10 +76,6 @@ export default function UsagePage() {
 							color="purple"
 						/>
 					</div>
-					<p className="text-xs text-muted-foreground">
-						Rate limits: {usage.rate_limit_rpm} req/min ·{" "}
-						{usage.rate_limit_per_day.toLocaleString()} req/day
-					</p>
 				</div>
 			) : null}
 		</div>
