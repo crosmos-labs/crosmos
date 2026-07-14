@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@crosmos/ui/components/badge";
+import { Button } from "@crosmos/ui/components/button";
 import {
 	Item,
 	ItemActions,
@@ -9,9 +10,12 @@ import {
 	ItemGroup,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
+import { useState } from "react";
 import { CancelSubscriptionButton } from "@/components/billing/cancel-subscription-button";
 import { ManageSubscriptionButton } from "@/components/billing/manage-subscription-button";
+import { UpgradePlanDialog } from "@/components/billing/upgrade-plan-dialog";
 import { billingStatusDisplay, billingToneClass } from "@/lib/billing-status";
+import { capitalize } from "@/lib/format";
 import type { Subscription } from "@/lib/types/billing";
 
 export function SubscriptionPanel({
@@ -22,8 +26,7 @@ export function SubscriptionPanel({
 	canManage?: boolean;
 }) {
 	const status = subscription.subscription_status;
-	// Free with no history carries no useful info, so skip the panel entirely.
-	if (status === "none") return null;
+	const [upgradeOpen, setUpgradeOpen] = useState(false);
 
 	const { label, detail, tone, badge } = billingStatusDisplay(subscription);
 	const showManage =
@@ -31,6 +34,11 @@ export function SubscriptionPanel({
 		(status === "active" || status === "past_due" || status === "canceled");
 	const showCancel =
 		canManage && (status === "active" || status === "past_due");
+	// Status-based, not plan-based: a revoked org keeps its old plan name but is
+	// effectively free and starts a fresh checkout.
+	const freeTier = status === "none" || status === "revoked";
+	const pendingPlan = subscription.plan_pending;
+	const canUpgrade = canManage && freeTier && !pendingPlan;
 
 	return (
 		<ItemGroup>
@@ -39,6 +47,11 @@ export function SubscriptionPanel({
 					<ItemTitle className="text-base">
 						{label}
 						{badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
+						{freeTier && pendingPlan && (
+							<Badge variant="secondary">
+								Upgrading to {capitalize(pendingPlan)}…
+							</Badge>
+						)}
 					</ItemTitle>
 					{detail && (
 						<ItemDescription className={billingToneClass(tone)}>
@@ -56,7 +69,15 @@ export function SubscriptionPanel({
 						<ManageSubscriptionButton />
 					</ItemActions>
 				)}
+				{canUpgrade && (
+					<ItemActions>
+						<Button onClick={() => setUpgradeOpen(true)}>Upgrade</Button>
+					</ItemActions>
+				)}
 			</Item>
+			{canUpgrade && (
+				<UpgradePlanDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+			)}
 		</ItemGroup>
 	);
 }

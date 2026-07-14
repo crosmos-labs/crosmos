@@ -39,8 +39,13 @@ export function ManageSubscriptionButton() {
 	}
 
 	return (
-		<Button variant="outline" disabled={busy} onClick={onManage}>
-			Manage subscription
+		<Button
+			variant="ghost"
+			className="text-muted-foreground"
+			disabled={busy}
+			onClick={onManage}
+		>
+			Update payment method
 		</Button>
 	);
 }
