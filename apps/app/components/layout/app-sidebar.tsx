@@ -83,7 +83,7 @@ function warmRoute(href: string, orgId: string | null) {
 		void preload(spacesKey(orgId), () => listSpaces()).catch(() => {});
 	} else if (href === "/api-key") {
 		void preload(apiKeysKey(orgId), () => listApiKeys()).catch(() => {});
-	} else if (href === "/billing") {
+	} else if (href === "/billing" || href === "/usage") {
 		void preload(usageKey(orgId), () => getUsage()).catch(() => {});
 	}
 }
