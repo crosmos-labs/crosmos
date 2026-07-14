@@ -28,11 +28,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { usePayments } from "@/hooks/use-billing";
 import { toastBillingError } from "@/lib/billing-errors";
 import { capitalize, formatDate, formatMoney } from "@/lib/format";
-import type {
-	Payment,
-	PaymentStatus,
-	PaymentsResponse,
-} from "@/lib/types/billing";
+import type { Payment, PaymentStatus } from "@/lib/types/billing";
 
 const STATUS_BADGES: Record<
 	PaymentStatus,
@@ -114,36 +110,12 @@ function InvoiceButton({ paymentId }: { paymentId: string }) {
 	);
 }
 
-// TEMP: forced-state override plumbing, remove after testing.
-const TEMP_EMPTY: PaymentsResponse = {
-	payments: [],
-	pagination: { page: 1, limit: 20, total_count: 0, max_page: 0 },
-};
-
-export function PaymentHistory({
-	tempData,
-}: {
-	// TEMP: forces this section into a given state, remove after testing.
-	tempData?: PaymentsResponse | "loading" | "error" | "empty";
-}) {
+export function PaymentHistory() {
 	const [page, setPage] = useState(1);
-	const {
-		data: liveData,
-		isLoading,
-		error,
-		mutate: reloadPayments,
-	} = usePayments(page);
+	const { data, isLoading, error, mutate: reloadPayments } = usePayments(page);
 
-	// TEMP: prefer forced state over live data, remove after testing.
-	const data =
-		typeof tempData === "object"
-			? tempData
-			: tempData === "empty"
-				? TEMP_EMPTY
-				: liveData;
-	const showError = tempData === "error" || (!tempData && error && !data);
-	const showLoading =
-		tempData === "loading" || (!tempData && isLoading && !data);
+	const showError = error && !data;
+	const showLoading = isLoading && !data;
 
 	const payments = data?.payments;
 	const hasPrev = page > 1;

@@ -1,14 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { BillingSkeleton } from "@/components/billing/billing-skeleton";
 import { PaymentHistory } from "@/components/billing/payment-history";
 import { SubscriptionPanel } from "@/components/billing/subscription-panel";
-// TEMP: forced-state toggles, remove after testing.
-import {
-	type TempBillingState,
-	TempBillingStates,
-} from "@/components/billing/temp-billing-states";
 import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { RestrictedState } from "@/components/shared/restricted-state";
 import { usePortalReturnSync, useSubscription } from "@/hooks/use-billing";
@@ -26,26 +20,11 @@ export default function BillingPage() {
 		mutate: reloadSubscription,
 	} = useSubscription();
 
-	// TEMP: forced-state overrides, remove after testing (grep "TEMP").
-	const [temp, setTemp] = useState<TempBillingState>({});
-	const canManageBilling = temp.role ? temp.role !== "member" : isOwnerAdmin;
-	const canManage = temp.role ? temp.role === "owner" : role === "owner";
-	const shownSubscription = temp.subscription ?? subscription;
-
 	// Only surface an error when its data is missing: a failed background
 	// revalidation keeps the rendered page instead of tearing it down.
-	const error =
-		temp.view === "error"
-			? new Error("Forced error state (temp)")
-			: !shownSubscription
-				? subError
-				: undefined;
+	const error = !subscription ? subError : undefined;
 
-	const loading =
-		temp.view === "skeleton" ||
-		!user ||
-		!orgId ||
-		(subLoading && !shownSubscription);
+	const loading = !user || !orgId || (subLoading && !subscription);
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -55,9 +34,7 @@ export default function BillingPage() {
 					Manage your subscription plan and payment history.
 				</p>
 			</div>
-			{/* TEMP: remove after testing. */}
-			<TempBillingStates value={temp} onChange={setTemp} />
-			{user && !canManageBilling ? (
+			{user && !isOwnerAdmin ? (
 				<RestrictedState
 					title="Billing is restricted"
 					description="Only organization owners and admins can manage billing."
@@ -69,13 +46,13 @@ export default function BillingPage() {
 				/>
 			) : loading ? (
 				<BillingSkeleton />
-			) : shownSubscription ? (
+			) : subscription ? (
 				<>
 					<SubscriptionPanel
-						subscription={shownSubscription}
-						canManage={canManage}
+						subscription={subscription}
+						canManage={role === "owner"}
 					/>
-					<PaymentHistory tempData={temp.payments} />
+					<PaymentHistory />
 				</>
 			) : null}
 		</div>
