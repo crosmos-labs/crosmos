@@ -33,6 +33,9 @@ export type CommonChart = {
   ready: boolean
   tooltipLeft: number // clamped px for the floating tooltip
   tooltipTop: number // px — follows the hovered node (cartesian) / cursor (polar)
+  /** Anchor sits too close to the top edge for the upward-lifted card —
+   * `<Tooltip>` renders below the anchor instead. Polar only. */
+  tooltipFlipped?: boolean
 }
 
 export const CommonChartContext = createContext<CommonChart | null>(null)

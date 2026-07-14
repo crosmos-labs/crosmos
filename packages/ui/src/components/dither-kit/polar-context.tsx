@@ -225,13 +225,18 @@ export function usePolarController({
   // so it needs its own stable identity independent of the parent value.
   const common: CommonChart = useMemo<CommonChart>(() => {
     const tooltipLeft = Math.max(48, Math.min(plotWidth + mLeft - 48, cursorX))
-    const tooltipTop = Math.max(mTop + 44, cursorY)
+    // Clamping the anchor down would park the card on top of the cursor on
+    // small charts (a 120px donut is mostly clamp band), so keep the anchor on
+    // the cursor and let <Tooltip> flip below it near the top edge instead.
+    const tooltipFlipped = cursorY < mTop + 44
+    const tooltipTop = cursorY
     const emphasis = selectedDataKey ?? focusDataKey
     if (chartType === "pie" && pie) {
       const names = pie.map((s) => s.name)
       return {
         names,
         tooltipTop,
+        tooltipFlipped,
         labelOf: (n) => config[n]?.label ?? n,
         seedOf,
         selectedDataKey,
@@ -261,6 +266,7 @@ export function usePolarController({
     return {
       names: configKeys,
       tooltipTop,
+      tooltipFlipped,
       labelOf: (n) => config[n]?.label ?? n,
       seedOf,
       selectedDataKey,
