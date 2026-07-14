@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
-import { getPlans, getSubscription } from "@/actions/billing";
+import { getPayments, getPlans, getSubscription } from "@/actions/billing";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import { useOrgRole } from "@/hooks/use-org-role";
 import { usageKey } from "@/hooks/use-usage";
-import type { PlanInfo, Subscription } from "@/lib/types/billing";
+import type {
+	PaymentsResponse,
+	PlanInfo,
+	Subscription,
+} from "@/lib/types/billing";
 
 export function plansKey(orgId: string): string {
 	return `/orgs/${orgId}/billing/plans`;
@@ -37,6 +41,20 @@ export function useSubscription() {
 		orgId && isOwnerAdmin ? subscriptionKey(orgId) : null,
 		() => getSubscription(),
 		{ revalidateIfStale: false, revalidateOnFocus: true },
+	);
+}
+
+export function paymentsKey(orgId: string, page: number): string {
+	return `/orgs/${orgId}/billing/payments?page=${page}`;
+}
+
+export function usePayments(page: number) {
+	const { orgId, isOwnerAdmin } = useOrgRole();
+
+	return useSWR<PaymentsResponse>(
+		orgId && isOwnerAdmin ? paymentsKey(orgId, page) : null,
+		() => getPayments(page),
+		{ revalidateOnFocus: false, keepPreviousData: true },
 	);
 }
 
