@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 
 import "@crosmos/ui/globals.css";
 import "./landing.css";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
@@ -169,6 +170,7 @@ export default function RootLayout({
 				</main>
 				<Footer />
 			</body>
+			<GoogleAnalytics gaId="G-EYY0FHL2G9" />
 		</html>
 	);
 }
