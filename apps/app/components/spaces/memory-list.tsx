@@ -26,9 +26,19 @@ import {
 } from "@crosmos/ui/components/pagination";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
-import { IconBrain, IconDotsVertical, IconTrash } from "@tabler/icons-react";
-import { formatDistanceToNow } from "date-fns";
-import { useCallback, useState } from "react";
+import {
+	IconBook,
+	IconBrain,
+	IconCalendarEvent,
+	IconDotsVertical,
+	IconEye,
+	IconHistory,
+	IconRepeat,
+	IconSparkles,
+	IconTrash,
+} from "@tabler/icons-react";
+import { formatDistanceToNow, formatDistanceToNowStrict } from "date-fns";
+import { type ComponentType, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { forgetMemory } from "@/actions/memories";
@@ -56,6 +66,16 @@ export const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
 	semantic: "Semantic",
 	episode: "Episode",
 	inference: "Inference",
+};
+
+export const MEMORY_TYPE_ICONS: Record<
+	MemoryType,
+	ComponentType<{ className?: string }>
+> = {
+	viewpoint: IconEye,
+	semantic: IconBook,
+	episode: IconCalendarEvent,
+	inference: IconSparkles,
 };
 
 export const MEMORY_TYPE_BADGE_VARIANT: Record<
@@ -189,6 +209,7 @@ export function MemoryList({
 			<ItemGroup>
 				{memories.map((memory) => {
 					const isExpanded = expandedIds.has(memory.id);
+					const TypeIcon = MEMORY_TYPE_ICONS[memory.memory_type];
 
 					return (
 						<Item key={memory.id} variant="outline" className="px-4 py-3.5">
@@ -197,8 +218,25 @@ export function MemoryList({
 									<Badge
 										variant={MEMORY_TYPE_BADGE_VARIANT[memory.memory_type]}
 									>
+										<TypeIcon />
 										{MEMORY_TYPE_LABELS[memory.memory_type]}
 									</Badge>
+									{/* last_accessed_at is non-null from birth, so gate on frequency */}
+									{memory.access_frequency > 0 && (
+										<>
+											<Badge variant="outline">
+												<IconRepeat />
+												Recalled {memory.access_frequency}×
+											</Badge>
+											<Badge variant="outline">
+												<IconHistory />
+												{formatDistanceToNowStrict(
+													new Date(memory.last_accessed_at),
+													{ addSuffix: true },
+												)}
+											</Badge>
+										</>
+									)}
 								</ItemTitle>
 								<ItemDescription>
 									<button
