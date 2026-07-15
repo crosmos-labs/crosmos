@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@crosmos/ui/components/button";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import Link from "next/link";
 import { UsageSkeleton } from "@/components/billing/billing-skeleton";
 import { UsageMeter } from "@/components/billing/usage-meter";
@@ -33,7 +34,7 @@ export default function UsagePage() {
 						{periodLabel ? ` (${periodLabel})` : ""}.
 					</p>
 				</div>
-				{usage && (
+				{usage ? (
 					<div className="flex flex-wrap items-center justify-end gap-2">
 						<span className={ratePillClasses}>
 							{usage.rate_limit_rpm} requests/min
@@ -51,7 +52,16 @@ export default function UsagePage() {
 							</span>
 						)}
 					</div>
-				)}
+				) : loading ? (
+					<div
+						aria-busy="true"
+						className="flex flex-wrap items-center justify-end gap-2"
+					>
+						<Skeleton className="h-5 w-28 rounded-full" />
+						<Skeleton className="h-5 w-28 rounded-full" />
+						<Skeleton className="h-7 w-24 rounded-lg" />
+					</div>
+				) : null}
 			</div>
 			{error && !usage ? (
 				<DataFetchError message={error.message} onRetry={() => reloadUsage()} />

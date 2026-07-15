@@ -43,7 +43,6 @@ export function UsageSkeleton() {
 				<UsageMeterSkeleton />
 				<UsageMeterSkeleton />
 			</div>
-			<Skeleton className="h-3 w-56" />
 			<span className="sr-only">Loading usage data…</span>
 		</div>
 	);
