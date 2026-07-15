@@ -7,8 +7,21 @@ import { openPortal } from "@/actions/billing";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { markPortalReturn } from "@/hooks/use-billing";
 import { toastBillingError } from "@/lib/billing-errors";
+import type { SubscriptionStatus } from "@/lib/types/billing";
 
-export function ManageSubscriptionButton() {
+// The portal is the only path for plan changes and resume until the backend
+// exposes them, so the label names the journey, not the destination.
+const PORTAL_LABELS: Partial<Record<SubscriptionStatus, string>> = {
+	active: "Change plan",
+	canceled: "Resume subscription",
+	past_due: "Update payment method",
+};
+
+export function ManageSubscriptionButton({
+	status,
+}: {
+	status: SubscriptionStatus;
+}) {
 	const { runAction, state } = useActionLoader();
 	// Stays true until the page unloads, so the button can't fire twice
 	// while the portal navigation is in flight.
@@ -45,7 +58,7 @@ export function ManageSubscriptionButton() {
 			disabled={busy}
 			onClick={onManage}
 		>
-			Update payment method
+			{PORTAL_LABELS[status] ?? "Manage subscription"}
 		</Button>
 	);
 }

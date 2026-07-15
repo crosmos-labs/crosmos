@@ -18,16 +18,15 @@ import {
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
-import { IconArrowUpRight } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { startCheckout } from "@/actions/billing";
 import { BillingEmailDialog } from "@/components/billing/billing-email-dialog";
+import { EnterpriseSalesButton } from "@/components/billing/enterprise-sales-button";
 import { PlanIcon } from "@/components/billing/plan-icon";
 import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { subscriptionKey, usePlans } from "@/hooks/use-billing";
-import { useCalApi } from "@/hooks/use-cal-api";
 import { useOrg } from "@/hooks/use-org";
 import { useOrgRole } from "@/hooks/use-org-role";
 import { toastBillingError } from "@/lib/billing-errors";
@@ -37,9 +36,6 @@ import {
 	type PlanInfo,
 	type PurchasablePlan,
 } from "@/lib/types/billing";
-
-const SALES_CAL_NAMESPACE = "30min";
-const SALES_CAL_LINK = "crosmos/30min";
 
 function limitLabel(n: number): string {
 	return n === -1 ? "Unlimited" : formatNumber(n);
@@ -61,8 +57,7 @@ export function UpgradePlanDialog({
 	onOpenChange: (open: boolean) => void;
 }) {
 	const { data: plans, isLoading, error, mutate: reloadPlans } = usePlans();
-	const { user, orgId } = useOrgRole();
-	const initCal = useCalApi(SALES_CAL_NAMESPACE);
+	const { orgId } = useOrgRole();
 	const { data: org } = useOrg(orgId);
 	const { mutate } = useSWRConfig();
 	const { runAction, state } = useActionLoader();
@@ -106,17 +101,6 @@ export function UpgradePlanDialog({
 	}
 
 	const hasComingSoon = plans?.some((p) => p.status === "coming_soon") ?? false;
-
-	const salesCalConfig = useMemo(
-		() =>
-			JSON.stringify({
-				layout: "month_view",
-				useSlotsViewOnSmallScreen: "true",
-				...(user?.name ? { name: user.name } : {}),
-				...(user?.email ? { email: user.email } : {}),
-			}),
-		[user?.name, user?.email],
-	);
 
 	return (
 		<>
@@ -180,20 +164,12 @@ export function UpgradePlanDialog({
 						</ItemGroup>
 					)}
 					{hasComingSoon && (
-						<Button
-							variant="ghost"
-							size="sm"
+						<EnterpriseSalesButton
 							className="justify-self-end"
-							data-cal-namespace={SALES_CAL_NAMESPACE}
-							data-cal-link={SALES_CAL_LINK}
-							data-cal-config={salesCalConfig}
-							onPointerEnter={initCal}
-							onFocus={initCal}
+							// Close first: this dialog's modal body lock would leave
+							// Cal's body-mounted modal inert (pointer-events: none).
 							onClick={() => onOpenChange(false)}
-						>
-							Talk to sales about Enterprise
-							<IconArrowUpRight data-icon="inline-end" />
-						</Button>
+						/>
 					)}
 				</DialogContent>
 			</Dialog>
