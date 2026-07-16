@@ -10,12 +10,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import {
-	IconCornerDownLeft,
-	IconShieldCheck,
-	IconUsersGroup,
-} from "@tabler/icons-react";
+import { IconShieldCheck, IconUsersGroup } from "@tabler/icons-react";
 
 export function ActivateRulesDialog({
 	open,
@@ -61,14 +56,9 @@ export function ActivateRulesDialog({
 					</div>
 				</div>
 				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">Cancel</AlertDialogCancel>
 					<AlertDialogAction onClick={onConfirm}>
-						Activate rules{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Activate rules
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

@@ -10,9 +10,7 @@ import {
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
 import { Input } from "@crosmos/ui/components/input";
-import { Kbd } from "@crosmos/ui/components/kbd";
 import { Label } from "@crosmos/ui/components/label";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
@@ -157,13 +155,10 @@ export function CreateGroupDialog({
 				</div>
 				<DialogFooter>
 					<Button variant="ghost" onClick={handleClose} disabled={actionBusy}>
-						Cancel <Kbd>Esc</Kbd>
+						Cancel
 					</Button>
 					<Button onClick={handleCreate} disabled={!canCreate}>
-						Create{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Create
 					</Button>
 				</DialogFooter>
 			</DialogContent>

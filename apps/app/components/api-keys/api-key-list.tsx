@@ -20,7 +20,6 @@ import {
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
-import { useHotkey } from "@crosmos/ui/hooks/use-hotkey";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconDotsVertical, IconKey } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
@@ -34,7 +33,6 @@ import {
 	useActionLoaderState,
 } from "@/components/providers/action-loader-provider";
 import { EmptyState } from "@/components/shared/empty-state";
-import { HotkeyKbd } from "@/components/shared/hotkey-kbd";
 import { optimisticInsert } from "@/lib/optimistic";
 import type { ApiKey, CreateApiKeyResponse } from "@/lib/types/api-key";
 
@@ -80,7 +78,6 @@ function KeyCountRow({
 			</span>
 			<Button onClick={onCreateClick} disabled={disabled}>
 				Create
-				<HotkeyKbd />
 			</Button>
 		</div>
 	);
@@ -236,11 +233,6 @@ export function ApiKeyList({
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
-
-	useHotkey("k", () => {
-		if (activeCount > 0) return;
-		setDialogOpen(true);
-	});
 
 	const activeKeys = useMemo(() => keys.filter((k) => k.is_active), [keys]);
 

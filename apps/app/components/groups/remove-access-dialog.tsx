@@ -10,8 +10,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 
 export function RemoveAccessDialog({
 	viewerName,
@@ -35,14 +33,9 @@ export function RemoveAccessDialog({
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">Cancel</AlertDialogCancel>
 					<AlertDialogAction variant="destructive" onClick={onConfirm}>
-						Remove{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Remove
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
