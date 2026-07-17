@@ -16,7 +16,7 @@ import {
 	MEMORY_TYPE_BADGE_VARIANT,
 	MEMORY_TYPE_ICONS,
 	MEMORY_TYPE_LABELS,
-} from "@/components/spaces/memory-list";
+} from "@/lib/memory-labels";
 import type { Memory } from "@/lib/types/memory";
 
 export function ForgetMemoryDialog({

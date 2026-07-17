@@ -24,7 +24,8 @@ import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { useSWRConfig } from "swr";
+import { preload, useSWRConfig } from "swr";
+import { listMemories } from "@/actions/memories";
 import { createSpace, deleteSpace } from "@/actions/spaces";
 import {
 	useActionLoader,
@@ -33,6 +34,7 @@ import {
 import { EmptyState } from "@/components/shared/empty-state";
 import { CreateSpaceDialog } from "@/components/spaces/create-space-dialog";
 import { DeleteSpaceDialog } from "@/components/spaces/delete-space-dialog";
+import { memoriesKey } from "@/hooks/use-memories";
 import { useUsage } from "@/hooks/use-usage";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { Space } from "@/lib/types/space";
@@ -113,6 +115,14 @@ export function SpaceList({
 	const { mutate } = useSWRConfig();
 	const { runAction } = useActionLoader();
 	const { activeCount } = useActionLoaderState();
+	const warmMemories = useCallback(
+		(spaceId: string) => {
+			void preload(memoriesKey(orgId, spaceId, 1), () =>
+				listMemories(spaceId),
+			).catch(() => {});
+		},
+		[orgId],
+	);
 
 	const handleCreateSpace = useCallback(
 		(name: string, description?: string) => {
@@ -217,49 +227,65 @@ export function SpaceList({
 							key={space.id}
 							variant="outline"
 							size="lg"
-							className={cn(isOptimistic && "opacity-50")}
+							className={cn(
+								"relative",
+								isOptimistic
+									? "opacity-50"
+									: "cursor-pointer has-[a:active]:bg-muted",
+							)}
 						>
+							{!isOptimistic && (
+								<Link
+									href={`/spaces/${space.id}`}
+									aria-label={`View memories in ${space.name}`}
+									onMouseEnter={() => warmMemories(space.id)}
+									onFocus={() => warmMemories(space.id)}
+									className="absolute inset-0 cursor-pointer rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-inset"
+								/>
+							)}
 							<ItemContent>
-								<Link href={`/spaces/${space.id}`}>
-									<ItemTitle className="text-base">{space.name}</ItemTitle>
-									<ItemDescription>
-										{space.description ?? "No description"}
-									</ItemDescription>
-								</Link>
+								<ItemTitle className="text-base">{space.name}</ItemTitle>
+								<ItemDescription>
+									{space.description ?? "Browse memories in this space."}
+								</ItemDescription>
 							</ItemContent>
 							<ItemActions>
-								<span className="text-sm text-muted-foreground whitespace-nowrap flex items-center gap-1.5">
-									{isOptimistic ? (
+								{isOptimistic ? (
+									<span className="flex items-center gap-1.5 whitespace-nowrap text-sm text-muted-foreground">
 										<AnimatedSpinner name="braille" size="1.1em" speed={0.8} />
-									) : (
-										formatDistanceToNow(new Date(space.created_at), {
-											addSuffix: true,
-										})
-									)}
-								</span>
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon-sm"
-											aria-label="Open space actions"
-											className="focus:ring-0 focus-visible:ring-0"
-										>
-											<IconDotsVertical />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent align="start">
-										<DropdownMenuGroup>
-											<DropdownMenuItem
-												variant="destructive"
-												onClick={() => setDeleteTarget(space)}
-												disabled={activeCount > 0}
-											>
-												Delete
-											</DropdownMenuItem>
-										</DropdownMenuGroup>
-									</DropdownMenuContent>
-								</DropdownMenu>
+									</span>
+								) : (
+									<>
+										<span className="hidden whitespace-nowrap text-sm text-muted-foreground md:inline">
+											{formatDistanceToNow(new Date(space.created_at), {
+												addSuffix: true,
+											})}
+										</span>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button
+													variant="ghost"
+													size="icon-sm"
+													aria-label="Open space actions"
+													className="relative z-10 focus:ring-0 focus-visible:ring-0"
+												>
+													<IconDotsVertical />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="start">
+												<DropdownMenuGroup>
+													<DropdownMenuItem
+														variant="destructive"
+														onClick={() => setDeleteTarget(space)}
+														disabled={activeCount > 0}
+													>
+														Delete
+													</DropdownMenuItem>
+												</DropdownMenuGroup>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</>
+								)}
 							</ItemActions>
 						</Item>
 					);

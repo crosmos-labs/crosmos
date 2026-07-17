@@ -25,20 +25,21 @@ import {
 	PaginationPrevious,
 } from "@crosmos/ui/components/pagination";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@crosmos/ui/components/tooltip";
 import { cn } from "@crosmos/ui/lib/utils";
 import {
-	IconBook,
 	IconBrain,
-	IconCalendarEvent,
 	IconDotsVertical,
-	IconEye,
 	IconHistory,
 	IconRepeat,
-	IconSparkles,
 	IconTrash,
 } from "@tabler/icons-react";
 import { formatDistanceToNow, formatDistanceToNowStrict } from "date-fns";
-import { type ComponentType, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { forgetMemory } from "@/actions/memories";
@@ -51,8 +52,15 @@ import { ForgetMemoryDialog } from "@/components/spaces/forget-memory-dialog";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import type { MemoriesResponse } from "@/hooks/use-memories";
 import { clearContentCaches } from "@/lib/content-cache";
+import { formatDateTime } from "@/lib/format";
+import {
+	MEMORY_TYPE_BADGE_VARIANT,
+	MEMORY_TYPE_DESCRIPTIONS,
+	MEMORY_TYPE_ICONS,
+	MEMORY_TYPE_LABELS,
+} from "@/lib/memory-labels";
 import { listIn, optimisticRemove } from "@/lib/optimistic";
-import type { Memory, MemoryType } from "@/lib/types/memory";
+import type { Memory } from "@/lib/types/memory";
 import { unwrapAction } from "@/lib/unwrap-action";
 
 const EMPTY_MEMORIES: MemoriesResponse = { memories: [], hasMore: false };
@@ -61,40 +69,15 @@ const memoriesList = listIn<MemoriesResponse, Memory>(
 	(cache, memories) => ({ ...(cache ?? EMPTY_MEMORIES), memories }),
 );
 
-export const MEMORY_TYPE_LABELS: Record<MemoryType, string> = {
-	viewpoint: "Viewpoint",
-	semantic: "Semantic",
-	episode: "Episode",
-	inference: "Inference",
-};
-
-export const MEMORY_TYPE_ICONS: Record<
-	MemoryType,
-	ComponentType<{ className?: string }>
-> = {
-	viewpoint: IconEye,
-	semantic: IconBook,
-	episode: IconCalendarEvent,
-	inference: IconSparkles,
-};
-
-export const MEMORY_TYPE_BADGE_VARIANT: Record<
-	MemoryType,
-	"secondary" | "outline" | "ghost"
-> = {
-	viewpoint: "secondary",
-	semantic: "secondary",
-	episode: "secondary",
-	inference: "outline",
-};
-
 interface MemoryListProps {
 	memories: Memory[];
 	spaceUuid: string;
 	page: number;
 	hasMore: boolean;
+	hasFilters: boolean;
 	swrKey: string;
 	onPageChange: (page: number) => void;
+	onClearFilters: () => void;
 }
 
 function SkeletonMemoryRow() {
@@ -116,6 +99,17 @@ function SkeletonMemoryRow() {
 	);
 }
 
+export function MemoryListSkeleton() {
+	return (
+		<ItemGroup aria-busy="true">
+			{["a", "b", "c", "d", "e"].map((k) => (
+				<SkeletonMemoryRow key={k} />
+			))}
+			<span className="sr-only">Loading memories…</span>
+		</ItemGroup>
+	);
+}
+
 export function SpaceDetailSkeleton() {
 	return (
 		<div aria-busy="true" className="flex flex-col gap-6">
@@ -124,14 +118,12 @@ export function SpaceDetailSkeleton() {
 				<Skeleton className="h-4 w-56" />
 			</div>
 			<div className="flex flex-col gap-4">
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col gap-1">
 					<Skeleton className="h-5 w-20" />
+					<Skeleton className="h-4 w-80 max-w-full" />
 				</div>
-				<ItemGroup>
-					{["a", "b", "c", "d", "e"].map((k) => (
-						<SkeletonMemoryRow key={k} />
-					))}
-				</ItemGroup>
+				<Skeleton className="h-8 w-64 max-w-full" />
+				<MemoryListSkeleton />
 			</div>
 			<span className="sr-only">Loading space details…</span>
 		</div>
@@ -143,8 +135,10 @@ export function MemoryList({
 	spaceUuid,
 	page,
 	hasMore,
+	hasFilters,
 	swrKey,
 	onPageChange,
+	onClearFilters,
 }: MemoryListProps) {
 	const [forgetTarget, setForgetTarget] = useState<Memory | null>(null);
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -193,6 +187,19 @@ export function MemoryList({
 	}, []);
 
 	if (memories.length === 0 && page === 1) {
+		if (hasFilters) {
+			return (
+				<EmptyState
+					icon={IconBrain}
+					title="No matching memories"
+					description="No memories match the current filters. Try adjusting your selection."
+				>
+					<Button variant="outline" size="sm" onClick={onClearFilters}>
+						Clear filters
+					</Button>
+				</EmptyState>
+			);
+		}
 		return (
 			<EmptyState
 				icon={IconBrain}
@@ -215,26 +222,57 @@ export function MemoryList({
 						<Item key={memory.id} variant="outline" className="px-4 py-3.5">
 							<ItemContent>
 								<ItemTitle className="flex items-center gap-2 text-base">
-									<Badge
-										variant={MEMORY_TYPE_BADGE_VARIANT[memory.memory_type]}
-									>
-										<TypeIcon />
-										{MEMORY_TYPE_LABELS[memory.memory_type]}
-									</Badge>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<Badge
+												tabIndex={0}
+												variant={MEMORY_TYPE_BADGE_VARIANT[memory.memory_type]}
+											>
+												<TypeIcon />
+												{MEMORY_TYPE_LABELS[memory.memory_type]}
+											</Badge>
+										</TooltipTrigger>
+										<TooltipContent>
+											{MEMORY_TYPE_DESCRIPTIONS[memory.memory_type]}
+										</TooltipContent>
+									</Tooltip>
 									{/* last_accessed_at is non-null from birth, so gate on frequency */}
 									{memory.access_frequency > 0 && (
 										<>
-											<Badge variant="outline">
-												<IconRepeat />
-												Recalled {memory.access_frequency}×
-											</Badge>
-											<Badge variant="outline">
-												<IconHistory />
-												{formatDistanceToNowStrict(
-													new Date(memory.last_accessed_at),
-													{ addSuffix: true },
-												)}
-											</Badge>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<Badge tabIndex={0} variant="outline">
+														<IconRepeat />
+														Recalled {memory.access_frequency}×
+													</Badge>
+												</TooltipTrigger>
+												<TooltipContent>
+													This memory has been retrieved{" "}
+													{memory.access_frequency.toLocaleString()} times.
+												</TooltipContent>
+											</Tooltip>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<Badge
+														tabIndex={0}
+														variant="outline"
+														aria-label={`Last recalled ${formatDistanceToNowStrict(
+															new Date(memory.last_accessed_at),
+															{ addSuffix: true },
+														)}`}
+													>
+														<IconHistory />
+														{formatDistanceToNowStrict(
+															new Date(memory.last_accessed_at),
+															{ addSuffix: true },
+														)}
+													</Badge>
+												</TooltipTrigger>
+												<TooltipContent>
+													Last recalled on{" "}
+													{formatDateTime(memory.last_accessed_at)}.
+												</TooltipContent>
+											</Tooltip>
 										</>
 									)}
 								</ItemTitle>

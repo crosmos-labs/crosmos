@@ -1,5 +1,7 @@
 export type MemoryType = "viewpoint" | "semantic" | "episode" | "inference";
 
+export type RecallSort = "most" | "least";
+
 export interface Memory {
 	id: string;
 	space_id: string;
