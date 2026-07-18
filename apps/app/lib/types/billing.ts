@@ -38,7 +38,7 @@ export interface PortalResponse {
 }
 
 export interface CancelResponse {
-	cancel_at_period_end: boolean;
+	cancel_at_period_end: true;
 	subscription_status: SubscriptionStatus;
 }
 
@@ -69,7 +69,7 @@ export interface Payment {
 	invoice_number: string | null;
 	invoice_available: boolean;
 	product_name: string | null;
-	plan: string | null;
+	plan: Plan | null;
 }
 
 export interface PaymentsResponse {

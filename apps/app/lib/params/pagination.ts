@@ -25,7 +25,6 @@ export const MEMORY_TYPE_VALUES: MemoryType[] = [
 	"viewpoint",
 	"semantic",
 	"episode",
-	"inference",
 ];
 
 export const RECALL_SORT_VALUES: RecallSort[] = ["most", "least"];

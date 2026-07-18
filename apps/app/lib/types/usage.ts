@@ -1,3 +1,5 @@
+import type { Plan } from "@/lib/types/billing";
+
 export interface UsageMetric {
 	used: number;
 	limit: number;
@@ -5,7 +7,7 @@ export interface UsageMetric {
 }
 
 export interface Usage {
-	plan: string;
+	plan: Plan;
 	period_start: string;
 	period_end: string;
 	tokens: UsageMetric;

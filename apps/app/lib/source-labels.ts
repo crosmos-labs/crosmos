@@ -41,12 +41,12 @@ export const CONTENT_TYPE_ICONS: Record<ContentTypeStr, typeof IconFileText> = {
 	json: IconBraces,
 };
 
-export function contentTypeIcon(type: ContentTypeStr): typeof IconFileText {
-	return CONTENT_TYPE_ICONS[type] ?? IconFileText;
+export function contentTypeIcon(type: string): typeof IconFileText {
+	return CONTENT_TYPE_ICONS[type as ContentTypeStr] ?? IconFileText;
 }
 
-export function contentTypeLabel(type: ContentTypeStr): string {
-	return CONTENT_TYPE_LABELS[type] ?? capitalize(type);
+export function contentTypeLabel(type: string): string {
+	return CONTENT_TYPE_LABELS[type as ContentTypeStr] ?? capitalize(type);
 }
 
 export const EXTRACTION_STATUS_LABELS: Record<ExtractionStatus, string> = {

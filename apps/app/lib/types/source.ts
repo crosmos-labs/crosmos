@@ -18,7 +18,7 @@ export type ExtractionStatus =
 export interface SourceSummary {
 	id: string;
 	space_id: string;
-	content_type: ContentTypeStr;
+	content_type: string;
 	extraction_status: ExtractionStatus;
 	meta: Record<string, unknown> | null;
 	token_count: number;

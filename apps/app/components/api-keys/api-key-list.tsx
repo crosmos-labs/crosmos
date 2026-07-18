@@ -280,6 +280,7 @@ export function ApiKeyList({
 					: null,
 				last_used_at: null,
 				created_at: now,
+				space_id: null,
 			};
 			runAction(
 				() =>
