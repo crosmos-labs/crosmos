@@ -24,11 +24,13 @@ export default function SpaceDetailPage({
 }) {
 	const { spaceId } = use(params);
 	const orgId = useActiveOrgId();
+
 	const {
 		data: spaces,
 		isLoading: spacesLoading,
 		error: spacesError,
 	} = useSpaces();
+
 	const [queryParams, setQueryParams] = useQueryStates(
 		memoryPaginationParsers,
 		{
@@ -41,6 +43,7 @@ export default function SpaceDetailPage({
 		recall_sort: queryParams.recall_sort,
 	};
 	const space = spaces?.find((s) => s.id === spaceId);
+
 	const {
 		data: memoriesData,
 		isLoading: memoriesLoading,
@@ -48,7 +51,9 @@ export default function SpaceDetailPage({
 	} = useMemories(space ? spaceId : "", page, filters);
 
 	const { setBreadcrumb } = useBreadcrumb();
+
 	const { mutate } = useSWRConfig();
+
 	const spacesSwrKey = orgId ? spacesKey(orgId) : null;
 	const memoriesSwrKey = orgId
 		? memoriesKey(orgId, spaceId, page, filters)
