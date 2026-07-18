@@ -10,12 +10,12 @@ export interface SearchCandidate {
 	score: number;
 	source?: string | null;
 	created_at: string;
+	owner_name: string | null;
 }
 
 interface SearchResponse {
 	query: string;
 	candidates: SearchCandidate[];
-	total: number;
 }
 
 interface IngestResponse {

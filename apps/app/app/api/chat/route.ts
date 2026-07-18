@@ -161,6 +161,7 @@ export async function POST(req: Request) {
 								content: c.content.slice(0, MAX_CONTENT_CHARS),
 								type: c.memory_type,
 								score: Number(c.score.toFixed(3)),
+								owner: c.owner_name,
 							})),
 						};
 					} catch (err) {

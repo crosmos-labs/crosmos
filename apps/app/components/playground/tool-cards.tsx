@@ -1,5 +1,10 @@
 "use client";
 
+import {
+	HoverCard,
+	HoverCardContent,
+	HoverCardTrigger,
+} from "@crosmos/ui/components/hover-card";
 import { ShimmeringText } from "@crosmos/ui/components/shimmering-text";
 import {
 	IconBrain,
@@ -7,7 +12,13 @@ import {
 	IconChevronDown,
 	IconX,
 } from "@tabler/icons-react";
+import { formatDistanceToNow } from "date-fns";
 import { Accordion as AccordionPrimitive } from "radix-ui";
+import { MemberAvatar } from "@/components/members/member-avatar";
+import { useActiveOrgId } from "@/hooks/use-active-org-id";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useMembers } from "@/hooks/use-members";
+import type { MemberResponse } from "@/lib/types/org";
 
 type ToolState =
 	| "input-streaming"
@@ -20,7 +31,13 @@ type ToolState =
 
 interface SearchOutput {
 	count?: number;
-	results?: Array<{ id: string; content: string; type: string; score: number }>;
+	results?: Array<{
+		id: string;
+		content: string;
+		type: string;
+		score: number;
+		owner?: string | null;
+	}>;
 	error?: string;
 	retryable?: boolean;
 }
@@ -34,6 +51,21 @@ interface MemorySearchCardProps {
 }
 
 export function MemorySearchCard({ part }: MemorySearchCardProps) {
+	const out = part.output as SearchOutput | undefined;
+	const results = out?.results ?? [];
+
+	// The owner icon marks memories from someone else (surfaced via org
+	// visibility). Rows resolve only once the viewer's name is known, so own
+	// rows never flash an avatar; members back the hover card and are fetched
+	// only when a foreign owner is actually visible.
+	const { data: user } = useCurrentUser();
+	const orgId = useActiveOrgId();
+	const selfName = user?.name;
+	const hasForeignOwner =
+		selfName !== undefined &&
+		results.some((r) => r.owner != null && r.owner !== selfName);
+	const { data: members } = useMembers(hasForeignOwner ? orgId : null);
+
 	const isPending =
 		part.state === "input-streaming" || part.state === "input-available";
 
@@ -51,8 +83,6 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 		return <ToolStatusLine icon="error">Memory search failed</ToolStatusLine>;
 	}
 
-	const out = part.output as SearchOutput | undefined;
-
 	if (out?.error) {
 		return (
 			<ToolStatusLine icon="error">
@@ -63,8 +93,14 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 		);
 	}
 
-	const results = (out?.results ?? []).slice(0, 5);
 	const count = results.length;
+
+	const membersByName = new Map<string, MemberResponse[]>();
+	for (const m of members ?? []) {
+		const list = membersByName.get(m.name);
+		if (list) list.push(m);
+		else membersByName.set(m.name, [m]);
+	}
 
 	if (count === 0) {
 		return (
@@ -102,18 +138,81 @@ export function MemorySearchCard({ part }: MemorySearchCardProps) {
 
 				<AccordionPrimitive.Content className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
 					<div className="mt-2 space-y-2 rounded-lg bg-muted/40 px-3 py-2.5">
-						{results.map((result) => (
-							<p
-								key={result.id}
-								className="line-clamp-2 text-xs text-muted-foreground"
-							>
-								{result.content}
-							</p>
-						))}
+						{results.map((result) => {
+							const owner =
+								selfName !== undefined &&
+								result.owner != null &&
+								result.owner !== selfName
+									? result.owner
+									: null;
+							// Exactly one member with this name → rich hover card;
+							// on a collision or no match, degrade to name-only.
+							const matches = owner ? (membersByName.get(owner) ?? []) : [];
+							return (
+								<div key={result.id} className="flex items-start gap-2">
+									{owner && (
+										<MemoryOwner
+											name={owner}
+											member={
+												matches.length === 1 ? (matches[0] ?? null) : null
+											}
+										/>
+									)}
+									<p className="line-clamp-2 min-w-0 flex-1 text-xs text-muted-foreground">
+										{result.content}
+									</p>
+								</div>
+							);
+						})}
 					</div>
 				</AccordionPrimitive.Content>
 			</AccordionPrimitive.Item>
 		</AccordionPrimitive.Root>
+	);
+}
+
+/** Initials avatar for a teammate's memory, with a hover card. `member` is the
+ * unambiguous org-member match (null → show the name only, never guess). */
+function MemoryOwner({
+	name,
+	member,
+}: {
+	name: string;
+	member: MemberResponse | null;
+}) {
+	return (
+		<HoverCard openDelay={200}>
+			<HoverCardTrigger asChild>
+				<button
+					type="button"
+					aria-label={`Memory from ${name}`}
+					className="shrink-0 cursor-default rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring"
+				>
+					<MemberAvatar name={name} email={member?.email ?? ""} size="sm" />
+				</button>
+			</HoverCardTrigger>
+			<HoverCardContent align="start" side="top" className="w-auto max-w-64">
+				<div className="flex items-center gap-2.5">
+					<MemberAvatar name={name} email={member?.email ?? ""} />
+					<div className="min-w-0">
+						<p className="truncate font-medium">{name}</p>
+						{member && (
+							<p className="truncate text-xs text-muted-foreground">
+								{member.email}
+							</p>
+						)}
+					</div>
+				</div>
+				{member && (
+					<p className="mt-2 text-xs text-muted-foreground">
+						<span className="capitalize">{member.role}</span> · Joined{" "}
+						{formatDistanceToNow(new Date(member.joined_at), {
+							addSuffix: true,
+						})}
+					</p>
+				)}
+			</HoverCardContent>
+		</HoverCard>
 	);
 }
 
