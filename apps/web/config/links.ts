@@ -18,6 +18,8 @@ export const LINKS = {
 		mcp: "https://docs.crosmos.dev/mcp/overview",
 	},
 	company: {
+		blogs: "/blogs",
+		research: "/research",
 		terms: "/terms",
 		privacy: "/privacy",
 	},

@@ -25,6 +25,8 @@ const FOOTER_DATA = {
 	company: {
 		title: "Company",
 		links: [
+			{ label: "Blogs", href: LINKS.company.blogs },
+			{ label: "Research", href: LINKS.company.research },
 			{ label: "Terms of Service", href: LINKS.company.terms },
 			{ label: "Privacy Policy", href: LINKS.company.privacy },
 		],
