@@ -40,7 +40,7 @@ export function BlogCard({
 	return (
 		<div
 			className={cn(
-				"group relative flex w-full flex-col overflow-hidden border border-foreground/10 hover:border-foreground/30 transition-all duration-300",
+				"group relative flex w-full flex-col overflow-hidden border border-foreground/20 hover:border-foreground/40 transition-all duration-300",
 				className,
 			)}
 		>
@@ -52,7 +52,7 @@ export function BlogCard({
 						width={thumbnailWidth}
 						height={thumbnailHeight}
 						sizes="(min-width: 1024px) 420px, (min-width: 640px) 50vw, 100vw"
-						className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
+						className="h-auto w-full transition-transform duration-300 group-hover:scale-105"
 					/>
 				</div>
 				<div className="flex flex-col shrink-0 px-4 pt-4 pb-0">
