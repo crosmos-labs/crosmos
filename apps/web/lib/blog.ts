@@ -15,6 +15,15 @@ export type Author = {
 };
 
 export const AUTHORS: Record<string, Author> = {
+	aditya: {
+		name: "Aditya",
+		avatar: "/blogs/aditya.jpg",
+		role: "Building Crosmos",
+		socials: {
+			linkedin: "https://www.linkedin.com/in/ryadi/",
+			x: "https://x.com/ryadi_os",
+		},
+	},
 	rachit: {
 		name: "Rachit Srivastava",
 		avatar: "/blogs/rachit.jpg",

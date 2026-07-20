@@ -1,0 +1,87 @@
+---
+title: "Claude code, but it remembers"
+description: "Yesterday we were halfway through revamping our sources page when we closed the terminal and called it a day. This morning we opened a brand new Claude Code session and asked one question: what was I doing yesterday?"
+slug: "claude-code-but-it-remembers"
+author: "aditya"
+readTime: 5
+thumbnail: "/blogs/claude-code-but-it-remembers.jpg"
+publishedAt: "2026-07-12"
+tweetUrl: "https://x.com/ryadi_os/status/2076303838626415086"
+imageWidth: 2000
+imageHeight: 800
+---
+
+Yesterday we were halfway through revamping our sources page when we closed the terminal and called it a day. This morning we opened a brand new Claude Code session and asked one question: what was I doing yesterday?
+
+It answered. The branch the half-finished revamp lives on, the auth fix still sitting uncommitted in the working tree, and the two small audit items we flagged and deliberately left alone.
+
+![Claude Code recalling work from the previous session](/blogs/claude-code-session-recall.jpg)
+
+Nothing was pasted in. No CLAUDE.md was touched. The session was minutes old and it already knew where we left off.
+
+## What this is
+
+Claude Code starts every session with amnesia. It writes great code with you for three hours, you close the laptop, and tomorrow it has no idea who you are. Everyone patches around this the same way: a giant CLAUDE.md, notes pasted into the first prompt, a little summary ritual at the end of the day.
+
+We make crosmos, a memory layer for AI apps, so we built the fix as a plugin. Two commands:
+
+**/plugin marketplace add crosmos-labs/claudecode-crosmos**
+
+**/plugin install crosmos**
+
+Add your crosmos key once and forget about it. Everything below happens on its own. If you get stuck anywhere, the [setup guide](https://docs.crosmos.dev/plugins/claude-code) covers authentication, configuration and troubleshooting.
+
+![Crosmos setup in Claude Code](/blogs/claude-code-session-hook.jpg)
+
+## When a session starts
+
+Claude Code has a hook system. A hook is just a script that runs at a specific moment, and the plugin registers one for session start.
+
+Before you type your first prompt, that script does three things.
+
+It looks at where you are. Your project folder, your current git branch, your last three commit messages. From those it builds a search query. If you are on a branch called feat/connectors and your recent commits mention an install dialog and a catalog, the query is about the connectors page, not about everything you have ever done.
+
+It runs that query against your memory. The search weighs recency, so last week's decision beats last month's, and it deliberately picks varied results instead of six copies of the same fact. It is also deterministic. The same query returns the same results every time, and there is no language model sitting in the middle rewriting your query, so recall adds no extra cost and no waiting around.
+
+Then it hands Claude the top results. At most six memories, hard capped around 3,500 characters. That cap is not an accident. The context window is where Claude does its thinking, and a memory feature that floods it makes the model dumber, not smarter. Recall costs you roughly a thousand tokens, worst case, every time.
+
+## While you work
+
+The second hook runs each time Claude finishes a response. It reads the session transcript, takes only the lines that are new since the last save, and ships them to your memory.
+
+A few details in there that we care about:
+
+- The plugin keeps a small line counter per session, so nothing is saved twice and nothing is missed.
+- Tiny turns get skipped. "yes", "run it" and "lgtm" are not memories.
+- Secrets are scrubbed before anything leaves your machine. API keys, bearer tokens, private key blocks, password assignments. The redaction runs locally, before the network call, not on a server somewhere.
+- Every conversation is tagged with the project, repo and branch it came from. That tagging is what makes next morning's recall precise instead of vaguely familiar.
+
+From there crosmos does what it does for every app built on it: distill raw conversation into durable facts. What comes back later is "tasks are storage-backed now, not code-seeded, that convention changed on purpose", not a wall of chat log.
+
+## Claude digs on its own
+
+Recall at session start covers the common case. Two skills cover the rest.
+
+Say "style this dialog the way we usually do" and Claude notices it needs your history, searches memory, and finds the rule we actually stored there: honor the existing design system first, tokens and theme files before hand-rolled styles. You never ask it to search. The skill teaches it when a lookup is worth it, and generic questions never trigger one.
+
+![Claude Code searching Crosmos memory](/blogs/claude-code-memory-search.jpg)
+
+The reverse also happens without you. When a conversation produces something worth keeping, like "graph scaling comes before new features from now on", Claude saves it as a typed note: a decision, a preference, a convention, or a correction of something it had wrong before. And when you want to be explicit, **/crosmos-save** pins anything forever.
+
+## The parts we sweated
+
+A memory layer is only acceptable if it can never get in your way, so the plugin is built to lose gracefully.
+
+If crosmos is down, your key is missing, or the network is off, the hooks exit quietly and Claude Code behaves like the plugin does not exist. Every operation has a ten second ceiling. A memory outage cannot block a coding session, full stop.
+
+Your API key lives in ~/.crosmos/credentials.json or an env var. It is read locally and sent only to the crosmos API. It never appears inside a conversation.
+
+The whole plugin is one bundled file that runs on plain Node. No node_modules download, no postinstall scripts, nothing to compile. If something looks off, **/crosmos:status** tells you whether your key works and which memory space you are connected to. And the source is small enough to read in an afternoon.
+
+One more, because people ask: uninstalling removes the plugin, not your memory. Everything you saved stays in crosmos, and the other [agent plugins](https://docs.crosmos.dev/) can pick it right up.
+
+## The 60 second test
+
+Don't take the screenshot at the top on faith. Install it, do one real session, close the terminal. Tomorrow, open a new one and ask what you were doing yesterday.
+
+If the answer doesn't feel a little like cheating, tell us what broke. We will fix it.
