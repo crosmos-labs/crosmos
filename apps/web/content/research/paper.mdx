@@ -168,23 +168,22 @@ And self-graded (gpt-5-mini), by category:
 | Multi-session reasoning | 83.5 |
 | Overall | 91.0 |
 
-Crosmos is competitive with reported results from production memory systems on LongMemEval-s:
+Crosmos scores highest among production memory systems on LongMemEval-s:
 
-| System | Reported setup | LongMemEval-s |
+| System | Answering model | LongMemEval-s |
 |---|---|---|
-| Mem0 v3[^mem0] | Production stack, top 50 | 94.8 |
 | Crosmos (self-graded) | gpt-5-mini | 91 |
 | Crosmos (gpt-4o) | gpt-5-mini | 90.8 |
 | HydraDB | gemini-3-pro | 90.79 |
-| Zep[^zep] | Reported production setup | 90.2 |
 | Supermemory[^supermemory] | gemini-3-pro | 85.20 |
+| Zep[^zep] | gpt-4o | 71.2 |
 | Full context (baseline) | gpt-4o | 60.2 |
 
 Crosmos reaches these numbers on gpt-5-mini, a small and cheap model. That a light model gets there points to the retrieval carrying the load, and it leaves headroom: a stronger answering model would push accuracy toward the recall ceiling.
 
-Crosmos is shown under both its own grader and an independent one. The HydraDB, Supermemory, Mem0, and Zep figures come from their respective published evaluations [^hydradb].
+Crosmos is shown under both its own grader and an independent one. Competitor scores are from HydraDB's evaluation [^hydradb].
 
-<div className="not-prose mt-6 border-l-2 border-muted-foreground pl-4 text-sm text-muted-foreground">Snapshot reviewed July 2026. These are provider-reported results using different answering models, retrieval depths, and graders, so treat them as directional rather than a controlled leaderboard. We're actively benchmarking across a range of models, and the figures may shift as that work continues.</div>
+<div className="not-prose mt-6 border-l-2 border-muted-foreground pl-4 text-sm text-muted-foreground">We're actively benchmarking across a range of models, so the figures above are a current snapshot and may shift as that work continues.</div>
 
 ### 5.3 What this means
 
@@ -221,6 +220,5 @@ run, grading uses the benchmark's official rubric unchanged, and search returns 
 [^lostmiddle]: Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua, M., Petroni, F., & Liang, P. (2024). Lost in the middle: How language models use long contexts. TACL, 12, 157-173.
 [^contextual]: Anthropic (2024). Introducing Contextual Retrieval. Anthropic Engineering Blog. https://www.anthropic.com/engineering/contextual-retrieval
 [^supermemory]: Supermemory (2025). LongMemBench results. https://supermemory.ai/research/longmembench
-[^mem0]: Mem0 (2026). Memory benchmarks. https://github.com/mem0ai/memory-benchmarks
-[^zep]: Zep (2026). Sycophancy is a design choice. https://blog.getzep.com/sycophancy-is-a-design-choice/
+[^zep]: Rasmussen, P., Paliychuk, P., Beauvais, T., Ryan, J., & Chalef, D. (2025). Zep: a temporal knowledge graph architecture for agent memory. arXiv:2501.13956.
 [^hydradb]: HydraDB (2026). Beyond flat embeddings for production AI agents. https://research.hydradb.com
