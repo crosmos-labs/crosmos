@@ -8,6 +8,7 @@ import { HowItWorks } from "@/components/how-it-works";
 import { Mtkg } from "@/components/mtkg";
 import { Pricing } from "@/components/pricing";
 import { Problem } from "@/components/problem";
+import { ResearchBanner } from "@/components/research-banner";
 import { BlockTransition } from "@/components/ui/block-transition";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function Home() {
 	return (
 		<>
 			<Hero />
+			<ResearchBanner />
 			<Problem />
 			<Features />
 			<Mtkg />

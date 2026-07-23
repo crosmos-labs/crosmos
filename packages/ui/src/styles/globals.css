@@ -320,7 +320,8 @@
 	transition: transform 0.3s ease;
 }
 
-.link-underline:hover::after {
+.link-underline:hover::after,
+.link-underline-trigger:is(:hover, :focus-visible) .link-underline::after {
 	transform-origin: bottom left;
 	transform: scaleX(1);
 }
