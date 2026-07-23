@@ -99,7 +99,7 @@ export function Navbar() {
 					>
 						Schedule Call
 					</button>
-					<Button asChild className="rounded px-6">
+					<Button asChild className="h-auto rounded px-6 py-2 font-semibold">
 						<Link
 							href={LINKS.product.console}
 							target="_blank"
