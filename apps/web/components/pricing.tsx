@@ -13,8 +13,6 @@ type PLAN = {
 	title: string;
 	desc: string;
 	monthlyPrice: number;
-	annuallyPrice: number;
-	badge?: string;
 	buttonText: string;
 	features: string[];
 	link?: string;
@@ -26,12 +24,11 @@ export const PLANS: PLAN[] = [
 		title: "Basic",
 		desc: "Perfect for people to get started with having a mini memory in your apps",
 		monthlyPrice: 0,
-		annuallyPrice: 0,
-		buttonText: "Get Started",
+		buttonText: "Start free",
 		features: [
 			"500K tokens/month",
 			"5K queries/month",
-			"3 memory spaces",
+			"Unlimited memory spaces",
 			"MCP server integration",
 			"Community email support",
 		],
@@ -42,43 +39,39 @@ export const PLANS: PLAN[] = [
 		title: "Developer",
 		desc: "For growing teams that need more power and flexibility.",
 		monthlyPrice: 19,
-		annuallyPrice: 228,
-		badge: "Most Popular",
-		buttonText: "Upgrade to Developer",
+		buttonText: "Create account",
 		features: [
 			"3M tokens/month",
 			"30K queries/month",
-			"7 memory spaces",
+			"Unlimited memory spaces",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Priority email support",
 		],
-		link: `${LINKS.product.console}/billing`,
+		link: LINKS.product.console,
 	},
 	{
 		id: "pro",
 		title: "Pro",
-		desc: "For teams that need unlimited scale, advanced observability, and dedicated support.",
+		desc: "For production teams that need higher limits, advanced observability, and dedicated support.",
 		monthlyPrice: 299,
-		annuallyPrice: 3588,
-		buttonText: "Upgrade to Pro",
+		buttonText: "Create account",
 		features: [
 			"40M tokens/month",
 			"200K queries/month",
-			"50 memory spaces",
+			"Unlimited memory spaces",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Dedicated support channel",
 			"Full observability & tracing",
 		],
-		link: `${LINKS.product.console}/billing`,
+		link: LINKS.product.console,
 	},
 	{
 		id: "enterprise",
 		title: "Enterprise",
 		desc: "For large organizations requiring advanced security and control.",
 		monthlyPrice: -1,
-		annuallyPrice: -1,
 		buttonText: "Contact Sales",
 		features: [
 			"Unlimited tokens",
@@ -145,10 +138,7 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 					{plan.monthlyPrice === -1 ? (
 						"Custom"
 					) : (
-						<>
-							{plan.monthlyPrice > 0 && <span>*</span>}
-							<span>${plan.monthlyPrice}/mo</span>
-						</>
+						<span>${plan.monthlyPrice}/mo</span>
 					)}
 				</p>
 				<p
@@ -235,9 +225,6 @@ export function Pricing() {
 						<PlanCard key={plan.id} plan={plan} />
 					))}
 				</div>
-				<p className="text-sm text-muted-foreground mt-4 text-right w-full">
-					* Prices are not final and may change upon official release.
-				</p>
 			</div>
 		</section>
 	);

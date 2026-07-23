@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@crosmos/ui/components/button";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconBrandGithubFilled } from "@tabler/icons-react";
 import Image from "next/image";
@@ -98,14 +99,15 @@ export function Navbar() {
 					>
 						Schedule Call
 					</button>
-					<Link
-						href={LINKS.product.console}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="hover:bg-primary/90 bg-primary px-6 py-2 rounded font-semibold text-sm transition-colors text-primary-foreground select-none"
-					>
-						Get Started
-					</Link>
+					<Button asChild className="rounded px-6">
+						<Link
+							href={LINKS.product.console}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Start free
+						</Link>
+					</Button>
 				</div>
 				<MobileNavButton
 					isOpen={isMobileMenuOpen}

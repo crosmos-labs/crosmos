@@ -31,6 +31,7 @@ const FOOTER_DATA = {
 		links: [
 			{ label: "Terms of Service", href: LINKS.company.terms },
 			{ label: "Privacy Policy", href: LINKS.company.privacy },
+			{ label: "Uptime", href: LINKS.company.uptime },
 		],
 	},
 	social: {

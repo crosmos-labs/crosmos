@@ -22,5 +22,6 @@ export const LINKS = {
 		research: "/research",
 		terms: "/terms",
 		privacy: "/privacy",
+		uptime: "https://uptime.crosmos.dev",
 	},
 } as const;
