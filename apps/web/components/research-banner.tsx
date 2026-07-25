@@ -35,7 +35,7 @@ export function ResearchBanner() {
 						</div>
 						<div className="p-8 sm:p-10 lg:p-12">
 							<p className="font-bold text-5xl tracking-tight tabular-nums sm:text-6xl lg:text-7xl">
-								90.8%
+								91%
 							</p>
 							<p className="mt-2 font-mono text-xs font-bold uppercase tracking-wide text-muted-foreground">
 								LongMemEval-s accuracy
