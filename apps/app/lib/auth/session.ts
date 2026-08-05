@@ -32,14 +32,19 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 	const refreshToken = await getRefreshToken();
 	if (!refreshToken || !API_URL) return null;
 
-	const existing = inFlightRefreshes.get(refreshToken);
+	let activeOrgId: string | null;
+	try {
+		activeOrgId = await getActiveOrgId();
+	} catch {
+		throw new AuthUnavailableError();
+	}
+
+	const refreshKey = `${refreshToken}:${activeOrgId ?? ""}`;
+	const existing = inFlightRefreshes.get(refreshKey);
 	const promise =
 		existing ??
 		(async (): Promise<TokenResponse | null> => {
 			try {
-				// Refresh tokens are org-agnostic; without this hint the backend resets
-				// context to the user's default org, dropping a switched active org.
-				const activeOrgId = await getActiveOrgId();
 				const res = await fetch(`${API_URL}/auth/refresh`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -48,6 +53,7 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 						active_org_id: activeOrgId ?? undefined,
 					}),
 					cache: "no-store",
+					signal: AbortSignal.timeout(5000),
 				});
 
 				if (!res.ok) {
@@ -72,7 +78,7 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 			}
 		})();
 
-	if (!existing) inFlightRefreshes.set(refreshToken, promise);
+	if (!existing) inFlightRefreshes.set(refreshKey, promise);
 	try {
 		const data = await promise;
 		if (!data) return null;
@@ -86,8 +92,8 @@ export async function refreshTokens(): Promise<TokenResponse | null> {
 		if (error instanceof AuthUnavailableError) throw error;
 		throw new AuthUnavailableError();
 	} finally {
-		if (inFlightRefreshes.get(refreshToken) === promise) {
-			inFlightRefreshes.delete(refreshToken);
+		if (inFlightRefreshes.get(refreshKey) === promise) {
+			inFlightRefreshes.delete(refreshKey);
 		}
 	}
 }
@@ -112,6 +118,7 @@ export async function verifyAuth(
 		const res = await fetch(`${API_URL}/auth/me`, {
 			headers: { Authorization: `Bearer ${accessToken}` },
 			cache: "no-store",
+			signal: AbortSignal.timeout(5000),
 		});
 
 		if (res.ok) {
@@ -131,6 +138,7 @@ export async function verifyAuth(
 					Authorization: `Bearer ${refreshed.access_token}`,
 				},
 				cache: "no-store",
+				signal: AbortSignal.timeout(5000),
 			});
 
 			if (retryRes.ok) {
@@ -146,8 +154,8 @@ export async function verifyAuth(
 		}
 		return null;
 	} catch (error) {
-		if (!allowRefresh) return null;
 		if (error instanceof AuthUnavailableError) throw error;
+		if (!allowRefresh) return null;
 		throw new AuthUnavailableError();
 	}
 }
