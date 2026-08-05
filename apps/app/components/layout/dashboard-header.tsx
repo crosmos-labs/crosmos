@@ -10,6 +10,7 @@ import {
 	BreadcrumbSeparator,
 } from "@crosmos/ui/components/breadcrumb";
 import { SidebarTrigger } from "@crosmos/ui/components/sidebar";
+import { cn } from "@crosmos/ui/lib/utils";
 import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,6 +47,7 @@ function ActionLoaderIndicator() {
 export function DashboardHeader() {
 	const pathname = usePathname();
 	const { breadcrumb } = useBreadcrumb();
+	const isGraphPage = pathname === "/graph";
 
 	const staticLabel = breadcrumbLabelMap[pathname] ?? "Home";
 
@@ -76,9 +78,16 @@ export function DashboardHeader() {
 	);
 
 	return (
-		<header className="flex h-14 shrink-0 items-center gap-2 px-4">
-			<SidebarTrigger />
-			<Breadcrumb>{breadcrumbContent}</Breadcrumb>
+		<header
+			className={cn(
+				"flex h-14 shrink-0 items-center gap-2 px-4",
+				isGraphPage && "pointer-events-none absolute inset-x-0 top-0 z-20",
+			)}
+		>
+			<SidebarTrigger className={cn(isGraphPage && "pointer-events-auto")} />
+			<Breadcrumb className={cn(isGraphPage && "pointer-events-auto")}>
+				{breadcrumbContent}
+			</Breadcrumb>
 			<div className="ml-auto flex items-center">
 				<ActionLoaderIndicator />
 			</div>

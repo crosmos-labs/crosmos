@@ -43,6 +43,13 @@
 	box-shadow: var(--cg-shadow);
 }
 
+:where([data-graph-page] .cg-popover) {
+	top: auto;
+	right: auto;
+	bottom: 1.5rem;
+	left: 1.5rem;
+}
+
 .cg-popover-header {
 	display: flex;
 	align-items: flex-start;
