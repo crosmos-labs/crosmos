@@ -1,8 +1,9 @@
+import { IconLinkOff } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { previewInvite } from "@/actions/invites";
-import { peekUser } from "@/lib/auth/session";
+import { verifyAuth } from "@/lib/auth/session";
 import { AcceptInviteCard } from "./accept-invite-card";
 
 export default async function AcceptInvitePage({
@@ -13,7 +14,7 @@ export default async function AcceptInvitePage({
 	const { token } = await searchParams;
 	if (!token) redirect("/");
 
-	const user = await peekUser();
+	const user = await verifyAuth({ allowRefresh: false });
 	if (!user) redirect(`/signup?invite=${encodeURIComponent(token)}`);
 
 	const result = await previewInvite(token);
@@ -80,7 +81,11 @@ function DeadInvite({ status }: { status: number }) {
 					};
 
 	return (
-		<div className="flex flex-col items-center gap-2 text-center">
+		<div className="flex flex-col items-center gap-4 text-center">
+			<IconLinkOff
+				aria-hidden="true"
+				className="size-12 text-muted-foreground/70"
+			/>
 			<h1 className="text-xl font-semibold tracking-tight">{copy.title}</h1>
 			<p className="max-w-sm text-muted-foreground">{copy.message}</p>
 		</div>
