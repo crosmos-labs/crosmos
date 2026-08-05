@@ -1,8 +1,11 @@
+"use client";
+
 import { Button } from "@crosmos/ui/components/button";
 import { cn } from "@crosmos/ui/lib/utils";
 import { IconCheck } from "@tabler/icons-react";
 import Image from "next/image";
 import { LINKS } from "@/config/links";
+import { useCalApi } from "@/hooks/use-cal-api";
 import { CornerPlus } from "./ui/corner-plus";
 
 type PLAN = {
@@ -10,11 +13,9 @@ type PLAN = {
 	title: string;
 	desc: string;
 	monthlyPrice: number;
-	annuallyPrice: number;
-	badge?: string;
 	buttonText: string;
 	features: string[];
-	link: string;
+	link?: string;
 };
 
 export const PLANS: PLAN[] = [
@@ -23,12 +24,11 @@ export const PLANS: PLAN[] = [
 		title: "Basic",
 		desc: "Perfect for people to get started with having a mini memory in your apps",
 		monthlyPrice: 0,
-		annuallyPrice: 0,
-		buttonText: "Get Started",
+		buttonText: "Start free",
 		features: [
 			"500K tokens/month",
 			"5K queries/month",
-			"3 memory spaces",
+			"Unlimited memory spaces",
 			"MCP server integration",
 			"Community email support",
 		],
@@ -39,43 +39,39 @@ export const PLANS: PLAN[] = [
 		title: "Developer",
 		desc: "For growing teams that need more power and flexibility.",
 		monthlyPrice: 19,
-		annuallyPrice: 228,
-		badge: "Most Popular",
-		buttonText: "Upgrade to Developer",
+		buttonText: "Create account",
 		features: [
-			"5M tokens/month",
-			"50K queries/month",
-			"7 memory spaces",
+			"3M tokens/month",
+			"30K queries/month",
+			"Unlimited memory spaces",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Priority email support",
 		],
-		link: "#",
+		link: LINKS.product.console,
 	},
 	{
 		id: "pro",
 		title: "Pro",
-		desc: "For teams that need unlimited scale, advanced observability, and dedicated support.",
+		desc: "For production teams that need higher limits, advanced observability, and dedicated support.",
 		monthlyPrice: 299,
-		annuallyPrice: 3588,
-		buttonText: "Upgrade to Pro",
+		buttonText: "Create account",
 		features: [
-			"80M tokens/month",
-			"300K queries/month",
-			"50 memory spaces",
+			"40M tokens/month",
+			"200K queries/month",
+			"Unlimited memory spaces",
 			"MCP server integration",
 			"Pre-built data connectors",
 			"Dedicated support channel",
 			"Full observability & tracing",
 		],
-		link: "#",
+		link: LINKS.product.console,
 	},
 	{
 		id: "enterprise",
 		title: "Enterprise",
 		desc: "For large organizations requiring advanced security and control.",
 		monthlyPrice: -1,
-		annuallyPrice: -1,
 		buttonText: "Contact Sales",
 		features: [
 			"Unlimited tokens",
@@ -83,11 +79,12 @@ export const PLANS: PLAN[] = [
 			"Unlimited memory spaces",
 			"Self-hosted deployment option",
 		],
-		link: "#",
 	},
 ];
 
 const PlanCard = ({ plan }: { plan: PLAN }) => {
+	const initCal = useCalApi("30min");
+
 	return (
 		<div
 			className={cn(
@@ -141,10 +138,7 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 					{plan.monthlyPrice === -1 ? (
 						"Custom"
 					) : (
-						<>
-							{plan.monthlyPrice > 0 && <span>*</span>}
-							<span>${plan.monthlyPrice}/mo</span>
-						</>
+						<span>${plan.monthlyPrice}/mo</span>
 					)}
 				</p>
 				<p
@@ -162,7 +156,19 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 					plan.id === "enterprise" && "py-1 md:py-1.5",
 				)}
 			>
-				{plan.id === "basic" ? (
+				{plan.id === "enterprise" ? (
+					<Button
+						size="lg"
+						className="bg-primary rounded hover:bg-primary/90 w-full lg:w-1/3"
+						data-cal-namespace="30min"
+						data-cal-link="crosmos/30min"
+						data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+						onPointerEnter={initCal}
+						onFocus={initCal}
+					>
+						{plan.buttonText}
+					</Button>
+				) : (
 					<Button
 						asChild
 						size="lg"
@@ -171,17 +177,6 @@ const PlanCard = ({ plan }: { plan: PLAN }) => {
 						<a href={plan.link} target="_blank" rel="noopener noreferrer">
 							{plan.buttonText}
 						</a>
-					</Button>
-				) : (
-					<Button
-						disabled
-						size="lg"
-						className={cn(
-							"bg-primary rounded hover:bg-primary/90 w-full",
-							plan.id === "enterprise" && "lg:w-1/3",
-						)}
-					>
-						Coming Soon
 					</Button>
 				)}
 				{plan.monthlyPrice !== -1 && (
@@ -230,9 +225,6 @@ export function Pricing() {
 						<PlanCard key={plan.id} plan={plan} />
 					))}
 				</div>
-				<p className="text-sm text-muted-foreground mt-4 text-right w-full">
-					* Prices are not final and may change upon official release.
-				</p>
 			</div>
 		</section>
 	);

@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { Switch } from "@crosmos/ui/components/switch";
 import {
 	Tooltip,
@@ -18,6 +19,7 @@ import {
 	useVisibilitySettings,
 	visibilitySettingsKey,
 } from "@/hooks/use-visibility";
+import { clearContentCaches } from "@/lib/content-cache";
 import type { VisibilitySettings } from "@/lib/types/visibility";
 
 export function EnforcementSwitch({
@@ -71,6 +73,7 @@ export function EnforcementSwitch({
 					typeof k === "string" &&
 					k.startsWith(`/orgs/${orgId}/visibility/preview`),
 			).catch(() => {});
+			void clearContentCaches(mutate, orgId);
 			toast.success(
 				next ? "Group access rules activated" : "Group access rules paused",
 			);
@@ -81,6 +84,10 @@ export function EnforcementSwitch({
 		} finally {
 			setBusy(false);
 		}
+	}
+
+	if (loading) {
+		return <Skeleton className="h-16 w-full rounded-lg" />;
 	}
 
 	return (
@@ -104,11 +111,11 @@ export function EnforcementSwitch({
 							align="start"
 						>
 							<span>
-								<span className="font-medium text-foreground">On</span> — group
+								<span className="font-medium text-foreground">On</span>: group
 								grants apply to private memories.
 							</span>
 							<span>
-								<span className="font-medium text-foreground">Off</span> — group
+								<span className="font-medium text-foreground">Off</span>: group
 								grants are paused; members read their own private memories plus
 								org-shared content.
 							</span>

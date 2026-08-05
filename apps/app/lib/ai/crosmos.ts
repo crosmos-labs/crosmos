@@ -1,27 +1,30 @@
 import "server-only";
 
 import { ApiError, apiFetch } from "@/lib/api";
+import type { MemoryType } from "@/lib/types/memory";
 
 /** Subset of a Crosmos search candidate we care about. */
 export interface SearchCandidate {
 	memory_id: string;
 	content: string;
-	memory_type: string;
+	memory_type: MemoryType;
 	score: number;
 	source?: string | null;
 	created_at: string;
+	event_time: string | null;
+	owner_name: string | null;
 }
 
 interface SearchResponse {
 	query: string;
 	candidates: SearchCandidate[];
-	total: number;
 }
 
 interface IngestResponse {
 	job_id: string;
-	source_ids?: string[];
-	status?: string;
+	status: "pending";
+	source_ids: string[];
+	jobs: Array<{ job_id: string; source_ids: string[] }>;
 }
 
 /** Error thrown when Crosmos is transiently unavailable (429/503/504). */

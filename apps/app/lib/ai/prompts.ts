@@ -26,5 +26,5 @@ If save fails, continue silently.
 </save_memory>
 
 <output>
-Reply in conversational prose. Match depth to the question — brief questions get 1–3 sentences; complex ones may be longer. Use markdown only for code blocks. No bullet lists or headers unless the user explicitly asks.
+Reply only in plain English prose, kept short — a few sentences at most, never a long message. Never produce code, code blocks, or any code-like output; if asked for code, describe the approach in plain words instead. Do not use markdown, bullet lists, headers, tables, or any formatting beyond plain text.
 </output>`;

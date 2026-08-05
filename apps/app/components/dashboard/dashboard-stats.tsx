@@ -6,9 +6,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@crosmos/ui/components/card";
-import { Progress } from "@crosmos/ui/components/progress";
+import { DitherGradient } from "@crosmos/ui/components/dither-kit/gradient";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
-import { cn } from "@crosmos/ui/lib/utils";
 import {
 	IconArrowRight,
 	IconCreditCard,
@@ -20,7 +19,7 @@ import Link from "next/link";
 import { useApiKeys } from "@/hooks/use-api-keys";
 import { useSpaces } from "@/hooks/use-spaces";
 import { useUsage } from "@/hooks/use-usage";
-import { usageProgressClass, usageTone } from "@/lib/usage-progress";
+import { usageTone } from "@/lib/usage-progress";
 
 function formatNumber(n: number): string {
 	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -43,6 +42,8 @@ function StatCard({
 	href: string;
 	progress?: number;
 }) {
+	const tone = usageTone((progress ?? 0) / 100);
+	const fill = tone === "over" ? "red" : tone === "warn" ? "orange" : "green";
 	return (
 		<Link href={href} className="group">
 			<Card className="gap-0 transition-colors h-full">
@@ -66,13 +67,19 @@ function StatCard({
 						{subtitle ?? "\u00A0"}
 					</span>
 					{progress !== undefined && (
-						<Progress
-							value={progress}
-							className={cn(
-								"h-1.5",
-								usageProgressClass(usageTone(progress / 100)),
-							)}
-						/>
+						<div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
+							<div
+								className="absolute inset-y-0 left-0 overflow-hidden"
+								style={{ width: `${progress}%` }}
+							>
+								<DitherGradient
+									from={fill}
+									direction="right"
+									cell={2}
+									className="absolute inset-0"
+								/>
+							</div>
+						</div>
 					)}
 				</CardContent>
 			</Card>
@@ -111,6 +118,7 @@ export function DashboardStats() {
 	}
 
 	const spaceCount = spaces?.length ?? 0;
+	const spacesLimit = usage?.spaces.limit ?? -1;
 	const activeKeys = apiKeys?.filter((k) => k.is_active).length ?? 0;
 	const tokensUsed = usage?.tokens.used ?? 0;
 	const tokensLimit = usage?.tokens.limit ?? 1;
@@ -129,7 +137,11 @@ export function DashboardStats() {
 		<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 			<StatCard
 				title="Spaces"
-				value={String(spaceCount)}
+				value={
+					spacesLimit > 0
+						? `${spaceCount} / ${spacesLimit}`
+						: String(spaceCount)
+				}
 				icon={IconDatabase}
 				href="/spaces"
 			/>
@@ -147,7 +159,7 @@ export function DashboardStats() {
 				value={formatNumber(tokensUsed)}
 				subtitle={`${formatNumber(tokensUsed)} / ${formatNumber(tokensLimit)}`}
 				icon={IconSearch}
-				href="/billing"
+				href="/usage"
 				progress={tokensPercent}
 			/>
 			<StatCard
@@ -155,7 +167,7 @@ export function DashboardStats() {
 				value={formatNumber(queriesUsed)}
 				subtitle={`${formatNumber(queriesUsed)} / ${formatNumber(queriesLimit)}`}
 				icon={IconCreditCard}
-				href="/billing"
+				href="/usage"
 				progress={queriesPercent}
 			/>
 		</div>

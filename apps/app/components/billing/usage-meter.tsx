@@ -1,12 +1,16 @@
 "use client";
 
 import { Card } from "@crosmos/ui/components/card";
+import type { ChartConfig } from "@crosmos/ui/components/dither-kit/chart-context";
+import { Pie } from "@crosmos/ui/components/dither-kit/pie";
+import { PieChart } from "@crosmos/ui/components/dither-kit/pie-chart";
+import { Tooltip } from "@crosmos/ui/components/dither-kit/tooltip";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
 import { cn } from "@crosmos/ui/lib/utils";
+import { useMemo } from "react";
 import { formatNumber } from "@/lib/format";
 import {
 	type UsageTone,
-	usageBarClass,
 	usageTextClass,
 	usageTone,
 } from "@/lib/usage-progress";
@@ -49,16 +53,17 @@ function computePace(
 	};
 }
 
+const ZERO_MARGINS = { top: 0, right: 0, bottom: 0, left: 0 };
+
 export function UsageMeterSkeleton() {
 	return (
-		<Card className="gap-2 p-4">
-			<div className="flex items-center justify-between">
-				<Skeleton className="h-4 w-24" />
-				<Skeleton className="h-4 w-8" />
+		<Card className="gap-3 p-4">
+			<Skeleton className="h-4 w-24" />
+			<Skeleton className="mx-auto size-[120px] rounded-full" />
+			<div className="flex flex-col items-center gap-1">
+				<Skeleton className="h-4 w-28" />
+				<Skeleton className="h-3 w-32" />
 			</div>
-			<Skeleton className="h-4 w-28" />
-			<Skeleton className="h-2 w-full rounded-full" />
-			<Skeleton className="h-3 w-32" />
 		</Card>
 	);
 }
@@ -69,54 +74,81 @@ export function UsageMeter({
 	limit,
 	periodStart,
 	periodEnd,
+	color = "blue",
 }: {
 	label: string;
 	used: number;
 	limit: number;
 	periodStart: string;
 	periodEnd: string;
+	color?: "blue" | "purple";
 }) {
+	const unlimited = limit === -1;
 	const fraction = limit > 0 ? Math.min(used / limit, 1) : 0;
 	const percentage = Math.round(fraction * 100);
 	const pace = computePace(used, limit, periodStart, periodEnd);
-	const actualTone = usageTone(fraction);
+	const tone = usageTone(fraction);
+	const usedColor =
+		tone === "over" ? "red" : tone === "warn" ? "orange" : color;
+	const remaining = Math.max(limit - used, 0);
+
+	// Memoized because the chart replays its entrance sweep whenever the data
+	// array identity changes (useRevision), e.g. on every SWR revalidation.
+	const rows = useMemo(
+		() =>
+			unlimited || used + remaining <= 0
+				? [{ name: "remaining", value: 1 }]
+				: [
+						{ name: "used", value: used },
+						{ name: "remaining", value: remaining },
+					],
+		[unlimited, used, remaining],
+	);
+	const config = useMemo(
+		() =>
+			({
+				used: { label, color: usedColor },
+				remaining: { label: "Remaining", color: "grey" },
+			}) satisfies ChartConfig,
+		[label, usedColor],
+	);
 
 	return (
-		<Card className="gap-2 p-4">
-			<div className="flex flex-col gap-2">
-				<div className="flex items-center justify-between">
-					<span className="text-sm font-medium">{label}</span>
-					<span className="text-sm text-muted-foreground">{percentage}%</span>
+		<Card className="gap-3 p-4">
+			<span className="text-sm font-medium">{label}</span>
+			<div className="relative mx-auto size-[120px]">
+				<PieChart
+					data={rows}
+					config={config}
+					dataKey="value"
+					nameKey="name"
+					innerRadius={0.7}
+					margins={ZERO_MARGINS}
+				>
+					<Pie variant="gradient" />
+					{!unlimited && (
+						<Tooltip valueFormatter={(value) => formatNumber(value)} />
+					)}
+				</PieChart>
+				<div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+					<span className="text-lg font-semibold tabular-nums">
+						{unlimited ? "∞" : `${percentage}%`}
+					</span>
+				</div>
+			</div>
+			<div className="flex flex-col items-center gap-1 text-center">
+				<div className="font-mono text-sm">
+					<span>{formatNumber(used)}</span>
+					<span className="text-muted-foreground">
+						{" "}
+						/ {unlimited ? "Unlimited" : formatNumber(limit)}
+					</span>
 				</div>
 				{pace.text && (
 					<span className={cn("text-xs", usageTextClass(pace.tone))}>
 						{pace.text}
 					</span>
 				)}
-			</div>
-			<div className="mt-auto flex flex-col gap-3">
-				<div className="font-mono text-sm">
-					<span>{formatNumber(used)}</span>
-					<span className="text-muted-foreground">
-						{" "}
-						/ {formatNumber(limit)}
-					</span>
-				</div>
-				<div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
-					{pace.predictedFraction !== null && (
-						<div
-							className="absolute inset-y-0 left-0 rounded-full bg-muted-foreground/10"
-							style={{ width: `${pace.predictedFraction * 100}%` }}
-						/>
-					)}
-					<div
-						className={cn(
-							"absolute inset-y-0 left-0 rounded-full",
-							usageBarClass(actualTone),
-						)}
-						style={{ width: `${fraction * 100}%` }}
-					/>
-				</div>
 			</div>
 		</Card>
 	);

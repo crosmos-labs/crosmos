@@ -11,7 +11,12 @@ import { CornerPlus } from "./ui/corner-plus";
 const FOOTER_DATA = {
 	product: {
 		title: "Product",
-		links: [{ label: "Pricing", href: LINKS.product.pricing }],
+		links: [
+			{ label: "Pricing", href: LINKS.product.pricing },
+			{ label: "Blogs", href: LINKS.company.blogs },
+			{ label: "Research", href: LINKS.company.research },
+			{ label: "Uptime", href: LINKS.company.uptime },
+		],
 	},
 	documentation: {
 		title: "Documentation",

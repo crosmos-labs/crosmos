@@ -23,6 +23,7 @@ import {
 	useGroupMembers,
 	visibilityGroupMembersKey,
 } from "@/hooks/use-visibility";
+import { clearContentCaches } from "@/lib/content-cache";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { GroupMember } from "@/lib/types/visibility";
 
@@ -65,7 +66,9 @@ export function GroupMembersTab({
 					return placeholder;
 				}),
 			{ toast: { success: "Member added", error: "Failed to add member" } },
-		);
+		)
+			.then(() => clearContentCaches(mutate, orgId))
+			.catch(() => {});
 	}
 
 	function handleRemove(userId: string) {
@@ -80,7 +83,9 @@ export function GroupMembersTab({
 			{
 				toast: { success: "Member removed", error: "Failed to remove member" },
 			},
-		);
+		)
+			.then(() => clearContentCaches(mutate, orgId))
+			.catch(() => {});
 	}
 
 	const count = groupMembers?.length ?? 0;
@@ -149,7 +154,7 @@ export function GroupMembersTab({
 						>
 							<MemberAvatar name={member.name} email={member.email} />
 							<ItemContent>
-								<ItemTitle className="text-base">
+								<ItemTitle className="text-sm">
 									<span className="min-w-0 truncate">
 										{member.name || member.email}
 									</span>

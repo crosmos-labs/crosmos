@@ -36,8 +36,10 @@ import {
 	useGroups,
 	visibilityGrantsKey,
 } from "@/hooks/use-visibility";
+import { clearContentCaches } from "@/lib/content-cache";
 import { optimisticInsert, optimisticRemove } from "@/lib/optimistic";
 import type { VisibilityGrant, VisibilityGroup } from "@/lib/types/visibility";
+import { unwrapAction } from "@/lib/unwrap-action";
 
 function members(count: number) {
 	return `${count} member${count === 1 ? "" : "s"}`;
@@ -103,28 +105,25 @@ export function GroupAccessEditor({
 					mutate,
 					visibilityGrantsKey(orgId),
 					placeholder,
-					async () => {
-						const result = await createGrant(orgId, picked.id, group.id);
-						if (!result.ok) {
-							throw Object.assign(new Error(result.message), {
-								code: result.code,
-							});
-						}
-						return result.data;
-					},
+					async () =>
+						unwrapAction(await createGrant(orgId, picked.id, group.id)),
 				),
 			{ toast: { success: "Access granted" } },
-		).catch((err: unknown) => {
-			const code =
-				err && typeof err === "object" && "code" in err
-					? (err as { code: unknown }).code
-					: null;
-			if (code === "grant_cycle") {
-				toast.error("That would create a circular access rule.");
-				return;
-			}
-			toast.error(err instanceof Error ? err.message : "Couldn't grant access");
-		});
+		)
+			.then(() => clearContentCaches(mutate, orgId))
+			.catch((err: unknown) => {
+				const code =
+					err && typeof err === "object" && "code" in err
+						? (err as { code: unknown }).code
+						: null;
+				if (code === "grant_cycle") {
+					toast.error("That would create a circular access rule.");
+					return;
+				}
+				toast.error(
+					err instanceof Error ? err.message : "Couldn't grant access",
+				);
+			});
 	}
 
 	function handleRemove(grantId: string) {
@@ -139,7 +138,9 @@ export function GroupAccessEditor({
 			{
 				toast: { success: "Access removed", error: "Failed to remove access" },
 			},
-		);
+		)
+			.then(() => clearContentCaches(mutate, orgId))
+			.catch(() => {});
 	}
 
 	return (

@@ -10,8 +10,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import type { VisibilityGroup } from "@/lib/types/visibility";
 
 export function DeleteGroupDialog({
@@ -34,17 +32,12 @@ export function DeleteGroupDialog({
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">Cancel</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => group && onDelete(group.id)}
 					>
-						Delete{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Delete
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

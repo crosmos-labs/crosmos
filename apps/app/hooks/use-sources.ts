@@ -14,10 +14,14 @@ export interface SourcesResponse {
 	total: number;
 }
 
-export interface SourcesFilters {
+interface SourcesFilters {
 	content_type: ContentTypeStr | null;
 	extraction_status: ExtractionStatus | null;
 	space_id: string | null;
+}
+
+export function sourcesPrefix(orgId: string): string {
+	return `/orgs/${orgId}/sources`;
 }
 
 export function buildSourcesKey(
@@ -31,7 +35,7 @@ export function buildSourcesKey(
 	if (filters.extraction_status)
 		params.set("extraction_status", filters.extraction_status);
 	if (filters.space_id) params.set("space_id", filters.space_id);
-	return `/orgs/${orgId}/sources?${params.toString()}`;
+	return `${sourcesPrefix(orgId)}?${params.toString()}`;
 }
 
 export function useSources(page: number = 1, filters: SourcesFilters) {
@@ -51,6 +55,7 @@ export function useSources(page: number = 1, filters: SourcesFilters) {
 		{
 			revalidateIfStale: false,
 			revalidateOnFocus: false,
+			keepPreviousData: true,
 		},
 	);
 }

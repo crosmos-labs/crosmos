@@ -145,7 +145,10 @@ export default function GraphPage() {
 
 			{graphData && (
 				<p className="text-sm text-muted-foreground">
-					{graphData.total_nodes} nodes · {graphData.total_edges} edges
+					{nodes.length < graphData.total_nodes
+						? `Showing ${nodes.length} of ${graphData.total_nodes} nodes`
+						: `${graphData.total_nodes} nodes`}{" "}
+					· {graphData.total_edges} edges
 				</p>
 			)}
 

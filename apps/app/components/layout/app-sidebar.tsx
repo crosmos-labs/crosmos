@@ -80,11 +80,11 @@ function getInitials(name: string) {
 function warmRoute(href: string, orgId: string | null) {
 	if (!orgId) return;
 	if (href === "/spaces" || href === "/sources" || href === "/graph") {
-		preload(spacesKey(orgId), () => listSpaces());
+		void preload(spacesKey(orgId), () => listSpaces()).catch(() => {});
 	} else if (href === "/api-key") {
-		preload(apiKeysKey(orgId), () => listApiKeys());
-	} else if (href === "/billing") {
-		preload(usageKey(orgId), () => getUsage());
+		void preload(apiKeysKey(orgId), () => listApiKeys()).catch(() => {});
+	} else if (href === "/billing" || href === "/usage") {
+		void preload(usageKey(orgId), () => getUsage()).catch(() => {});
 	}
 }
 

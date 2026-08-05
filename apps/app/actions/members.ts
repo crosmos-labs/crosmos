@@ -3,6 +3,7 @@
 import { apiFetch } from "@/lib/api";
 import { assertFeatureEnabled, isSettingsDisabled } from "@/lib/features";
 import type {
+	ChangeRoleRequest,
 	CreateInviteRequest,
 	InviteListResponse,
 	InviteResponse,
@@ -20,7 +21,7 @@ export async function listMembers(orgId: string): Promise<MemberResponse[]> {
 export async function changeMemberRole(
 	orgId: string,
 	userId: string,
-	role: "admin" | "member",
+	role: ChangeRoleRequest["role"],
 ): Promise<MemberResponse> {
 	assertFeatureEnabled(isSettingsDisabled, "Settings");
 

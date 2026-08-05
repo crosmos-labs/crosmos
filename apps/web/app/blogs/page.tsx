@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BlogCard } from "@/components/blog-card";
 import { getAllBlogs } from "@/lib/blog";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const DESCRIPTION =
 	"Deep dives on memory systems, context engineering, and building with Crosmos.";
@@ -13,15 +13,17 @@ export const metadata: Metadata = {
 		canonical: "/blogs",
 	},
 	openGraph: {
-		title: "Blogs — Crosmos",
+		title: "Blogs - Crosmos",
 		description: DESCRIPTION,
 		type: "website",
 		url: "/blogs",
+		images: [OG_IMAGE],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Blogs — Crosmos",
+		title: "Blogs - Crosmos",
 		description: DESCRIPTION,
+		images: [OG_IMAGE.url],
 	},
 };
 
@@ -82,7 +84,7 @@ export default function BlogsPage() {
 					</p>
 				</div>
 
-				<div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				<div className="mt-12 grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					{blogs.map((blog) => (
 						<BlogCard
 							key={blog.slug}

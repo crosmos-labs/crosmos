@@ -8,7 +8,7 @@ export default async function AuthLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const user = await verifyAuth();
+	const user = await verifyAuth({ allowRefresh: false });
 	if (user) redirect("/");
 
 	return (

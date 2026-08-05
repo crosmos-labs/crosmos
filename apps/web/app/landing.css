@@ -66,13 +66,90 @@ html {
 	color: var(--color-foreground);
 }
 
+/* Research data tables — fully bordered grid. The global --border token
+   (L≈0.92) is near-invisible on the cream background, so derive a visible
+   line from the foreground; it adapts in dark mode automatically. */
+.research-table-wrap {
+	--tbl-line: color-mix(in oklch, var(--color-foreground) 20%, transparent);
+	margin: 2rem 0;
+	overflow-x: auto;
+	border: 1px solid var(--tbl-line);
+	border-radius: var(--radius-lg);
+}
+
+.research-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+}
+
+.research-table th,
+.research-table td {
+	padding: 0.625rem 0.875rem;
+	text-align: left;
+	vertical-align: top;
+	border-right: 1px solid var(--tbl-line);
+	border-bottom: 1px solid var(--tbl-line);
+}
+
+.research-table th:last-child,
+.research-table td:last-child {
+	border-right: none;
+}
+
+.research-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.research-table thead th {
+	background: color-mix(in oklch, var(--color-foreground) 6%, transparent);
+	font-weight: 600;
+	font-size: 0.75rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--color-muted-foreground);
+}
+
+/* Numeric columns (every column after the first) read better right-aligned */
+.research-table th:not(:first-child),
+.research-table td:not(:first-child) {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Citations: the source "## Citations" heading is the visible title, so hide
+   gfm's auto "Footnotes" label. The uncited refs reuse the .footnotes class
+   so they inherit identical size/colour/spacing, then butt up against the
+   cited list as one continuous, consistent bibliography. */
+.prose .footnotes > h2 {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.prose .research-uncited {
+	margin-top: -0.75rem;
+	border-top: 0;
+	padding-top: 0;
+}
+
+.prose .research-uncited > ol {
+	margin-top: 0;
+}
+
 .prose ul {
 	list-style-type: disc;
 	padding-left: 1.25rem;
 }
 
 .prose ul li::marker {
-	color: var(--color-accent);
+	color: var(--color-muted-foreground);
 }
 
 .prose ol {
@@ -81,5 +158,5 @@ html {
 }
 
 .prose ol li::marker {
-	color: var(--color-accent);
+	color: var(--color-muted-foreground);
 }

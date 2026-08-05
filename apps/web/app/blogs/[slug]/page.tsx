@@ -2,7 +2,7 @@ import { IconBrandX } from "@tabler/icons-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import { Markdown } from "@/components/markdown";
 import { getAllBlogSlugs, getBlogBySlug } from "@/lib/blog";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
@@ -172,7 +172,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
 				</h1>
 
 				<div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-relaxed prose-code:text-sm">
-					<MDXRemote source={blog.content} />
+					<Markdown source={blog.content} />
 				</div>
 			</div>
 		</article>

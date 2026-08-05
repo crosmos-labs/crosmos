@@ -24,7 +24,7 @@ import {
 import { DefaultChatTransport } from "ai";
 import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ChatResponse } from "@/components/playground/chat-response";
 import { PlaygroundArrow } from "@/components/playground/playground-arrow";
 import {
@@ -48,6 +48,14 @@ const PROVIDER_LOGOS: Record<ProviderId, typeof ClaudeAI> = {
 
 // Shared spring so position, height, and the button reflow all morph in unison.
 const SPRING = { type: "spring", stiffness: 260, damping: 30 } as const;
+
+const RELEASE_EPS = 1; // px decrease that counts as user intent
+const CLAMP_EPS = 1; // decrease landing at dist <= 1 is a shrink-clamp, not intent
+const REENGAGE_PX = 40; // return-to-bottom distance that re-engages follow
+
+// The dashboard's scroll container (parent of #main-content) is the scrollbar.
+const getScroller = () =>
+	document.getElementById("main-content")?.parentElement ?? null;
 
 function formatResetIn(resetMs: number): string {
 	const mins = Math.max(0, Math.round((resetMs - Date.now()) / 60000));
@@ -97,16 +105,33 @@ export function PlaygroundChat() {
 	const [selectedSpace, setSelectedSpace] = useState<string | undefined>(
 		undefined,
 	);
-	const [atBottom, setAtBottom] = useState(true);
+	const [following, setFollowingState] = useState(true);
 
 	const { data: spaces } = useSpaces();
-	const { messages, sendMessage, status, stop, error, setMessages } = useChat({
+	const {
+		messages,
+		sendMessage,
+		status,
+		stop,
+		error,
+		setMessages,
+		regenerate,
+	} = useChat({
 		chat: playgroundChat,
 		// Batch high-frequency streaming updates so rendering stays smooth.
 		experimental_throttle: 50,
 	});
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	// Whether the view chases the live edge. The ref is the source of truth
+	// (read synchronously by the scroll/resize callbacks, so a fast scroll-up
+	// can't race a queued React state update); the state only drives UI.
+	const followingRef = useRef(true);
+	const lastTopRef = useRef(0);
+	const setFollowing = useCallback((v: boolean) => {
+		followingRef.current = v;
+		setFollowingState(v);
+	}, []);
 
 	const isActive = messages.length > 0;
 	const isBusy = status === "submitted" || status === "streaming";
@@ -137,41 +162,83 @@ export function PlaygroundChat() {
 		textareaRef.current?.focus();
 	}, []);
 
-	// Track the dashboard scroll container so we only auto-stick when the user is
-	// already near the bottom (otherwise scrolling up to read gets yanked back).
+	// Follow the live edge while the reader is there; release on upward intent;
+	// re-engage when they return to the bottom. Pinning runs off a
+	// ResizeObserver so every growth source (stream ticks, thinking shimmer,
+	// error row, accordion, layout animations) pins pre-paint, not a frame late.
 	useEffect(() => {
 		if (!isActive) return;
-		const scroller = document.getElementById("main-content")?.parentElement;
-		if (!scroller) return;
-		const onScroll = () => {
-			const dist =
-				scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
-			setAtBottom(dist < 80);
-		};
-		onScroll();
-		scroller.addEventListener("scroll", onScroll, { passive: true });
-		return () => scroller.removeEventListener("scroll", onScroll);
-	}, [isActive]);
+		const scroller = getScroller();
+		const content = document.getElementById("main-content");
+		if (!scroller || !content) return;
 
-	// Stick to the bottom as content streams in — but only while the user is at
-	// the bottom. The dashboard's #main-content scroll container is the scrollbar.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: re-run on every streamed update
-	useEffect(() => {
-		if (!atBottom) return;
-		const scroller = document.getElementById("main-content")?.parentElement;
-		if (scroller) scroller.scrollTop = scroller.scrollHeight;
-	}, [messages, showThinking, atBottom]);
+		// Native scroll anchoring adjusts scrollTop in ways that read as user
+		// upward scrolls; the pin owns positioning while the thread is mounted.
+		scroller.style.overflowAnchor = "none";
+		lastTopRef.current = scroller.scrollTop;
+
+		const onScroll = () => {
+			const maxTop = scroller.scrollHeight - scroller.clientHeight;
+			// Clamp: iOS rubber-banding reports out-of-range values.
+			const top = Math.max(0, Math.min(scroller.scrollTop, maxTop));
+			const dist = maxTop - top;
+			const last = lastTopRef.current;
+			lastTopRef.current = top;
+			if (top < last - RELEASE_EPS) {
+				// A decrease landing at the bottom is the browser clamping after
+				// content shrank (e.g. accordion collapse), not user intent.
+				if (dist > CLAMP_EPS) setFollowing(false);
+			} else if (dist <= REENGAGE_PX) {
+				setFollowing(true);
+			}
+		};
+
+		// A wheel-up can be cancelled by a concurrent pin before it ever moves
+		// scrollTop, so it must release directly, not via the scroll listener.
+		const onWheel = (e: WheelEvent) => {
+			if (e.deltaY < 0 && scroller.scrollHeight > scroller.clientHeight) {
+				setFollowing(false);
+			}
+		};
+
+		const ro = new ResizeObserver(() => {
+			if (followingRef.current) scroller.scrollTop = scroller.scrollHeight;
+		});
+		ro.observe(content); // content growth: stream, shimmer, error, accordion
+		ro.observe(scroller); // viewport height: window resize, mobile keyboard
+
+		scroller.addEventListener("scroll", onScroll, { passive: true });
+		scroller.addEventListener("wheel", onWheel, { passive: true });
+		return () => {
+			scroller.removeEventListener("scroll", onScroll);
+			scroller.removeEventListener("wheel", onWheel);
+			ro.disconnect();
+			scroller.style.overflowAnchor = "";
+		};
+	}, [isActive, setFollowing]);
 
 	const scrollToBottom = () => {
-		const scroller = document.getElementById("main-content")?.parentElement;
-		if (scroller) scroller.scrollTop = scroller.scrollHeight;
-		setAtBottom(true);
+		setFollowing(true);
+		const scroller = getScroller();
+		if (!scroller) return;
+		// Instant while streaming (the next pin supersedes a smooth animation
+		// anyway) and under reduced motion (MotionConfig doesn't cover scrollTo).
+		const smooth =
+			!isBusy && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+		scroller.scrollTo({
+			top: scroller.scrollHeight,
+			behavior: smooth ? "smooth" : "auto",
+		});
 	};
 
 	const handleSubmit = () => {
 		if (!canSend || !selectedSpace) return;
 		const text = value;
 		setValue("");
+		// Sending is explicit intent to move to the live edge, even if scrolled up.
+		setFollowing(true);
+		const scroller = getScroller();
+		if (scroller) scroller.scrollTop = scroller.scrollHeight;
 		sendMessage(
 			{ text },
 			{ body: { model: selectedModel, spaceId: selectedSpace } },
@@ -205,9 +272,20 @@ export function PlaygroundChat() {
 							/>
 						)}
 						{error && (
-							<p className="px-1 text-sm text-destructive">
-								{error.message || "Something went wrong. Try again."}
-							</p>
+							<div className="flex items-center gap-3 px-1">
+								<p className="text-sm text-destructive">
+									{error.message || "Something went wrong. Try again."}
+								</p>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => regenerate()}
+									className="h-7 shrink-0 px-3 text-sm"
+								>
+									Retry
+								</Button>
+							</div>
 						)}
 					</div>
 				) : (
@@ -262,12 +340,12 @@ export function PlaygroundChat() {
 					    composer while scrolled up. Only rendered when scrolled away from the
 					    bottom — otherwise this absolute strip extends past the content and
 					    creates a spurious page scrollbar on short chats. */}
-					{isActive && !atBottom && (
+					{isActive && !following && (
 						<div className="pointer-events-none absolute inset-x-0 top-full h-8 bg-background" />
 					)}
 
 					{/* Scroll-to-bottom button — only when the user has scrolled up. */}
-					{isActive && !atBottom && (
+					{isActive && !following && (
 						<Button
 							type="button"
 							variant="outline"
@@ -280,11 +358,11 @@ export function PlaygroundChat() {
 						</Button>
 					)}
 
-					<div className="flex flex-col gap-1.5 rounded-2xl border border-border bg-card p-1.5">
+					<div className="flex flex-col gap-1.5 rounded-4xl border border-border bg-card p-2">
 						{/* Input box — reflows from textarea-over-buttons to a single inline row. */}
 						<motion.div
 							layout
-							className="flex flex-wrap items-center gap-1 rounded-2xl border border-border/60 bg-background/60 p-1.5"
+							className="flex flex-wrap items-center gap-1 rounded-sm border border-border/60 bg-background/60 p-1.5"
 						>
 							{/* + (left) */}
 							<motion.div
@@ -473,9 +551,17 @@ type ChatMessage = ReturnType<typeof useChat>["messages"][number];
 /**
  * Renders a turn: user text as a capped right-aligned bubble, assistant text as
  * full-column streaming Markdown (ChatResponse/Streamdown), plus memory/search
- * tool activity chips. Copy/retry/regenerate are a later UI phase.
+ * tool activity chips. Per-message copy/regenerate are a later UI phase.
+ *
+ * Memoized: settled messages keep reference identity across stream ticks
+ * (the AI SDK clones only the streaming message), so only the last bubble
+ * re-renders while streaming.
  */
-function MessageBubble({ message }: { message: ChatMessage }) {
+const MessageBubble = memo(function MessageBubble({
+	message,
+}: {
+	message: ChatMessage;
+}) {
 	const isUser = message.role === "user";
 	return (
 		<div className={cn("flex flex-col gap-1.5", isUser && "items-end")}>
@@ -511,4 +597,4 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 			})}
 		</div>
 	);
-}
+});

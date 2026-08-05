@@ -30,14 +30,14 @@
 
 ### Workspace
 
-| Path | Description |
-|---|---|
-| `apps/app` | Console (port 3000) |
-| `apps/web` | Landing page (port 3001) |
-| `apps/docs` | Docs (Mintlify) |
-| `packages/ui` | `@crosmos/ui` — shared components |
-| `packages/graph` | `@crosmos/graph` — force-graph viz |
-| `skills/` | Agent skills (Crosmos Memory) |
+| Path | Description | Production |
+|---|---|---|
+| `apps/app` | Console (port 3000) | [console.crosmos.dev](https://console.crosmos.dev) |
+| `apps/web` | Landing page (port 3001) | [crosmos.dev](https://crosmos.dev) |
+| `apps/docs` | Docs (Mintlify) | [docs.crosmos.dev](https://docs.crosmos.dev) |
+| `packages/ui` | `@crosmos/ui` — shared components | |
+| `packages/graph` | `@crosmos/graph` — force-graph viz | |
+| `skills/` | Agent skills (Crosmos Memory) | |
 
 ### Skills
 

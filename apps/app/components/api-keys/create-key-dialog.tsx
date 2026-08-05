@@ -10,7 +10,6 @@ import {
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
 import { Input } from "@crosmos/ui/components/input";
-import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Select,
 	SelectContent,
@@ -18,7 +17,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { useState } from "react";
 
 export function CreateKeyDialog({
@@ -87,13 +85,10 @@ export function CreateKeyDialog({
 				</div>
 				<DialogFooter>
 					<Button variant="ghost" onClick={handleClose}>
-						Cancel <Kbd>Esc</Kbd>
+						Cancel
 					</Button>
 					<Button onClick={handleCreate} disabled={!name.trim()}>
-						Create{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Create
 					</Button>
 				</DialogFooter>
 			</DialogContent>

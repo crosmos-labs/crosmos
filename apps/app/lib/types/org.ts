@@ -25,11 +25,6 @@ export interface OrgListResponse {
 	next_cursor: string | null;
 }
 
-export interface CreateOrgRequest {
-	name: string;
-	slug?: string;
-}
-
 export interface UpdateOrgRequest {
 	name?: string;
 	slug?: string;

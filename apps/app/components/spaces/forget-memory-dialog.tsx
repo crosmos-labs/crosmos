@@ -11,13 +11,12 @@ import {
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
 import { Badge } from "@crosmos/ui/components/badge";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import {
 	MEMORY_TYPE_BADGE_VARIANT,
+	MEMORY_TYPE_ICONS,
 	MEMORY_TYPE_LABELS,
-} from "@/components/spaces/memory-list";
+} from "@/lib/memory-labels";
 import type { Memory } from "@/lib/types/memory";
 
 export function ForgetMemoryDialog({
@@ -29,6 +28,8 @@ export function ForgetMemoryDialog({
 	onForget: (memoryUuid: string) => void;
 	onOpenChange: (open: boolean) => void;
 }) {
+	const TypeIcon = memory ? MEMORY_TYPE_ICONS[memory.memory_type] : null;
+
 	return (
 		<AlertDialog open={!!memory} onOpenChange={onOpenChange}>
 			<AlertDialogContent>
@@ -44,6 +45,7 @@ export function ForgetMemoryDialog({
 						<div className="flex items-center justify-between">
 							<span className="text-muted-foreground">Type</span>
 							<Badge variant={MEMORY_TYPE_BADGE_VARIANT[memory.memory_type]}>
+								{TypeIcon && <TypeIcon />}
 								{MEMORY_TYPE_LABELS[memory.memory_type]}
 							</Badge>
 						</div>
@@ -61,9 +63,7 @@ export function ForgetMemoryDialog({
 					</div>
 				)}
 				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">Cancel</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						onClick={() => {
@@ -73,10 +73,7 @@ export function ForgetMemoryDialog({
 							}
 						}}
 					>
-						Forget{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Forget
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

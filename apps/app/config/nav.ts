@@ -8,7 +8,9 @@ import {
 	IconEye,
 	IconFileImport,
 	IconGalaxy,
+	IconGauge,
 	IconKey,
+	IconPlug,
 	IconSettings,
 	IconSparkles,
 	IconTopologyComplex,
@@ -104,6 +106,7 @@ export const navGroups: NavGroup[] = [
 				hidden: isPlaygroundDisabled,
 			},
 			{ label: "API Keys", href: "/api-key", icon: IconKey },
+			{ label: "Connectors", href: "/connectors", icon: IconPlug },
 		],
 	},
 	{
@@ -113,6 +116,12 @@ export const navGroups: NavGroup[] = [
 				label: "Billing",
 				href: "/billing",
 				icon: IconCreditCard,
+				roles: ["owner", "admin"],
+			},
+			{
+				label: "Usage",
+				href: "/usage",
+				icon: IconGauge,
 			},
 			{
 				label: "Settings",
@@ -136,7 +145,9 @@ export const breadcrumbLabelMap: Record<string, string> = {
 	"/analytics": "Analytics",
 	"/activity": "Activity",
 	"/api-key": "API Keys",
+	"/connectors": "Connectors",
 	"/billing": "Billing",
+	"/usage": "Usage",
 	"/settings": "Settings",
 };
 

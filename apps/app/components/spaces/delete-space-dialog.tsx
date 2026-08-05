@@ -10,8 +10,6 @@ import {
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
 import { Input } from "@crosmos/ui/components/input";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import type { Space } from "@/lib/types/space";
@@ -93,17 +91,14 @@ export function DeleteSpaceDialog({
 				/>
 				<DialogFooter>
 					<Button variant="ghost" onClick={handleClose}>
-						Cancel <Kbd>Esc</Kbd>
+						Cancel
 					</Button>
 					<Button
 						variant="destructive"
 						onClick={handleDelete}
 						disabled={!canDelete}
 					>
-						Delete{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Delete
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -10,8 +10,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@crosmos/ui/components/alert-dialog";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { LAST_OWNER_MSG } from "@/lib/members";
 
 export function RemoveMemberDialog({
@@ -45,18 +43,13 @@ export function RemoveMemberDialog({
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<AlertDialogCancel variant="ghost">
-						Cancel <Kbd>Esc</Kbd>
-					</AlertDialogCancel>
+					<AlertDialogCancel variant="ghost">Cancel</AlertDialogCancel>
 					<AlertDialogAction
 						variant="destructive"
 						disabled={isLastOwner}
 						onClick={onConfirm}
 					>
-						{isSelf ? "Leave" : "Remove"}{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						{isSelf ? "Leave" : "Remove"}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>

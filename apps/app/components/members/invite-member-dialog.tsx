@@ -10,7 +10,6 @@ import {
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
 import { Input } from "@crosmos/ui/components/input";
-import { Kbd } from "@crosmos/ui/components/kbd";
 import {
 	Select,
 	SelectContent,
@@ -18,11 +17,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { useState } from "react";
 import type { CreateInviteRequest } from "@/lib/types/org";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { isValidEmail } from "@/lib/validate";
 
 export function InviteMemberDialog({
 	open,
@@ -36,7 +33,7 @@ export function InviteMemberDialog({
 	const [email, setEmail] = useState("");
 	const [role, setRole] = useState<CreateInviteRequest["role"]>("member");
 
-	const canSubmit = EMAIL_RE.test(email.trim());
+	const canSubmit = isValidEmail(email.trim());
 
 	function handleClose() {
 		setEmail("");
@@ -88,13 +85,10 @@ export function InviteMemberDialog({
 				</div>
 				<DialogFooter>
 					<Button variant="ghost" onClick={handleClose}>
-						Cancel <Kbd>Esc</Kbd>
+						Cancel
 					</Button>
 					<Button onClick={handleInvite} disabled={!canSubmit}>
-						Send invite{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Send invite
 					</Button>
 				</DialogFooter>
 			</DialogContent>

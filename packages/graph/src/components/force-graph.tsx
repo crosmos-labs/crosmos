@@ -152,19 +152,23 @@ export function ForceGraph<
 
 	const rfgLinks = useMemo<RFGLink[]>(
 		() =>
-			edges.map((e) => {
-				const meta = parallelEdgeMeta.get(e.id);
-				return {
-					source: e.source,
-					target: e.target,
-					edgeId: e.id,
-					label: getEdgeLabel(e),
-					curvature: meta?.curvature ?? 0,
-					parallelIndex: meta?.index ?? 0,
-					parallelCount: meta?.count ?? 1,
-				};
-			}),
-		[edges, parallelEdgeMeta, getEdgeLabel],
+			edges
+				// Paged APIs can return edges whose other endpoint is outside the
+				// returned node set; d3-force throws on missing endpoints.
+				.filter((e) => nodeMap.has(e.source) && nodeMap.has(e.target))
+				.map((e) => {
+					const meta = parallelEdgeMeta.get(e.id);
+					return {
+						source: e.source,
+						target: e.target,
+						edgeId: e.id,
+						label: getEdgeLabel(e),
+						curvature: meta?.curvature ?? 0,
+						parallelIndex: meta?.index ?? 0,
+						parallelCount: meta?.count ?? 1,
+					};
+				}),
+		[edges, nodeMap, parallelEdgeMeta, getEdgeLabel],
 	);
 
 	const graphData = useMemo(

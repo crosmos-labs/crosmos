@@ -1,0 +1,224 @@
+---
+title: "Crosmos: Organizational Memory for AI Agents"
+epigraph: "Agent memory has been built for one person. Companies don't work like that."
+---
+
+Every agent memory system today remembers one person. A company is not one person. Its memory
+is shared: what the team knows, who said what, and which parts each person is allowed to see.
+
+Crosmos is built for that. It is a shared memory for an organization: many people, one growing
+record, with permissions built in so each person sees only what they are allowed to, and a full
+history that can be traced and audited rather than silently overwritten. It finds the right
+memory 99.7% of the time, answers around 91% of questions correctly on gpt-5-mini, a small model,
+or 90.8% under an independent gpt-4o grader, and runs a deterministic search that returns the same
+results for the same query.
+
+## 1. Personal memory is not enough for teams
+
+A company's useful memory is shared and permissioned. If a sales rep asks "what did we promise
+this customer," the answer might sit in someone else's conversation, and some of what is stored,
+this person should not see at all. Existing memory tools model a single user, and none of them
+treat "what is shared with me" as part of how they search. That is the gap Crosmos is built to
+close.
+
+## 2. Memory should be auditable
+
+Crosmos stores memory as a Monotonic Temporal Knowledge Graph. Monotonic means it only ever
+adds. When a fact changes, the old version is not erased. It is kept and dated, and the new one
+is layered on top.
+
+Most memory systems update in place. "Works at Google" becomes "works at Anthropic," and the
+old fact is gone. But people change. They switch jobs, move cities, shift preferences. A system
+that overwrites can only ever tell you the current state. A monotonic graph tells you the whole
+story: what is true now, what was true before, and when it changed. Recent facts surface first
+in search, older ones fade but stay reachable when the question is about the past.
+
+Every fact also records two times, kept separately: when the event happened, and when it was
+said. Someone might mention in June that they started a job in May. The two dates serve
+different jobs, one for reasoning about time, one for ranking by recency, and keeping them apart
+is what lets the system answer time questions correctly.
+
+The graph is not the whole memory, it is a view onto it. Underneath sits the real record: the
+facts and episodes exactly as they were observed, each with its timestamps and a link back to
+where it came from, a conversation, a document, a Slack message, an email. Every connection in
+the graph points back to the memory it was drawn from, and every memory points back to its
+source. Any answer can be traced all the way to the original context it came from.
+
+That traceability is the point. For a person using an assistant, memory is mostly about
+convenience. For a company, memory is about trust: being able to audit a past decision,
+reconstruct how something changed, and explain why the agent said what it said. A system that
+overwrites cannot do any of that. One that preserves history can.
+
+## 3. How search works
+
+A few pieces:
+
+- **Spaces.** Each organization gets its own space. Every fact, person, and connection lives inside
+  it.
+- **Facts.** Short, self-contained statements ("Maria leads the Acme account"), cleaned up at save
+  time so each one makes sense on its own, an approach related to contextual retrieval
+  [^contextual].
+- **Connections.** Links between people and things, each with a confidence and a date, so when a
+  fact changes over time we can tell which version is current.
+- **Permissions.** Every fact is either shared with the whole organization or owned by a person.
+  Search only ever returns what the asker is allowed to see, and that rule is part of the search
+  itself rather than a filter added afterward.
+
+Search runs four approaches at once: meaning-based search, plain keyword search, a walk over the
+connection graph, and a date-aware pass for time questions. Their results are combined, nudged
+slightly toward recent items, and the top handful are returned. Retrieval is deterministic: the
+same query returns the same results.
+
+That determinism is deliberate. Search does not rewrite the query with a language model, generate
+a hypothetical answer to search with, or loop, so it adds no extra cost or latency on each
+request and does not shift when a prompt is tuned. Long contexts and noisy retrieval are known to
+degrade answers [^lostmiddle], so the job of search is to hand the answering model a small,
+correct set, fast, every time, the same way twice.
+
+### The four signals
+
+Each signal looks for the answer a different way, so between them they cover each other's blind
+spots. Meaning-based search embeds the question and matches it against the stored facts, catching
+paraphrases that share no words with the question. Keyword search runs full-text matching over
+the fact text, so exact names, identifiers, and rare terms that embeddings blur are still found.
+The graph walk starts from the people and things the question names and follows their connections
+outward, hop by hop, reaching facts that are related but never directly mentioned. A time-aware
+pass, active only when the question refers to a period, scores facts by how close they fall to
+that window.
+
+The four sets of results are merged with Reciprocal Rank Fusion (RRF), which averages rank
+positions rather than scores, so a fact that several signals rank highly rises to the top and
+agreement is rewarded. A final pass orders the survivors by recency, by closeness to any date the
+question is about, and by a persistence signal that favors facts which have proved important and
+are recalled often. An optional diversify step then trims near-duplicate results, so the handful
+returned cover distinct facts instead of repeating the same one.
+
+## 4. The benchmark, and what it does not measure
+
+We test on LongMemEval [^longmemeval] because it is the closest public stand-in for real chat
+history. Each question carries a long backlog of about 50 prior conversations (over 100,000
+tokens), and the system has to find the right moment and reason over it. Older benchmarks like
+LoCoMo [^locomo] use much shorter histories and do not test updating old facts with new ones, so
+they no longer stress modern models. LongMemEval covers six question types: pulling a fact a
+user or assistant stated, reading an implicit preference, reasoning across several sessions,
+updating knowledge when newer facts replace older ones, reasoning about time, and knowing when
+to say "I don't know." It is also the benchmark most memory systems report on.
+
+But LongMemEval measures one thing: recall and reasoning over a single user's history. It does
+not touch the parts of Crosmos that matter most in production:
+
+- Shared memory and permissions. Every question is single-user. Nothing checks whether a person
+  sees only what they are allowed to.
+- Forgetting. Crosmos fades unimportant, unused memories and keeps the important, reused ones,
+  so the knowledge base stays sharp as it grows instead of drowning in old noise. A fixed
+  benchmark never runs long enough to test that.
+- Consolidation. In the background, Crosmos groups related memories into higher-level summaries,
+  so thousands of overlapping facts do not bury the few that matter. The benchmark has no notion
+  of this.
+
+So read the scores below as a floor, not a ceiling. They measure the slice of Crosmos that a
+single-user question-and-answer benchmark can see.
+
+## 5. Results
+
+Before the numbers, the point of them. A memory system has one job: surface the right
+information when it is asked for. What happens next, how an agent phrases the answer, which model
+it uses, how it reasons, depends on the use case and the team building on top. So the measure
+that is really about the memory is recall: how often the answer is actually in what we return.
+That is the number a memory system lives or dies by, and ours is 99.7%. Everything downstream
+rides on it.
+
+LongMemEval-s is 500 questions across the six types above. Crosmos answers with gpt-5-mini; we
+report results graded both by gpt-5-mini and by an independent gpt-4o, using the benchmark's
+official per-question grading rubric [^longmemeval].
+
+### 5.1 Retrieval
+
+**Crosmos reaches 99.7% recall@10**: the item holding the answer is in the top 10 retrieved results
+99.7% of the time, measured without telling search what kind of question it is. Recall is the
+foundation everything downstream stands on. If the answer is in the returned set, a capable model
+can use it; if it is not, nothing afterward can recover it.
+
+### 5.2 Accuracy
+
+Answering with gpt-5-mini, Crosmos scores 91% self-graded and 90.8% when graded by an
+independent gpt-4o. By category (gpt-5-mini answering, gpt-4o grader):
+
+![LongMemEval benchmark results showing 91% overall accuracy at top 10, with category scores from 81% to 100%](/longmemeval-benchmark.png)
+
+| Question type | Accuracy |
+|---|---|
+| Single-session (assistant) | 100.0 |
+| Single-session (user) | 97.1 |
+| Knowledge update | 93.6 |
+| Temporal reasoning | 93.2 |
+| Single-session (preference) | 83.3 |
+| Multi-session reasoning | 81.2 |
+| Overall | 90.8 |
+
+And self-graded (gpt-5-mini), by category:
+
+| Question type | Accuracy |
+|---|---|
+| Single-session (assistant) | 100.0 |
+| Single-session (user) | 95.7 |
+| Knowledge update | 93.6 |
+| Temporal reasoning | 94.0 |
+| Single-session (preference) | 76.7 |
+| Multi-session reasoning | 83.5 |
+| Overall | 91.0 |
+
+Crosmos scores highest among production memory systems on LongMemEval-s:
+
+| System | Answering model | LongMemEval-s |
+|---|---|---|
+| Crosmos (self-graded) | gpt-5-mini | 91 |
+| Crosmos (gpt-4o) | gpt-5-mini | 90.8 |
+| HydraDB | gemini-3-pro | 90.79 |
+| Supermemory[^supermemory] | gemini-3-pro | 85.20 |
+| Zep[^zep] | gpt-4o | 71.2 |
+| Full context (baseline) | gpt-4o | 60.2 |
+
+Crosmos reaches these numbers on gpt-5-mini, a small and cheap model. That a light model gets there points to the retrieval carrying the load, and it leaves headroom: a stronger answering model would push accuracy toward the recall ceiling.
+
+Crosmos is shown under both its own grader and an independent one. Competitor scores are from HydraDB's evaluation [^hydradb].
+
+<div className="not-prose mt-6 border-l-2 border-muted-foreground pl-4 text-sm text-muted-foreground">We're actively benchmarking across a range of models, so the figures above are a current snapshot and may shift as that work continues.</div>
+
+### 5.3 What this means
+
+Retrieval is at 99.7%, accuracy at 90.8%. So on the questions that are missed, the answer was in
+the returned context and the answering model did not use it. On the two hardest types,
+preference and multi-session, retrieval is near perfect, so the headroom is in answering, not
+memory. A stronger answering model walks accuracy toward the 99.7% ceiling.
+
+## 6. What's new here
+
+1. Memory for a whole organization, with multiple people and permissions built into search, not
+   a single user's history.
+2. Deterministic search that still reaches very high retrieval, 99.7% in the top 10.
+3. A full audit trail: every answer traces back to the memory and the source it came from, with
+   history kept rather than overwritten.
+
+## 7. What's next
+
+LongMemEval measures personal recall, while the parts of Crosmos that set it apart, shared
+memory with permissions, forgetting, and consolidation, go untested by any public benchmark
+today. The next benchmark we are building measures those directly, starting with the one that
+matters most: whether a person sees exactly what they are allowed to and nothing more.
+
+---
+
+Reproducibility: the benchmark harness records the exact settings and dataset version for every
+run, grading uses the benchmark's official rubric unchanged, and search returns the top 10. The
+99.7% figure is how often the answer-bearing item is in those 10.
+
+## Citations
+
+[^longmemeval]: Wu, D., Wang, H., Yu, W., Zhang, Y., Chang, K. W., & Yu, D. (2024). LongMemEval: Benchmarking chat assistants on long-term interactive memory. arXiv:2410.10813.
+[^locomo]: Maharana, A., Lee, D. H., Tulyakov, S., Bansal, M., Barbieri, F., & Fang, Y. (2024). Evaluating very long-term conversational memory of LLM agents. arXiv:2402.17753.
+[^lostmiddle]: Liu, N. F., Lin, K., Hewitt, J., Paranjape, A., Bevilacqua, M., Petroni, F., & Liang, P. (2024). Lost in the middle: How language models use long contexts. TACL, 12, 157-173.
+[^contextual]: Anthropic (2024). Introducing Contextual Retrieval. Anthropic Engineering Blog. https://www.anthropic.com/engineering/contextual-retrieval
+[^supermemory]: Supermemory (2025). LongMemBench results. https://supermemory.ai/research/longmembench
+[^zep]: Rasmussen, P., Paliychuk, P., Beauvais, T., Ryan, J., & Chalef, D. (2025). Zep: a temporal knowledge graph architecture for agent memory. arXiv:2501.13956.
+[^hydradb]: HydraDB (2026). Beyond flat embeddings for production AI agents. https://research.hydradb.com

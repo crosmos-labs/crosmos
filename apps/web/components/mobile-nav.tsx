@@ -9,6 +9,7 @@ import { LINKS } from "@/config/links";
 
 const NAV_LINKS = [
 	{ href: "/blogs", label: "BLOGS" },
+	{ href: "/research", label: "RESEARCH" },
 	{ href: LINKS.product.pricing, label: "PRICING" },
 	{ href: LINKS.social.discord, label: "DISCORD" },
 ] as const;
@@ -134,13 +135,11 @@ function MobileNavSheet({
 									<IconBrandGithubFilled size={16} />
 									GitHub
 								</Link>
-								<Link
-									href={LINKS.product.console}
-									onClick={handleClose}
-									className="hover:bg-primary/90 bg-primary px-6 py-2.5 rounded font-semibold text-sm transition-colors text-primary-foreground text-center"
-								>
-									Get Started
-								</Link>
+								<Button asChild className="rounded">
+									<Link href={LINKS.product.console} onClick={handleClose}>
+										Start free
+									</Link>
+								</Button>
 							</div>
 						</div>
 					</div>

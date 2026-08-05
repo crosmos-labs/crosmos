@@ -17,6 +17,7 @@ import { deleteGroup } from "@/actions/visibility";
 import { DeleteGroupDialog } from "@/components/groups/delete-group-dialog";
 import { GroupAvatar } from "@/components/groups/group-avatar";
 import { visibilityGroupsKey } from "@/hooks/use-visibility";
+import { clearContentCaches } from "@/lib/content-cache";
 import { optimisticRemove } from "@/lib/optimistic";
 import type { VisibilityGroup } from "@/lib/types/visibility";
 
@@ -47,7 +48,10 @@ export function GroupHeader({
 			(g) => g.id === group.id,
 			() => deleteGroup(orgId, group.id),
 		)
-			.then(() => toast.success("Group deleted"))
+			.then(() => {
+				toast.success("Group deleted");
+				return clearContentCaches(mutate, orgId);
+			})
 			.catch(() => toast.error("Failed to delete group"));
 	}
 

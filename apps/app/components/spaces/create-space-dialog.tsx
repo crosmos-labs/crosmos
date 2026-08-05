@@ -10,8 +10,6 @@ import {
 	DialogTitle,
 } from "@crosmos/ui/components/dialog";
 import { Input } from "@crosmos/ui/components/input";
-import { Kbd } from "@crosmos/ui/components/kbd";
-import { IconCornerDownLeft } from "@tabler/icons-react";
 import { useState } from "react";
 
 export function CreateSpaceDialog({
@@ -70,13 +68,10 @@ export function CreateSpaceDialog({
 				/>
 				<DialogFooter>
 					<Button variant="ghost" onClick={handleClose}>
-						Cancel <Kbd>Esc</Kbd>
+						Cancel
 					</Button>
 					<Button onClick={handleCreate} disabled={!name.trim()}>
-						Create{" "}
-						<Kbd>
-							<IconCornerDownLeft />
-						</Kbd>
+						Create
 					</Button>
 				</DialogFooter>
 			</DialogContent>

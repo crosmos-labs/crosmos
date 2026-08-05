@@ -44,8 +44,8 @@ export interface TokenResponse {
 	user_id: string;
 	email: string;
 	name: string;
-	token_type: string;
-	active_org_id?: string | null;
+	token_type: "bearer";
+	active_org_id: string | null;
 }
 
 export interface OAuthCallbackResponse extends TokenResponse {

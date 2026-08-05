@@ -5,7 +5,10 @@ import {
 	ACCESS_TOKEN_MAX_AGE,
 	ACTIVE_ORG_COOKIE,
 	ACTIVE_ORG_MAX_AGE,
+	AUTH_ERROR_COOKIE,
+	AUTH_ERROR_MAX_AGE,
 	COOKIE_OPTIONS,
+	FLASH_COOKIE_OPTIONS,
 	INVITE_TOKEN_COOKIE,
 	OAUTH_STATE_COOKIE,
 	REFRESH_TOKEN_COOKIE,
@@ -87,6 +90,16 @@ export async function setActiveOrgCookie(orgId: string) {
 export async function getActiveOrgId(): Promise<string | null> {
 	const cookieStore = await cookies();
 	return cookieStore.get(ACTIVE_ORG_COOKIE)?.value ?? null;
+}
+
+// Flash cookie: written server-side by the OAuth routes on failure, consumed
+// (read + deleted) client-side by the signup page.
+export async function setAuthErrorCookie(code: string) {
+	const cookieStore = await cookies();
+	cookieStore.set(AUTH_ERROR_COOKIE, code, {
+		...FLASH_COOKIE_OPTIONS,
+		maxAge: AUTH_ERROR_MAX_AGE,
+	});
 }
 
 // Carries the invite token across the OAuth round-trip (which drops the original ?token=).

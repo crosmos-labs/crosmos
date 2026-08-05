@@ -1,4 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@crosmos/ui/components/sidebar";
+import { PastDueBanner } from "@/components/billing/past-due-banner";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { RequireActiveOrg } from "@/components/layout/require-active-org";
@@ -23,6 +24,7 @@ export default function DashboardLayout({
 						<RequireActiveOrg />
 						<AppSidebar />
 						<SidebarInset>
+							<PastDueBanner />
 							<DashboardHeader />
 							<div className="flex-1 overflow-auto">
 								<div id="main-content" className="mx-auto max-w-5xl p-6">

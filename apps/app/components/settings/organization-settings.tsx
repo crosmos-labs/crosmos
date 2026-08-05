@@ -17,6 +17,7 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { orgKey, useOrg } from "@/hooks/use-org";
 import { orgsKey } from "@/hooks/use-orgs";
 import type { OrgDetailResponse } from "@/lib/types/org";
+import { unwrapAction } from "@/lib/unwrap-action";
 
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
 
@@ -97,14 +98,10 @@ export function OrganizationSettings() {
 		runAction(
 			async () => {
 				const result = await updateOrg(orgId, patch);
-				if (!result.ok) {
-					if (result.code === "slug_taken") {
-						setSlugError("That slug is already taken.");
-					}
-					throw Object.assign(new Error(result.message), {
-						code: result.code,
-					});
+				if (!result.ok && result.code === "slug_taken") {
+					setSlugError("That slug is already taken.");
 				}
+				const data = unwrapAction(result);
 				// The org-detail revalidation is independent of the list cache, so it
 				// runs alongside the optimistic list patch; the list revalidation must
 				// follow the optimistic write so it overwrites it with server truth.
@@ -114,7 +111,7 @@ export function OrganizationSettings() {
 						orgsKey,
 						(current: OrgDetailResponse[] | undefined) =>
 							current?.map((item) =>
-								item.id === orgId ? { ...item, ...result.data } : item,
+								item.id === orgId ? { ...item, ...data } : item,
 							),
 						{ revalidate: false },
 					),

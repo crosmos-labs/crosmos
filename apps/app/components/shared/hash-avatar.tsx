@@ -10,14 +10,19 @@ export function HashAvatar({
 	size = 20,
 	label,
 	className,
+	shape = "rounded",
+	animated = false,
+	tones,
 }: {
 	hash: string;
 	size?: number;
 	label: string;
 	className?: string;
+	shape?: "rounded" | "circle";
+	animated?: boolean;
+	tones?: string[];
 }) {
-	// Radius scales with size so the rounding looks identical at any size.
-	const radius = Math.round(size * 0.2);
+	const radius = shape === "circle" ? "50%" : `${Math.round(size * 0.2)}px`;
 	return (
 		<Avatar
 			className={cn(
@@ -29,7 +34,7 @@ export function HashAvatar({
 					width: size,
 					height: size,
 					borderRadius: radius,
-					"--hash-avatar-radius": `${radius}px`,
+					"--hash-avatar-radius": radius,
 				} as CSSProperties
 			}
 			aria-label={label}
@@ -38,6 +43,8 @@ export function HashAvatar({
 				hash={hash}
 				size={size}
 				mode="dither"
+				animated={animated}
+				tones={tones}
 				style={{ borderRadius: radius }}
 			/>
 		</Avatar>

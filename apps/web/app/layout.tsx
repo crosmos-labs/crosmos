@@ -4,10 +4,17 @@ import localFont from "next/font/local";
 
 import "@crosmos/ui/globals.css";
 import "./landing.css";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
+import {
+	OG_IMAGE,
+	SITE_DESCRIPTION,
+	SITE_NAME,
+	SITE_TITLE,
+	SITE_URL,
+} from "@/lib/site";
 
 const satoshi = localFont({
 	src: "./fonts/Satoshi.woff2",
@@ -27,7 +34,7 @@ export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
 	title: {
 		default: SITE_TITLE,
-		template: "%s — Crosmos",
+		template: "%s - Crosmos",
 	},
 	description: SITE_DESCRIPTION,
 	applicationName: SITE_NAME,
@@ -52,14 +59,7 @@ export const metadata: Metadata = {
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,
 		locale: "en_US",
-		images: [
-			{
-				url: "/opengraph-image.png",
-				width: 2400,
-				height: 1200,
-				alt: SITE_NAME,
-			},
-		],
+		images: [OG_IMAGE],
 	},
 	twitter: {
 		card: "summary_large_image",
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
 		creator: "@crosmoslabs",
 		title: SITE_TITLE,
 		description: SITE_DESCRIPTION,
-		images: ["/opengraph-image.png"],
+		images: [OG_IMAGE.url],
 	},
 	robots: {
 		index: true,
@@ -170,6 +170,7 @@ export default function RootLayout({
 				</main>
 				<Footer />
 			</body>
+			<GoogleAnalytics gaId="G-EYY0FHL2G9" />
 		</html>
 	);
 }

@@ -17,7 +17,8 @@ export default function SpacesPage() {
 			<div className="flex flex-col gap-1">
 				<h1 className="text-2xl font-semibold tracking-tight">Spaces</h1>
 				<p className="text-sm text-muted-foreground">
-					Manage your memory spaces for storing and retrieving data.
+					Create spaces to organize memory. Select a space to browse the
+					memories crosmos has learned from its sources.
 				</p>
 			</div>
 			{error ? (

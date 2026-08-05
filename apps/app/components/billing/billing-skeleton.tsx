@@ -2,13 +2,11 @@
 
 import {
 	Item,
-	ItemActions,
 	ItemContent,
 	ItemDescription,
 	ItemTitle,
 } from "@crosmos/ui/components/item";
 import { Skeleton } from "@crosmos/ui/components/skeleton";
-import { SpacesMeterSkeleton } from "@/components/billing/spaces-meter";
 import { UsageMeterSkeleton } from "@/components/billing/usage-meter";
 
 export function BillingSkeleton() {
@@ -24,24 +22,28 @@ export function BillingSkeleton() {
 						<Skeleton className="h-3.5 w-4/5" />
 					</ItemDescription>
 				</ItemContent>
-				<ItemActions>
-					<Skeleton className="h-8 w-20" />
-				</ItemActions>
 			</Item>
-			<div className="flex flex-col gap-6">
-				<div className="flex flex-col gap-1">
-					<Skeleton className="h-5 w-12" />
-					<Skeleton className="h-4 w-64" />
+			<section className="flex flex-col gap-3">
+				<Skeleton className="h-6 w-36" />
+				<div className="flex flex-col gap-2">
+					<Skeleton className="h-16 w-full rounded-lg" />
+					<Skeleton className="h-16 w-full rounded-lg" />
+					<Skeleton className="h-16 w-full rounded-lg" />
 				</div>
-				<div className="flex flex-col gap-4">
-					<div className="grid gap-4 sm:grid-cols-2">
-						<UsageMeterSkeleton />
-						<UsageMeterSkeleton />
-					</div>
-					<SpacesMeterSkeleton />
-				</div>
-			</div>
+			</section>
 			<span className="sr-only">Loading billing data…</span>
+		</div>
+	);
+}
+
+export function UsageSkeleton() {
+	return (
+		<div aria-busy="true" className="flex flex-col gap-4">
+			<div className="grid gap-4 sm:grid-cols-2">
+				<UsageMeterSkeleton />
+				<UsageMeterSkeleton />
+			</div>
+			<span className="sr-only">Loading usage data…</span>
 		</div>
 	);
 }
