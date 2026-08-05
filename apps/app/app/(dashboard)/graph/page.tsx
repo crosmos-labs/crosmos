@@ -8,7 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
-import { Skeleton } from "@crosmos/ui/components/skeleton";
+import { Spinner } from "@crosmos/ui/components/spinner";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import { EdgePopover } from "@/components/graph/edge-popover";
@@ -159,7 +159,9 @@ export default function GraphPage() {
 					)}
 
 					{isInitialLoading && (
-						<Skeleton className="absolute inset-0 h-full w-full rounded-none" />
+						<div className="absolute inset-0 flex items-center justify-center">
+							<Spinner className="size-6 text-muted-foreground" />
+						</div>
 					)}
 
 					{!isInitialLoading && graphData && (
@@ -176,7 +178,7 @@ export default function GraphPage() {
 							/>
 							{graphLoading && (
 								<div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
-									<Skeleton className="h-8 w-8 rounded-full" />
+									<Spinner className="size-6 text-muted-foreground" />
 								</div>
 							)}
 							{visibleSelection?.type === "node" && (
