@@ -27,7 +27,7 @@ function isExpired(token: string | undefined): boolean {
 		const { exp } = JSON.parse(
 			Buffer.from(token.split(".")[1] ?? "", "base64url").toString(),
 		) as { exp?: number };
-		return typeof exp !== "number" || exp - 60 <= Date.now() / 1000;
+		return typeof exp !== "number" || exp <= Date.now() / 1000;
 	} catch {
 		return true;
 	}

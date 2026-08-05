@@ -15,64 +15,93 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-/**
- * Holds the in-flight refresh promise so concurrent callers deduplicate
- * into a single POST /auth/refresh request instead of racing.
- */
-let inFlightRefresh: Promise<TokenResponse | null> | null = null;
-
-export async function refreshTokens(): Promise<TokenResponse | null> {
-	// If a refresh is already running, reuse its promise instead of starting another
-	if (inFlightRefresh) return inFlightRefresh;
-
-	// Assign the dedup promise so late callers see it before any awaits
-	inFlightRefresh = (async () => {
-		const refreshToken = await getRefreshToken();
-		if (!refreshToken || !API_URL) return null;
-
-		// Refresh tokens are org-agnostic; without this hint the backend resets
-		// context to the user's default org, dropping a switched active org.
-		const activeOrgId = await getActiveOrgId();
-
-		try {
-			const res = await fetch(`${API_URL}/auth/refresh`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					refresh_token: refreshToken,
-					active_org_id: activeOrgId ?? undefined,
-				}),
-				cache: "no-store",
-			});
-
-			// Non-destructive: don't clear cookies on a lost rotation race.
-			if (!res.ok) return null;
-
-			const data = (await res.json()) as TokenResponse;
-			await setAuthCookies(data.access_token, data.refresh_token);
-			if (data.active_org_id != null) {
-				await setActiveOrgCookie(data.active_org_id);
-			}
-			return data;
-		} catch {
-			return null;
-		}
-	})();
-
-	try {
-		return await inFlightRefresh;
-	} finally {
-		// Clear only after all callers have settled so the next refresh starts fresh
-		inFlightRefresh = null;
+export class AuthUnavailableError extends Error {
+	constructor() {
+		super("Authentication service is temporarily unavailable");
+		this.name = "AuthUnavailableError";
 	}
 }
 
-export async function verifyAuth(): Promise<AuthUser | null> {
+export interface VerifyAuthOptions {
+	allowRefresh?: boolean;
+}
+
+const inFlightRefreshes = new Map<string, Promise<TokenResponse | null>>();
+
+export async function refreshTokens(): Promise<TokenResponse | null> {
+	const refreshToken = await getRefreshToken();
+	if (!refreshToken || !API_URL) return null;
+
+	const existing = inFlightRefreshes.get(refreshToken);
+	const promise =
+		existing ??
+		(async (): Promise<TokenResponse | null> => {
+			try {
+				// Refresh tokens are org-agnostic; without this hint the backend resets
+				// context to the user's default org, dropping a switched active org.
+				const activeOrgId = await getActiveOrgId();
+				const res = await fetch(`${API_URL}/auth/refresh`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						refresh_token: refreshToken,
+						active_org_id: activeOrgId ?? undefined,
+					}),
+					cache: "no-store",
+				});
+
+				if (!res.ok) {
+					if (res.status === 408 || res.status === 429 || res.status >= 500) {
+						throw new AuthUnavailableError();
+					}
+					return null;
+				}
+
+				const data = (await res.json()) as TokenResponse;
+				if (
+					typeof data.access_token !== "string" ||
+					typeof data.refresh_token !== "string"
+				) {
+					throw new AuthUnavailableError();
+				}
+
+				return data;
+			} catch (error) {
+				if (error instanceof AuthUnavailableError) throw error;
+				throw new AuthUnavailableError();
+			}
+		})();
+
+	if (!existing) inFlightRefreshes.set(refreshToken, promise);
+	try {
+		const data = await promise;
+		if (!data) return null;
+
+		await setAuthCookies(data.access_token, data.refresh_token);
+		if (data.active_org_id != null) {
+			await setActiveOrgCookie(data.active_org_id);
+		}
+		return data;
+	} catch (error) {
+		if (error instanceof AuthUnavailableError) throw error;
+		throw new AuthUnavailableError();
+	} finally {
+		if (inFlightRefreshes.get(refreshToken) === promise) {
+			inFlightRefreshes.delete(refreshToken);
+		}
+	}
+}
+
+export async function verifyAuth(
+	options: VerifyAuthOptions = {},
+): Promise<AuthUser | null> {
 	if (!API_URL) return null;
 
+	const allowRefresh = options.allowRefresh ?? true;
 	let accessToken = await getAccessToken();
 	let refreshedAtStart = false;
 	if (!accessToken) {
+		if (!allowRefresh) return null;
 		const refreshed = await refreshTokens();
 		if (!refreshed) return null;
 		accessToken = refreshed.access_token;
@@ -89,39 +118,36 @@ export async function verifyAuth(): Promise<AuthUser | null> {
 			return toAuthUser(await res.json());
 		}
 
-		if ((res.status === 401 || res.status === 404) && !refreshedAtStart) {
+		if (res.status === 408 || res.status === 429 || res.status >= 500) {
+			throw new AuthUnavailableError();
+		}
+
+		if (res.status === 401 && allowRefresh && !refreshedAtStart) {
 			const refreshed = await refreshTokens();
 			if (!refreshed) return null;
 
 			const retryRes = await fetch(`${API_URL}/auth/me`, {
-				headers: { Authorization: `Bearer ${refreshed.access_token}` },
+				headers: {
+					Authorization: `Bearer ${refreshed.access_token}`,
+				},
 				cache: "no-store",
 			});
 
 			if (retryRes.ok) {
 				return toAuthUser(await retryRes.json());
 			}
+			if (
+				retryRes.status === 408 ||
+				retryRes.status === 429 ||
+				retryRes.status >= 500
+			) {
+				throw new AuthUnavailableError();
+			}
 		}
 		return null;
-	} catch {
-		return null;
-	}
-}
-
-// Read-only: never refreshes/writes cookies, so it's safe during RSC render.
-export async function peekUser(): Promise<AuthUser | null> {
-	if (!API_URL) return null;
-
-	const accessToken = await getAccessToken();
-	if (!accessToken) return null;
-
-	try {
-		const res = await fetch(`${API_URL}/auth/me`, {
-			headers: { Authorization: `Bearer ${accessToken}` },
-			cache: "no-store",
-		});
-		return res.ok ? toAuthUser(await res.json()) : null;
-	} catch {
-		return null;
+	} catch (error) {
+		if (!allowRefresh) return null;
+		if (error instanceof AuthUnavailableError) throw error;
+		throw new AuthUnavailableError();
 	}
 }

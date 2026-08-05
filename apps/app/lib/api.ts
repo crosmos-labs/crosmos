@@ -18,18 +18,8 @@ export class ApiError extends Error {
 
 		if (typeof body === "object" && body !== null) {
 			const obj = body as Record<string, unknown>;
-			// Legacy envelope (kept defensively): { error: { code, message } }
-			if (typeof obj.error === "object" && obj.error !== null) {
-				const error = obj.error as Record<string, unknown>;
-				if (typeof error.error === "string") code = error.error;
-				if (typeof error.message === "string") message = error.message;
-			} else if (typeof obj.error === "string") {
-				code = obj.error;
-			}
-			// Bare Starlette responses (e.g. 404/405) carry a string detail.
 			if (typeof obj.detail === "string") message = obj.detail;
-			// Current envelope: { detail, code, request_id, fields }.
-			if (code === null && typeof obj.code === "string") code = obj.code;
+			if (typeof obj.code === "string") code = obj.code;
 		}
 
 		super(message);

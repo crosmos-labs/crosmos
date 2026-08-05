@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import {
 	clearAuthCookies,
+	getAccessToken,
 	getRefreshToken,
 	setAccessTokenCookie,
 	setActiveOrgCookie,
@@ -45,13 +46,18 @@ export async function updateProfile(name: string): Promise<MeResponse> {
 }
 
 export async function logout() {
+	const accessToken = await getAccessToken();
 	const refreshToken = await getRefreshToken();
 
 	if (refreshToken && API_URL) {
 		try {
+			const headers = new Headers({ "Content-Type": "application/json" });
+			if (accessToken) {
+				headers.set("Authorization", `Bearer ${accessToken}`);
+			}
 			await fetch(`${API_URL}/auth/logout`, {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers,
 				body: JSON.stringify({ refresh_token: refreshToken }),
 				cache: "no-store",
 				signal: AbortSignal.timeout(5000),
