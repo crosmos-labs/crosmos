@@ -43,7 +43,7 @@
 	box-shadow: var(--cg-shadow);
 }
 
-:where([data-graph-page] .cg-popover) {
+[data-graph-page] .cg-popover {
 	top: auto;
 	right: auto;
 	bottom: 1.5rem;
