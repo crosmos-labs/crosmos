@@ -12,8 +12,8 @@ const SITE_LAST_MODIFIED = new Date("2026-06-07");
 
 export default function sitemap(): MetadataRoute.Sitemap {
 	const blogs = getAllBlogs();
-	const latestBlogDate = blogs[0]?.publishedAt
-		? new Date(blogs[0].publishedAt)
+	const latestBlogDate = blogs[0]?.updatedAt
+		? new Date(blogs[0].updatedAt)
 		: SITE_LAST_MODIFIED;
 
 	const staticRoutes: MetadataRoute.Sitemap = [

@@ -53,7 +53,6 @@ export type BlogPost = {
 	thumbnail: string;
 	thumbnailWidth: number;
 	thumbnailHeight: number;
-	publishedAt: string;
 	tweetUrl?: string;
 	updatedAt: string;
 	content: string;
@@ -125,15 +124,6 @@ export function getAllBlogs(): BlogPost[] {
 		if (typeof data.title !== "string" || !data.title) {
 			throw new Error(`Missing or invalid "title" in ${file}`);
 		}
-		if (typeof data.publishedAt !== "string" || !data.publishedAt) {
-			throw new Error(`Missing or invalid "publishedAt" in ${file}`);
-		}
-		if (Number.isNaN(new Date(data.publishedAt).getTime())) {
-			throw new Error(
-				`Invalid "publishedAt" date in ${file}: "${data.publishedAt}"`,
-			);
-		}
-
 		if (typeof data.readTime !== "number") {
 			throw new Error(`Missing or invalid "readTime" in ${file}`);
 		}
@@ -144,13 +134,13 @@ export function getAllBlogs(): BlogPost[] {
 			throw new Error(`Invalid "tweetUrl" in ${file}`);
 		}
 
-		const updatedAt =
-			data.updatedAt === undefined ? data.publishedAt : data.updatedAt;
-		if (typeof updatedAt !== "string" || !updatedAt) {
-			throw new Error(`Invalid "updatedAt" in ${file}`);
+		if (typeof data.updatedAt !== "string" || !data.updatedAt) {
+			throw new Error(`Missing or invalid "updatedAt" in ${file}`);
 		}
-		if (Number.isNaN(new Date(updatedAt).getTime())) {
-			throw new Error(`Invalid "updatedAt" date in ${file}: "${updatedAt}"`);
+		if (Number.isNaN(new Date(data.updatedAt).getTime())) {
+			throw new Error(
+				`Invalid "updatedAt" date in ${file}: "${data.updatedAt}"`,
+			);
 		}
 
 		const author = AUTHORS[data.author];
@@ -177,16 +167,14 @@ export function getAllBlogs(): BlogPost[] {
 			thumbnail: data.thumbnail,
 			thumbnailWidth,
 			thumbnailHeight,
-			publishedAt: data.publishedAt,
 			tweetUrl: data.tweetUrl,
-			updatedAt,
+			updatedAt: data.updatedAt,
 			content,
 		});
 	}
 
 	return blogs.sort(
-		(a, b) =>
-			new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
+		(a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
 	);
 }
 

@@ -37,7 +37,6 @@ export async function generateMetadata({
 			title: blog.title,
 			description: blog.description,
 			images: [blog.thumbnail],
-			publishedTime: blog.publishedAt,
 			modifiedTime: blog.updatedAt,
 			authors: [blog.author.name],
 		},
@@ -68,7 +67,6 @@ export default async function BlogPage({ params }: BlogPageProps) {
 			timeZone: "UTC",
 			year: "numeric",
 		}).format(new Date(date));
-	const publishedDate = formatDate(blog.publishedAt);
 	const updatedDate = formatDate(blog.updatedAt);
 
 	const blogPostingJsonLd = {
@@ -77,7 +75,6 @@ export default async function BlogPage({ params }: BlogPageProps) {
 		headline: blog.title,
 		description: blog.description,
 		image: imageUrl,
-		datePublished: blog.publishedAt,
 		dateModified: blog.updatedAt,
 		author: {
 			"@type": "Person",
@@ -165,9 +162,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
 								{blog.readTime} min read
 							</span>
 							<span className="text-xs text-muted-foreground">
-								Published {publishedDate}
-								{blog.updatedAt !== blog.publishedAt &&
-									` · Updated ${updatedDate}`}
+								Updated {updatedDate}
 							</span>
 						</div>
 					</div>
