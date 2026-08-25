@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import { getGraphViewport } from "@/actions/graph";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
-import type { GraphViewportResponse } from "@/lib/types/graph";
+import type { GraphViewportResponse } from "@/lib/graph/wire";
 
 export function graphPrefix(orgId: string): string {
 	return `/orgs/${orgId}/graph`;

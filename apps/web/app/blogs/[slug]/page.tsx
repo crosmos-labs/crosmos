@@ -37,7 +37,6 @@ export async function generateMetadata({
 			title: blog.title,
 			description: blog.description,
 			images: [blog.thumbnail],
-			publishedTime: blog.publishedAt,
 			authors: [blog.author.name],
 		},
 		twitter: {
@@ -156,15 +155,17 @@ export default async function BlogPage({ params }: BlogPageProps) {
 							</span>
 						</div>
 					</div>
-					<a
-						href={blog.tweetUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-					>
-						<IconBrandX className="size-4" />
-						View original post
-					</a>
+					{blog.tweetUrl && (
+						<a
+							href={blog.tweetUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+						>
+							<IconBrandX className="size-4" />
+							View original post
+						</a>
+					)}
 				</div>
 
 				<h1 className="text-3xl sm:text-4xl font-bold mb-8 leading-tight">

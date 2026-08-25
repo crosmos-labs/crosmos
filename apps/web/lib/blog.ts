@@ -54,7 +54,7 @@ export type BlogPost = {
 	thumbnailWidth: number;
 	thumbnailHeight: number;
 	publishedAt: string;
-	tweetUrl: string;
+	tweetUrl?: string;
 	content: string;
 };
 
@@ -139,8 +139,8 @@ export function getAllBlogs(): BlogPost[] {
 		if (typeof data.thumbnail !== "string" || !data.thumbnail) {
 			throw new Error(`Missing or invalid "thumbnail" in ${file}`);
 		}
-		if (typeof data.tweetUrl !== "string" || !data.tweetUrl) {
-			throw new Error(`Missing or invalid "tweetUrl" in ${file}`);
+		if (data.tweetUrl !== undefined && typeof data.tweetUrl !== "string") {
+			throw new Error(`Invalid "tweetUrl" in ${file}`);
 		}
 
 		const author = AUTHORS[data.author];

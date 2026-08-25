@@ -21,7 +21,7 @@ const base = (orgId: string) => `/orgs/${orgId}/visibility`;
 // --- Groups ---
 
 // Returns a typed result so the SWR fetcher can re-throw a client-side error
-// carrying status/code — used to detect a stale active org (see isOrgScopeMismatch).
+// carrying status/code so callers can detect a stale active org.
 export async function listGroups(
 	orgId: string,
 ): Promise<ActionResult<VisibilityGroup[]>> {
