@@ -7,7 +7,7 @@ export function BlogSection() {
 		.slice()
 		.sort(
 			(a, b) =>
-				new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+				new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
 		)
 		.slice(0, 2)
 		.map(toBlogPreview);

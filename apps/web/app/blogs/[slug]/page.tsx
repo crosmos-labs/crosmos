@@ -37,7 +37,6 @@ export async function generateMetadata({
 			title: blog.title,
 			description: blog.description,
 			images: [blog.thumbnail],
-			modifiedTime: blog.updatedAt,
 			authors: [blog.author.name],
 		},
 		twitter: {
@@ -60,14 +59,6 @@ export default async function BlogPage({ params }: BlogPageProps) {
 		? blog.thumbnail
 		: `${SITE_URL}${blog.thumbnail}`;
 	const authorUrl = blog.author.socials.x ?? blog.author.socials.linkedin;
-	const formatDate = (date: string) =>
-		new Intl.DateTimeFormat("en-US", {
-			day: "numeric",
-			month: "short",
-			timeZone: "UTC",
-			year: "numeric",
-		}).format(new Date(date));
-	const updatedDate = formatDate(blog.updatedAt);
 
 	const blogPostingJsonLd = {
 		"@context": "https://schema.org",
@@ -75,7 +66,8 @@ export default async function BlogPage({ params }: BlogPageProps) {
 		headline: blog.title,
 		description: blog.description,
 		image: imageUrl,
-		dateModified: blog.updatedAt,
+		datePublished: blog.publishedAt,
+		dateModified: blog.publishedAt,
 		author: {
 			"@type": "Person",
 			name: blog.author.name,
@@ -160,9 +152,6 @@ export default async function BlogPage({ params }: BlogPageProps) {
 							<span className="font-medium text-sm">{blog.author.name}</span>
 							<span className="text-xs text-muted-foreground">
 								{blog.readTime} min read
-							</span>
-							<span className="text-xs text-muted-foreground">
-								Updated {updatedDate}
 							</span>
 						</div>
 					</div>
