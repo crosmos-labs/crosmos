@@ -54,7 +54,8 @@ export type BlogPost = {
 	thumbnailWidth: number;
 	thumbnailHeight: number;
 	publishedAt: string;
-	tweetUrl: string;
+	tweetUrl?: string;
+	updatedAt: string;
 	content: string;
 };
 
@@ -139,8 +140,14 @@ export function getAllBlogs(): BlogPost[] {
 		if (typeof data.thumbnail !== "string" || !data.thumbnail) {
 			throw new Error(`Missing or invalid "thumbnail" in ${file}`);
 		}
-		if (typeof data.tweetUrl !== "string" || !data.tweetUrl) {
-			throw new Error(`Missing or invalid "tweetUrl" in ${file}`);
+		if (data.tweetUrl !== undefined && typeof data.tweetUrl !== "string") {
+			throw new Error(`Invalid "tweetUrl" in ${file}`);
+		}
+
+		const updatedAt =
+			typeof data.updatedAt === "string" ? data.updatedAt : data.publishedAt;
+		if (Number.isNaN(new Date(updatedAt).getTime())) {
+			throw new Error(`Invalid "updatedAt" date in ${file}: "${updatedAt}"`);
 		}
 
 		const author = AUTHORS[data.author];
@@ -169,6 +176,7 @@ export function getAllBlogs(): BlogPost[] {
 			thumbnailHeight,
 			publishedAt: data.publishedAt,
 			tweetUrl: data.tweetUrl,
+			updatedAt,
 			content,
 		});
 	}
