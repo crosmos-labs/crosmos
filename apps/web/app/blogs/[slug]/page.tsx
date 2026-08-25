@@ -38,7 +38,6 @@ export async function generateMetadata({
 			description: blog.description,
 			images: [blog.thumbnail],
 			publishedTime: blog.publishedAt,
-			modifiedTime: blog.updatedAt,
 			authors: [blog.author.name],
 		},
 		twitter: {
@@ -61,14 +60,6 @@ export default async function BlogPage({ params }: BlogPageProps) {
 		? blog.thumbnail
 		: `${SITE_URL}${blog.thumbnail}`;
 	const authorUrl = blog.author.socials.x ?? blog.author.socials.linkedin;
-	const formatDate = (date: string) =>
-		new Intl.DateTimeFormat("en-US", {
-			day: "numeric",
-			month: "short",
-			year: "numeric",
-		}).format(new Date(date));
-	const publishedDate = formatDate(blog.publishedAt);
-	const updatedDate = formatDate(blog.updatedAt);
 
 	const blogPostingJsonLd = {
 		"@context": "https://schema.org",
@@ -77,7 +68,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
 		description: blog.description,
 		image: imageUrl,
 		datePublished: blog.publishedAt,
-		dateModified: blog.updatedAt,
+		dateModified: blog.publishedAt,
 		author: {
 			"@type": "Person",
 			name: blog.author.name,
@@ -163,24 +154,17 @@ export default async function BlogPage({ params }: BlogPageProps) {
 							<span className="text-xs text-muted-foreground">
 								{blog.readTime} min read
 							</span>
-							<span className="text-xs text-muted-foreground">
-								Published {publishedDate}
-								{blog.updatedAt !== blog.publishedAt &&
-									` · Updated ${updatedDate}`}
-							</span>
 						</div>
 					</div>
-					{blog.tweetUrl && (
-						<a
-							href={blog.tweetUrl}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-						>
-							<IconBrandX className="size-4" />
-							View original post
-						</a>
-					)}
+					<a
+						href={blog.tweetUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
+					>
+						<IconBrandX className="size-4" />
+						View original post
+					</a>
 				</div>
 
 				<h1 className="text-3xl sm:text-4xl font-bold mb-8 leading-tight">
