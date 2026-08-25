@@ -4,7 +4,7 @@ import { apiFetch } from "@/lib/api";
 import type {
 	GraphStatsResponse,
 	GraphViewportResponse,
-} from "@/lib/types/graph";
+} from "@/lib/graph/wire";
 
 export async function getGraphViewport(
 	spaceUuid: string,
