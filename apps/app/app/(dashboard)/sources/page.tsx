@@ -15,6 +15,8 @@ import { buildSourcesKey, useSources } from "@/hooks/use-sources";
 import { useSpaces } from "@/hooks/use-spaces";
 import { paginationParsers } from "@/lib/params/pagination";
 
+const noop = () => {};
+
 function PageHeader() {
 	return (
 		<div className="flex flex-col gap-1">
@@ -34,6 +36,17 @@ export default function SourcesPage() {
 			fallback={
 				<div className="flex flex-col gap-6">
 					<PageHeader />
+					<SourceToolbar
+						contentType={null}
+						extractionStatus={null}
+						spaceId={null}
+						spaces={[]}
+						spacesLoading
+						onContentTypeChange={noop}
+						onExtractionStatusChange={noop}
+						onSpaceChange={noop}
+						onReset={noop}
+					/>
 					<SourceListSkeleton />
 				</div>
 			}
@@ -86,25 +99,23 @@ function SourcesPageContent() {
 				/>
 			) : (
 				<>
-					{orgId && (
-						<SourceToolbar
-							contentType={filters.content_type}
-							extractionStatus={filters.extraction_status}
-							spaceId={filters.space_id}
-							spaces={spacesData ?? []}
-							spacesLoading={spacesLoading}
-							onContentTypeChange={(value) =>
-								setParams({ content_type: value, page: null })
-							}
-							onExtractionStatusChange={(value) =>
-								setParams({ extraction_status: value, page: null })
-							}
-							onSpaceChange={(value) =>
-								setParams({ space_id: value, page: null })
-							}
-							onReset={clearFilters}
-						/>
-					)}
+					<SourceToolbar
+						contentType={filters.content_type}
+						extractionStatus={filters.extraction_status}
+						spaceId={filters.space_id}
+						spaces={spacesData ?? []}
+						spacesLoading={spacesLoading || !orgId}
+						onContentTypeChange={(value) =>
+							setParams({ content_type: value, page: null })
+						}
+						onExtractionStatusChange={(value) =>
+							setParams({ extraction_status: value, page: null })
+						}
+						onSpaceChange={(value) =>
+							setParams({ space_id: value, page: null })
+						}
+						onReset={clearFilters}
+					/>
 					{!swrKey || !sourcesData ? (
 						<SourceListSkeleton />
 					) : (

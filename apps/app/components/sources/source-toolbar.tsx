@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@crosmos/ui/components/button";
+import { Skeleton } from "@crosmos/ui/components/skeleton";
 import {
 	IconCircleDashed,
 	IconDatabase,
@@ -72,22 +73,6 @@ export function SourceToolbar({
 
 	return (
 		<div className="flex flex-wrap items-center gap-2">
-			{showSpaceFilter && (
-				<FilterPopover
-					label="Space"
-					icon={IconDatabase}
-					options={spaces.map((space) => ({
-						value: space.id,
-						label: space.name,
-						icon: <IconDatabase className="text-muted-foreground" />,
-					}))}
-					value={spaceId}
-					onSelect={onSpaceChange}
-					searchable
-					searchPlaceholder="Search spaces…"
-					emptyLabel="No spaces found."
-				/>
-			)}
 			<FilterPopover
 				label="Type"
 				icon={IconFileDescription}
@@ -106,6 +91,24 @@ export function SourceToolbar({
 					onExtractionStatusChange(value as ExtractionStatus | null)
 				}
 			/>
+			{showSpaceFilter ? (
+				<FilterPopover
+					label="Space"
+					icon={IconDatabase}
+					options={spaces.map((space) => ({
+						value: space.id,
+						label: space.name,
+						icon: <IconDatabase className="text-muted-foreground" />,
+					}))}
+					value={spaceId}
+					onSelect={onSpaceChange}
+					searchable
+					searchPlaceholder="Search spaces…"
+					emptyLabel="No spaces found."
+				/>
+			) : spacesLoading ? (
+				<Skeleton className="h-8 w-20 rounded-lg" aria-hidden="true" />
+			) : null}
 			{hasFilters && (
 				<Button variant="ghost" onClick={onReset}>
 					<IconX />
