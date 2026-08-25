@@ -34,6 +34,7 @@ interface SearchOutput {
 	results?: Array<{
 		id: string;
 		content: string;
+		source_id: string | null;
 		type: string;
 		score: number;
 		owner?: string | null;

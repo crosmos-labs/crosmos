@@ -1,4 +1,4 @@
-export type MemoryType = "viewpoint" | "semantic" | "episode";
+export type MemoryType = "viewpoint" | "semantic" | "episode" | "inference";
 
 export type RecallSort = "most" | "least";
 

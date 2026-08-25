@@ -1,15 +1,16 @@
 import "server-only";
 
 import { ApiError, apiFetch } from "@/lib/api";
-import type { MemoryType } from "@/lib/types/memory";
+import type { Source } from "@/lib/types/source";
 
 /** Subset of a Crosmos search candidate we care about. */
 export interface SearchCandidate {
 	memory_id: string;
 	content: string;
-	memory_type: MemoryType;
+	memory_type: string;
 	score: number;
 	source?: string | null;
+	source_id: string | null;
 	created_at: string;
 	event_time: string | null;
 	owner_name: string | null;
@@ -51,6 +52,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 const SEARCH_TIMEOUT_MS = 25_000;
+const SOURCE_TIMEOUT_MS = 15_000;
 // Save is a fast 202 enqueue — 15s is generous.
 const SAVE_TIMEOUT_MS = 15_000;
 
@@ -74,7 +76,7 @@ export async function searchMemory(args: {
 				limit: clamp(args.limit ?? 6, 1, 50),
 				rerank: true,
 				graph: true,
-				include_source: true,
+				include_source: false,
 			}),
 		});
 		return { candidates: data.candidates };
@@ -82,6 +84,23 @@ export async function searchMemory(args: {
 		// Surface timeout as retryable so the model can communicate it clearly.
 		if (err instanceof DOMException && err.name === "TimeoutError") {
 			throw new CrosmosRetryableError(504, "Memory search timed out.");
+		}
+		rethrowRetryable(err);
+	}
+}
+
+export async function getSource(args: {
+	sourceId: string;
+	spaceId: string;
+}): Promise<Source> {
+	try {
+		return await apiFetch<Source>(
+			`/sources/${args.sourceId}?space_uuid=${args.spaceId}`,
+			{ signal: AbortSignal.timeout(SOURCE_TIMEOUT_MS) },
+		);
+	} catch (err) {
+		if (err instanceof DOMException && err.name === "TimeoutError") {
+			throw new CrosmosRetryableError(504, "Source fetch timed out.");
 		}
 		rethrowRetryable(err);
 	}

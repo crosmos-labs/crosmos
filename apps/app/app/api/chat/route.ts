@@ -10,6 +10,7 @@ import { z } from "zod";
 import { listSpaces } from "@/actions/spaces";
 import {
 	CrosmosRetryableError,
+	getSource,
 	saveMemory,
 	searchMemory,
 } from "@/lib/ai/crosmos";
@@ -159,6 +160,7 @@ export async function POST(req: Request) {
 							results: candidates.map((c) => ({
 								id: c.memory_id,
 								content: c.content.slice(0, MAX_CONTENT_CHARS),
+								source_id: c.source_id,
 								type: c.memory_type,
 								score: Number(c.score.toFixed(3)),
 								owner: c.owner_name,
@@ -174,6 +176,35 @@ export async function POST(req: Request) {
 						return {
 							error: "Memory search failed.",
 							retryable: false,
+						};
+					}
+				},
+			}),
+			get_source: tool({
+				description:
+					"Fetch the original source document for a search result when exact wording or additional detail is needed. " +
+					"Only use a source_id returned by search_memory.",
+				inputSchema: z.object({
+					source_id: z.string().uuid().describe("Source ID from search_memory"),
+				}),
+				execute: async ({ source_id }) => {
+					try {
+						const source = await getSource({
+							sourceId: source_id,
+							spaceId,
+						});
+						return {
+							source_id,
+							content: source.content,
+							content_type: source.content_type,
+						};
+					} catch (err) {
+						return {
+							error:
+								err instanceof CrosmosRetryableError
+									? "Source fetch is temporarily unavailable."
+									: "Source fetch failed.",
+							retryable: err instanceof CrosmosRetryableError,
 						};
 					}
 				},
