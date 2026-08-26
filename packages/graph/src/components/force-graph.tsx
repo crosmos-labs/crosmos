@@ -58,6 +58,9 @@ const LINK_HIT_LINE_WIDTH = 0.5 + 4;
 const HOVER_OUT_DEBOUNCE_MS = 80;
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 5;
+// ponytail: large graphs use d3's initial positions; use a worker if settled
+// force layouts become a product requirement.
+const LARGE_GRAPH_NODE_THRESHOLD = 2_000;
 
 function clampZoom(scale: number): number {
 	return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale));
@@ -108,6 +111,7 @@ export function ForceGraph<
 	const containerRef = useRef<HTMLDivElement>(null);
 	const zoomLabelRef = useRef<HTMLDivElement>(null);
 	const fgRef = useRef<AnyRfgRef | null>(null);
+	const rfgNodeCacheRef = useRef(new Map<string, RFGNode>());
 
 	const reducedMotion = usePrefersReducedMotion();
 	const hover = useHoverAnimation({
@@ -140,15 +144,27 @@ export function ForceGraph<
 
 	const parallelEdgeMeta = useParallelEdges(edges, theme.link.curvatureSpacing);
 
-	const rfgNodes = useMemo<RFGNode[]>(
-		() =>
-			nodes.map((n) => ({
+	const rfgNodes = useMemo<RFGNode[]>(() => {
+		const cache = rfgNodeCacheRef.current;
+		const activeIds = new Set<string>();
+		const nextNodes = nodes.map((n) => {
+			const node = cache.get(n.id) ?? {
 				id: n.id,
-				label: getNodeLabel(n),
-				weight: getNodeWeight(n),
-			})),
-		[nodes, getNodeLabel, getNodeWeight],
-	);
+				label: "",
+				weight: 0,
+			};
+			node.label = getNodeLabel(n);
+			node.weight = getNodeWeight(n);
+			cache.set(n.id, node);
+			activeIds.add(n.id);
+			return node;
+		});
+
+		for (const id of cache.keys()) {
+			if (!activeIds.has(id)) cache.delete(id);
+		}
+		return nextNodes;
+	}, [nodes, getNodeLabel, getNodeWeight]);
 
 	const rfgLinks = useMemo<RFGLink[]>(
 		() =>
@@ -184,13 +200,14 @@ export function ForceGraph<
 		const multiplier = Math.min(3, 1 + Math.log1p(relativeGrowth));
 		return baseDistance * multiplier;
 	}, [nodes.length, theme.force.linkDistance]);
+	const isLargeGraph = nodes.length > LARGE_GRAPH_NODE_THRESHOLD;
 
 	const communities = useMemo(
 		() =>
-			disableClustering
+			disableClustering || isLargeGraph
 				? new Map<string, number>()
 				: computeCommunities(nodes, edges),
-		[disableClustering, nodes, edges],
+		[disableClustering, isLargeGraph, nodes, edges],
 	);
 
 	useGraphLayout(
@@ -575,6 +592,7 @@ export function ForceGraph<
 				}
 				d3AlphaDecay={theme.force.alphaDecay}
 				d3VelocityDecay={theme.force.velocityDecay}
+				cooldownTicks={isLargeGraph ? 0 : Infinity}
 			/>
 		</div>
 	);
