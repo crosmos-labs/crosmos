@@ -77,14 +77,16 @@ export function OpenCode(props: SVGProps<SVGSVGElement>) {
 /** Hermes mark. */
 export function Hermes({ className }: SVGProps<SVGSVGElement>) {
 	return (
-		<Image
-			alt=""
-			aria-hidden="true"
-			className={`rounded-md bg-white p-0.5 ${className ?? ""}`}
-			height={24}
-			src="/hermesagent.svg"
-			width={24}
-		/>
+		<span className="flex size-6 items-center justify-center rounded-md bg-white">
+			<Image
+				alt=""
+				aria-hidden="true"
+				className={className}
+				height={24}
+				src="/hermesagent.svg"
+				width={24}
+			/>
+		</span>
 	);
 }
 
