@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useSWRInfinite from "swr/infinite";
 import { getGraphViewport } from "@/actions/graph";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
@@ -8,6 +8,11 @@ import {
 	mergeGraphPages,
 } from "@/lib/graph/pagination";
 import type { GraphViewportResponse } from "@/lib/graph/wire";
+
+type PendingLoadAll = {
+	reject: (error: unknown) => void;
+	resolve: () => void;
+};
 
 export function graphPrefix(orgId: string): string {
 	return `/orgs/${orgId}/graph`;
@@ -62,6 +67,7 @@ export function useGraph(spaceUuid: string | null) {
 		data: pages,
 		error,
 		isLoading,
+		isValidating,
 		setSize,
 		mutate,
 	} = useSWRInfinite<GraphViewportResponse>(getKey, fetchPage, {
@@ -80,17 +86,59 @@ export function useGraph(spaceUuid: string | null) {
 	const hasMore = Boolean(
 		data && pages && pages.length < targetPageCount && lastPage?.nodes.length,
 	);
+	const [isLoadingAll, setIsLoadingAll] = useState(false);
 	const loadingAllRef = useRef(false);
+	const validationStartedRef = useRef(false);
+	const pendingLoadAllRef = useRef<PendingLoadAll | null>(null);
 
-	const loadAll = useCallback(async () => {
-		if (!data || !hasMore || loadingAllRef.current) return;
-		loadingAllRef.current = true;
-
-		try {
-			await setSize(targetPageCount);
-		} finally {
-			loadingAllRef.current = false;
+	useEffect(() => {
+		if (!isLoadingAll) return;
+		if (isValidating) {
+			validationStartedRef.current = true;
+			return;
 		}
+		if (!validationStartedRef.current) return;
+
+		const pending = pendingLoadAllRef.current;
+		pendingLoadAllRef.current = null;
+		validationStartedRef.current = false;
+		loadingAllRef.current = false;
+		setIsLoadingAll(false);
+
+		if (!pending) return;
+		if (error) {
+			pending.reject(error);
+			return;
+		}
+		pending.resolve();
+	}, [error, isLoadingAll, isValidating]);
+
+	useEffect(() => {
+		return () => {
+			pendingLoadAllRef.current?.reject(new Error("Graph load was cancelled"));
+			pendingLoadAllRef.current = null;
+		};
+	}, []);
+
+	const loadAll = useCallback(() => {
+		if (!data || !hasMore || loadingAllRef.current) return Promise.resolve();
+		loadingAllRef.current = true;
+		validationStartedRef.current = false;
+		setIsLoadingAll(true);
+
+		const promise = new Promise<void>((resolve, reject) => {
+			pendingLoadAllRef.current = { reject, resolve };
+		});
+		void setSize(targetPageCount).catch((requestError: unknown) => {
+			const pending = pendingLoadAllRef.current;
+			pendingLoadAllRef.current = null;
+			validationStartedRef.current = false;
+			loadingAllRef.current = false;
+			setIsLoadingAll(false);
+			pending?.reject(requestError);
+		});
+
+		return promise;
 	}, [data, hasMore, setSize, targetPageCount]);
 
 	const retry = useCallback(() => mutate(), [mutate]);
@@ -99,6 +147,8 @@ export function useGraph(spaceUuid: string | null) {
 		data,
 		hasMore,
 		isLoading,
+		isValidating,
+		isLoadingAll,
 		error,
 		loadAll,
 		retry,

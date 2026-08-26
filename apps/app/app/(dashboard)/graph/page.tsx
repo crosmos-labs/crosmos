@@ -51,6 +51,8 @@ export default function GraphPage() {
 		error: graphError,
 		hasMore,
 		loadAll,
+		isLoadingAll,
+		isValidating,
 		retry: retryGraph,
 	} = useGraph(effectiveSpaceId || null);
 	const { runAction, state } = useActionLoader();
@@ -84,7 +86,8 @@ export default function GraphPage() {
 	const limitReached =
 		loadedNodeCount >= MAX_GRAPH_NODES && loadedNodeCount < totalNodeCount;
 	const canLoadAll = Boolean(graphData && (hasMore || graphError));
-	const loadAllDisabled = state.activeCount > 0 || !canLoadAll;
+	const loadAllBusy = state.activeCount > 0 || isLoadingAll || isValidating;
+	const loadAllDisabled = loadAllBusy || !canLoadAll;
 
 	const handleLoadAll = useCallback(() => {
 		runAction(loadAll).catch(() => {});
@@ -137,7 +140,11 @@ export default function GraphPage() {
 				</div>
 				{spaces && spaces.length > 0 && (
 					<div className="pointer-events-auto flex shrink-0 flex-col items-end gap-2">
-						<Select value={effectiveSpaceId} onValueChange={handleSpaceChange}>
+						<Select
+							value={effectiveSpaceId}
+							onValueChange={handleSpaceChange}
+							disabled={loadAllBusy}
+						>
 							<SelectTrigger aria-label="Select space" className="w-[240px]">
 								<SelectValue placeholder="Select a space" />
 							</SelectTrigger>
