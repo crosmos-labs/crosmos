@@ -27,7 +27,7 @@ function StepRow({
 
 export function InstallSteps({ connector }: { connector: Connector }) {
 	return (
-		<div className="flex flex-col gap-5">
+		<div className="flex w-full min-w-0 flex-col gap-5">
 			{connector.steps.map((step, index) => (
 				<StepRow key={step.title} number={index + 1} title={step.title}>
 					{step.note && (
