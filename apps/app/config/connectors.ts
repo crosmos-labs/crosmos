@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from "react";
+import type { ComponentType } from "react";
 import {
 	ClaudeAI,
 	Codex,
@@ -26,7 +26,7 @@ export interface Connector {
 	name: string;
 	description: string;
 	category: ConnectorCategoryId;
-	logo: ComponentType<SVGProps<SVGSVGElement>>;
+	logo: ComponentType<{ className?: string }>;
 	docsUrl: string;
 	steps: ConnectorStep[];
 }
