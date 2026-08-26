@@ -108,6 +108,7 @@ export function ForceGraph<
 	const containerRef = useRef<HTMLDivElement>(null);
 	const zoomLabelRef = useRef<HTMLDivElement>(null);
 	const fgRef = useRef<AnyRfgRef | null>(null);
+	const rfgNodeCacheRef = useRef(new Map<string, RFGNode>());
 
 	const reducedMotion = usePrefersReducedMotion();
 	const hover = useHoverAnimation({
@@ -140,15 +141,27 @@ export function ForceGraph<
 
 	const parallelEdgeMeta = useParallelEdges(edges, theme.link.curvatureSpacing);
 
-	const rfgNodes = useMemo<RFGNode[]>(
-		() =>
-			nodes.map((n) => ({
+	const rfgNodes = useMemo<RFGNode[]>(() => {
+		const cache = rfgNodeCacheRef.current;
+		const activeIds = new Set<string>();
+		const nextNodes = nodes.map((n) => {
+			const node = cache.get(n.id) ?? {
 				id: n.id,
-				label: getNodeLabel(n),
-				weight: getNodeWeight(n),
-			})),
-		[nodes, getNodeLabel, getNodeWeight],
-	);
+				label: "",
+				weight: 0,
+			};
+			node.label = getNodeLabel(n);
+			node.weight = getNodeWeight(n);
+			cache.set(n.id, node);
+			activeIds.add(n.id);
+			return node;
+		});
+
+		for (const id of cache.keys()) {
+			if (!activeIds.has(id)) cache.delete(id);
+		}
+		return nextNodes;
+	}, [nodes, getNodeLabel, getNodeWeight]);
 
 	const rfgLinks = useMemo<RFGLink[]>(
 		() =>
