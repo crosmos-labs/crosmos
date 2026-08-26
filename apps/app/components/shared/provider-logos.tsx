@@ -73,6 +73,27 @@ export function OpenCode(props: SVGProps<SVGSVGElement>) {
 	);
 }
 
+/** Hermes mark. */
+export function Hermes(props: SVGProps<SVGSVGElement>) {
+	return (
+		<svg
+			{...props}
+			aria-hidden="true"
+			fill="none"
+			preserveAspectRatio="xMidYMid"
+			viewBox="0 0 24 24"
+		>
+			<path
+				d="M12 3v18M8.5 4.5c.6 1.6 1.8 2.5 3.5 2.5s2.9-.9 3.5-2.5M8.5 4.5C7.6 5.4 6.5 6 5 6m10.5-1.5c.9.9 2 1.5 3.5 1.5M9 9c-1.5 1.2-2 2.4-2 3.7 0 2 1.9 3.3 5 3.3s5-1.3 5-3.3c0-1.3-.5-2.5-2-3.7M8.5 19.5h7"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="1.7"
+			/>
+		</svg>
+	);
+}
+
 /** Model Context Protocol mark. */
 export function ModelContextProtocol(props: SVGProps<SVGSVGElement>) {
 	return (
