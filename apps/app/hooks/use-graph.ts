@@ -4,7 +4,7 @@ import { getGraphViewport } from "@/actions/graph";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
 import {
 	GRAPH_PAGE_SIZE,
-	hasMoreGraphPages,
+	graphPageCount,
 	mergeGraphPages,
 } from "@/lib/graph/pagination";
 import type { GraphViewportResponse } from "@/lib/graph/wire";
@@ -76,35 +76,24 @@ export function useGraph(spaceUuid: string | null) {
 		[pages],
 	);
 	const lastPage = pages?.[pages.length - 1];
-	const hasMore = Boolean(data && hasMoreGraphPages(data, lastPage));
+	const targetPageCount = data ? graphPageCount(data.total_nodes) : 1;
+	const hasMore = Boolean(
+		data && pages && pages.length < targetPageCount && lastPage?.nodes.length,
+	);
 	const loadingAllRef = useRef(false);
 
 	const loadAll = useCallback(async () => {
-		if (!pages || loadingAllRef.current) return;
+		if (!data || !hasMore || loadingAllRef.current) return;
 		loadingAllRef.current = true;
 
 		try {
-			let currentPages = pages;
-			let requestedSize = currentPages.length;
-
-			while (
-				hasMoreGraphPages(
-					mergeGraphPages(currentPages),
-					currentPages[currentPages.length - 1],
-				)
-			) {
-				requestedSize = Math.max(requestedSize, currentPages.length + 1);
-				currentPages = (await setSize(requestedSize)) ?? currentPages;
-			}
+			await setSize(targetPageCount);
 		} finally {
 			loadingAllRef.current = false;
 		}
-	}, [pages, setSize]);
+	}, [data, hasMore, setSize, targetPageCount]);
 
-	const retry = useCallback(() => {
-		if (!pages) return mutate();
-		return setSize(pages.length + 1);
-	}, [mutate, pages, setSize]);
+	const retry = useCallback(() => mutate(), [mutate]);
 
 	return {
 		data,

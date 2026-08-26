@@ -3,14 +3,10 @@ import type { GraphViewportResponse } from "./wire";
 export const GRAPH_PAGE_SIZE = 500;
 export const MAX_GRAPH_NODES = 10_000;
 
-export function hasMoreGraphPages(
-	data: GraphViewportResponse,
-	lastPage: GraphViewportResponse | undefined,
-): boolean {
-	return (
-		Boolean(lastPage?.nodes.length) &&
-		data.nodes.length < data.total_nodes &&
-		data.nodes.length < MAX_GRAPH_NODES
+export function graphPageCount(totalNodes: number): number {
+	return Math.min(
+		Math.max(1, Math.ceil(totalNodes / GRAPH_PAGE_SIZE)),
+		Math.ceil(MAX_GRAPH_NODES / GRAPH_PAGE_SIZE),
 	);
 }
 
