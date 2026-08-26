@@ -80,7 +80,7 @@ export function Hermes({ className }: SVGProps<SVGSVGElement>) {
 		<Image
 			alt=""
 			aria-hidden="true"
-			className={className}
+			className={`rounded-md bg-white p-0.5 ${className ?? ""}`}
 			height={24}
 			src="/hermesagent.svg"
 			width={24}
