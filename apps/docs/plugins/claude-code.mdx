@@ -1,12 +1,12 @@
 ---
 title: "Claude Code"
-description: "Add automatic, persistent memory to Claude Code."
+description: "Add automatic, persistent context to Claude Code."
 icon: "/icons/claude-code.svg"
 ---
 
-The Crosmos Claude Code plugin adds project memory to Claude Code. It recalls relevant context when a session starts, captures your conversations automatically through lifecycle hooks, and adds `/crosmos-recall` and `/crosmos-save` skills for on-demand lookups and explicit notes.
+The Crosmos Claude Code plugin adds persistent project context to Claude Code. It recalls relevant context when a session starts, captures completed exchanges through lifecycle hooks, and adds `/crosmos-recall` and `/crosmos-save` skills for on-demand lookups and explicit notes.
 
-Use this plugin when you want Claude Code to remember project decisions, preferences, and prior work without managing memory by hand. If you only need callable memory tools, use [MCP](/mcp/overview) instead.
+Use this plugin when you want Claude Code to remember project decisions, preferences, and prior work without managing memory by hand. MCP is optional. Use it when you need callable Crosmos memory tools in another MCP client. See the [MCP overview](/mcp/overview).
 
 ## Prerequisites
 
@@ -129,5 +129,8 @@ Existing memories in Crosmos are preserved.
 </Card>
 <Card title="Memory tools" icon="list-check" href="/mcp/tools">
   See the callable memory tool schemas.
+</Card>
+<Card title="GitHub repository" icon="github" href="https://github.com/crosmos-labs/claudecode-crosmos">
+  Browse the source code, releases, and issues.
 </Card>
 </CardGroup>
