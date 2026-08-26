@@ -1,6 +1,7 @@
 "use client";
 
 import { ForceGraph } from "@crosmos/graph";
+import { Button } from "@crosmos/ui/components/button";
 import {
 	Select,
 	SelectContent,
@@ -13,10 +14,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import { EdgePopover } from "@/components/graph/edge-popover";
 import { NodePopover } from "@/components/graph/node-popover";
+import { useActionLoader } from "@/components/providers/action-loader-provider";
 import { useBreadcrumb } from "@/components/providers/breadcrumb-provider";
 import { DataFetchError } from "@/components/shared/data-fetch-error";
 import { useActiveOrgId } from "@/hooks/use-active-org-id";
-import { graphKey, useGraph } from "@/hooks/use-graph";
+import { useGraph } from "@/hooks/use-graph";
 import { spacesKey, useSpaces } from "@/hooks/use-spaces";
 import {
 	edgeFromWire,
@@ -24,6 +26,7 @@ import {
 	type GraphNode,
 	nodeFromWire,
 } from "@/lib/graph/mappers";
+import { MAX_GRAPH_EDGES, MAX_GRAPH_NODES } from "@/lib/graph/pagination";
 
 type GraphSelection =
 	| { type: "node"; scope: string; node: GraphNode }
@@ -46,7 +49,13 @@ export default function GraphPage() {
 		data: graphData,
 		isLoading: graphLoading,
 		error: graphError,
+		hasMore,
+		loadAll,
+		isLoadingAll,
+		isValidating,
+		retry: retryGraph,
 	} = useGraph(effectiveSpaceId || null);
+	const { runAction, state } = useActionLoader();
 
 	const nodes = useMemo<GraphNode[]>(
 		() => graphData?.nodes.map(nodeFromWire) ?? [],
@@ -70,8 +79,27 @@ export default function GraphPage() {
 	const { setBreadcrumb } = useBreadcrumb();
 	const { mutate } = useSWRConfig();
 	const spacesSwrKey = orgId ? spacesKey(orgId) : null;
-	const graphSwrKey =
-		orgId && effectiveSpaceId ? graphKey(orgId, effectiveSpaceId) : null;
+	const loadedNodeCount = graphData?.nodes.length ?? 0;
+	const loadedEdgeCount = graphData?.edges.length ?? 0;
+	const totalNodeCount = graphData?.total_nodes ?? 0;
+	const totalEdgeCount = graphData?.total_edges ?? 0;
+	const limitReached =
+		!hasMore &&
+		((loadedNodeCount >= MAX_GRAPH_NODES && loadedNodeCount < totalNodeCount) ||
+			(loadedEdgeCount >= MAX_GRAPH_EDGES && loadedEdgeCount < totalEdgeCount));
+	const canLoadAll = Boolean(graphData && (hasMore || graphError));
+	const loadAllBusy = state.activeCount > 0 || isLoadingAll || isValidating;
+	const loadAllDisabled = loadAllBusy || !canLoadAll;
+
+	const handleLoadAll = useCallback(() => {
+		runAction(
+			graphError
+				? async () => {
+						await retryGraph();
+					}
+				: loadAll,
+		).catch(() => {});
+	}, [graphError, loadAll, retryGraph, runAction]);
 
 	useEffect(() => {
 		setBreadcrumb({ label: "Graph" });
@@ -111,16 +139,20 @@ export default function GraphPage() {
 					<h1 className="text-2xl font-semibold tracking-tight">Graph</h1>
 					{graphData && (
 						<p className="text-sm text-muted-foreground">
-							{nodes.length < graphData.total_nodes
-								? `Showing ${nodes.length} of ${graphData.total_nodes} nodes`
-								: `${graphData.total_nodes} nodes`}{" "}
-							· {graphData.total_edges} edges
+							{loadedNodeCount < totalNodeCount ||
+							loadedEdgeCount < totalEdgeCount
+								? `Showing ${loadedNodeCount} of ${totalNodeCount} nodes · ${loadedEdgeCount} of ${totalEdgeCount} edges`
+								: `${totalNodeCount} nodes · ${totalEdgeCount} edges`}
 						</p>
 					)}
 				</div>
 				{spaces && spaces.length > 0 && (
-					<div className="pointer-events-auto shrink-0">
-						<Select value={effectiveSpaceId} onValueChange={handleSpaceChange}>
+					<div className="pointer-events-auto flex shrink-0 flex-col items-end gap-2">
+						<Select
+							value={effectiveSpaceId}
+							onValueChange={handleSpaceChange}
+							disabled={loadAllBusy}
+						>
 							<SelectTrigger aria-label="Select space" className="w-[240px]">
 								<SelectValue placeholder="Select a space" />
 							</SelectTrigger>
@@ -132,6 +164,26 @@ export default function GraphPage() {
 								))}
 							</SelectContent>
 						</Select>
+						{graphData && (
+							<Button
+								variant="outline"
+								onClick={handleLoadAll}
+								disabled={loadAllDisabled}
+								aria-label={
+									graphError
+										? "Retry loading graph nodes"
+										: limitReached
+											? "Graph node limit reached"
+											: "Load all graph nodes"
+								}
+							>
+								{graphError
+									? "Retry"
+									: limitReached
+										? "Limit reached"
+										: "Load all"}
+							</Button>
+						)}
 					</div>
 				)}
 			</div>
@@ -147,13 +199,11 @@ export default function GraphPage() {
 				</div>
 			) : (
 				<>
-					{graphError && effectiveSpaceId && (
+					{graphError && !graphData && effectiveSpaceId && (
 						<div className="relative z-10 p-6 pt-24">
 							<DataFetchError
 								message={graphError.message}
-								onRetry={() =>
-									graphSwrKey ? mutate(graphSwrKey) : Promise.resolve()
-								}
+								onRetry={retryGraph}
 							/>
 						</div>
 					)}
