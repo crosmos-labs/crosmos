@@ -53,6 +53,7 @@
 						"pages": [
 							"plugins/claude-code",
 							"plugins/codex",
+							"plugins/hermes",
 							"plugins/opencode"
 						]
 					}

@@ -1,7 +1,8 @@
-import type { ComponentType, SVGProps } from "react";
+import type { ComponentType } from "react";
 import {
 	ClaudeAI,
 	Codex,
+	Hermes,
 	ModelContextProtocol,
 	OpenCode,
 } from "@/components/shared/provider-logos";
@@ -25,7 +26,7 @@ export interface Connector {
 	name: string;
 	description: string;
 	category: ConnectorCategoryId;
-	logo: ComponentType<SVGProps<SVGSVGElement>>;
+	logo: ComponentType<{ className?: string }>;
 	docsUrl: string;
 	steps: ConnectorStep[];
 }
@@ -39,7 +40,7 @@ export const connectors: Connector[] = [
 	{
 		id: "claude-code",
 		name: "Claude Code",
-		description: "Add automatic, persistent memory to Claude Code.",
+		description: "Add automatic, persistent context to Claude Code.",
 		category: "agent-plugins",
 		logo: ClaudeAI,
 		docsUrl: "https://docs.crosmos.dev/plugins/claude-code",
@@ -62,7 +63,7 @@ export const connectors: Connector[] = [
 	{
 		id: "codex",
 		name: "Codex",
-		description: "Add persistent memory to the OpenAI Codex CLI.",
+		description: "Add automatic, persistent context to Codex.",
 		category: "agent-plugins",
 		logo: Codex,
 		docsUrl: "https://docs.crosmos.dev/plugins/codex",
@@ -81,7 +82,7 @@ export const connectors: Connector[] = [
 	{
 		id: "opencode",
 		name: "OpenCode",
-		description: "Add automatic, persistent memory to opencode.",
+		description: "Add automatic, persistent context to OpenCode.",
 		category: "agent-plugins",
 		logo: OpenCode,
 		docsUrl: "https://docs.crosmos.dev/plugins/opencode",
@@ -94,6 +95,33 @@ export const connectors: Connector[] = [
 			{
 				title: "Save your API key",
 				commands: ["bunx @crosmos/opencode set-key csk_..."],
+			},
+		],
+	},
+	{
+		id: "hermes",
+		name: "Hermes",
+		description: "Add automatic, persistent context to Hermes Agent.",
+		category: "agent-plugins",
+		logo: Hermes,
+		docsUrl: "https://docs.crosmos.dev/plugins/hermes",
+		steps: [
+			{
+				title: "Install the plugin",
+				note: "Run in your terminal. Use Hermes's plugin manager or the shell installer.",
+				commands: [
+					"hermes plugins install crosmos-labs/hermes-crosmos",
+					"curl -fsSL https://raw.githubusercontent.com/crosmos-labs/hermes-crosmos/main/install.sh | bash",
+				],
+			},
+			{
+				title: "Set up Crosmos memory",
+				note: "Run in your terminal. The setup wizard configures the Crosmos memory provider.",
+				commands: ["hermes memory setup crosmos"],
+			},
+			{
+				title: "Start a new session",
+				note: "Start a new Hermes session after setup.",
 			},
 		],
 	},

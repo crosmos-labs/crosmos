@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { type SVGProps, useId } from "react";
 
 /** OpenAI mark. */
@@ -70,6 +71,20 @@ export function OpenCode(props: SVGProps<SVGSVGElement>) {
 				d="M384 416H128V96H384V416ZM320 160H192V352H320V160Z"
 			/>
 		</svg>
+	);
+}
+
+/** Hermes mark. */
+export function Hermes({ className }: SVGProps<SVGSVGElement>) {
+	return (
+		<Image
+			alt=""
+			aria-hidden="true"
+			className={className}
+			height={24}
+			src="/hermesagent.svg"
+			width={24}
+		/>
 	);
 }
 
