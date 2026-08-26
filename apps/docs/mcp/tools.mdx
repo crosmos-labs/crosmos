@@ -4,7 +4,7 @@ description: "MCP tool schemas and examples for Crosmos memory."
 icon: "list-check"
 ---
 
-The Crosmos MCP server exposes four tools. Memory tools accept an optional `space_id`; when omitted, the server resolves a default space from configuration or the authenticated account.
+The Crosmos MCP server exposes four callable tools. Memory tools accept an optional `space_id`; when omitted, the server resolves a default space from configuration or the authenticated account.
 
 ## `search_memories`
 
@@ -25,7 +25,7 @@ Memory space UUID. If omitted, the server resolves a default space.
 }
 ```
 
-The tool returns a ranked text response with score, memory type, optional event time, and memory content.
+The tool returns ranked text results with score, memory type, optional event time, and memory content.
 
 ## `add_memory`
 
@@ -52,6 +52,7 @@ Conversation messages to ingest through the conversations endpoint.
     {
       "content": "User prefers detailed technical explanations and uses Neovim.",
       "content_type": "text",
+      "visibility": "private",
       "meta": {
         "source": "agent-session"
       }
@@ -63,11 +64,11 @@ Conversation messages to ingest through the conversations endpoint.
 Source fields:
 
 | Field | Type | Default | Description |
-|-------|------|---------|-------------|
+| --- | --- | --- | --- |
 | `content` | string | required | Raw content text. |
 | `content_type` | string | `text` | Content type such as `text` or `markdown`. |
 | `role` | string | `null` | Speaker role for conversation-like content. |
-| `sequence` | number | `0` | Order within a batch. |
+| `visibility` | string | `private` | `private` or `org`. Organization-visible memories can be read by authorized organization members. |
 | `meta` | object | `null` | Arbitrary metadata. |
 
 ### Conversation
@@ -82,9 +83,7 @@ Source fields:
     ],
     "session_id": "setup-chat-001",
     "session_date": "2026-05-28T10:00:00Z",
-    "meta": {
-      "app": "agent"
-    }
+    "visibility": "private"
   }
 }
 ```
@@ -92,11 +91,11 @@ Source fields:
 Conversation fields:
 
 | Field | Type | Default | Description |
-|-------|------|---------|-------------|
+| --- | --- | --- | --- |
 | `messages` | array | required | Ordered `{ role, content }` messages. |
 | `session_id` | string | `null` | Conversation identifier. |
-| `session_date` | string | `null` | ISO datetime for the session. |
-| `meta` | object | `null` | Metadata attached to created sources. |
+| `session_date` | string | `null` | ISO datetime for the conversation reference time. |
+| `visibility` | string | `private` | `private` or `org`. Organization-visible memories can be read by authorized organization members. |
 
 ## `list_spaces`
 
@@ -106,7 +105,7 @@ List spaces available to the authenticated user.
 {}
 ```
 
-Agents should call this when they need to discover a space ID or when default space resolution fails.
+Call this when you need to discover a space ID or when default space resolution fails.
 
 ## `health_check`
 
