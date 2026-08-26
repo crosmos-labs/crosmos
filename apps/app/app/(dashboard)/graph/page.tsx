@@ -8,7 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@crosmos/ui/components/select";
-import { Skeleton } from "@crosmos/ui/components/skeleton";
+import { Spinner } from "@crosmos/ui/components/spinner";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSWRConfig } from "swr";
 import { EdgePopover } from "@/components/graph/edge-popover";
@@ -101,99 +101,102 @@ export default function GraphPage() {
 		setGraphSelection(null);
 	}, []);
 
-	if (spacesError) {
-		return (
-			<div className="flex flex-col gap-6">
-				<div className="flex flex-col gap-1">
-					<h1 className="text-2xl font-semibold tracking-tight">Graph</h1>
-					<p className="text-sm text-muted-foreground">
-						Knowledge graph visualization
-					</p>
-				</div>
-				<DataFetchError
-					message={spacesError.message}
-					onRetry={() =>
-						spacesSwrKey ? mutate(spacesSwrKey) : Promise.resolve()
-					}
-				/>
-			</div>
-		);
-	}
-
 	const isInitialLoading =
 		!orgId || (spacesLoading && !spaces) || (graphLoading && !graphData);
 
 	return (
-		<div className="flex h-[calc(100dvh-8rem)] flex-col gap-4">
-			<div className="flex items-center justify-between">
-				<h1 className="text-2xl font-semibold tracking-tight">Graph</h1>
+		<div data-graph-page className="relative h-full min-h-0 overflow-hidden">
+			<div className="pointer-events-none absolute inset-x-0 top-14 z-10 flex items-start justify-between gap-4 p-6">
+				<div className="w-fit min-w-0 space-y-1 rounded-lg px-3 py-2 backdrop-blur-md">
+					<h1 className="text-2xl font-semibold tracking-tight">Graph</h1>
+					{graphData && (
+						<p className="text-sm text-muted-foreground">
+							{nodes.length < graphData.total_nodes
+								? `Showing ${nodes.length} of ${graphData.total_nodes} nodes`
+								: `${graphData.total_nodes} nodes`}{" "}
+							· {graphData.total_edges} edges
+						</p>
+					)}
+				</div>
 				{spaces && spaces.length > 0 && (
-					<Select value={effectiveSpaceId} onValueChange={handleSpaceChange}>
-						<SelectTrigger aria-label="Select space" className="w-[240px]">
-							<SelectValue placeholder="Select a space" />
-						</SelectTrigger>
-						<SelectContent>
-							{spaces.map((space) => (
-								<SelectItem key={space.id} value={space.id}>
-									{space.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					<div className="pointer-events-auto shrink-0">
+						<Select value={effectiveSpaceId} onValueChange={handleSpaceChange}>
+							<SelectTrigger aria-label="Select space" className="w-[240px]">
+								<SelectValue placeholder="Select a space" />
+							</SelectTrigger>
+							<SelectContent>
+								{spaces.map((space) => (
+									<SelectItem key={space.id} value={space.id}>
+										{space.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 				)}
 			</div>
 
-			{graphData && (
-				<p className="text-sm text-muted-foreground">
-					{nodes.length < graphData.total_nodes
-						? `Showing ${nodes.length} of ${graphData.total_nodes} nodes`
-						: `${graphData.total_nodes} nodes`}{" "}
-					· {graphData.total_edges} edges
-				</p>
-			)}
-
-			{graphError && effectiveSpaceId && (
-				<DataFetchError
-					message={graphError.message}
-					onRetry={() =>
-						graphSwrKey ? mutate(graphSwrKey) : Promise.resolve()
-					}
-				/>
-			)}
-
-			{isInitialLoading && <Skeleton className="flex-1 min-h-0 w-full" />}
-
-			{!isInitialLoading && graphData && (
-				<div className="flex-1 min-h-0 rounded-md border relative">
-					<ForceGraph<GraphNode, GraphEdge>
-						key={effectiveSpaceId}
-						nodes={nodes}
-						edges={edges}
-						onNodeClick={handleNodeClick}
-						onEdgeClick={handleEdgeClick}
-						onBackgroundClick={handleBackgroundClick}
-						isLoading={graphLoading}
-						showZoomLevel="top-right"
+			{spacesError ? (
+				<div className="relative z-10 p-6 pt-24">
+					<DataFetchError
+						message={spacesError.message}
+						onRetry={() =>
+							spacesSwrKey ? mutate(spacesSwrKey) : Promise.resolve()
+						}
 					/>
-					{graphLoading && (
-						<div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
-							<Skeleton className="h-8 w-8 rounded-full" />
+				</div>
+			) : (
+				<>
+					{graphError && effectiveSpaceId && (
+						<div className="relative z-10 p-6 pt-24">
+							<DataFetchError
+								message={graphError.message}
+								onRetry={() =>
+									graphSwrKey ? mutate(graphSwrKey) : Promise.resolve()
+								}
+							/>
 						</div>
 					)}
-					{visibleSelection?.type === "node" && (
-						<NodePopover
-							node={visibleSelection.node}
-							onClose={() => setGraphSelection(null)}
-						/>
+
+					{isInitialLoading && (
+						<div className="absolute inset-0 flex items-center justify-center">
+							<Spinner className="size-6 text-muted-foreground" />
+						</div>
 					)}
-					{visibleSelection?.type === "edge" && (
-						<EdgePopover
-							edge={visibleSelection.edge}
-							nodeMap={nodeMap}
-							onClose={() => setGraphSelection(null)}
-						/>
+
+					{!isInitialLoading && graphData && (
+						<div className="absolute inset-0">
+							<ForceGraph<GraphNode, GraphEdge>
+								key={effectiveSpaceId}
+								nodes={nodes}
+								edges={edges}
+								onNodeClick={handleNodeClick}
+								onEdgeClick={handleEdgeClick}
+								onBackgroundClick={handleBackgroundClick}
+								isLoading={graphLoading}
+								showZoomLevel="bottom-right"
+							/>
+							{graphLoading && (
+								<div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60">
+									<Spinner className="size-6 text-muted-foreground" />
+								</div>
+							)}
+							{visibleSelection?.type === "node" && (
+								<NodePopover
+									node={visibleSelection.node}
+									onClose={() => setGraphSelection(null)}
+								/>
+							)}
+							{visibleSelection?.type === "edge" && (
+								<EdgePopover
+									edge={visibleSelection.edge}
+									nodeMap={nodeMap}
+									onClose={() => setGraphSelection(null)}
+								/>
+							)}
+						</div>
 					)}
-				</div>
+				</>
 			)}
 		</div>
 	);

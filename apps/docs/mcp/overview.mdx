@@ -5,9 +5,9 @@ description: "Connect Crosmos to AI clients with the Model Context Protocol."
 icon: "puzzle-piece"
 ---
 
-Crosmos ships an MCP server for AI clients that support the [Model Context Protocol](https://modelcontextprotocol.io). The server gives agents tools to search memories, add new memories, list spaces, and check API health.
+Crosmos MCP is an optional service for AI clients that support the [Model Context Protocol](https://modelcontextprotocol.io). It gives agents callable tools to search memories, add memories, list spaces, and check API health.
 
-Use MCP when you want Crosmos memory inside an AI client such as Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, opencode, Cline, Roo-Cline, or Zed. Use the [SDKs](/sdks) when you are building Crosmos directly into an application or backend service.
+Use MCP when you want callable Crosmos memory tools in an AI client such as Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, opencode, Cline, Roo-Cline, Zed, or Kimi CLI. Use the [automatic-context plugins](/plugins/claude-code) when you want memory to run through a host's lifecycle, or use the [SDKs](/sdks) when you are building Crosmos into an application or backend service.
 
 ## Interactive setup
 
@@ -15,13 +15,13 @@ Use MCP when you want Crosmos memory inside an AI client such as Claude Desktop,
 npx @crosmos/crosmos-mcp setup
 ```
 
-The setup command authenticates with your Crosmos API key, detects installed MCP clients, writes their config, and can install the Crosmos skill for supported AI editors.
+The setup command authenticates with your Crosmos API key, detects installed MCP clients, writes their configuration, and can install the Crosmos skill for supported AI editors.
 
-It detects Claude Desktop, Claude Code, opencode, Cursor, VS Code, Windsurf, Cline, Roo-Cline, and Zed when they are installed.
+It detects Claude Desktop, Claude Code, opencode, Cursor, VS Code, Windsurf, Cline, Roo-Cline, Zed, and Kimi CLI when they are installed.
 
 ## Authenticate manually
 
-Generate an API key from **Settings -> API Keys** in the [Crosmos Console](https://console.crosmos.dev). Keys use the `csk_` prefix.
+Generate an API key from **Settings → API Keys** in the [Crosmos Console](https://console.crosmos.dev). Keys use the `csk_` prefix.
 
 ```bash
 npx @crosmos/crosmos-mcp auth login
@@ -30,7 +30,7 @@ npx @crosmos/crosmos-mcp auth login
 The login command validates the key and saves credentials to `~/.crosmos/credentials.json` with restricted file permissions.
 
 <Note>
-`CROSMOS_API_KEY` overrides saved credentials. Use environment variables for CI, containers, or client config that should not read from `~/.crosmos`.
+`CROSMOS_API_KEY` overrides saved credentials. Use environment variables for CI, containers, or client configuration that should not read from `~/.crosmos`.
 </Note>
 
 ## Configure a client manually
@@ -125,9 +125,26 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 ```
 
 </Tab>
+<Tab title="Kimi CLI">
+
+```bash
+kimi mcp add --transport stdio crosmos-memory -- npx -y @crosmos/crosmos-mcp
+```
+
+</Tab>
 </Tabs>
 
-Restart the client after changing its MCP config.
+Restart the client after changing its MCP configuration.
+
+## Install the skill
+
+The setup wizard can install the Crosmos skill for supported AI editors. To install it manually:
+
+```bash
+npx @crosmos/crosmos-mcp skill install opencode
+```
+
+See the [skill guide](/mcp/skills) for supported targets and locations.
 
 ## Next steps
 
@@ -137,5 +154,8 @@ Restart the client after changing its MCP config.
 </Card>
 <Card title="Configuration" icon="sliders" href="/mcp/configuration">
   Configure credentials, default spaces, timeouts, and deployment settings.
+</Card>
+<Card title="GitHub repository" icon="github" href="https://github.com/crosmos-labs/crosmos-mcp">
+  Browse the source code, releases, and issues.
 </Card>
 </CardGroup>

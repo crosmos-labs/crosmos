@@ -25,10 +25,15 @@ export default function DashboardLayout({
 						<AppSidebar />
 						<SidebarInset>
 							<PastDueBanner />
-							<DashboardHeader />
-							<div className="flex-1 overflow-auto">
-								<div id="main-content" className="mx-auto max-w-5xl p-6">
-									{children}
+							<div className="relative flex min-h-0 flex-1 flex-col">
+								<DashboardHeader />
+								<div className="flex-1 overflow-auto has-[[data-graph-page]]:overflow-hidden">
+									<div
+										id="main-content"
+										className="mx-auto max-w-5xl p-6 has-[[data-graph-page]]:h-full has-[[data-graph-page]]:max-w-none has-[[data-graph-page]]:p-0"
+									>
+										{children}
+									</div>
 								</div>
 							</div>
 						</SidebarInset>

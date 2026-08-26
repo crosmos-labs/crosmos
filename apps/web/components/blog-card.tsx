@@ -37,10 +37,12 @@ export function BlogCard({
 	thumbnailHeight,
 	className,
 }: BlogCardProps) {
+	const firstName = author.name.split(" ")[0] ?? author.name;
+
 	return (
 		<div
 			className={cn(
-				"group relative flex w-full flex-col overflow-hidden border border-foreground/20 hover:border-foreground/40 transition-all duration-300",
+				"group relative flex h-full w-full flex-col overflow-hidden border border-foreground/20 hover:border-foreground/40 transition-all duration-300",
 				className,
 			)}
 		>
@@ -66,7 +68,7 @@ export function BlogCard({
 					<HoverCardTrigger asChild>
 						<button
 							type="button"
-							className="outline-none"
+							className="flex items-center gap-2 outline-none"
 							onClick={(e) => e.stopPropagation()}
 							onKeyDown={(e) => {
 								if (e.key === "Enter" || e.key === " ") {
@@ -79,6 +81,7 @@ export function BlogCard({
 								<AvatarImage src={author.avatar} alt={author.name} />
 								<AvatarFallback>{author.name.charAt(0)}</AvatarFallback>
 							</Avatar>
+							<span className="text-xs text-foreground">{firstName}</span>
 						</button>
 					</HoverCardTrigger>
 					<HoverCardContent className="flex flex-col gap-2">

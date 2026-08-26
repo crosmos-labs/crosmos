@@ -1,21 +1,21 @@
 ---
 title: "Codex"
-description: "Add persistent memory to the OpenAI Codex CLI."
+description: "Add automatic, persistent context to the OpenAI Codex CLI."
 icon: "/icons/codex.svg"
 ---
 
-The Crosmos Codex plugin adds project memory to the OpenAI Codex CLI. It recalls relevant context before each prompt, saves session context through lifecycle hooks, and gives you a `crosmos-save` skill for explicit notes.
+The Crosmos Codex plugin adds persistent project context to the OpenAI Codex CLI. It recalls relevant context before each prompt and captures completed exchanges after the assistant finishes a turn through Codex lifecycle hooks.
 
-Use this plugin when you want Codex to remember project decisions, preferences, and prior work without manually calling memory tools. If you only need callable memory tools, use [MCP](/mcp/overview) instead.
+MCP is optional. Use it when you need callable Crosmos memory tools in another MCP client. See the [MCP overview](/mcp/overview).
 
 ## Prerequisites
 
 - OpenAI Codex CLI
-- Node.js 18 or later
+- Node.js 20 or later
 - A Crosmos API key from the [Crosmos Console](https://console.crosmos.dev)
-- At least one Crosmos memory space
+- Access to at least one Crosmos memory space
 
-Keys use the `csk_` prefix. The installer can save your key to `~/.crosmos/credentials.json`, or you can set `CROSMOS_API_KEY` before installing.
+Keys use the `csk_` prefix.
 
 ## Install
 
@@ -23,19 +23,35 @@ Keys use the `csk_` prefix. The installer can save your key to `~/.crosmos/crede
 npx @crosmos/codex install
 ```
 
-The installer validates your API key, resolves a memory space, registers Codex hooks, copies the bundled plugin script, and installs the `crosmos-save` skill.
+The installer asks for your API key and lets you select a memory space. Existing verified credentials are reused when available.
 
-After installing, open Codex and run:
+You can select a space explicitly:
 
-```txt
-/hooks
+```bash
+export CROSMOS_API_KEY="csk_..."
+npx @crosmos/codex install --space "<space-id>"
 ```
 
-Review and approve the Crosmos hooks. Codex requires this trust step before non-managed hooks can run.
+The installer can also install these optional Codex skills:
+
+- `$crosmos-status`
+- `$crosmos-recall`
+- `$crosmos-save`
+
+Restart Codex after installation. If the hooks are not active, open Codex and approve or enable the registered Crosmos hooks when prompted.
 
 <Warning>
-Run the package with `npx`. Do not install it globally, because its binary is named `codex` and a global install can shadow the OpenAI Codex CLI.
+Codex's default `workspace-write` sandbox can block outbound API requests from automatic hooks and installed skills. Enable network access in `~/.codex/config.toml`, then restart Codex. See the [Codex advanced configuration](https://learn.chatgpt.com/docs/config-file/config-advanced).
+
+```toml
+[sandbox_workspace_write]
+network_access = true
+```
 </Warning>
+
+## Authentication
+
+The installer stores verified credentials and the selected memory space in `~/.crosmos/credentials.json`. Set `CROSMOS_API_KEY` to override saved credentials.
 
 ## Verify
 
@@ -43,124 +59,82 @@ Run the package with `npx`. Do not install it globally, because its binary is na
 npx @crosmos/codex status
 ```
 
-The status command checks your API key, API base URL, hook registration, installed bundle, installed skill, and resolved memory space.
+The status command checks the API connection, selected memory space, hook runtime, hook registration, and managed skills.
 
-If recall or capture is not running after a successful install, run `/hooks` in Codex and confirm the hooks are approved.
+If recall or capture is not running after a successful install, inspect the hooks in Codex and confirm that they are approved.
 
 ## How it works
 
 The plugin uses Codex lifecycle hooks and the Crosmos SDK. Memory failures do not block your Codex session.
 
 | Hook | When it runs | What it does |
-|------|--------------|--------------|
-| `UserPromptSubmit` | Before each prompt | Searches Crosmos and injects relevant memories as extra context. |
-| `Stop` | At the end of a turn | Captures new meaningful conversation turns. |
-| `PreCompact` | Before compaction | Flushes pending conversation context before it can be lost. |
+| --- | --- | --- |
+| `UserPromptSubmit` | Before each prompt | Searches Crosmos and injects relevant memories into the turn. |
+| `Stop` | After the assistant completes a turn | Captures the completed exchange in the selected memory space. |
+| `PreCompact` | Before compaction | Deferred from v1; pending-memory recovery is not implemented. |
 
-The installed `crosmos-save` skill lets you ask Codex to save a specific note:
+Use the optional skills when you want direct control:
 
-```txt
-Remember that this repo uses Bun for package scripts.
+- `$crosmos-status` — check Crosmos configuration and connectivity.
+- `$crosmos-recall` — search selected-space memory on demand.
+- `$crosmos-save` — submit one private memory for ingestion.
+
+Automatic recall still runs before every prompt, and automatic capture runs after completed turns.
+
+## Commands
+
+```bash
+npx @crosmos/codex install
+npx @crosmos/codex install --space "<space-id>"
+npx @crosmos/codex login
+npx @crosmos/codex status
+npx @crosmos/codex recall "<query>"
+npx @crosmos/codex save "<text>"
+npx @crosmos/codex --help
+npx @crosmos/codex --version
+npx @crosmos/codex uninstall
 ```
-
-Codex can then run the bundled save command with a concise note. Automatic capture still happens through hooks.
 
 ## What gets installed
 
 | Path | Purpose |
-|------|---------|
-| `~/.codex/hooks.json` | Registers the Crosmos Codex hooks. Existing hook entries are preserved. |
-| `~/.codex/crosmos/cli.mjs` | Bundled plugin script that the hooks run. |
-| `~/.codex/skills/crosmos-save/SKILL.md` | Skill instructions for explicit memory saves. |
-| `~/.crosmos/credentials.json` | Local API credentials, saved only when you enter a key during install. |
-
-The installer backs up existing files before it changes them. It does not edit `~/.codex/config.toml`.
+| --- | --- |
+| `$CODEX_HOME/hooks.json` | Registers the Crosmos Codex hooks. Existing unrelated hook entries are preserved. |
+| `$CODEX_HOME/crosmos/` | Managed hook runtime files. |
+| `~/.agents/skills/crosmos-*` | Optional skills managed by Crosmos. |
+| `~/.crosmos/credentials.json` | Local API credentials and selected memory space. |
+| `~/.crosmos/codex.log` | Sanitized hook diagnostics when `CROSMOS_DEBUG` is enabled. |
 
 ## Configuration
 
-Configure the plugin with environment variables or `~/.codex/crosmos.json`. Environment variables override the config file.
+Environment variables override saved credentials where applicable.
 
-| Environment variable | Purpose |
-|----------------------|---------|
-| `CROSMOS_API_KEY` | API key. Overrides saved credentials. |
-| `CROSMOS_API_BASE_URL` | API base URL. Defaults to `https://api.crosmos.dev`. |
-| `CROSMOS_SPACE_ID` | Pin a memory space by UUID. |
-| `CROSMOS_SPACE_NAME` | Resolve and pin a memory space by name. |
-| `CROSMOS_RECALL_LIMIT` | Maximum memories injected per prompt. Defaults to `5`. |
-| `CROSMOS_RECALL_MODE` | Recall mode: `auto`, `always`, or `off`. Defaults to `auto`. |
-| `CROSMOS_CAPTURE_TURNS` | Meaningful turns to batch before capture. Defaults to `3`; set `0` to disable capture. |
-| `CROSMOS_DEBUG` | Write debug logs to `/tmp/crosmos-codex-<session>.log`. |
-
-Example config file:
-
-```json
-{
-  "spaceName": "engineering",
-  "baseUrl": "https://api.crosmos.dev",
-  "recallLimit": 5,
-  "recallMode": "auto",
-  "captureTurns": 3,
-  "debug": false
-}
-```
-
-If neither `spaceId` nor `spaceName` is set, the plugin resolves the first available memory space and caches its ID in `~/.codex/crosmos.json`.
+| Variable | Description |
+| --- | --- |
+| `CROSMOS_API_KEY` | API key used for authentication. |
+| `CROSMOS_API_URL` | Optional Crosmos API URL. When omitted, the SDK supplies its default. |
+| `CROSMOS_DEBUG` | Set to `true`, `1`, `yes`, or `on` to enable sanitized hook diagnostics. Disabled by default. |
 
 ## Troubleshooting
 
+### Check the connection
+
+```bash
+npx @crosmos/codex status
+```
+
+If authentication or the selected space is unavailable, run installation again with a valid API key and, when needed, `--space <space-id>`.
+
 ### Hooks are not running
 
-Open Codex and run:
+Restart Codex, then inspect its hook controls and approve or enable the Crosmos registrations. Confirm that `status` reports the runtime and `hooks.json` as installed.
 
-```txt
-/hooks
-```
-
-Review and approve the Crosmos hooks. If hooks are disabled in `~/.codex/config.toml`, remove this setting:
-
-```toml
-[features]
-hooks = false
-```
-
-### No API key is configured
-
-Set `CROSMOS_API_KEY` or rerun the installer:
+### Enable diagnostics
 
 ```bash
-export CROSMOS_API_KEY="csk_..."
-npx @crosmos/codex install
+export CROSMOS_DEBUG=true
+tail -f ~/.crosmos/codex.log
 ```
-
-### No memory space is available
-
-Create a memory space in the [Crosmos Console](https://console.crosmos.dev), then rerun:
-
-```bash
-npx @crosmos/codex install
-```
-
-You can also pin a specific space with `CROSMOS_SPACE_ID` or `CROSMOS_SPACE_NAME`.
-
-### `CODEX_HOME` points somewhere else
-
-By default, the installer writes to `~/.codex`. If `CODEX_HOME` is set, the installer stops before writing unless you pass `--force`.
-
-```bash
-npx @crosmos/codex install --force
-```
-
-Use `--force` only when you intentionally want to install into that Codex home.
-
-### Debug hook behavior
-
-Enable debug logging:
-
-```bash
-export CROSMOS_DEBUG=1
-```
-
-Logs are written to `/tmp/crosmos-codex-<session>.log`.
 
 ## Uninstall
 
@@ -168,15 +142,18 @@ Logs are written to `/tmp/crosmos-codex-<session>.log`.
 npx @crosmos/codex uninstall
 ```
 
-Uninstall removes the Crosmos hook entries, bundled script, skill directory, and `~/.codex/crosmos.json`. Existing memories in Crosmos are preserved.
+Uninstall removes the Crosmos hook registrations, managed runtime files, and managed skills. It preserves your credentials and remote memories.
 
 ## Next steps
 
 <CardGroup cols={2}>
 <Card title="MCP" icon="puzzle-piece" href="/mcp/overview">
-  Connect Crosmos memory tools to AI clients.
+  Connect Crosmos memory tools to AI clients when you need callable tools.
 </Card>
 <Card title="Memory tools" icon="list-check" href="/mcp/tools">
   See the callable memory tool schemas.
+</Card>
+<Card title="GitHub repository" icon="github" href="https://github.com/crosmos-labs/codex-crosmos">
+  Browse the source code, releases, and issues.
 </Card>
 </CardGroup>

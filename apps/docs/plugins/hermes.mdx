@@ -1,0 +1,182 @@
+---
+title: "Hermes"
+description: "Add automatic, persistent context to Hermes Agent."
+icon: "/icons/hermes.svg"
+---
+
+The Crosmos Hermes plugin adds persistent project context to Hermes Agent. It recalls relevant context before meaningful turns and captures completed exchanges after each turn through the Hermes memory provider.
+
+MCP is optional. Use it when you need callable Crosmos memory tools in another MCP client. See the [MCP overview](/mcp/overview).
+
+## Prerequisites
+
+- [Hermes Agent](https://github.com/NousResearch/hermes-agent) 0.18.2 or later
+- Python 3.11–3.13
+- A Crosmos API key from the [Crosmos Console](https://console.crosmos.dev)
+
+## Install
+
+Install the plugin and configure the Crosmos memory provider:
+
+```bash
+hermes plugins install crosmos-labs/hermes-crosmos
+hermes memory setup crosmos
+```
+
+The setup wizard stores `CROSMOS_API_KEY` in the active Hermes profile's `.env`, writes non-secret settings to `$HERMES_HOME/crosmos.json`, and activates `memory.provider: crosmos`. It prompts for the API URL, default space, and whether newly ingested memories should be private or visible to authorized organization members.
+
+Alternatively, run the installer from a shell:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/crosmos-labs/hermes-crosmos/main/install.sh | bash
+```
+
+Start a new Hermes session after setup or configuration changes.
+
+## Authentication
+
+The setup wizard authenticates with a Crosmos API key and stores it in the active Hermes profile's `.env`:
+
+```dotenv
+CROSMOS_API_KEY=csk_your_key_here
+```
+
+Hermes uses its profile-aware secret scope when the provider reads the key. Rerun setup to replace the active profile's key or configure a different API URL.
+
+## Verify
+
+```bash
+hermes memory status
+```
+
+Start Hermes and ask something that depends on earlier context. Successful automatic recall is displayed as:
+
+```text
+🌌 Crosmos — recalled 3 memories
+```
+
+## How it works
+
+The plugin uses Hermes's memory provider lifecycle and the typed Crosmos Python SDK.
+
+| Lifecycle | When it runs | What it does |
+| --- | --- | --- |
+| Session start | When a session starts | Loads the active profile configuration and resolves the configured space by name, creating it when missing. |
+| Automatic recall | Before meaningful turns | Searches Crosmos and injects relevant memories into the turn. |
+| Automatic capture | After completed turns | Sends the user and assistant exchange to Crosmos. |
+| Profile isolation | When credentials are read | Uses the API key from the active Hermes profile. |
+
+## Tools
+
+The tools are available when the Hermes `memory` toolset is enabled.
+
+| Tool | Inputs | Purpose |
+| --- | --- | --- |
+| `crosmos_recall` | `query`, optional `space_name`, `limit`, `include_source` | Search persistent memories. |
+| `crosmos_remember` | `content`, optional `space_name` | Queue an explicit durable fact for ingestion. |
+| `crosmos_forget` | `memory_id`, optional `space_name` | Forget a memory by ID. |
+
+Recall example:
+
+```json
+{
+  "query": "What package manager does this project use?",
+  "limit": 5
+}
+```
+
+Remember example:
+
+```json
+{
+  "content": "This project uses Bun for package scripts."
+}
+```
+
+Forget example:
+
+```json
+{
+  "memory_id": "memory-id"
+}
+```
+
+## Commands
+
+```bash
+hermes plugins install crosmos-labs/hermes-crosmos
+hermes memory setup crosmos
+hermes memory status
+hermes plugins update crosmos
+hermes config set memory.provider ""
+hermes plugins remove crosmos
+```
+
+Run `hermes memory setup crosmos` again to change the API URL, default space, visibility, or API key.
+
+## Configuration
+
+Behavioral settings live in `$HERMES_HOME/crosmos.json`:
+
+```json
+{
+  "api_url": "https://api.crosmos.dev",
+  "space_name": "hermes-agent",
+  "visibility": "private"
+}
+```
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| `api_url` | `https://api.crosmos.dev` | Crosmos API root. |
+| `space_name` | `hermes-agent` | Space used for automatic recall and ingestion. |
+| `visibility` | `private` | `private` or `org` for newly ingested memories. Organization-visible memories are available to authorized organization members. |
+
+Changing `space_name` switches automatic recall and ingestion for the next Hermes session. Existing memories remain in the previous Crosmos space.
+
+## Troubleshooting
+
+### Configuration changes are not active
+
+Start a new Hermes session after setup or after changing `crosmos.json`.
+
+### Authentication or space setup fails
+
+Run setup again with a valid API key and space configuration:
+
+```bash
+hermes memory setup crosmos
+```
+
+The configured default space is resolved by name and created automatically when the account can create it.
+
+### Provider dependencies are unavailable
+
+Update the installed plugin:
+
+```bash
+hermes plugins update crosmos
+```
+
+## Uninstall
+
+```bash
+hermes config set memory.provider ""
+hermes plugins remove crosmos
+```
+
+Existing credentials and memories in Crosmos are preserved.
+
+## Next steps
+
+<CardGroup cols={2}>
+<Card title="MCP" icon="puzzle-piece" href="/mcp/overview">
+  Connect Crosmos memory tools to AI clients when you need callable tools.
+</Card>
+<Card title="Memory tools" icon="list-check" href="/mcp/tools">
+  See the callable memory tool schemas.
+</Card>
+<Card title="GitHub repository" icon="github" href="https://github.com/crosmos-labs/hermes-crosmos">
+  Browse the source code, releases, and issues.
+</Card>
+</CardGroup>

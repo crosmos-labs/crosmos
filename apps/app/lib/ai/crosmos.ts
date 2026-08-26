@@ -1,15 +1,15 @@
 import "server-only";
 
 import { ApiError, apiFetch } from "@/lib/api";
-import type { MemoryType } from "@/lib/types/memory";
 
 /** Subset of a Crosmos search candidate we care about. */
 export interface SearchCandidate {
 	memory_id: string;
 	content: string;
-	memory_type: MemoryType;
+	memory_type: string;
 	score: number;
 	source?: string | null;
+	source_id: string | null;
 	created_at: string;
 	event_time: string | null;
 	owner_name: string | null;
@@ -74,7 +74,7 @@ export async function searchMemory(args: {
 				limit: clamp(args.limit ?? 6, 1, 50),
 				rerank: true,
 				graph: true,
-				include_source: true,
+				include_source: false,
 			}),
 		});
 		return { candidates: data.candidates };

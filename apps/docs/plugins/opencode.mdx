@@ -1,12 +1,12 @@
 ---
 title: "OpenCode"
-description: "Add automatic, persistent memory to opencode."
+description: "Add automatic, persistent context to OpenCode."
 icon: "/icons/opencode.svg"
 ---
 
-The Crosmos opencode plugin adds project memory to opencode. At the start of a session the agent loads your project's stored context, your conversations are saved automatically, and it recalls and saves durable facts proactively as it works through the `crosmos_recall` and `crosmos_save` tools.
+The Crosmos OpenCode plugin adds persistent project context to OpenCode. At the start of a session the agent loads your project's stored context, your conversations are saved automatically, and it recalls and saves durable facts proactively as it works through the `crosmos_recall` and `crosmos_save` tools.
 
-The plugin makes no model calls of its own, so it behaves the same whichever provider or model you run. Use it when you want opencode to remember project decisions, preferences, and prior work without managing memory by hand. If you only need callable memory tools, use [MCP](/mcp/overview) instead.
+The plugin makes no model calls of its own, so it behaves the same whichever provider or model you run. Use it when you want OpenCode to remember project decisions, preferences, and prior work without managing memory by hand. MCP is optional. Use it when you need callable Crosmos memory tools in another MCP client. See the [MCP overview](/mcp/overview).
 
 ## Prerequisites
 
@@ -141,5 +141,8 @@ Add `--project` to remove it from a project config. Existing memories in Crosmos
 </Card>
 <Card title="Memory tools" icon="list-check" href="/mcp/tools">
   See the callable memory tool schemas.
+</Card>
+<Card title="GitHub repository" icon="github" href="https://github.com/crosmos-labs/opencode-crosmos">
+  Browse the source code, releases, and issues.
 </Card>
 </CardGroup>

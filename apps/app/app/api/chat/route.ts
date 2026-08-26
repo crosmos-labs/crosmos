@@ -159,6 +159,7 @@ export async function POST(req: Request) {
 							results: candidates.map((c) => ({
 								id: c.memory_id,
 								content: c.content.slice(0, MAX_CONTENT_CHARS),
+								source_id: c.source_id,
 								type: c.memory_type,
 								score: Number(c.score.toFixed(3)),
 								owner: c.owner_name,
