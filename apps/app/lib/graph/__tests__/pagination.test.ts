@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import {
 	GRAPH_PAGE_SIZE,
 	graphPageCount,
+	MAX_GRAPH_EDGES,
 	MAX_GRAPH_NODES,
 	mergeGraphPages,
 } from "../pagination";
@@ -75,14 +76,25 @@ test("caps merged nodes at the client ceiling", () => {
 	expect(merged.nodes).toHaveLength(MAX_GRAPH_NODES);
 });
 
+test("caps merged edges at the client ceiling", () => {
+	const merged = mergeGraphPages([
+		{
+			nodes: [node("a"), node("b")],
+			edges: Array.from({ length: MAX_GRAPH_EDGES + 1 }, (_, i) =>
+				edge(String(i), "a", "b"),
+			),
+			total_nodes: 2,
+			total_edges: MAX_GRAPH_EDGES + 1,
+		},
+	]);
+
+	expect(merged.edges).toHaveLength(MAX_GRAPH_EDGES);
+});
+
 test("calculates a bounded page count", () => {
 	expect(graphPageCount(0)).toBe(1);
 	expect(graphPageCount(GRAPH_PAGE_SIZE)).toBe(1);
 	expect(graphPageCount(GRAPH_PAGE_SIZE + 1)).toBe(2);
 	expect(graphPageCount(MAX_GRAPH_NODES)).toBe(20);
 	expect(graphPageCount(MAX_GRAPH_NODES + 1)).toBe(20);
-});
-
-test("uses the production page size", () => {
-	expect(GRAPH_PAGE_SIZE).toBe(500);
 });

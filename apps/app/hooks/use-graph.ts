@@ -114,11 +114,15 @@ export function useGraph(spaceUuid: string | null) {
 	}, [error, isLoadingAll, isValidating]);
 
 	useEffect(() => {
+		if (!orgId && !spaceUuid) return;
 		return () => {
 			pendingLoadAllRef.current?.reject(new Error("Graph load was cancelled"));
 			pendingLoadAllRef.current = null;
+			validationStartedRef.current = false;
+			loadingAllRef.current = false;
+			setIsLoadingAll(false);
 		};
-	}, []);
+	}, [orgId, spaceUuid]);
 
 	const loadAll = useCallback(() => {
 		if (!data || !hasMore || loadingAllRef.current) return Promise.resolve();

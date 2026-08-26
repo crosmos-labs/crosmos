@@ -26,7 +26,7 @@ import {
 	type GraphNode,
 	nodeFromWire,
 } from "@/lib/graph/mappers";
-import { MAX_GRAPH_NODES } from "@/lib/graph/pagination";
+import { MAX_GRAPH_EDGES, MAX_GRAPH_NODES } from "@/lib/graph/pagination";
 
 type GraphSelection =
 	| { type: "node"; scope: string; node: GraphNode }
@@ -84,14 +84,22 @@ export default function GraphPage() {
 	const totalNodeCount = graphData?.total_nodes ?? 0;
 	const totalEdgeCount = graphData?.total_edges ?? 0;
 	const limitReached =
-		loadedNodeCount >= MAX_GRAPH_NODES && loadedNodeCount < totalNodeCount;
+		!hasMore &&
+		((loadedNodeCount >= MAX_GRAPH_NODES && loadedNodeCount < totalNodeCount) ||
+			(loadedEdgeCount >= MAX_GRAPH_EDGES && loadedEdgeCount < totalEdgeCount));
 	const canLoadAll = Boolean(graphData && (hasMore || graphError));
 	const loadAllBusy = state.activeCount > 0 || isLoadingAll || isValidating;
 	const loadAllDisabled = loadAllBusy || !canLoadAll;
 
 	const handleLoadAll = useCallback(() => {
-		runAction(loadAll).catch(() => {});
-	}, [loadAll, runAction]);
+		runAction(
+			graphError
+				? async () => {
+						await retryGraph();
+					}
+				: loadAll,
+		).catch(() => {});
+	}, [graphError, loadAll, retryGraph, runAction]);
 
 	useEffect(() => {
 		setBreadcrumb({ label: "Graph" });

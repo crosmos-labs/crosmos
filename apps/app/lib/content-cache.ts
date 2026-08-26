@@ -1,5 +1,4 @@
 import type { ScopedMutator } from "swr";
-import { unstable_serialize } from "swr/infinite";
 import { graphPrefix } from "@/hooks/use-graph";
 import { memoriesPrefix } from "@/hooks/use-memories";
 import { sourcesPrefix } from "@/hooks/use-sources";
@@ -17,13 +16,11 @@ export function clearContentCaches(
 		graphPrefix(orgId),
 		sourcesPrefix(orgId),
 	];
-	const infiniteGraphPrefix = unstable_serialize(() => graphPrefix(orgId));
 	return mutate(
 		(key) =>
 			typeof key === "string" &&
 			key !== exceptKey &&
-			(prefixes.some((p) => key.startsWith(p)) ||
-				key.startsWith(infiniteGraphPrefix)),
+			prefixes.some((p) => key.startsWith(p)),
 		undefined,
 		{ revalidate: true },
 	).catch(() => {});

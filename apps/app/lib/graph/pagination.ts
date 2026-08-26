@@ -2,6 +2,7 @@ import type { GraphViewportResponse } from "./wire";
 
 export const GRAPH_PAGE_SIZE = 500;
 export const MAX_GRAPH_NODES = 10_000;
+export const MAX_GRAPH_EDGES = 50_000;
 
 export function graphPageCount(totalNodes: number): number {
 	return Math.min(
@@ -22,17 +23,25 @@ export function mergeGraphPages(
 				nodes.set(node.id, node);
 			}
 		}
+	}
+
+	for (const page of pages) {
 		for (const edge of page.edges) {
-			if (!edges.has(edge.id)) edges.set(edge.id, edge);
+			if (edges.size >= MAX_GRAPH_EDGES) break;
+			if (
+				nodes.has(edge.source_entity_id) &&
+				nodes.has(edge.target_entity_id) &&
+				!edges.has(edge.id)
+			) {
+				edges.set(edge.id, edge);
+			}
 		}
+		if (edges.size >= MAX_GRAPH_EDGES) break;
 	}
 
 	return {
 		nodes: [...nodes.values()],
-		edges: [...edges.values()].filter(
-			(edge) =>
-				nodes.has(edge.source_entity_id) && nodes.has(edge.target_entity_id),
-		),
+		edges: [...edges.values()],
 		total_nodes: pages[0]?.total_nodes ?? 0,
 		total_edges: pages[0]?.total_edges ?? 0,
 	};
