@@ -31,7 +31,7 @@
 ### Workspace
 
 | Path | Description | Production |
-|---|---|---|
+| --- | --- | --- |
 | `apps/app` | Console (port 3000) | [console.crosmos.dev](https://console.crosmos.dev) |
 | `apps/web` | Landing page (port 3001) | [crosmos.dev](https://crosmos.dev) |
 | `apps/docs` | Docs (Mintlify) | [docs.crosmos.dev](https://docs.crosmos.dev) |
