@@ -17,6 +17,7 @@ import {
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useApiKeys } from "@/hooks/use-api-keys";
+import { useOrgRole } from "@/hooks/use-org-role";
 import { useSpaces } from "@/hooks/use-spaces";
 import { useUsage } from "@/hooks/use-usage";
 import { usageTone } from "@/lib/usage-progress";
@@ -87,32 +88,70 @@ function StatCard({
 	);
 }
 
-function StatCardSkeleton() {
+function StatCardSkeleton({
+	titleWidth,
+	valueWidth,
+	subtitleWidth,
+	hasProgress,
+}: {
+	titleWidth: string;
+	valueWidth: string;
+	subtitleWidth?: string;
+	hasProgress?: boolean;
+}) {
 	return (
-		<Card className="gap-0">
+		<Card className="gap-0 h-full">
 			<CardHeader className="pb-2">
-				<Skeleton className="h-4 w-20" />
+				<CardTitle>
+					<Skeleton className={`h-4 ${titleWidth}`} />
+				</CardTitle>
 			</CardHeader>
 			<CardContent className="flex flex-col gap-2">
-				<Skeleton className="h-7 w-16" />
+				<div className="flex items-center gap-2">
+					<Skeleton className="h-7 w-4 shrink-0" />
+					<Skeleton className={`h-7 ${valueWidth}`} />
+				</div>
+				{subtitleWidth ? (
+					<Skeleton className={`h-4 ${subtitleWidth}`} />
+				) : (
+					<div className="h-4" aria-hidden="true" />
+				)}
+				{hasProgress && <Skeleton className="h-1.5 w-full rounded-full" />}
 			</CardContent>
 		</Card>
 	);
 }
 
 export function DashboardStats() {
+	const { user, orgId } = useOrgRole();
 	const { data: spaces, isLoading: spacesLoading } = useSpaces();
 	const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
 	const { data: usage, isLoading: usageLoading } = useUsage();
 
-	const isLoading = spacesLoading || keysLoading || usageLoading;
+	const isLoading =
+		!user || !orgId || spacesLoading || keysLoading || usageLoading;
 
 	if (isLoading) {
 		return (
 			<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-				{["spaces", "keys", "tokens", "queries"].map((k) => (
-					<StatCardSkeleton key={k} />
-				))}
+				<StatCardSkeleton titleWidth="w-16" valueWidth="w-8" />
+				<StatCardSkeleton
+					titleWidth="w-20"
+					valueWidth="w-8"
+					subtitleWidth="w-24"
+				/>
+				<StatCardSkeleton
+					titleWidth="w-16"
+					valueWidth="w-20"
+					subtitleWidth="w-28"
+					hasProgress
+				/>
+				<StatCardSkeleton
+					titleWidth="w-20"
+					valueWidth="w-12"
+					subtitleWidth="w-20"
+					hasProgress
+				/>
 			</div>
 		);
 	}
